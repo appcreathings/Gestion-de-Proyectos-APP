@@ -1,33 +1,61 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect, type ReactNode } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ConnectScreen } from "@/features/connect/ConnectScreen";
-import { DashboardPage } from "@/features/dashboard/DashboardPage";
-import { SettingsPage } from "@/features/settings/SettingsPage";
-import { ProductsPage } from "@/features/products/ProductsPage";
-import { ProjectsPage } from "@/features/projects/ProjectsPage";
-import { ProjectDetailPage } from "@/features/projects/ProjectDetailPage";
-import { LibraryPage } from "@/features/library/LibraryPage";
-import { AutomationsPage } from "@/features/automations/AutomationsPage";
-import { NotificationsPage } from "@/features/notifications/NotificationsPage";
 import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
+
+// Route-level code-splitting: each page ships in its own chunk.
+const DashboardPage = lazy(() =>
+  import("@/features/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage })),
+);
+const ProductsPage = lazy(() =>
+  import("@/features/products/ProductsPage").then((m) => ({ default: m.ProductsPage })),
+);
+const ProjectsPage = lazy(() =>
+  import("@/features/projects/ProjectsPage").then((m) => ({ default: m.ProjectsPage })),
+);
+const ProjectDetailPage = lazy(() =>
+  import("@/features/projects/ProjectDetailPage").then((m) => ({
+    default: m.ProjectDetailPage,
+  })),
+);
+const LibraryPage = lazy(() =>
+  import("@/features/library/LibraryPage").then((m) => ({ default: m.LibraryPage })),
+);
+const AutomationsPage = lazy(() =>
+  import("@/features/automations/AutomationsPage").then((m) => ({
+    default: m.AutomationsPage,
+  })),
+);
+const NotificationsPage = lazy(() =>
+  import("@/features/notifications/NotificationsPage").then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
+const SettingsPage = lazy(() =>
+  import("@/features/settings/SettingsPage").then((m) => ({ default: m.SettingsPage })),
+);
+
+function page(el: ReactNode) {
+  return <Suspense fallback={<Loading />}>{el}</Suspense>;
+}
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
     children: [
-      { index: true, element: <DashboardPage /> },
-      { path: "products", element: <ProductsPage /> },
-      { path: "projects", element: <ProjectsPage /> },
-      { path: "projects/:id", element: <ProjectDetailPage /> },
-      { path: "library", element: <LibraryPage /> },
-      { path: "automations", element: <AutomationsPage /> },
-      { path: "notifications", element: <NotificationsPage /> },
-      { path: "settings", element: <SettingsPage /> },
+      { index: true, element: page(<DashboardPage />) },
+      { path: "products", element: page(<ProductsPage />) },
+      { path: "projects", element: page(<ProjectsPage />) },
+      { path: "projects/:id", element: page(<ProjectDetailPage />) },
+      { path: "library", element: page(<LibraryPage />) },
+      { path: "automations", element: page(<AutomationsPage />) },
+      { path: "notifications", element: page(<NotificationsPage />) },
+      { path: "settings", element: page(<SettingsPage />) },
     ],
   },
 ]);

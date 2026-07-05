@@ -11,8 +11,9 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessageList } from "./ChatMessageList";
 
 /**
- * Global assistant side panel (Ctrl/Cmd+J). Mounted once in AppLayout, to the
- * right of <main>, so the conversation survives route changes.
+ * Global assistant side panel (Ctrl/Cmd+J). Lazy-mounted from AppLayout while
+ * open; the conversation lives in useChatStore, so it survives route changes
+ * and panel unmounts. The Ctrl/Cmd+J shortcut is registered in AppLayout.
  */
 export function AssistantPanel() {
   const open = useChatStore((s) => s.open);
@@ -34,18 +35,6 @@ export function AssistantPanel() {
   useEffect(() => {
     if (!hydrated) void hydrateFromIdb();
   }, [hydrated, hydrateFromIdb]);
-
-  // Ctrl/Cmd+J toggles the panel (same pattern as the Cmd+K palette).
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        toggleOpen();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [toggleOpen]);
 
   // Move focus into the panel when it opens.
   useEffect(() => {

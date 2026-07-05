@@ -1,3 +1,4 @@
+import { Suspense, lazy, useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -17,7 +18,13 @@ import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
 import { useChatStore } from "@/store/useChatStore";
 import { CommandPalette } from "@/features/command/CommandPalette";
-import { AssistantPanel } from "@/features/assistant/AssistantPanel";
+
+// Lazy: solo se descarga la primera vez que se abre el panel (Ctrl/Cmd+J).
+const AssistantPanel = lazy(() =>
+  import("@/features/assistant/AssistantPanel").then((m) => ({
+    default: m.AssistantPanel,
+  })),
+);
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -34,6 +41,19 @@ export function AppLayout() {
   const unread = useDataStore((s) => s.notifications.filter((n) => !n.read).length);
   const assistantOpen = useChatStore((s) => s.open);
   const toggleAssistant = useChatStore((s) => s.toggleOpen);
+
+  // Ctrl/Cmd+J toggles the assistant (same pattern as the Cmd+K palette).
+  // Registered here (not in AssistantPanel) so it works while the panel is unmounted.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        toggleAssistant();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [toggleAssistant]);
 
   return (
     <div className="flex h-full">
@@ -128,8 +148,12 @@ export function AppLayout() {
         </main>
       </div>
 
-      {/* Global AI assistant — mounted once so the chat survives navigation */}
-      <AssistantPanel />
+      {/* Global AI assistant — lazy-mounted while open; the chat lives in useChatStore */}
+      {assistantOpen && (
+        <Suspense fallback={null}>
+          <AssistantPanel />
+        </Suspense>
+      )}
 
       {/* Global command palette — mounted once at layout level */}
       <CommandPalette />
