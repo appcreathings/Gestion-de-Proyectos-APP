@@ -1,18 +1,28 @@
-import { createReadTools } from "./readTools";
-import { createWriteTools } from "./writeTools";
+import { createReadTools } from "./read/index";
+import { createWriteTools } from "./write/index";
+import { createCompositeTools } from "./compositTools";
 import { toFunctionDeclaration, type FunctionDeclarationLike } from "./schema";
 import type { AiTool, ToolContext } from "./types";
 
 /** Full MCP-style tool registry bound to a context (real stores or test fakes). */
 export function createAiTools(ctx: ToolContext): AiTool[] {
-  return [...createReadTools(ctx), ...createWriteTools(ctx)];
+  return [
+    ...createReadTools(ctx),
+    ...createWriteTools(ctx),
+    ...createCompositeTools(ctx),
+  ];
 }
 
-export function getFunctionDeclarations(tools: AiTool[]): FunctionDeclarationLike[] {
+export function getFunctionDeclarations(
+  tools: AiTool[],
+): FunctionDeclarationLike[] {
   return tools.map(toFunctionDeclaration);
 }
 
-export function findTool(tools: AiTool[], name: string): AiTool | undefined {
+export function findTool(
+  tools: AiTool[],
+  name: string,
+): AiTool | undefined {
   return tools.find((t) => t.name === name);
 }
 
@@ -47,6 +57,9 @@ export async function callTool(
     const result = await tool.execute(parsed.data);
     return { ok: true, result };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : String(e),
+    };
   }
 }

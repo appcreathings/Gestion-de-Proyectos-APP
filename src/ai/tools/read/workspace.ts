@@ -1,20 +1,8 @@
 import { z } from "zod";
-import type { AiTool, ToolContext } from "./types";
-import { defineTool } from "./types";
-import { Health, ProductStatus, ProjectStatus } from "@/domain/schemas";
 import { computePortfolio } from "@/features/dashboard/portfolio";
-import { daysUntil } from "@/domain/compute";
-import {
-  automationView,
-  notificationView,
-  personView,
-  productView,
-  projectDetail,
-  projectSummary,
-  taskView,
-} from "./serializers";
+import { defineTool, type AiTool, type ToolContext } from "../types";
 
-export function createReadTools(ctx: ToolContext): AiTool[] {
+export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
   const { getData, getWorkspace } = ctx;
 
   return [
@@ -33,7 +21,12 @@ export function createReadTools(ctx: ToolContext): AiTool[] {
           dueSoonDays: 7,
           deriveHealth: false,
         };
-        const stats = computePortfolio(data.projects, data.products, settings, new Date());
+        const stats = computePortfolio(
+          data.projects,
+          data.products,
+          settings,
+          new Date(),
+        );
         return {
           org: ws?.org.name ?? null,
           totalProjects: stats.total,
@@ -53,55 +46,12 @@ export function createReadTools(ctx: ToolContext): AiTool[] {
             daysLeft: r.d,
             projectId: r.projectId,
           })),
-          stalledProjects: stats.stalled.map((p) => ({ id: p.id, name: p.name })),
+          stalledProjects: stats.stalled.map((p) => ({
+            id: p.id,
+            name: p.name,
+          })),
           byProduct: stats.byProduct,
         };
-      },
-    }),
-
-    defineTool({
-      name: "list_products",
-      description: "Lista los productos del workspace, con filtro opcional por estado.",
-      mode: "read",
-      input: z.object({ status: ProductStatus.optional() }),
-      execute: ({ status }) =>
-        getData()
-          .products.filter((p) => !status || p.status === status)
-          .map(productView),
-    }),
-
-    defineTool({
-      name: "list_projects",
-      description:
-        "Lista proyectos como resúmenes (estado, salud, avance, conteo de tareas). Filtros opcionales por estado, producto o salud.",
-      mode: "read",
-      input: z.object({
-        status: ProjectStatus.optional(),
-        productId: z.string().optional(),
-        health: Health.optional(),
-      }),
-      execute: ({ status, productId, health }) =>
-        getData()
-          .projects.filter(
-            (p) =>
-              (!status || p.status === status) &&
-              (!productId || p.productId === productId) &&
-              (!health || p.health === health),
-          )
-          .map(projectSummary),
-    }),
-
-    defineTool({
-      name: "get_project",
-      description:
-        "Detalle completo de un proyecto: áreas con checklists e ítems (con sus ids), procesos y tareas. Necesario antes de escrituras que requieren ids internos (áreas, checklists, ítems).",
-      mode: "read",
-      input: z.object({ projectId: z.string() }),
-      execute: ({ projectId }) => {
-        const data = getData();
-        const p = data.projects.find((x) => x.id === projectId);
-        if (!p) throw new Error(`Proyecto no encontrado: ${projectId}`);
-        return projectDetail(p, data.people);
       },
     }),
 
@@ -124,7 +74,12 @@ export function createReadTools(ctx: ToolContext): AiTool[] {
         }
         for (const p of data.projects) {
           if (hit(p.name) || hit(p.description))
-            matches.push({ kind: "project", id: p.id, name: p.name, status: p.status });
+            matches.push({
+              kind: "project",
+              id: p.id,
+              name: p.name,
+              status: p.status,
+            });
           for (const t of p.tasks) {
             if (hit(t.title))
               matches.push({
@@ -159,7 +114,8 @@ export function createReadTools(ctx: ToolContext): AiTool[] {
             matches.push({ kind: "checklistTemplate", id: t.id, name: t.name });
         }
         for (const t of data.projectTypes) {
-          if (hit(t.name)) matches.push({ kind: "projectType", id: t.id, name: t.name });
+          if (hit(t.name))
+            matches.push({ kind: "projectType", id: t.id, name: t.name });
         }
         return matches.slice(0, 50);
       },
