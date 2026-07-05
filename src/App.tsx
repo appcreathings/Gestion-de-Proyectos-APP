@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, type ReactNode } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AppGate } from "@/components/layout/AppGate";
@@ -94,6 +94,28 @@ const router = createBrowserRouter([
   { path: "/docs", element: page(<DocsPage />) },
   { path: "/blogs", element: page(<BlogIndexPage />) },
   { path: "/blogs/:slug", element: page(<BlogPostPage />) },
+  // Redirecciones por renombre de slugs (SEO-friendly, conserva link equity)
+  { path: "/blog", element: <Navigate to="/blogs" replace /> },
+  {
+    path: "/blogs/soberania-datos-ventaja-competitiva",
+    element: <Navigate to="/blogs/gestion-proyectos-sin-nube" replace />,
+  },
+  {
+    path: "/blogs/documentar-procesos-equipo",
+    element: <Navigate to="/blogs/como-documentar-procesos-equipos" replace />,
+  },
+  {
+    path: "/blogs/asistente-ia-sin-entrenar-modelos",
+    element: <Navigate to="/blogs/asistente-ia-proyectos-sin-datos" replace />,
+  },
+  {
+    path: "/blogs/menos-herramientas-mas-claridad",
+    element: <Navigate to="/blogs/organizar-proyectos-tareas-jerarquia" replace />,
+  },
+  {
+    path: "/blogs/automatizaciones-sin-nube",
+    element: <Navigate to="/blogs/automatizar-tareas-sin-nube" replace />,
+  },
   {
     path: "/app",
     element: <AppGate />,

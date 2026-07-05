@@ -1,5 +1,33 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/blog", "destination": "/blogs", "permanent": true },
+    {
+      "source": "/blogs/soberania-datos-ventaja-competitiva",
+      "destination": "/blogs/gestion-proyectos-sin-nube",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/documentar-procesos-equipo",
+      "destination": "/blogs/como-documentar-procesos-equipos",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/asistente-ia-sin-entrenar-modelos",
+      "destination": "/blogs/asistente-ia-proyectos-sin-datos",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/menos-herramientas-mas-claridad",
+      "destination": "/blogs/organizar-proyectos-tareas-jerarquia",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/automatizaciones-sin-nube",
+      "destination": "/blogs/automatizar-tareas-sin-nube",
+      "permanent": true
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {
