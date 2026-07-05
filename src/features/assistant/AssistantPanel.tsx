@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AlertTriangle, BarChart3, MessageSquarePlus, Settings, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 export function AssistantPanel() {
+  const navigate = useNavigate();
   const open = useChatStore((s) => s.open);
   const toggleOpen = useChatStore((s) => s.toggleOpen);
   const messages = useChatStore((s) => s.messages);
@@ -33,6 +34,7 @@ export function AssistantPanel() {
 
   const panelRef = useRef<HTMLElement>(null);
   const [showRateLimit, setShowRateLimit] = useState(false);
+  const isDesktop = useBreakpoint("lg");
 
   useEffect(() => {
     if (!hydrated) void hydrateFromIdb();
@@ -49,7 +51,6 @@ export function AssistantPanel() {
   if (!open) return null;
 
   const streaming = status === "streaming" || status === "awaiting-confirmation";
-  const isDesktop = useBreakpoint("lg");
 
   const activeDef = getModelDef(config.model);
   const canUsePreferred = hasKey ? rateLimiter.canMakeRequest(config.model) : false;
@@ -76,12 +77,13 @@ export function AssistantPanel() {
         ref={panelRef}
         aria-label="Asistente IA"
         className={cn(
-          "flex flex-col bg-card/30",
+          "relative flex flex-col overflow-hidden",
           isDesktop
-            ? "w-[400px] shrink-0 border-l"
-            : "fixed inset-0 z-50 border-0",
+            ? "w-[400px] shrink-0 border-l bg-card"
+            : "fixed inset-0 z-50 border-0 bg-card",
         )}
       >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <Sparkles className="size-4 text-primary" />
         <h2 className="text-sm font-semibold">Asistente</h2>
@@ -115,14 +117,17 @@ export function AssistantPanel() {
               <MessageSquarePlus className="size-4" />
             </Button>
           )}
-          <Link
-            to={ROUTES.settings("ia")}
+          <button
+            onClick={() => {
+              toggleOpen(false);
+              navigate(ROUTES.settings("ia"));
+            }}
             title="Ajustes del asistente"
             aria-label="Ajustes del asistente"
             className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <Settings className="size-4" />
-          </Link>
+          </button>
           <Button
             variant="ghost"
             size="icon"

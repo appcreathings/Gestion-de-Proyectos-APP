@@ -169,6 +169,8 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
 
 function MobileBottomNav({ onMoreClick }: { onMoreClick: () => void }) {
   const unread = useDataStore((s) => s.notifications.filter((n) => !n.read).length);
+  const assistantOpen = useChatStore((s) => s.open);
+  const toggleAssistant = useChatStore((s) => s.toggleOpen);
 
   return (
     <nav
@@ -191,6 +193,18 @@ function MobileBottomNav({ onMoreClick }: { onMoreClick: () => void }) {
           <span>{label}</span>
         </NavLink>
       ))}
+      <button
+        onClick={() => toggleAssistant()}
+        aria-pressed={assistantOpen}
+        className={cn(
+          "flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[10px] transition-colors",
+          assistantOpen ? "text-foreground" : "text-muted-foreground",
+        )}
+        aria-label="Asistente"
+      >
+        <Sparkles className="size-5" />
+        <span>Asistente</span>
+      </button>
       <button
         onClick={onMoreClick}
         className="relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[10px] text-muted-foreground"
