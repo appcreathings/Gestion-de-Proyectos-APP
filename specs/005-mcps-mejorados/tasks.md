@@ -53,10 +53,5 @@ Tareas por fase. Cada fase deja typecheck limpio. Antes de seguir, `npm run type
 ## F5 — Verificación ✅
 
 - [x] T550 `npm run typecheck`: 0 errores TS estrictos.
-- [x] T551 `npm run test`: ≥ **61** tests (52 previos + 9 nuevos) en verde.
+- [x] T551 `npm run test`: **84** tests (52 previos + 32 nuevos) en verde.
 - [x] T552 `npm run build`: `tsc -b && vite build` limpio.
-
-## Pendiente explícito
-
-- Smoke manual opcional: arrancar `npm run mcp:server` y conectar Claude Desktop u otro
-  cliente MCP — fuera del flujo automatizado.

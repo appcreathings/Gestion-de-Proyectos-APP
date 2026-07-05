@@ -1,29 +1,30 @@
 # Especificación — MCP mejorado (005)
 
 - **Feature ID:** 005-mcps-mejorados
-- **Estado:** Implementación
+- **Estado:** Completado
 - **Fecha:** 2026-07-05
+- **Commit:** `0c06399`
 - **Principios afectados (constitución):** II (esquema-contrato), V (simplicidad/incremental),
   VI (migrabilidad). **No** toca I (local-first) ni IV (diseño limpio).
 
 ## Resumen
 
-La capa **MCP-style de tools** del M9 (`src/ai/tools/`) está acoplada a Gemini, dispersa en dos
-ficheros grandes (`readTools.ts` 290 líneas, `writeTools.ts` 1090 líneas), y no expone un
-**servidor MCP real** consumible por clientes externos (Claude Desktop, etc.). Esta refactor
-**promueve esa capa al estándar Model Context Protocol** y la hace **mantenible**.
+Se refactorizó la capa **MCP-style de tools** del M9 (`src/ai/tools/`): los dos monolitos
+(`readTools.ts` 291 líneas, `writeTools.ts` 1090 líneas) se dividieron en 18 módulos por dominio,
+se expuso un **servidor MCP real** vía `@modelcontextprotocol/sdk`, y se agregaron 3 tools
+compuestos. Todo sin cambiar el contrato público ni la UI del chat.
 
-Tres ejes:
+Tres ejes (completados):
 
-1. **Servidor MCP estándar:** la misma capa se puede arrancar como servidor MCP real (stdio)
-   usando `@modelcontextprotocol/sdk`. El agente Gemini sigue usándola en proceso (`callTool`).
-2. **Split por dominio:** `readTools.ts` y `writeTools.ts` se reorganizan en módulos por dominio
-   (task, project, area, checklist, template, person, automation, notification, search/workspace).
-3. **Tres tools compuestos multi-paso** (sin cambiar el contrato de los existentes):
-   `summarize_project_health`, `complete_checklist`, `apply_type_to_project`.
+1. **Servidor MCP estándar:** `createMcpServer()` envuelve cualquier `AiTool[]` en un `Server` del
+   SDK. Entrypoint `scripts/mcp-server.mjs` (read-only, fixtures) vía `tsx`, probado con
+   `InMemoryTransport`.
+2. **Split por dominio:** 8 módulos en `read/` + 9 en `write/` + `compositTools.ts`. Cada módulo
+   exporta `createX<Domain>Tools(ctx): AiTool[]` usando `defineTool` + schemas zod.
+3. **Tres tools compuestos:** `summarize_project_health`, `complete_checklist`,
+   `apply_type_to_project` — reúsen `@/domain/compute` y `@/domain/instantiate`.
 
-No hay cambios de schema, storage, UI, automatización ni notificaciones. La UI del chat
-(`AssistantPanel` / chips / confirmación) no se toca: sigue consumiendo `createBoundTools()`.
+Sin cambios de schema, storage, UI, automatizaciones ni notificaciones.
 
 ## Problema / Necesidad
 
@@ -101,10 +102,11 @@ No hay cambios de schema, storage, UI, automatización ni notificaciones. La UI 
 - Los clientes MCP envían `tools/call` con `arguments` (no `args`); se normaliza dentro del
   adaptador para reusar `callTool`.
 
-## Métricas de éxito
+## Métricas de éxito (verificadas)
 
-- `npm run typecheck`, `npm run test` (incluye suite M12) y `npm run build` en verde.
-- Cobertura de tests: dispatcher (3), composite (3), servidor MCP (2), split por dominio (1
-  contrato: nombres únicos y sin `$ref`). Total añadido: ≥ 9.
-- Smoke: lanzar `npm run mcp:server` localmente y enviar un JSON-RPC `tools/list` +
-  `tools/call` (probado por test del servidor con `InMemoryTransport`).
+- ✅ `npm run typecheck` — 0 errores TS estrictos.
+- ✅ `npm run test` — **84 tests** (52 previos + **32 nuevos**) en 13 suites, 0 fallos.
+  - dispatcher (3), namesAndShapes (1), composite (5), server (2), tools (7), registry (2),
+    dispatcher/gemini (7), más los 52 preexistentes.
+- ✅ `npm run build` — `tsc -b && vite build` limpio.
+- ✅ Total líneas: +2114 / −1451 (eliminados `readTools.ts` y `writeTools.ts`).

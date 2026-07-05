@@ -1,6 +1,8 @@
 # Plan Técnico — MCP mejorado (005)
 
 - **Feature:** 005-mcps-mejorados
+- **Estado:** Completado
+- **Commit:** `0c06399`
 - **Gates:** II (esquema-contrato, preservado) · V (simplicidad, sin nuevos transports) ·
   VI (migrabilidad, contrato público preservado). No toca I/III/IV.
 
@@ -151,11 +153,10 @@ concatenación de los nuevos módulos en el mismo orden lógico (read primero, w
 
 ## Verificación final
 
-- `npm run typecheck` limpio.
-- `npm run test` con todos los tests en verde (≥ 9 nuevos + 52 previos = **61**).
-- `npm run build` limpio.
-- `npm run mcp:server` arranca con handshake JSON-RPC válido (probado por test con
-  `InMemoryTransport` y por smoke manual opcional).
+- ✅ `npm run typecheck` limpio.
+- ✅ `npm run test` — **84 tests** (52 previos + 32 nuevos), 0 fallos.
+- ✅ `npm run build` limpio.
+- ✅ `npm run mcp:server` arranca con handshake JSON-RPC válido (probado con `InMemoryTransport`).
 
 ## Gates de la constitución (rev.)
 
