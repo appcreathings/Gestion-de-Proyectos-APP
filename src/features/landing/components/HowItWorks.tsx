@@ -12,7 +12,7 @@ export function HowItWorks() {
   return (
     <section id="como-funciona" className="border-b border-border/60">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
-        <div className="mx-auto mb-16 max-w-2xl text-center sm:mb-20">
+        <div className="mb-16 max-w-2xl sm:mb-20">
           <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
             Cómo funciona
           </p>
@@ -29,12 +29,12 @@ export function HowItWorks() {
           {STEPS.map((s, i) => {
             const Icon = s.icon;
             return (
-              <div key={s.label} className="relative flex flex-col gap-3 rounded-2xl border border-border/60 bg-background p-6">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              <div key={s.label} className="group relative flex flex-col gap-3 rounded-2xl border border-border/60 bg-background p-6 transition-colors duration-300 hover:border-primary/30">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-primary">
                   Paso {i + 1}
                 </span>
-                <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/50">
-                  <Icon className="size-5" />
+                <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/50 transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary/[0.06]">
+                  <Icon className="size-5 transition-colors duration-300 group-hover:text-primary" />
                 </div>
                 <h3 className="text-sm font-semibold tracking-tight">{s.label}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{s.desc}</p>

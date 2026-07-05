@@ -56,10 +56,13 @@ export function UseCases() {
           {CASES.map((c) => {
             const Icon = c.icon;
             return (
-              <article key={c.industry} className="flex flex-col gap-4 bg-background p-7">
+              <article
+                key={c.industry}
+                className="group flex flex-col gap-4 bg-background p-7 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/[0.03]"
+              >
                 <div className="flex items-center justify-between">
-                  <div className="flex size-10 items-center justify-center rounded-lg border border-border">
-                    <Icon className="size-5" />
+                  <div className="flex size-10 items-center justify-center rounded-lg border border-border transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary/[0.06]">
+                    <Icon className="size-5 transition-colors duration-300 group-hover:text-primary" />
                   </div>
                   <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                     Caso

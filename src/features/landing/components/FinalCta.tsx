@@ -20,7 +20,7 @@ export function FinalCta() {
         </p>
 
         <h2 className="mx-auto max-w-2xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-          Listo para tener el control de tus datos y proyectos?
+          ¿Listo para tener el control de tus datos y proyectos?
         </h2>
 
         <p className="mx-auto mt-6 max-w-xl text-pretty text-muted-foreground sm:text-lg">

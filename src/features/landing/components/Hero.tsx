@@ -20,25 +20,25 @@ export function Hero() {
             "linear-gradient(hsl(var(--border)/0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border)/0.5) 1px, transparent 1px)",
           backgroundSize: "56px 56px",
           maskImage:
-            "radial-gradient(ellipse_60%_50%_at_50%_30%,#000,transparent)",
+            "radial-gradient(ellipse 60% 50% at 50% 30%, #000, transparent)",
           WebkitMaskImage:
-            "radial-gradient(ellipse_60%_50%_at_50%_30%,#000,transparent)",
+            "radial-gradient(ellipse 60% 50% at 50% 30%, #000, transparent)",
         }}
       />
 
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-32 sm:pt-40">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.06] px-3 py-1 text-xs font-medium text-primary backdrop-blur">
             <span className="relative flex size-1.5">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-              <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-success" />
             </span>
             Local-first · Sin nube · Sin cuenta · MIT
           </div>
 
           <h1 className="text-balance text-5xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
             Gestioná proyectos, procesos y equipos{" "}
-            <span className="text-muted-foreground">sin rendir cuentas a la nube.</span>
+            <span className="text-primary/70">sin rendir cuentas a la nube.</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
@@ -67,15 +67,17 @@ export function Hero() {
                 key={s}
                 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80"
               >
-                <Check className="size-3 text-emerald-500" />
+                <Check className="size-3 text-success" />
                 {s}
               </span>
             ))}
           </div>
 
-          <p className="mt-8 font-mono text-xs text-muted-foreground/70">
-            proyectos/*.json  ·  sin servidor  ·  MIT
-          </p>
+          <div className="mx-auto mt-10 inline-flex max-w-full items-center gap-2 overflow-x-auto rounded-lg border border-border/60 bg-muted/40 px-4 py-2 font-mono text-xs text-muted-foreground">
+            <span className="text-primary/70">proyectos/</span>
+            <span>q3-lanzamiento.json</span>
+            <span className="text-muted-foreground/50">— editable, versionable, tuyo</span>
+          </div>
         </div>
       </div>
     </section>

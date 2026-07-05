@@ -51,17 +51,22 @@ export function FeatureHighlights() {
         </div>
 
         <div className="grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border sm:grid-cols-2">
-          {FEATURES.map((f) => {
+          {FEATURES.map((f, i) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className="bg-background p-8">
-                <div className="mb-5 flex size-10 items-center justify-center rounded-lg border border-border bg-background">
-                  <Icon className="size-5 text-foreground" />
+              <div
+                key={f.title}
+                className={`group relative bg-background p-8 transition-colors duration-300 hover:bg-primary/[0.03] ${
+                  i === 0 ? "sm:col-span-2" : ""
+                }`}
+              >
+                <div className="mb-5 flex size-10 items-center justify-center rounded-lg border border-border bg-background transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary/[0.06]">
+                  <Icon className="size-5 text-foreground transition-colors duration-300 group-hover:text-primary" />
                 </div>
                 <h3 className="text-lg font-semibold tracking-tight">
                   {f.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
                   {f.body}
                 </p>
               </div>

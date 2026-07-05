@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Flag, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,23 @@ const NAV_LINKS = [
 
 export function LandingNav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 bg-background/60 backdrop-blur-md">
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 backdrop-blur-md transition-colors duration-300 ${
+        scrolled
+          ? "border-b border-border/60 bg-background/90 shadow-sm"
+          : "border-b border-transparent bg-background/60"
+      }`}
+    >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link to={ROUTES.landing} className="flex items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-md bg-foreground text-background">

@@ -15,21 +15,23 @@ const COLUMNS = [
   {
     title: "Recursos",
     links: [
-      { label: "Documentación", href: "#" },
-      { label: "Código fuente", href: "#" },
-      { label: "Reportar issue", href: "#" },
+      { label: "Documentación", href: "https://hito.autos/" },
+      { label: "Código fuente", href: "https://hito.autos/" },
+      { label: "Reportar issue", href: "https://hito.autos/" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Licencia MIT", href: "#" },
-      { label: "Privacidad", href: "#" },
+      { label: "Licencia MIT", href: "https://hito.autos/" },
+      { label: "Privacidad", href: "https://hito.autos/" },
     ],
   },
 ];
 
 export function LandingFooter() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="border-t border-border/60">
       <div className="mx-auto max-w-6xl px-6 py-16">
@@ -70,7 +72,7 @@ export function LandingFooter() {
 
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-border/60 pt-8 sm:flex-row sm:items-center">
           <p className="font-mono text-xs text-muted-foreground">
-            © 2024 Hito · Hecho con cuidado para equipos que valoran su privacidad.
+            © {year} Hito · Hecho con cuidado para equipos que valoran su privacidad.
           </p>
           <p className="font-mono text-xs text-muted-foreground">
             v0.1 · MIT

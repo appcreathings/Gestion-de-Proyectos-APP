@@ -16,8 +16,9 @@ export function ProductMockup() {
             <span className="size-2.5 rounded-full bg-foreground/15" />
             <span className="size-2.5 rounded-full bg-foreground/15" />
           </div>
-          <div className="rounded-md bg-muted px-3 py-0.5 font-mono text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-0.5 font-mono text-[10px] text-muted-foreground">
             hito / Proyectos / Q3 Lanzamiento
+            <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">.json</span>
           </div>
           <div className="w-12" />
         </div>

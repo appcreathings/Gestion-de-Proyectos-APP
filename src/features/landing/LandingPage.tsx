@@ -5,7 +5,7 @@ import { ProductMockup } from "./components/ProductMockup";
 import { ValueProps } from "./components/ValueProps";
 import { HowItWorks } from "./components/HowItWorks";
 import { FeatureHighlights } from "./components/FeatureHighlights";
-import { Testimonials } from "./components/Testimonials";
+import { Comparison } from "./components/Comparison";
 import { UseCases } from "./components/UseCases";
 import { Faq } from "./components/Faq";
 import { FinalCta } from "./components/FinalCta";
@@ -95,7 +95,7 @@ export function LandingPage() {
         <Reveal delay={50}><ValueProps /></Reveal>
         <Reveal delay={100}><HowItWorks /></Reveal>
         <Reveal delay={150}><FeatureHighlights /></Reveal>
-        <Reveal delay={200}><Testimonials /></Reveal>
+        <Reveal delay={200}><Comparison /></Reveal>
         <Reveal delay={250}><UseCases /></Reveal>
         <Reveal delay={300}><Faq /></Reveal>
         <Reveal delay={150}><FinalCta /></Reveal>

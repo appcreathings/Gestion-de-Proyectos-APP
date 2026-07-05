@@ -62,11 +62,11 @@ function FaqItem({
         />
       </button>
       <div
-        className={`overflow-hidden transition-all duration-300 ${
-          open ? "max-h-96 pb-5" : "max-h-0"
+        className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ${
+          open ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]"
         }`}
       >
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="min-h-0 text-sm leading-relaxed text-muted-foreground">
           {answer}
         </p>
       </div>

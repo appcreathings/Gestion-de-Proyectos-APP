@@ -8,9 +8,23 @@ type Props = {
 
 export function Reveal({ children, className = "", delay = 0 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mql.matches);
+    const onChange = () => setReducedMotion(mql.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setVisible(true);
+      return;
+    }
+
     const el = ref.current;
     if (!el) return;
 
@@ -26,7 +40,15 @@ export function Reveal({ children, className = "", delay = 0 }: Props) {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [reducedMotion]);
+
+  if (reducedMotion) {
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div
