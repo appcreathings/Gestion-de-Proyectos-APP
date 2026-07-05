@@ -1,4 +1,4 @@
-import { FolderTree, Lock, FileCode2 } from "lucide-react";
+import { FolderTree, Lock, FileCode2, Heart } from "lucide-react";
 
 const STATS = [
   {
@@ -6,21 +6,28 @@ const STATS = [
     value: "0 KB",
     label: "enviados a la nube",
     description:
-      "Tus datos viven en una carpeta local. No hay backend procesándolos.",
+      "Tus datos nunca viajan a un servidor ajeno. No hay backend, no hay empresa viendo lo que escribís.",
   },
   {
     icon: FileCode2,
     value: ".json",
-    label: "no cajas negras",
+    label: "abiertos, no cajas negras",
     description:
-      "Cada proyecto es un archivo legible. Versionable con git, editable con cualquier herramienta.",
+      "Cada proyecto es un archivo legible y versionable con Git. Editables con cualquier herramienta, siempre tuyos.",
   },
   {
     icon: FolderTree,
     value: "1 carpeta",
     label: "para todo tu equipo",
     description:
-      "Compartila por la red, por Dropbox, por Git, como prefieras. Sale del laboratorio, queda en tu casa.",
+      "Compartila por red local, Dropbox, Git, como prefieras. Sin límite de usuarios ni permisos que pedir.",
+  },
+  {
+    icon: Heart,
+    value: "Gratuito",
+    label: "open source (MIT)",
+    description:
+      "Sin suscripciones, sin trials, sin cuentas. El código es público, auditáble y modificable por cualquiera.",
   },
 ];
 
@@ -41,7 +48,7 @@ export function ValueProps() {
           </p>
         </div>
 
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border sm:grid-cols-3">
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border sm:grid-cols-2 lg:grid-cols-4">
           {STATS.map((s) => {
             const Icon = s.icon;
             return (

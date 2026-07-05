@@ -1,25 +1,35 @@
-import { KanbanSquare, Workflow, Sparkles, HardDriveDownload } from "lucide-react";
+import { KanbanSquare, Workflow, Sparkles, HardDriveDownload, ClipboardCheck, LayoutDashboard } from "lucide-react";
 
 const FEATURES = [
   {
     icon: KanbanSquare,
     title: "Kanban arrastrable",
-    body: "Tareas por estado con foco por área. Reordenás con el mouse o el teclado; el cambio se persiste en tu JSON.",
+    body: "Tareas por estado con foco por área. Reordenás con mouse o teclado; el cambio se persiste al instante en tu JSON.",
+  },
+  {
+    icon: ClipboardCheck,
+    title: "Checklists & SOPs",
+    body: "Documentá procesos con Markdown, creá checklists reutilizables y asigná responsables. Cada área tiene su propia documentación.",
   },
   {
     icon: Workflow,
     title: "Automatizaciones",
-    body: "Reglas trigger → condición → acción. Movés tareas, asignás plantillas, mandás recordatorios sin macros raras.",
+    body: "Reglas trigger → condición → acción. Mové tareas, asigná plantillas, mandá recordatorios. Sin macros raras.",
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Dashboard de portafolio",
+    body: "Vista global con KPIs, salud RAG por proyecto y distribución por estado. Identificá proyectos en riesgo de un vistazo.",
   },
   {
     icon: Sparkles,
-    title: "Asistente IA",
-    body: "Preguntale a Gemini por el estado de tus proyectos, qué tareas están bloqueadas o qué SOP le falta a un equipo.",
+    title: "Asistente IA (Gemini)",
+    body: "Preguntale por el estado de tus proyectos, tareas bloqueadas o qué SOP le falta a un equipo. Sin enviar tus datos a la nube.",
   },
   {
     icon: HardDriveDownload,
-    title: "App instalable",
-    body: "Funciona offline, se instala como PWA y abre directo desde el escritorio. Tu carpeta, tu caché, tu decisión.",
+    title: "Offline-first / PWA",
+    body: "Funciona sin internet, se instala como app de escritorio y abre directo. Tu carpeta, tu caché, tu decisión.",
   },
 ];
 

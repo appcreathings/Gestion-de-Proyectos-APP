@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/routes/paths";
+
+const TRUST_SIGNALS = [
+  "Gratuito · Open Source (MIT)",
+  "Sin límite de usuarios",
+  "Offline-first",
+];
 
 export function Hero() {
   return (
@@ -27,32 +33,44 @@ export function Hero() {
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
               <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
             </span>
-            Local-first · Sin nube · Sin cuenta
+            Local-first · Sin nube · Sin cuenta · MIT
           </div>
 
           <h1 className="text-balance text-5xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
-            Tus proyectos como archivos{" "}
-            <span className="text-muted-foreground">en tu equipo.</span>
+            Gestioná proyectos, procesos y equipos{" "}
+            <span className="text-muted-foreground">sin rendir cuentas a la nube.</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Hito es un gestor de proyectos local-first. Tus datos viven en una
-            carpeta que tú controlas: sin backend, sin candado, sin que nadie
-            más los vea.
+            Hito es un gestor local-first. Tus datos viven en archivos .json en
+            tu máquina: versionables con Git, exportables, 100% tuyos. Sin
+            backend, sin suscripción, sin límite de usuarios.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link to={ROUTES.dashboard}>
               <Button size="lg" className="h-11 gap-2 px-6">
-                Abrir Hito
+                Empezar ahora
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
             <a href="#caracteristicas">
-              <Button variant="ghost" size="lg" className="h-11 gap-2 px-6 text-muted-foreground">
+              <Button variant="outline" size="lg" className="h-11 gap-2 px-6">
                 Ver características
               </Button>
             </a>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {TRUST_SIGNALS.map((s) => (
+              <span
+                key={s}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80"
+              >
+                <Check className="size-3 text-emerald-500" />
+                {s}
+              </span>
+            ))}
           </div>
 
           <p className="mt-8 font-mono text-xs text-muted-foreground/70">

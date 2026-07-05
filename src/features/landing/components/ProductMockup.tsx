@@ -17,7 +17,7 @@ export function ProductMockup() {
             <span className="size-2.5 rounded-full bg-foreground/15" />
           </div>
           <div className="rounded-md bg-muted px-3 py-0.5 font-mono text-[10px] text-muted-foreground">
-            hito / studies / sprint-7
+            hito / Proyectos / Q3 Lanzamiento
           </div>
           <div className="w-12" />
         </div>
@@ -28,16 +28,16 @@ export function ProductMockup() {
             <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Árbol
             </p>
-            {[
-              { label: "Studies", depth: 0, active: true },
-              { label: "Investigación", depth: 1 },
-              { label: "Onboarding", depth: 2 },
-              { label: "Sprint 7", depth: 3, current: true },
-              { label: "Sprint 8", depth: 3 },
-              { label: "Marketing", depth: 1 },
-              { label: "Ops", depth: 1 },
-              { label: "Biblioteca", depth: 1 },
-            ].map((n) => (
+              {[
+                { label: "Proyectos", depth: 0, active: true },
+                { label: "Marketing", depth: 1 },
+                { label: "Branding", depth: 2 },
+                { label: "Q3 Lanzamiento", depth: 3, current: true },
+                { label: "Q4 Campaña", depth: 3 },
+                { label: "Producto", depth: 1 },
+                { label: "Operaciones", depth: 1 },
+                { label: "Biblioteca", depth: 1 },
+              ].map((n) => (
               <div
                 key={n.label}
                 className={`flex items-center gap-1.5 rounded px-2 py-1 ${

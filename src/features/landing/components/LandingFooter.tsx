@@ -9,14 +9,22 @@ const COLUMNS = [
       { label: "Cómo funciona", href: "#como-funciona" },
       { label: "Características", href: "#caracteristicas" },
       { label: "Casos de uso", href: "#uso" },
+      { label: "FAQ", href: "#faq" },
     ],
   },
   {
-    title: "Proyecto",
+    title: "Recursos",
     links: [
-      { label: "Código", href: "#" },
+      { label: "Documentación", href: "#" },
+      { label: "Código fuente", href: "#" },
+      { label: "Reportar issue", href: "#" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
       { label: "Licencia MIT", href: "#" },
-      { label: "Roadmap", href: "#" },
+      { label: "Privacidad", href: "#" },
     ],
   },
 ];
@@ -25,7 +33,7 @@ export function LandingFooter() {
   return (
     <footer className="border-t border-border/60">
       <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr]">
+        <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
             <Link to={ROUTES.landing} className="inline-flex items-center gap-2">
               <div className="flex size-7 items-center justify-center rounded-md bg-foreground text-background">

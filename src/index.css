@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Offset for fixed nav when scrolling to anchor sections */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 222 47% 11%;

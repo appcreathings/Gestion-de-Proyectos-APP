@@ -1,4 +1,4 @@
-import { Building2, Code2, Scale } from "lucide-react";
+import { Building2, Code2, Scale, User } from "lucide-react";
 
 const CASES = [
   {
@@ -6,7 +6,7 @@ const CASES = [
     industry: "Consultora / agencia",
     team: "Equipo de 5 a 15 personas",
     story:
-      "Manejan 8 cuentas activas, cada una con su árbol de proyectos. Cambian de cliente sin perder contexto ni arrastrar datos de uno a otro.",
+      "Manejan múltiples cuentas activas, cada una con su propio árbol de proyectos. Con Hito cambian de cliente sin perder contexto ni mezclar datos. Los SOPs de cada cuenta quedan documentados para siempre.",
     metric: "8 cuentas × SOPs versionados",
   },
   {
@@ -14,16 +14,24 @@ const CASES = [
     industry: "Startup técnico",
     team: "Producto + ops + soporte",
     story:
-      "El repo de git tiene su carpeta /projects. Cada PR que toca un proceso deja un diff legible. La IA responde sobre el estado sin ver los datos.",
-    metric: "100% auditable por git",
+      "El repo de Git tiene su carpeta /projects. Cada PR que toca un proceso deja un diff legible. El asistente IA responde sobre el estado del proyecto sin que los datos salgan de la máquina.",
+    metric: "100% auditable por Git",
   },
   {
     icon: Scale,
     industry: "Estudio legal / contable",
     team: "3 a 10 profesionales",
     story:
-      "La confidencialidad es la norma: nada de nubes, nada de cuentas, nada de backups que ellos no controlen. Exportan un .zip por cliente al cerrar.",
+      "La confidencialidad no es opcional: cero nubes, cero cuentas externas, cero backups que ellos no controlen. Exportan un .zip por cliente al cerrar el caso y lo archivan con total seguridad.",
     metric: "Cero datos saliendo del equipo",
+  },
+  {
+    icon: User,
+    industry: "Freelancer / solopreneur",
+    team: "De 1 a 3 personas",
+    story:
+      "Gestionás proyectos de distintos clientes sin mezclar información. Creás plantillas de checklist para tus procesos recurrentes y tenés un dashboard que te muestra el estado de todo tu negocio.",
+    metric: "Todo tu negocio en una carpeta",
   },
 ];
 
@@ -44,7 +52,7 @@ export function UseCases() {
           </p>
         </div>
 
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border lg:grid-cols-3">
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border sm:grid-cols-2 lg:grid-cols-4">
           {CASES.map((c) => {
             const Icon = c.icon;
             return (
