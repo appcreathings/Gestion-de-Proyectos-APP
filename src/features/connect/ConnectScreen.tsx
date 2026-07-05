@@ -1,6 +1,6 @@
 import { FolderOpen, RefreshCw, FolderInput } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Panel } from "@/components/ui/Panel";
 import { useAppStore } from "@/store/useAppStore";
 
 /** First-run / reconnect gate: pick the local folder where JSON data lives. */
@@ -15,14 +15,20 @@ export function ConnectScreen() {
 
   return (
     <div className="flex h-full items-center justify-center p-6">
-      <Card className="w-full max-w-md">
-        <CardContent className="flex flex-col items-center gap-5 p-8 text-center">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+      <Panel
+        bare
+        className="w-full max-w-md rounded-2xl border border-border/70 bg-background"
+      >
+        <div className="flex flex-col items-center gap-5 p-8 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl border border-border bg-background">
             <FolderOpen className="size-7" />
           </div>
 
           <div className="space-y-1.5">
-            <h1 className="text-xl font-semibold">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Conexión local
+            </p>
+            <h1 className="text-xl font-semibold tracking-tight">
               {needsReconnect ? "Reconecta tu carpeta" : "Elige una carpeta de datos"}
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -45,15 +51,17 @@ export function ConnectScreen() {
           )}
 
           {adapterKind === "download" && (
-            <p className="rounded-md bg-warning/15 px-3 py-2 text-xs text-foreground">
+            <p className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-foreground">
               Tu navegador no soporta guardado directo en carpeta. Los datos se
               guardan en el navegador; usa Exportar/Importar para respaldar.
             </p>
           )}
 
-          {error && <p className="text-xs text-destructive">{error}</p>}
-        </CardContent>
-      </Card>
+          {error && (
+            <p className="font-mono text-xs text-destructive">{error}</p>
+          )}
+        </div>
+      </Panel>
     </div>
   );
 }

@@ -3,14 +3,8 @@ import { Helmet } from "react-helmet-async";
 import { Download, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Panel } from "@/components/ui/Panel";
 import { cn } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -76,17 +70,11 @@ function SettingsContent() {
 
   return (
     <div>
-      <PageHeader title="Ajustes" description="Preferencias y datos." />
+      <PageHeader label="Ajustes" title="Ajustes" description="Preferencias y datos." />
 
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Organización</CardTitle>
-            <CardDescription>
-              Nombre que aparece en la barra lateral y en el asistente.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex max-w-md gap-2">
+        <Panel label="Organización" title="Organización" description="Nombre que aparece en la barra lateral y en el asistente.">
+          <div className="flex max-w-md gap-2">
             <Input
               value={orgName}
               aria-label="Nombre de la organización"
@@ -100,15 +88,11 @@ function SettingsContent() {
             >
               Guardar
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Apariencia</CardTitle>
-            <CardDescription>Tema de la interfaz.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex gap-2">
+        <Panel label="Apariencia" title="Apariencia" description="Tema de la interfaz.">
+          <div className="flex gap-2">
             {THEMES.map((t) => (
               <Button
                 key={t.value}
@@ -119,17 +103,15 @@ function SettingsContent() {
                 {t.label}
               </Button>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Parámetros de gestión</CardTitle>
-            <CardDescription>
-              Umbrales usados por automatizaciones y dashboard.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid max-w-md gap-4">
+        <Panel
+          label="Parámetros"
+          title="Parámetros de gestión"
+          description="Umbrales usados por automatizaciones y dashboard."
+        >
+          <div className="grid max-w-md gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="stalled">
                 Proyecto estancado tras (días sin cambios)
@@ -170,17 +152,15 @@ function SettingsContent() {
                 </span>
               </span>
             </label>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Datos</CardTitle>
-            <CardDescription>
-              Exporta o importa todo tu espacio de trabajo en un único JSON.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex gap-2">
+        <Panel
+          label="Datos"
+          title="Datos"
+          description="Exporta o importa todo tu espacio de trabajo en un único JSON."
+        >
+          <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={onExport}>
               <Download className="size-4" />
               Exportar todo
@@ -200,8 +180,8 @@ function SettingsContent() {
                 onChange={onImport}
               />
             </label>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
 
         <AiSettingsCard />
 

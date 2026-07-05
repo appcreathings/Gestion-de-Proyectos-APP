@@ -48,6 +48,7 @@ function LibraryContent() {
   return (
     <div>
       <PageHeader
+        label="Biblioteca"
         title="Biblioteca"
         description="Define plantillas y tipos reutilizables. Empieza por las plantillas, luego los tipos."
       />

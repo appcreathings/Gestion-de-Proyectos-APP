@@ -81,6 +81,7 @@ function NotificationsContent() {
   return (
     <div>
       <PageHeader
+        label="Notificaciones"
         title="Notificaciones"
         description="Vencidos, próximos a vencer y proyectos estancados. Se recalculan al abrir la app."
         actions={

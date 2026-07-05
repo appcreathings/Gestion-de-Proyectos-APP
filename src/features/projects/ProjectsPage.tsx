@@ -66,6 +66,7 @@ function ProjectsContent() {
   return (
     <div>
       <PageHeader
+        label="Proyectos"
         title="Proyectos"
         description="Esfuerzos con áreas, procesos, checklists y tareas."
         actions={

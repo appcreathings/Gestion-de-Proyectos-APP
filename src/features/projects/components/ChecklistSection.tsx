@@ -96,11 +96,11 @@ export function ChecklistSection({
   }
 
   return (
-    <div className="rounded-lg border bg-background p-4">
+    <div className="rounded-lg border border-border/70 bg-background p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-semibold">{checklist.name}</h4>
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="font-mono text-[10px]">
             {prog.done}/{prog.total}
           </Badge>
         </div>

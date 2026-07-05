@@ -102,17 +102,17 @@ export function AreaCard({
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+    <Card className="border-border/70">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border/60 pb-3">
         <div className="flex items-center gap-2.5">
           {dragHandle}
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <div className="flex size-8 items-center justify-center rounded-md border border-border/70 bg-background">
             <Icon className="size-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold">{area.name}</h3>
-              <Badge variant={prog.pct === 100 ? "success" : "secondary"}>
+              <Badge variant={prog.pct === 100 ? "success" : "secondary"} className="font-mono text-[10px]">
                 {prog.done}/{prog.total}
               </Badge>
               {area.completed && (
@@ -124,11 +124,17 @@ export function AreaCard({
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <FileText className="size-3" />
-                {area.processes.length} {area.processes.length === 1 ? "proceso" : "procesos"}
+                <span className="font-mono">
+                  {area.processes.length}
+                </span>{" "}
+                {area.processes.length === 1 ? "proceso" : "procesos"}
               </span>
               <span className="inline-flex items-center gap-1">
                 <Layers className="size-3" />
-                {area.checklists.length} {area.checklists.length === 1 ? "checklist" : "checklists"}
+                <span className="font-mono">
+                  {area.checklists.length}
+                </span>{" "}
+                {area.checklists.length === 1 ? "checklist" : "checklists"}
               </span>
               {tasks.length > 0 ? (
                 <Link
@@ -136,12 +142,15 @@ export function AreaCard({
                   className="inline-flex items-center gap-1 text-primary hover:underline"
                 >
                   <ListChecks className="size-3" />
-                  {tasksDone}/{tasks.length} tareas
+                  <span className="font-mono">
+                    {tasksDone}/{tasks.length}
+                  </span>{" "}
+                  tareas
                 </Link>
               ) : (
-                <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 font-mono text-xs">
                   <ListChecks className="size-3" />
-                  Sin tareas
+                  0 tareas
                 </span>
               )}
             </div>
@@ -173,11 +182,11 @@ export function AreaCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-6">
         {/* Procesos */}
         <section>
           <div className="mb-2 flex items-center justify-between">
-            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Procesos (SOPs)
             </h4>
             <div className="flex gap-1">
@@ -278,7 +287,7 @@ export function AreaCard({
         {/* Checklists */}
         <section>
           <div className="mb-2 flex items-center justify-between">
-            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Checklists
             </h4>
             {checklistTemplates.length > 0 && (

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  * with the landing page. Header is optional and follows the "mono uppercase
  * tracking-widest" label convention used elsewhere.
  */
-interface PanelProps extends React.HTMLAttributes<HTMLDivElement> {
+interface PanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   /** Tiny label rendered above the title (e.g. "Proyecto · Sprint 7"). */
   label?: React.ReactNode;
   /** Pane title; rendered with the standard tracking-tight scale. */

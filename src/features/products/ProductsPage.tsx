@@ -49,6 +49,7 @@ function ProductsContent() {
   return (
     <div>
       <PageHeader
+        label="Productos"
         title="Productos"
         description="Líneas de negocio que agrupan tus proyectos."
         actions={

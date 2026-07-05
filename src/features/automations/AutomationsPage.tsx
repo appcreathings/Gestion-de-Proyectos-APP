@@ -31,6 +31,7 @@ export function AutomationsPage() {
       </Helmet>
       <div>
       <PageHeader
+        label="Automatizaciones"
         title="Automatizaciones"
         description="Reglas disparador → condición → acción. Se ejecutan en tu navegador al cambiar los datos."
         actions={
