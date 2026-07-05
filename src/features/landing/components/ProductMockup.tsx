@@ -5,7 +5,7 @@
  */
 export function ProductMockup() {
   return (
-    <div className="relative mx-auto -mt-6 w-full max-w-5xl px-6 sm:-mt-12">
+    <div className="relative mx-auto mt-6 w-full max-w-5xl px-6 sm:mt-10">
       <div className="pointer-events-none absolute inset-x-12 top-8 -z-10 h-24 rounded-full bg-foreground/5 blur-3xl" />
 
       <div className="rounded-2xl border border-border/70 bg-background shadow-2xl shadow-foreground/5">
