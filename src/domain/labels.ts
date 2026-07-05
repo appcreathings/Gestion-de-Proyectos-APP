@@ -3,7 +3,9 @@ import type {
   Priority,
   ProductStatus,
   ProjectStatus,
+  QuarterStatus,
   RaciRole,
+  SprintStatus,
   TaskStatus,
 } from "./schemas";
 
@@ -74,6 +76,30 @@ export const taskStatusLabel: Record<TaskStatus, string> = {
 };
 
 export const TASK_COLUMNS: TaskStatus[] = ["todo", "doing", "blocked", "done"];
+
+export const sprintStatusLabel: Record<SprintStatus, string> = {
+  planned: "Planeado",
+  active: "Activo",
+  done: "Cerrado",
+};
+
+export const sprintStatusVariant: Record<SprintStatus, BadgeVariant> = {
+  planned: "secondary",
+  active: "default",
+  done: "success",
+};
+
+export const quarterStatusLabel: Record<QuarterStatus, string> = {
+  planned: "Planeado",
+  active: "Activo",
+  done: "Cerrado",
+};
+
+export const quarterStatusVariant: Record<QuarterStatus, BadgeVariant> = {
+  planned: "secondary",
+  active: "default",
+  done: "success",
+};
 
 /** Automations — event-driven triggers available in the rule builder (M3). */
 export const triggerLabel: Record<string, string> = {

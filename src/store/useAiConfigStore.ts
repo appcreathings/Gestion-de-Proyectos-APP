@@ -26,6 +26,7 @@ interface AiConfigState {
   setConfirmWrites: (v: boolean) => Promise<void>;
   setAutoFallback: (v: boolean) => Promise<void>;
   setFallbackGroup: (group: string) => Promise<void>;
+  setRagEnabled: (v: boolean) => Promise<void>;
 }
 
 export const useAiConfigStore = create<AiConfigState>((set, get) => ({
@@ -82,6 +83,12 @@ export const useAiConfigStore = create<AiConfigState>((set, get) => ({
 
   async setFallbackGroup(fallbackGroup) {
     const config = { ...get().config, fallbackGroup };
+    await saveAiConfig(config);
+    set({ config });
+  },
+
+  async setRagEnabled(ragEnabled) {
+    const config = { ...get().config, ragEnabled };
     await saveAiConfig(config);
     set({ config });
   },

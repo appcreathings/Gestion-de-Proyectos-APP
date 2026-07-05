@@ -1,4 +1,5 @@
 import { nowIso, uuid } from "@/lib/utils";
+import { SCHEMA_VERSION } from "./schemas/common";
 import type {
   Area,
   AutomationRule,
@@ -11,6 +12,8 @@ import type {
   Product,
   Project,
   ProjectType,
+  Quarter,
+  Sprint,
   Task,
 } from "./schemas";
 
@@ -18,7 +21,7 @@ export function newProduct(name: string): Product {
   const ts = nowIso();
   return {
     id: uuid(),
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     name,
     description: "",
     vision: "",
@@ -35,9 +38,10 @@ export function newProject(name: string, productId: string | null = null): Proje
   const ts = nowIso();
   return {
     id: uuid(),
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     productId,
     typeId: null,
+    quarterId: null,
     name,
     description: "",
     status: "active",
@@ -51,6 +55,7 @@ export function newProject(name: string, productId: string | null = null): Proje
     areas: [],
     tasks: [],
     milestones: [],
+    sprints: [],
     createdAt: ts,
     updatedAt: ts,
   };
@@ -124,6 +129,37 @@ export function newTask(title: string, areaId: string | null = null): Task {
     dueDate: null,
     areaId,
     sourceItemId: null,
+    sprintId: null,
+    tags: [],
+    createdAt: ts,
+    updatedAt: ts,
+  };
+}
+
+export function newSprint(name: string): Sprint {
+  const ts = nowIso();
+  return {
+    id: uuid(),
+    name,
+    goal: "",
+    startDate: null,
+    endDate: null,
+    status: "planned",
+    createdAt: ts,
+    updatedAt: ts,
+  };
+}
+
+export function newQuarter(name: string): Quarter {
+  const ts = nowIso();
+  return {
+    id: uuid(),
+    schemaVersion: SCHEMA_VERSION,
+    name,
+    goal: "",
+    startDate: null,
+    endDate: null,
+    status: "planned",
     tags: [],
     createdAt: ts,
     updatedAt: ts,
@@ -146,7 +182,7 @@ export function newChecklistTemplate(name: string): ChecklistTemplate {
   const ts = nowIso();
   return {
     id: uuid(),
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     name,
     category: "",
     items: [],
@@ -160,7 +196,7 @@ export function newProcessTemplate(name: string): ProcessTemplate {
   const ts = nowIso();
   return {
     id: uuid(),
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     name,
     description: "",
     category: "",
@@ -174,7 +210,7 @@ export function newAutomation(name: string): AutomationRule {
   const ts = nowIso();
   return {
     id: uuid(),
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     name,
     enabled: true,
     scope: { kind: "global" },
@@ -191,7 +227,7 @@ export function newProjectType(name: string): ProjectType {
   const ts = nowIso();
   return {
     id: uuid(),
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     name,
     description: "",
     statusWorkflow: ["backlog", "active", "paused", "blocked", "done", "archived"],

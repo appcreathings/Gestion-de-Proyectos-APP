@@ -13,6 +13,7 @@ import type {
   Product,
   Project,
   ProjectType,
+  Quarter,
 } from "@/domain/schemas";
 import { instantiateProjectFromType } from "@/domain/instantiate";
 import { diffProjectEvents, type DomainEvent } from "@/automations/events";
@@ -30,6 +31,7 @@ interface DataState {
   processTemplates: ProcessTemplate[];
   projectTypes: ProjectType[];
   automations: AutomationRule[];
+  quarters: Quarter[];
   notifications: Notification[];
   activity: ActivityEntry[];
 
@@ -66,6 +68,10 @@ interface DataState {
   updateAutomation: (r: AutomationRule) => Promise<void>;
   deleteAutomation: (id: string) => Promise<void>;
 
+  createQuarter: (q: Quarter) => Promise<void>;
+  updateQuarter: (q: Quarter) => Promise<void>;
+  deleteQuarter: (id: string) => Promise<void>;
+
   addNotifications: (list: Notification[]) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   markAllNotificationsRead: () => Promise<void>;
@@ -89,12 +95,13 @@ export const useDataStore = create<DataState>((set, get) => ({
   processTemplates: [],
   projectTypes: [],
   automations: [],
+  quarters: [],
   notifications: [],
   activity: [],
 
   async hydrate() {
     const a = adapter();
-    const [productIds, projectIds, clTplIds, procTplIds, typeIds, autoIds] =
+    const [productIds, projectIds, clTplIds, procTplIds, typeIds, autoIds, quarterIds] =
       await Promise.all([
         a.list("products"),
         a.list("projects"),
@@ -102,6 +109,7 @@ export const useDataStore = create<DataState>((set, get) => ({
         a.list("process-templates"),
         a.list("project-types"),
         a.list("automations"),
+        a.list("quarters"),
       ]);
     const [
       products,
@@ -110,6 +118,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       processTemplates,
       projectTypes,
       automations,
+      quarters,
       peopleDoc,
       notificationsDoc,
       activityDoc,
@@ -124,6 +133,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       ),
       Promise.all(typeIds.map((id) => a.read<ProjectType>("project-types", id))),
       Promise.all(autoIds.map((id) => a.read<AutomationRule>("automations", id))),
+      Promise.all(quarterIds.map((id) => a.read<Quarter>("quarters", id))),
       a.readDoc<PeopleDoc>("people"),
       a.readDoc<NotificationsDoc>("notifications"),
       a.readDoc<ActivityDoc>("activity"),
@@ -135,6 +145,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       processTemplates,
       projectTypes,
       automations,
+      quarters,
       people: peopleDoc.people,
       notifications: notificationsDoc.notifications,
       activity: activityDoc.entries,
@@ -302,6 +313,34 @@ export const useDataStore = create<DataState>((set, get) => ({
     await reindex();
   },
 
+  async createQuarter(q) {
+    await adapter().write("quarters", q);
+    set({ quarters: [...get().quarters, q] });
+    await reindex();
+  },
+  async updateQuarter(q) {
+    const updated = { ...q, updatedAt: nowIso() };
+    await adapter().write("quarters", updated);
+    set({ quarters: get().quarters.map((x) => (x.id === q.id ? updated : x)) });
+    await reindex();
+  },
+  async deleteQuarter(id) {
+    await adapter().remove("quarters", id);
+    const detached = get().projects.map((p) =>
+      p.quarterId === id ? { ...p, quarterId: null } : p,
+    );
+    await Promise.all(
+      detached
+        .filter((p, i) => p !== get().projects[i])
+        .map((p) => adapter().write("projects", p)),
+    );
+    set({
+      quarters: get().quarters.filter((x) => x.id !== id),
+      projects: detached,
+    });
+    await reindex();
+  },
+
   async addNotifications(list) {
     const existing = new Set(get().notifications.map((n) => n.id));
     const fresh = list.filter((n) => !existing.has(n.id));
@@ -410,6 +449,7 @@ async function reindex() {
         name: r.name,
         enabled: r.enabled,
       })),
+      quarters: s.quarters.map((q) => ({ id: q.id, name: q.name, status: q.status })),
     },
   };
   await app.adapter.writeWorkspace(next);

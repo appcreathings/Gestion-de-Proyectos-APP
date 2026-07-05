@@ -1,4 +1,4 @@
-import type { Area, Checklist, Project } from "./schemas";
+import type { Area, Checklist, Project, Quarter } from "./schemas";
 
 export interface ProgressStat {
   done: number;
@@ -52,4 +52,26 @@ export function daysUntil(date: string | null): number | null {
   if (!date) return null;
   const target = new Date(date + "T23:59:59");
   return Math.ceil((target.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+}
+
+/** Aggregate checklist progress across a set of projects (roll-up building block). */
+export function aggregateChecklistProgress(projects: Project[]): ProgressStat {
+  let done = 0;
+  let total = 0;
+  for (const p of projects) {
+    const s = projectChecklistProgress(p);
+    done += s.done;
+    total += s.total;
+  }
+  return stat(done, total);
+}
+
+export interface QuarterRollup extends ProgressStat {
+  projectCount: number;
+}
+
+/** Aggregate checklist progress across every project assigned to a quarter. */
+export function quarterRollup(quarter: Quarter, projects: Project[]): QuarterRollup {
+  const scoped = projects.filter((p) => p.quarterId === quarter.id);
+  return { ...aggregateChecklistProgress(scoped), projectCount: scoped.length };
 }

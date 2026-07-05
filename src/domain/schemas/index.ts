@@ -2,6 +2,7 @@ export * from "./common";
 export * from "./product";
 export * from "./project";
 export * from "./projectType";
+export * from "./quarter";
 export * from "./checklistTemplate";
 export * from "./automation";
 export * from "./person";

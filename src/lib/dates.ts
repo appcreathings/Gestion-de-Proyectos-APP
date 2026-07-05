@@ -78,3 +78,53 @@ export function entityKey(ref: EntityRef): string {
     .filter(Boolean)
     .join("/");
 }
+
+/* ---------- Date preview helpers (spec 008) ---------- */
+
+const DAY_FORMATTER = new Intl.DateTimeFormat("es", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+/** Same as DAY_FORMATTER but without the weekday — used for range endpoints. */
+const RANGE_DAY_FORMATTER = new Intl.DateTimeFormat("es", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+/** Parse a `YYYY-MM-DD` day key as a local calendar date (no time-zone shift). */
+function parseDayKey(key: string): Date {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/** Whole-day difference `b - a` (positive when `b` is later), ignoring time-of-day. */
+export function daysBetween(a: string, b: string): number {
+  const MS_PER_DAY = 86_400_000;
+  return Math.round((parseDayKey(b).getTime() - parseDayKey(a).getTime()) / MS_PER_DAY);
+}
+
+/** "sáb, 5 jul 2026" for a `YYYY-MM-DD` day key. */
+export function formatDay(key: string): string {
+  return DAY_FORMATTER.format(parseDayKey(key));
+}
+
+/** "hoy" / "mañana" / "en 3 días" / "ayer" / "hace 2 días", relative to today. */
+export function relativeDay(key: string, now: Date = new Date()): string {
+  const diff = daysBetween(todayKey(now), key);
+  if (diff === 0) return "hoy";
+  if (diff === 1) return "mañana";
+  if (diff === -1) return "ayer";
+  return diff > 0 ? `en ${diff} días` : `hace ${Math.abs(diff)} días`;
+}
+
+/** "1 jul 2026 – 14 jul 2026 · 14 días" for a start/end pair of `YYYY-MM-DD` day keys. */
+export function formatRange(start: string, end: string): string {
+  const days = daysBetween(start, end) + 1; // inclusive
+  const startLabel = RANGE_DAY_FORMATTER.format(parseDayKey(start));
+  const endLabel = RANGE_DAY_FORMATTER.format(parseDayKey(end));
+  return `${startLabel} – ${endLabel} · ${days} ${days === 1 ? "día" : "días"}`;
+}

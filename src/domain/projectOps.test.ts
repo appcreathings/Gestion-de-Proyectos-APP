@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { newArea, newChecklist, newItem, newProject, newTask } from "./factories";
+import { newArea, newChecklist, newItem, newProject, newSprint, newTask } from "./factories";
 import {
   addArea,
   addChecklist,
   addItem,
+  addSprint,
   addTask,
+  assignTaskToSprint,
+  removeSprint,
   reorderAreas,
   reorderChecklistItems,
   reorderTasks,
@@ -107,5 +110,37 @@ describe("reorderTasks", () => {
       tasks.map((t) => t.id),
     );
     expect(next.tasks).toBe(p.tasks);
+  });
+});
+
+describe("assignTaskToSprint", () => {
+  it("asigna una tarea a un sprint", () => {
+    const sprint = newSprint("Sprint 7");
+    const task = newTask("Escribir plantillas");
+    let p = addSprint(newProject("Demo"), sprint);
+    p = addTask(p, task);
+    const next = assignTaskToSprint(p, task.id, sprint.id);
+    expect(next.tasks[0].sprintId).toBe(sprint.id);
+  });
+
+  it("con sprintId null devuelve la tarea al backlog", () => {
+    const sprint = newSprint("Sprint 7");
+    const task = { ...newTask("Tarea"), sprintId: sprint.id };
+    let p = addSprint(newProject("Demo"), sprint);
+    p = addTask(p, task);
+    const next = assignTaskToSprint(p, task.id, null);
+    expect(next.tasks[0].sprintId).toBeNull();
+  });
+});
+
+describe("removeSprint", () => {
+  it("elimina el sprint y devuelve sus tareas al backlog", () => {
+    const sprint = newSprint("Sprint 7");
+    const task = { ...newTask("Tarea"), sprintId: sprint.id };
+    let p = addSprint(newProject("Demo"), sprint);
+    p = addTask(p, task);
+    const next = removeSprint(p, sprint.id);
+    expect(next.sprints).toHaveLength(0);
+    expect(next.tasks[0].sprintId).toBeNull();
   });
 });

@@ -108,8 +108,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     priority: 2,
   },
   {
-    id: "gemini-embedding-1",
-    label: "Gemini Embedding 1",
+    id: "gemini-embedding-001",
+    label: "Gemini Embedding 001",
     category: "embedding",
     limits: { rpm: 100, tpm: 30_000, rpd: 1_000 },
     fallbackGroup: "embedding",
@@ -155,7 +155,7 @@ export const FALLBACK_CHAINS: FallbackChain[] = [
   {
     group: "embedding",
     label: "Embeddings",
-    models: ["gemini-embedding-1", "gemini-embedding-2"],
+    models: ["gemini-embedding-001", "gemini-embedding-2"],
   },
 ];
 

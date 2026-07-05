@@ -9,6 +9,7 @@ import {
   RaciRole,
   Recurrence,
   SCHEMA_VERSION,
+  SprintStatus,
   TaskStatus,
 } from "./common";
 
@@ -78,6 +79,7 @@ export const TaskSchema = z.object({
   dueDate: DayDate.default(null),
   areaId: Id.nullable().default(null),
   sourceItemId: Id.nullable().default(null),
+  sprintId: Id.nullable().default(null),
   tags: z.array(z.string()).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
@@ -93,6 +95,19 @@ export const MilestoneSchema = z.object({
 });
 export type Milestone = z.infer<typeof MilestoneSchema>;
 
+/** A time-boxed iteration scoped to a single project (e.g. "Sprint 7"). */
+export const SprintSchema = z.object({
+  id: Id,
+  name: z.string(),
+  goal: z.string().default(""),
+  startDate: DayDate.default(null),
+  endDate: DayDate.default(null),
+  status: SprintStatus.default("planned"),
+  createdAt: IsoDate,
+  updatedAt: IsoDate,
+});
+export type Sprint = z.infer<typeof SprintSchema>;
+
 export const StakeholderSchema = z.object({
   personId: Id,
   role: RaciRole,
@@ -104,6 +119,7 @@ export const ProjectSchema = z.object({
   schemaVersion: z.number().default(SCHEMA_VERSION),
   productId: Id.nullable().default(null),
   typeId: Id.nullable().default(null),
+  quarterId: Id.nullable().default(null),
   name: z.string().min(1),
   description: z.string().default(""),
   status: ProjectStatus.default("active"),
@@ -117,6 +133,7 @@ export const ProjectSchema = z.object({
   areas: z.array(AreaSchema).default([]),
   tasks: z.array(TaskSchema).default([]),
   milestones: z.array(MilestoneSchema).default([]),
+  sprints: z.array(SprintSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

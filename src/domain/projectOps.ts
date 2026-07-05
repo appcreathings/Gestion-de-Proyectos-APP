@@ -5,6 +5,7 @@ import type {
   ChecklistItem,
   Process,
   Project,
+  Sprint,
   Task,
 } from "./schemas";
 
@@ -129,6 +130,40 @@ export function updateTask(p: Project, task: Task): Project {
 
 export function removeTask(p: Project, taskId: string): Project {
   return { ...p, tasks: p.tasks.filter((t) => t.id !== taskId) };
+}
+
+export function addSprint(p: Project, sprint: Sprint): Project {
+  return { ...p, sprints: [...p.sprints, sprint] };
+}
+
+export function updateSprint(p: Project, sprint: Sprint): Project {
+  return {
+    ...p,
+    sprints: p.sprints.map((s) => (s.id === sprint.id ? { ...sprint, updatedAt: nowIso() } : s)),
+  };
+}
+
+/** Removing a sprint returns its tasks to the backlog (sprintId = null). */
+export function removeSprint(p: Project, sprintId: string): Project {
+  return {
+    ...p,
+    sprints: p.sprints.filter((s) => s.id !== sprintId),
+    tasks: p.tasks.map((t) => (t.sprintId === sprintId ? { ...t, sprintId: null } : t)),
+  };
+}
+
+/** Move a task into a sprint, or back to the backlog when `sprintId` is null. */
+export function assignTaskToSprint(
+  p: Project,
+  taskId: string,
+  sprintId: string | null,
+): Project {
+  return {
+    ...p,
+    tasks: p.tasks.map((t) =>
+      t.id === taskId ? { ...t, sprintId, updatedAt: nowIso() } : t,
+    ),
+  };
 }
 
 /**

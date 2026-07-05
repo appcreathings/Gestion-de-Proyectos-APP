@@ -70,6 +70,16 @@ const ChangelogPage = lazy(() =>
 const DocsPage = lazy(() =>
   import("@/features/seo/DocsPage").then((m) => ({ default: m.DocsPage })),
 );
+const BlogIndexPage = lazy(() =>
+  import("@/features/blog/pages/BlogIndexPage").then((m) => ({
+    default: m.BlogIndexPage,
+  })),
+);
+const BlogPostPage = lazy(() =>
+  import("@/features/blog/pages/BlogPostPage").then((m) => ({
+    default: m.BlogPostPage,
+  })),
+);
 
 function page(el: ReactNode) {
   return <Suspense fallback={<Loading />}>{el}</Suspense>;
@@ -82,6 +92,8 @@ const router = createBrowserRouter([
   { path: "/gestor-proyectos-offline", element: page(<GestorOfflinePage />) },
   { path: "/changelog", element: page(<ChangelogPage />) },
   { path: "/docs", element: page(<DocsPage />) },
+  { path: "/blogs", element: page(<BlogIndexPage />) },
+  { path: "/blogs/:slug", element: page(<BlogPostPage />) },
   {
     path: "/app",
     element: <AppGate />,

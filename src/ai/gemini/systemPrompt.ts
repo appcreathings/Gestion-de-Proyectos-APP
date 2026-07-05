@@ -1,4 +1,39 @@
 import type { Settings, Workspace } from "@/domain/schemas";
+import { semanticSearch } from "@/ai/rag/search";
+import { loadEmbeddings } from "@/ai/rag/store";
+
+/**
+ * Build a RAG context string by performing semantic search against embedded
+ * entities. Returns a formatted block with the top-k matches, or an empty
+ * string if no embeddings are available.
+ */
+export async function buildRagContext(
+  query: string,
+  apiKey: string,
+  topK: number = 5,
+): Promise<string> {
+  const embeddings = await loadEmbeddings();
+  if (embeddings.size === 0) return "";
+
+  const results = await semanticSearch(query, apiKey, topK);
+  if (results.length === 0) return "";
+
+  const entries = results
+    .map(
+      (r, i) =>
+        `[${i + 1}] ${r.entity.entityType}:${r.entity.entityId}
+   "${r.entity.text}"
+   (similitud: ${(r.score * 100).toFixed(0)}%)`,
+    )
+    .join("\n\n");
+
+  return `## Contexto semántico (búsqueda: "${query}")
+Los siguientes registros coinciden semánticamente con la consulta del usuario. Úsalos si son relevantes para responder, pero verifica los detalles actuales con herramientas de lectura cuando sea necesario.
+
+${entries}
+
+`;
+}
 
 /**
  * Pure system-prompt builder. Injects the lightweight workspace index (already
@@ -7,6 +42,7 @@ import type { Settings, Workspace } from "@/domain/schemas";
  */
 export function buildSystemPrompt(
   workspace: Workspace | null,
+  ragContext: string = "",
   today: Date = new Date(),
 ): string {
   const org = workspace?.org.name ?? "Mi Empresa";
@@ -66,7 +102,7 @@ ${templates || "(ninguna)"}
 
 Plantillas de proceso:
 ${processTemplates || "(ninguna)"}
-
+${ragContext}
 ## Estilo
 - Sé conciso; usa listas y negritas con moderación.
 - Piensa como PM: prioriza por vencimiento, bloqueos y salud; una tarea sin responsable ni fecha rara vez avanza; los proyectos en rojo o ámbar merecen atención antes que nuevas iniciativas.

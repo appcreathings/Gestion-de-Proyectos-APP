@@ -118,6 +118,7 @@ export class DownloadAdapter implements StorageAdapter {
       "checklist-templates",
       "process-templates",
       "automations",
+      "quarters",
     ];
     for (const col of cols) {
       const ids = await this.list(col);
@@ -141,6 +142,7 @@ export class DownloadAdapter implements StorageAdapter {
       "checklist-templates",
       "process-templates",
       "automations",
+      "quarters",
     ];
     for (const col of cols) {
       const items = (bundle[col] as { id: string }[]) ?? [];

@@ -28,6 +28,11 @@ export const AutomationIndexEntry = z.object({
   name: z.string(),
   enabled: z.boolean(),
 });
+export const QuarterIndexEntry = z.object({
+  id: Id,
+  name: z.string(),
+  status: z.string(),
+});
 
 export const WorkspaceIndexSchema = z.object({
   products: z.array(ProductIndexEntry).default([]),
@@ -36,6 +41,7 @@ export const WorkspaceIndexSchema = z.object({
   templates: z.array(NamedIndexEntry).default([]),
   processTemplates: z.array(NamedIndexEntry).default([]),
   automations: z.array(AutomationIndexEntry).default([]),
+  quarters: z.array(QuarterIndexEntry).default([]),
 });
 export type WorkspaceIndex = z.infer<typeof WorkspaceIndexSchema>;
 

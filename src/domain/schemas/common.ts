@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Enumerations (constitución / data-model.md). */
 export const ProductStatus = z.enum(["idea", "active", "maintenance", "sunset"]);
@@ -38,6 +38,12 @@ export type Severity = z.infer<typeof Severity>;
 
 export const Recurrence = z.enum(["none", "daily", "weekly"]);
 export type Recurrence = z.infer<typeof Recurrence>;
+
+export const SprintStatus = z.enum(["planned", "active", "done"]);
+export type SprintStatus = z.infer<typeof SprintStatus>;
+
+export const QuarterStatus = z.enum(["planned", "active", "done"]);
+export type QuarterStatus = z.infer<typeof QuarterStatus>;
 
 /** Reusable primitives. */
 export const Id = z.string().min(1);

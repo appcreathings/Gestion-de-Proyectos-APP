@@ -6,6 +6,7 @@ import {
   ProductSchema,
   ProjectSchema,
   ProjectTypeSchema,
+  QuarterSchema,
   type Workspace,
 } from "@/domain/schemas";
 
@@ -16,7 +17,8 @@ export type Collection =
   | "project-types"
   | "checklist-templates"
   | "process-templates"
-  | "automations";
+  | "automations"
+  | "quarters";
 
 /** Aggregated single-file documents. */
 export type DocName = "people" | "notifications" | "activity";
@@ -41,6 +43,7 @@ export const collectionSchema: Record<Collection, z.ZodTypeAny> = {
   "checklist-templates": ChecklistTemplateSchema,
   "process-templates": ProcessTemplateSchema,
   automations: AutomationRuleSchema,
+  quarters: QuarterSchema,
 };
 
 export interface StorageAdapter {

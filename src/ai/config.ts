@@ -8,14 +8,16 @@ import { MODEL_REGISTRY, isModelAvailable } from "./models";
  * (constitución, principio I — nada a la nube sin acción explícita).
  */
 
-export const AI_MODELS = MODEL_REGISTRY.map((m) => ({
-  value: m.id,
-  label: m.label,
-  hint: isModelAvailable(m)
-    ? `${m.limits.rpm > 0 ? `${m.limits.rpm} req/min` : ""}${m.limits.tpm > 0 ? ` · ${(m.limits.tpm / 1000).toFixed(0)}K tok/min` : ""}${m.unlimitedTpm ? " · tok ilimitado" : ""}`
-    : `sin cuota disponible`,
-  available: isModelAvailable(m),
-}));
+export const AI_MODELS = MODEL_REGISTRY
+  .filter((m) => m.category !== "embedding")
+  .map((m) => ({
+    value: m.id,
+    label: m.label,
+    hint: isModelAvailable(m)
+      ? `${m.limits.rpm > 0 ? `${m.limits.rpm} req/min` : ""}${m.limits.tpm > 0 ? ` · ${(m.limits.tpm / 1000).toFixed(0)}K tok/min` : ""}${m.unlimitedTpm ? " · tok ilimitado" : ""}`
+      : `sin cuota disponible`,
+    available: isModelAvailable(m),
+  }));
 
 export const AiConfigSchema = z.object({
   apiKey: z.string().default(""),
@@ -23,6 +25,7 @@ export const AiConfigSchema = z.object({
   confirmWrites: z.boolean().default(true),
   autoFallback: z.boolean().default(true),
   fallbackGroup: z.string().default("flash"),
+  ragEnabled: z.boolean().default(true),
 });
 export type AiConfig = z.infer<typeof AiConfigSchema>;
 

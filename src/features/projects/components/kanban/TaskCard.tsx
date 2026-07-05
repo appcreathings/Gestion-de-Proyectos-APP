@@ -13,12 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { daysUntil } from "@/domain/compute";
 import { priorityLabel, priorityVariant } from "@/domain/labels";
-import type { Area, Person, Task } from "@/domain/schemas";
+import type { Area, Person, Sprint, Task } from "@/domain/schemas";
 
 interface Props {
   task: Task;
   area?: Area;
   assignee?: Person;
+  /** Shown only when the board isn't already scoped to a single sprint (e.g. "Todas las tareas"). */
+  sprint?: Sprint;
   focused: boolean;
   focusRef?: React.RefObject<HTMLDivElement>;
   onMove: () => void;
@@ -31,6 +33,7 @@ export function TaskCard({
   task,
   area,
   assignee,
+  sprint,
   focused,
   focusRef,
   onMove,
@@ -95,6 +98,11 @@ export function TaskCard({
         {area && (
           <Badge variant="secondary" className="text-[10px]">
             {area.name}
+          </Badge>
+        )}
+        {sprint && (
+          <Badge variant="outline" className="text-[10px]">
+            {sprint.name}
           </Badge>
         )}
         {assignee && (

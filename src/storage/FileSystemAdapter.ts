@@ -25,6 +25,7 @@ const COLLECTION_DIRS: Collection[] = [
   "checklist-templates",
   "process-templates",
   "automations",
+  "quarters",
 ];
 const DOC_DIRS: Record<DocName, string> = {
   people: "people",

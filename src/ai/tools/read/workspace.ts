@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { computePortfolio } from "@/features/dashboard/portfolio";
+import { semanticSearch } from "@/ai/rag/search";
 import { defineTool, type AiTool, type ToolContext } from "../types";
 
 export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
@@ -52,6 +53,23 @@ export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
           })),
           byProduct: stats.byProduct,
         };
+      },
+    }),
+
+    defineTool({
+      name: "semantic_search",
+      description:
+        "Búsqueda semántica (IA) sobre el contenido indexado de proyectos, tareas, checklists y demás entidades. Devuelve hasta topK resultados ordenados por relevancia. Úsalo para preguntas conceptuales donde una búsqueda exacta no alcanza (ej. 'algo sobre el plan de marketing'). Requiere haber indexado los datos en Ajustes > Búsqueda semántica.",
+      mode: "read",
+      input: z.object({
+        query: z.string().min(1).describe("Consulta en lenguaje natural"),
+        topK: z.number().min(1).max(20).default(5).describe("Cantidad de resultados"),
+      }),
+      execute: async ({ query, topK }) => {
+        const { useAiConfigStore } = await import("@/store/useAiConfigStore");
+        const apiKey = useAiConfigStore.getState().config.apiKey;
+        if (!apiKey) return { error: "API key no configurada" };
+        return await semanticSearch(query, apiKey, topK);
       },
     }),
 

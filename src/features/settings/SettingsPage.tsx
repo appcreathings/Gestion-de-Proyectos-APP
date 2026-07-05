@@ -12,6 +12,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { PeopleCard } from "./PeopleCard";
 import { CollectionTransferCard } from "./CollectionTransferCard";
 import { AiSettingsCard } from "./AiSettingsCard";
+import { RagSettingsCard } from "./RagSettingsCard";
 
 const THEMES = [
   { value: "light", label: "Claro" },
@@ -184,6 +185,8 @@ function SettingsContent() {
         </Panel>
 
         <AiSettingsCard />
+
+        <RagSettingsCard />
 
         <CollectionTransferCard />
 

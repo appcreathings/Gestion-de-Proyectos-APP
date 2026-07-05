@@ -8,6 +8,7 @@ export type MigrationKind =
   | "checklist-templates"
   | "process-templates"
   | "automations"
+  | "quarters"
   | "people"
   | "notifications"
   | "activity"
@@ -20,11 +21,16 @@ export interface Migration {
 }
 
 /**
- * Registry of forward migrations per kind. Empty today — all data is at
- * `SCHEMA_VERSION` (1) — so `migrateRecord` is a pass-through. When a schema
- * changes, bump `SCHEMA_VERSION` and add the `{ to, up }` steps here.
+ * Registry of forward migrations per kind. When a schema changes, bump
+ * `SCHEMA_VERSION` and add the `{ to, up }` steps here.
  */
-export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {};
+export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
+  // v1 -> v2: added Sprints (spec 008). All new fields (`Project.sprints`,
+  // `Project.quarterId`, `Task.sprintId`) are optional/defaulted in the Zod
+  // schema, so existing v1 records need no data transformation — this step
+  // exists to document the bump and trigger the pre-migration snapshot.
+  projects: [{ to: 2, up: (data) => data }],
+};
 
 export interface MigrationResult<T> {
   value: T;

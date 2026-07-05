@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { Content } from "@google/genai";
 import { uuid } from "@/lib/utils";
 import { runAgentTurn, type ToolCallView } from "@/ai/gemini/agent";
-import { buildSystemPrompt } from "@/ai/gemini/systemPrompt";
+import { buildSystemPrompt, buildRagContext } from "@/ai/gemini/systemPrompt";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 import { createBoundTools } from "@/ai/tools";
 import { idbDel, idbGet, idbSet } from "@/storage/idb";
@@ -118,6 +118,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         ),
       );
 
+    const ragContext =
+      config.ragEnabled && config.apiKey
+        ? await buildRagContext(trimmed, config.apiKey)
+        : "";
     const result = await runAgentTurn({
       apiKey: config.apiKey,
       preferredModel: config.model,
@@ -125,7 +129,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       fallbackGroup: config.autoFallback ? config.fallbackGroup : undefined,
       confirmWrites: config.confirmWrites,
       tools: createBoundTools(),
-      systemInstruction: buildSystemPrompt(useAppStore.getState().workspace),
+      systemInstruction: buildSystemPrompt(useAppStore.getState().workspace, ragContext),
       history: geminiHistory,
       userMessage: trimmed,
       signal: abortController.signal,

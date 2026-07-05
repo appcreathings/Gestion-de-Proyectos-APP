@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Package,
   FolderKanban,
+  CalendarRange,
   Library,
   Workflow,
   Bell,
@@ -21,6 +22,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
 import { useChatStore } from "@/store/useChatStore";
 import { CommandPalette } from "@/features/command/CommandPalette";
+import { ProjectTree } from "@/components/layout/ProjectTree";
 import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 
@@ -48,6 +50,7 @@ const NAV = [
   { to: ROUTES.products, label: "Productos", icon: Package },
   { to: ROUTES.projects, label: "Proyectos", icon: FolderKanban },
   { to: ROUTES.library(), label: "Biblioteca", icon: Library },
+  { to: ROUTES.quarters, label: "Trimestres", icon: CalendarRange },
   { to: ROUTES.automations, label: "Automatizaciones", icon: Workflow },
   { to: ROUTES.notifications, label: "Notificaciones", icon: Bell },
   { to: ROUTES.settings(), label: "Ajustes", icon: Settings },
@@ -96,28 +99,31 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
       </button>
       <nav className="flex-1 space-y-0.5 px-3 py-2">
         {NAV.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            onClick={onNavClick}
-            className={({ isActive }) =>
-              cn(
-                "flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                isActive
-                  ? "bg-foreground/5 text-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
-              )
-            }
-          >
-            <Icon className="size-4" />
-            <span className="flex-1">{label}</span>
-            {to === ROUTES.notifications && unread > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1.5 text-[10px] font-semibold text-background">
-                {unread}
-              </span>
-            )}
-          </NavLink>
+          <div key={to}>
+            <NavLink
+              to={to}
+              end={end}
+              onClick={onNavClick}
+              className={({ isActive }) =>
+                cn(
+                  "flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                  isActive
+                    ? "bg-foreground/5 text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )
+              }
+            >
+              <Icon className="size-4" />
+              <span className="flex-1">{label}</span>
+              {to === ROUTES.notifications && unread > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1.5 text-[10px] font-semibold text-background">
+                  {unread}
+                </span>
+              )}
+            </NavLink>
+            {/* Lightweight Producto → Proyecto tree for quick jumps (spec 008). */}
+            {to === ROUTES.projects && <ProjectTree onNavigate={onNavClick} className="mt-0.5" />}
+          </div>
         ))}
       </nav>
       {/* Assistant toggle (treated as a nav row) */}
@@ -307,7 +313,7 @@ export function AppLayout() {
         </header>
 
         <main id="main-content" className="flex-1 overflow-y-auto pb-16 lg:pb-0">
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-16">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-16">
             <Outlet />
           </div>
         </main>
