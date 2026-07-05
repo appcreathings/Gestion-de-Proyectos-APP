@@ -43,7 +43,7 @@ export function FeatureHighlights() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        {FEATURES.map((f, index) => {
+        {FEATURES.map((f) => {
           const Icon = f.icon;
           return (
             <Card 
