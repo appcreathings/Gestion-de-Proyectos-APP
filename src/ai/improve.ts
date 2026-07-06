@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createClient } from "@/ai/gemini/client";
 import { classifyAiError } from "@/ai/gemini/errors";
 import { rateLimiter } from "@/ai/rateLimiter";
+import { getModelsByGroup } from "@/ai/models";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 
 export const SUGGESTION_FIELDS = [
@@ -138,4 +139,94 @@ export async function runImprove(options: ImproveOptions): Promise<ImproveResult
     rateLimiter.recordRequest(model);
     return { ok: false, error: classifyAiError(e) };
   }
+}
+
+export interface ImproveOptionsWithFallback extends ImproveOptions {
+  autoFallback?: boolean;
+  fallbackGroup?: string;
+  onFallback?: (from: string, to: string, reason: string) => void;
+}
+
+export type ImproveResultWithMeta =
+  | { ok: true; data: AiImproveResult; modelUsed?: string; fallbackChain?: string[] }
+  | { ok: false; error: AiErrorKind; modelUsed?: string; fallbackChain?: string[] };
+
+export async function runImproveWithFallback(
+  options: ImproveOptionsWithFallback,
+): Promise<ImproveResultWithMeta> {
+  const {
+    apiKey,
+    model: preferredModel = "gemini-2.5-flash",
+    entityType,
+    fields,
+    signal,
+    autoFallback = true,
+    fallbackGroup = "flash",
+    onFallback,
+  } = options;
+
+  if (!autoFallback) {
+    const result = await runImprove({
+      apiKey,
+      model: preferredModel,
+      entityType,
+      fields,
+      signal,
+    });
+    if (result.ok) {
+      return { ...result, modelUsed: preferredModel };
+    }
+    return { ...result, modelUsed: preferredModel };
+  }
+
+  const groupModels = getModelsByGroup(fallbackGroup);
+  const fallbackChain: string[] = [];
+
+  for (const modelDef of groupModels) {
+    if (!rateLimiter.canMakeRequest(modelDef.id)) {
+      continue;
+    }
+
+    fallbackChain.push(modelDef.id);
+
+    try {
+      const result = await runImprove({
+        apiKey,
+        model: modelDef.id,
+        entityType,
+        fields,
+        signal,
+      });
+
+      if (result.ok) {
+        return { ...result, modelUsed: modelDef.id, fallbackChain };
+      }
+
+      if (
+        result.error === "rate-limit" ||
+        result.error === "quota-exhausted"
+      ) {
+        rateLimiter.markSaturated(modelDef.id, 60);
+        if (onFallback) {
+          const nextModel = groupModels.find(
+            (m) => m.priority > modelDef.priority && rateLimiter.canMakeRequest(m.id),
+          );
+          if (nextModel) {
+            onFallback(modelDef.id, nextModel.id, result.error);
+          }
+        }
+        continue;
+      }
+
+      return { ...result, modelUsed: modelDef.id, fallbackChain };
+    } catch {
+      continue;
+    }
+  }
+
+  return {
+    ok: false,
+    error: "all-models-exhausted",
+    fallbackChain,
+  };
 }

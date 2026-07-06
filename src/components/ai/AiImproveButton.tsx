@@ -1,6 +1,7 @@
 import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AiSuggestionsPanel } from "./AiSuggestionsPanel";
+import { AiModelSelector } from "./AiModelSelector";
 import { useAiImprove } from "@/hooks/useAiImprove";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 import type { EntityType } from "@/ai/improve";
@@ -20,6 +21,7 @@ export function AiImproveButton({ entityType, fields, onApply }: AiImproveButton
     cancel,
     isLoading,
     error,
+    errorType,
     result,
     acceptedIndices,
     rejectedIndices,
@@ -28,31 +30,47 @@ export function AiImproveButton({ entityType, fields, onApply }: AiImproveButton
     acceptAll,
     rejectAll,
     reset,
+    currentModel,
+    fallbackAttempt,
+    totalAttempts,
+    goToSettings,
   } = useAiImprove({ entityType, fields, onApply });
 
   return (
     <div className="space-y-2">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={!hasKey || isLoading}
-        title={!hasKey ? "Configura una API key en Ajustes → IA" : undefined}
-        onClick={() => {
-          if (isLoading) {
-            cancel();
-          } else {
-            improve();
-          }
-        }}
-      >
-        {isLoading ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <Sparkles className="size-4" />
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!hasKey || isLoading}
+          title={!hasKey ? "Configura una API key en Ajustes → IA" : undefined}
+          onClick={() => {
+            if (isLoading) {
+              cancel();
+            } else {
+              improve();
+            }
+          }}
+        >
+          {isLoading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Sparkles className="size-4" />
+          )}
+          {isLoading ? "Analizando…" : "Mejorar con IA"}
+        </Button>
+
+        {hasKey && (
+          <AiModelSelector
+            value={currentModel}
+            onChange={() => {}}
+            compact
+            showAvailability
+            disabled={isLoading}
+          />
         )}
-        {isLoading ? "Analizando…" : "Mejorar con IA"}
-      </Button>
+      </div>
 
       {result && (
         <AiSuggestionsPanel
@@ -75,6 +93,7 @@ export function AiImproveButton({ entityType, fields, onApply }: AiImproveButton
         <AiSuggestionsPanel
           isLoading={false}
           error={error}
+          errorType={errorType}
           suggestions={[]}
           summary=""
           acceptedIndices={new Set()}
@@ -85,6 +104,11 @@ export function AiImproveButton({ entityType, fields, onApply }: AiImproveButton
           onRejectAll={() => {}}
           onRetry={improve}
           onClose={reset}
+          onGoToSettings={goToSettings}
+          onChangeModel={() => {}}
+          currentModel={currentModel}
+          fallbackAttempt={fallbackAttempt}
+          totalAttempts={totalAttempts}
         />
       )}
 

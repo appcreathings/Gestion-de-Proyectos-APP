@@ -1,6 +1,7 @@
-import { Sparkles, Check, X, RotateCcw, Lightbulb, Loader2 } from "lucide-react";
+import { Sparkles, Check, X, RotateCcw, Lightbulb, Loader2, Settings, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FieldSuggestion } from "@/ai/improve";
+import type { AiErrorKind } from "@/ai/gemini/errors";
 
 export interface AiSuggestionsPanelProps {
   isLoading: boolean;
@@ -15,6 +16,12 @@ export interface AiSuggestionsPanelProps {
   onRejectAll: () => void;
   onRetry: () => void;
   onClose: () => void;
+  errorType?: AiErrorKind | null;
+  onGoToSettings?: () => void;
+  onChangeModel?: () => void;
+  currentModel?: string;
+  fallbackAttempt?: number;
+  totalAttempts?: number;
 }
 
 export function AiSuggestionsPanel({
@@ -30,6 +37,12 @@ export function AiSuggestionsPanel({
   onRejectAll,
   onRetry,
   onClose,
+  errorType,
+  onGoToSettings,
+  onChangeModel,
+  currentModel,
+  fallbackAttempt,
+  totalAttempts,
 }: AiSuggestionsPanelProps) {
   if (isLoading) {
     return (
@@ -48,16 +61,45 @@ export function AiSuggestionsPanel({
   }
 
   if (error) {
+    const actions = getErrorActions(errorType);
     return (
       <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
         <div className="flex items-start gap-2 text-sm text-destructive">
           <Lightbulb className="mt-0.5 size-4 shrink-0" />
-          <span>{error}</span>
+          <div className="flex-1">
+            <span>{error}</span>
+            {currentModel && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Modelo: {currentModel}
+              </p>
+            )}
+            {totalAttempts && totalAttempts > 1 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Intento {fallbackAttempt} de {totalAttempts} modelos intentados
+              </p>
+            )}
+          </div>
         </div>
-        <Button variant="outline" size="sm" className="mt-2" onClick={onRetry}>
-          <RotateCcw className="size-3.5" />
-          Reintentar
-        </Button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {actions.showChangeModel && onChangeModel && (
+            <Button variant="outline" size="sm" onClick={onChangeModel}>
+              <ArrowRightLeft className="size-3.5" />
+              Cambiar modelo
+            </Button>
+          )}
+          {actions.showSettings && onGoToSettings && (
+            <Button variant="outline" size="sm" onClick={onGoToSettings}>
+              <Settings className="size-3.5" />
+              Ir a configuración
+            </Button>
+          )}
+          {actions.showRetry && (
+            <Button variant="outline" size="sm" onClick={onRetry}>
+              <RotateCcw className="size-3.5" />
+              Reintentar
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -189,4 +231,27 @@ function formatValue(value: unknown): string {
     return value.map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v))).join(", ");
   }
   return String(value);
+}
+
+interface ErrorActions {
+  showSettings: boolean;
+  showChangeModel: boolean;
+  showRetry: boolean;
+}
+
+function getErrorActions(errorType: AiErrorKind | null | undefined): ErrorActions {
+  switch (errorType) {
+    case "invalid-key":
+      return { showSettings: true, showChangeModel: false, showRetry: false };
+    case "rate-limit":
+    case "quota-exhausted":
+      return { showSettings: true, showChangeModel: true, showRetry: true };
+    case "all-models-exhausted":
+      return { showSettings: true, showChangeModel: false, showRetry: true };
+    case "offline":
+    case "aborted":
+    case "unknown":
+    default:
+      return { showSettings: false, showChangeModel: false, showRetry: true };
+  }
 }

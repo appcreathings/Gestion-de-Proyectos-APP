@@ -1,6 +1,7 @@
 export type AiErrorKind =
   | "invalid-key"
   | "rate-limit"
+  | "quota-exhausted"
   | "all-models-exhausted"
   | "offline"
   | "aborted"
@@ -11,6 +12,8 @@ export const AI_ERROR_MESSAGES: Record<AiErrorKind, string> = {
     "La API key no es válida o fue revocada. Revísala en Ajustes → Asistente IA.",
   "rate-limit":
     "Límite de peticiones alcanzado. Espera unos segundos y vuelve a intentarlo.",
+  "quota-exhausted":
+    "Cuota de tokens agotada para este modelo. Cambia a otro modelo o espera a que se restablezca.",
   "all-models-exhausted":
     "Todos los modelos disponibles alcanzaron su límite. Espera un minuto y vuelve a intentarlo, o cambia el grupo de fallback en Ajustes.",
   offline: "Sin conexión a internet. El asistente necesita red para hablar con Gemini.",
@@ -32,7 +35,12 @@ export function classifyAiError(e: unknown): AiErrorKind {
 
   const msg = e instanceof Error ? e.message.toLowerCase() : String(e).toLowerCase();
   if (msg.includes("api key")) return "invalid-key";
-  if (msg.includes("quota") || msg.includes("rate")) return "rate-limit";
+  if (msg.includes("quota") || msg.includes("rate")) {
+    if (msg.includes("token") || msg.includes("exceeded") || msg.includes("daily limit")) {
+      return "quota-exhausted";
+    }
+    return "rate-limit";
+  }
   if (msg.includes("fetch failed") || msg.includes("networkerror")) return "offline";
   return "unknown";
 }

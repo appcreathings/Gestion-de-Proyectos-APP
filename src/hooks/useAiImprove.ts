@@ -1,11 +1,12 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
-  runImprove,
+  runImproveWithFallback,
   type EntityType,
   type FieldSuggestion,
   type AiImproveResult,
 } from "@/ai/improve";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
+import type { AiErrorKind } from "@/ai/gemini/errors";
 
 export interface UseAiImproveOptions {
   entityType: EntityType;
@@ -18,6 +19,7 @@ export interface UseAiImproveReturn {
   cancel: () => void;
   isLoading: boolean;
   error: string | null;
+  errorType: AiErrorKind | null;
   result: AiImproveResult | null;
   acceptedIndices: Set<number>;
   rejectedIndices: Set<number>;
@@ -27,6 +29,10 @@ export interface UseAiImproveReturn {
   rejectAll: () => void;
   reset: () => void;
   pendingSuggestions: FieldSuggestion[];
+  currentModel: string;
+  fallbackAttempt: number;
+  totalAttempts: number;
+  goToSettings: () => void;
 }
 
 export function useAiImprove({
@@ -37,14 +43,23 @@ export function useAiImprove({
   const config = useAiConfigStore((s) => s.config);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<AiErrorKind | null>(null);
   const [result, setResult] = useState<AiImproveResult | null>(null);
   const [acceptedIndices, setAcceptedIndices] = useState<Set<number>>(new Set());
   const [rejectedIndices, setRejectedIndices] = useState<Set<number>>(new Set());
+  const [currentModel, setCurrentModel] = useState(config.model);
+  const [fallbackAttempt, setFallbackAttempt] = useState(1);
+  const [totalAttempts, setTotalAttempts] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    setCurrentModel(config.model);
+  }, [config.model]);
 
   const improve = useCallback(async () => {
     if (!config.apiKey) {
       setError("Configura una API key en Ajustes → IA");
+      setErrorType("invalid-key");
       return;
     }
 
@@ -54,36 +69,49 @@ export function useAiImprove({
 
     setIsLoading(true);
     setError(null);
+    setErrorType(null);
     setResult(null);
     setAcceptedIndices(new Set());
     setRejectedIndices(new Set());
+    setFallbackAttempt(1);
+    setCurrentModel(config.model);
 
-    const res = await runImprove({
+    const res = await runImproveWithFallback({
       apiKey: config.apiKey,
       model: config.model,
       entityType,
       fields,
       signal: controller.signal,
+      autoFallback: config.autoFallback,
+      fallbackGroup: config.fallbackGroup,
+      onFallback: (_from, to) => {
+        setFallbackAttempt((prev) => prev + 1);
+        setCurrentModel(to);
+      },
     });
 
     if (controller.signal.aborted) return;
 
     setIsLoading(false);
+    setTotalAttempts(res.fallbackChain?.length ?? 1);
 
     if (res.ok) {
       setResult(res.data);
+      setCurrentModel(res.modelUsed ?? config.model);
     } else {
       const messages: Record<string, string> = {
         "invalid-key": "La API key no es válida. Revísala en Ajustes → IA.",
-        "rate-limit": "Demasiadas solicitudes. Espera un momento y vuelve a intentarlo.",
-        "all-models-exhausted": "Todos los modelos alcanzaron su límite. Espera un minuto.",
+        "rate-limit": "Límite de peticiones alcanzado. Espera un momento.",
+        "quota-exhausted": "Cuota de tokens agotada. Cambia de modelo o espera.",
+        "all-models-exhausted": "Todos los modelos alcanzaron su límite.",
         offline: "Sin conexión a internet.",
         aborted: "Solicitud cancelada.",
         unknown: "Error inesperado. Inténtalo de nuevo.",
       };
       setError(messages[res.error] ?? "Error desconocido");
+      setErrorType(res.error);
     }
-  }, [config.apiKey, config.model, entityType, fields]);
+  }, [config.apiKey, config.model, config.autoFallback, config.fallbackGroup, entityType, fields]);
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
@@ -147,20 +175,28 @@ export function useAiImprove({
     abortRef.current?.abort();
     setIsLoading(false);
     setError(null);
+    setErrorType(null);
     setResult(null);
     setAcceptedIndices(new Set());
     setRejectedIndices(new Set());
+    setFallbackAttempt(1);
+    setTotalAttempts(0);
   }, []);
 
   const pendingSuggestions = result
     ? result.suggestions.filter((_, i) => !acceptedIndices.has(i) && !rejectedIndices.has(i))
     : [];
 
+  const goToSettings = useCallback(() => {
+    window.location.href = "/settings#ia";
+  }, []);
+
   return {
     improve,
     cancel,
     isLoading,
     error,
+    errorType,
     result,
     acceptedIndices,
     rejectedIndices,
@@ -170,5 +206,9 @@ export function useAiImprove({
     rejectAll,
     reset,
     pendingSuggestions,
+    currentModel,
+    fallbackAttempt,
+    totalAttempts,
+    goToSettings,
   };
 }
