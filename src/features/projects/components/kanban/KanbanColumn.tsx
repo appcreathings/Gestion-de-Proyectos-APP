@@ -27,7 +27,7 @@ export function KanbanColumn({ status, count, taskIds, onAdd, children }: Props)
     <div
       ref={setNodeRef}
       className={cn(
-        "flex min-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors md:min-w-0 md:shrink md:border-border/70",
+        "flex min-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors sm:min-w-0 sm:shrink sm:border-border/70",
         isOver && "border-foreground/40 bg-foreground/[0.06]",
       )}
     >

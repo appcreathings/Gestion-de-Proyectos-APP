@@ -296,7 +296,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         onDragEnd={onDragEnd}
         onDragCancel={onDragCancel}
       >
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto md:grid md:grid-cols-2 md:gap-4 xl:grid-cols-4 xl:gap-3 md:snap-none md:overflow-visible">
+        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto sm:grid sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-3 sm:snap-none sm:overflow-visible">
           {TASK_COLUMNS.map((col) => {
             const ids = board[col];
             const tasks = ids
