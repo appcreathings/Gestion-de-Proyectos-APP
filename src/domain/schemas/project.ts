@@ -69,10 +69,20 @@ export const AreaSchema = z.object({
 });
 export type Area = z.infer<typeof AreaSchema>;
 
+export const CommentSchema = z.object({
+  id: Id,
+  authorId: Id.nullable().default(null),
+  text: z.string().min(1),
+  createdAt: IsoDate,
+  updatedAt: IsoDate,
+});
+export type Comment = z.infer<typeof CommentSchema>;
+
 export const TaskSchema = z.object({
   id: Id,
   title: z.string(),
   description: z.string().default(""),
+  summary: z.string().max(140).default(""),
   status: TaskStatus.default("todo"),
   priority: Priority.default("medium"),
   assigneeId: Id.nullable().default(null),
@@ -81,6 +91,7 @@ export const TaskSchema = z.object({
   sourceItemId: Id.nullable().default(null),
   sprintId: Id.nullable().default(null),
   tags: z.array(z.string()).default([]),
+  comments: z.array(CommentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

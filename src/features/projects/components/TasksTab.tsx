@@ -29,6 +29,7 @@ import { SprintFormDialog } from "./SprintFormDialog";
 import { SprintSwitcher, type SprintScope } from "./SprintSwitcher";
 import { KanbanColumn } from "./kanban/KanbanColumn";
 import { TaskCard } from "./kanban/TaskCard";
+import { TaskDetailDrawer } from "./kanban/TaskDetailDrawer";
 
 interface Props {
   project: Project;
@@ -74,6 +75,26 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const areaFilterId = searchParams.get("area");
   const areaFilter = areaFilterId ? project.areas.find((a) => a.id === areaFilterId) : undefined;
+
+  // Detail drawer state (spec 013)
+  const detailTaskId = searchParams.get("detail");
+  const detailTask = detailTaskId ? project.tasks.find((t) => t.id === detailTaskId) ?? null : null;
+
+  function openDetail(taskId: string) {
+    const next = new URLSearchParams(searchParams);
+    next.set("detail", taskId);
+    setSearchParams(next, { replace: true });
+  }
+
+  function closeDetail() {
+    const next = new URLSearchParams(searchParams);
+    next.delete("detail");
+    setSearchParams(next, { replace: true });
+  }
+
+  function handleUpdateTask(updatedTask: Task) {
+    mutate((p) => ops.updateTask(p, updatedTask));
+  }
 
   // Default scope: the project's active sprint if it has one, otherwise "all"
   // (unchanged behavior for projects with no sprints — principio V).
@@ -170,6 +191,11 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   }
 
   function onDragStart(event: DragStartEvent) {
+    // Block drag while the detail drawer is open (spec 013)
+    if (detailTaskId) {
+      event.activatorEvent.preventDefault?.();
+      return;
+    }
     setActiveId(String(event.active.id));
     // Touch drags are restricted to intra-column reorder (onDragOver below) — column changes on
     // touch go through the existing move buttons instead.
@@ -339,6 +365,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                     }
                     onEdit={() => setDialog({ open: true, task: t })}
                     onDelete={() => mutate((p) => ops.removeTask(p, t.id))}
+                    onOpenDetail={() => openDetail(t.id)}
                   />
                 ))}
               </KanbanColumn>
@@ -363,6 +390,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
               onToggleBlock={() => {}}
               onEdit={() => {}}
               onDelete={() => {}}
+              onOpenDetail={() => {}}
             />
           ) : null}
         </DragOverlay>
@@ -393,6 +421,15 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         title={`¿Eliminar "${deleteSprint?.name}"?`}
         description="Las tareas del sprint volverán al backlog."
         onConfirm={confirmDeleteSprint}
+      />
+
+      <TaskDetailDrawer
+        task={detailTask}
+        areas={project.areas}
+        people={people}
+        sprints={project.sprints}
+        onUpdate={handleUpdateTask}
+        onClose={closeDetail}
       />
     </div>
   );

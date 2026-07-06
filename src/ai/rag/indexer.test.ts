@@ -96,6 +96,7 @@ const sample: ToolData = {
           id: "t1",
           title: "Tarea inicial",
           description: "Descripcion de la tarea",
+          summary: "",
           status: "todo",
           priority: "medium",
           assigneeId: null,

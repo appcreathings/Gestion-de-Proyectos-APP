@@ -123,6 +123,7 @@ export function newTask(title: string, areaId: string | null = null): Task {
     id: uuid(),
     title,
     description: "",
+    summary: "",
     status: "todo",
     priority: "medium",
     assigneeId: null,

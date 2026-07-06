@@ -33,6 +33,7 @@ interface Props {
   onToggleBlock: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onOpenDetail: () => void;
 }
 
 /** Sortable Kanban card (reorder + cross-column). The "Mover" button remains as keyboard fallback. */
@@ -49,6 +50,7 @@ export function TaskCard({
   onToggleBlock,
   onEdit,
   onDelete,
+  onOpenDetail,
 }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id, data: { status: task.status } });
@@ -76,20 +78,29 @@ export function TaskCard({
             ? // Origin slot while the card itself follows the pointer via DragOverlay — a calm
               // dashed placeholder instead of a translucent duplicate of the full card.
               "border-dashed border-border/50 bg-foreground/[0.02]"
-            : "border-border/70 bg-background hover:border-border",
+            : "border-border/70 bg-background hover:border-border cursor-pointer",
         focused && !isPlaceholder && !isOverlay && "ring-2 ring-foreground/60",
       )}
+      onClick={!isOverlay && !isPlaceholder ? onOpenDetail : undefined}
     >
       <div className="flex min-w-0 items-start gap-1.5 mb-1.5">
         <button
           className="flex items-center justify-center -m-1.5 p-1.5 cursor-grab touch-none text-muted-foreground/50 transition-colors hover:text-foreground active:cursor-grabbing shrink-0 min-w-[44px] min-h-[44px]"
           aria-label={`Arrastrar tarea ${task.title}`}
+          onClick={(e) => e.stopPropagation()}
           {...listeners}
           {...attributes}
         >
           <GripVertical className="size-3.5" />
         </button>
-        <p className="text-sm font-medium leading-tight break-words line-clamp-2">{task.title}</p>
+        <div className="flex flex-col min-w-0 flex-1">
+          <p className="text-sm font-medium leading-tight break-words line-clamp-2">{task.title}</p>
+          {task.summary && !isPlaceholder && (
+            <p className="text-xs text-muted-foreground leading-tight mt-0.5 line-clamp-2">
+              {task.summary}
+            </p>
+          )}
+        </div>
       </div>
       {/* Placeholder (dragging, not the overlay): keep just the title above for context, drop the
           badges/actions so the origin slot reads as a calm hole rather than a duplicate card. */}
@@ -135,7 +146,7 @@ export function TaskCard({
             size="icon"
             className="size-8"
             title="Devolver al estado anterior"
-            onClick={onMoveBack}
+            onClick={(e) => { e.stopPropagation(); onMoveBack(); }}
           >
             <ArrowLeft className="size-4" />
           </Button>
@@ -144,7 +155,7 @@ export function TaskCard({
             size="icon"
             className="size-8"
             title="Mover al siguiente estado"
-            onClick={onMove}
+            onClick={(e) => { e.stopPropagation(); onMove(); }}
           >
             <ArrowRight className="size-4" />
           </Button>
@@ -153,7 +164,7 @@ export function TaskCard({
             size="icon"
             className="size-8"
             title={task.status === "blocked" ? "Desbloquear" : "Bloquear"}
-            onClick={onToggleBlock}
+            onClick={(e) => { e.stopPropagation(); onToggleBlock(); }}
           >
             {task.status === "blocked" ? (
               <Unlock className="size-4" />
@@ -165,7 +176,7 @@ export function TaskCard({
             variant="ghost"
             size="icon"
             className="size-8"
-            onClick={onEdit}
+            onClick={(e) => { e.stopPropagation(); onEdit(); }}
           >
             <Pencil className="size-4" />
           </Button>
@@ -173,7 +184,7 @@ export function TaskCard({
             variant="ghost"
             size="icon"
             className="size-8"
-            onClick={onDelete}
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
           >
             <Trash2 className="size-4" />
           </Button>

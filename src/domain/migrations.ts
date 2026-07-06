@@ -29,7 +29,12 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
   // `Project.quarterId`, `Task.sprintId`) are optional/defaulted in the Zod
   // schema, so existing v1 records need no data transformation — this step
   // exists to document the bump and trigger the pre-migration snapshot.
-  projects: [{ to: 2, up: (data) => data }],
+  projects: [
+    { to: 2, up: (data) => data },
+    // v2 -> v3: added Task.summary (spec 013). New field is optional/defaulted
+    // in the Zod schema, so existing v2 records need no data transformation.
+    { to: 3, up: (data) => data },
+  ],
 };
 
 export interface MigrationResult<T> {
