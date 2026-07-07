@@ -107,6 +107,8 @@ const sample: ToolData = {
           tags: [],
           comments: [],
           archived: false,
+          estimate: null,
+          subtasks: [],
           createdAt: NOW,
           updatedAt: NOW,
         },

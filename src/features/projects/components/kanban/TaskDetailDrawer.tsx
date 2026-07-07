@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Archive, MessageCircle, Send, X } from "lucide-react";
+import { Archive, MessageCircle, Send, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { priorityLabel, taskStatusLabel } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
 import { uuid, nowIso, cn } from "@/lib/utils";
-import type { Area, Comment, Person, Priority, Sprint, Task, TaskStatus } from "@/domain/schemas";
+import type { Area, Comment, Person, Priority, Sprint, Subtask, Task, TaskStatus } from "@/domain/schemas";
 
 interface Props {
   task: Task | null;
@@ -36,6 +37,9 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
   const [newComment, setNewComment] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [estimate, setEstimate] = useState("");
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
   const [drawerWidth, setDrawerWidth] = useState(() => {
     try {
       const saved = localStorage.getItem("kanban-drawer-width");
@@ -60,6 +64,8 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
       setAssigneeId(task.assigneeId ?? "");
       setDueDate(task.dueDate ?? "");
       setSprintId(task.sprintId ?? "");
+      setEstimate(task.estimate !== null && task.estimate !== undefined ? String(task.estimate) : "");
+      setSubtasks(task.subtasks ?? []);
     }
   }, [task]);
 
@@ -127,6 +133,72 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
       });
     },
     [task, onUpdate],
+  );
+
+  const handleEstimateChange = useCallback(
+    (value: string) => {
+      if (!task) return;
+      setEstimate(value);
+      const numValue = value === "" ? null : parseFloat(value);
+      if (isNaN(numValue as number)) return;
+      onUpdate({
+        ...task,
+        estimate: numValue,
+        updatedAt: nowIso(),
+      });
+    },
+    [task, onUpdate],
+  );
+
+  const addSubtask = useCallback(() => {
+    if (!task || !newSubtaskTitle.trim()) return;
+    const newSubtask: Subtask = {
+      id: uuid(),
+      title: newSubtaskTitle.trim(),
+      done: false,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    };
+    const updatedSubtasks = [...subtasks, newSubtask];
+    setSubtasks(updatedSubtasks);
+    onUpdate({
+      ...task,
+      subtasks: updatedSubtasks,
+      updatedAt: nowIso(),
+    });
+    setNewSubtaskTitle("");
+  }, [task, subtasks, newSubtaskTitle, onUpdate]);
+
+  const toggleSubtask = useCallback(
+    (subtaskId: string) => {
+      if (!task) return;
+      const updatedSubtasks = subtasks.map((s) =>
+        s.id === subtaskId
+          ? { ...s, done: !s.done, updatedAt: nowIso() }
+          : s,
+      );
+      setSubtasks(updatedSubtasks);
+      onUpdate({
+        ...task,
+        subtasks: updatedSubtasks,
+        updatedAt: nowIso(),
+      });
+    },
+    [task, subtasks, onUpdate],
+  );
+
+  const deleteSubtask = useCallback(
+    (subtaskId: string) => {
+      if (!task) return;
+      const updatedSubtasks = subtasks.filter((s) => s.id !== subtaskId);
+      setSubtasks(updatedSubtasks);
+      onUpdate({
+        ...task,
+        subtasks: updatedSubtasks,
+        updatedAt: nowIso(),
+      });
+    },
+    [task, subtasks, onUpdate],
   );
 
   useEffect(() => {
@@ -464,6 +536,79 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
                   persist("dueDate", v);
                 }}
               />
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="d-estimate" className="text-xs text-muted-foreground">
+                Estimación (horas)
+              </Label>
+              <Input
+                id="d-estimate"
+                type="number"
+                min="0"
+                step="0.5"
+                value={estimate}
+                onChange={(e) => handleEstimateChange(e.target.value)}
+                placeholder="Ej: 8"
+                className="text-sm"
+              />
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label className="text-xs text-muted-foreground">
+                Subtareas ({subtasks.filter((s) => s.done).length}/{subtasks.length})
+              </Label>
+              {subtasks.length > 0 && (
+                <div className="space-y-1.5">
+                  {subtasks.map((subtask) => (
+                    <div key={subtask.id} className="flex items-center gap-2 group">
+                      <Checkbox
+                        checked={subtask.done}
+                        onCheckedChange={() => toggleSubtask(subtask.id)}
+                      />
+                      <span
+                        className={cn(
+                          "flex-1 text-sm",
+                          subtask.done && "line-through text-muted-foreground",
+                        )}
+                      >
+                        {subtask.title}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => deleteSubtask(subtask.id)}
+                      >
+                        <Trash2 className="size-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  value={newSubtaskTitle}
+                  onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newSubtaskTitle.trim()) {
+                      e.preventDefault();
+                      addSubtask();
+                    }
+                  }}
+                  placeholder="Nueva subtarea..."
+                  className="text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-9"
+                  onClick={addSubtask}
+                  disabled={!newSubtaskTitle.trim()}
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-1.5">

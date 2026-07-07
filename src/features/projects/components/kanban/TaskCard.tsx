@@ -13,6 +13,8 @@ import {
   MoreVertical,
   Pencil,
   Archive,
+  Clock,
+  CheckSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -174,6 +176,24 @@ export function TaskCard({
             >
               <MessageCircle className="size-3" />
               {task.comments!.length}
+            </Badge>
+          )}
+          {task.estimate !== null && task.estimate !== undefined && (
+            <Badge
+              variant="outline"
+              className="gap-1 text-[11px] leading-tight px-1.5 py-0.5"
+            >
+              <Clock className="size-3" />
+              {task.estimate}h
+            </Badge>
+          )}
+          {(task.subtasks?.length ?? 0) > 0 && (
+            <Badge
+              variant="outline"
+              className="gap-1 text-[11px] leading-tight px-1.5 py-0.5"
+            >
+              <CheckSquare className="size-3" />
+              {task.subtasks!.filter((s) => s.done).length}/{task.subtasks!.length}
             </Badge>
           )}
           {(task.tags ?? []).slice(0, 3).map((tag) => (

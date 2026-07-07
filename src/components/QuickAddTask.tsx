@@ -65,6 +65,8 @@ export function QuickAddTask({ open, onClose }: Props) {
       tags: [],
       comments: [],
       archived: false,
+      estimate: null,
+      subtasks: [],
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };

@@ -134,6 +134,8 @@ export function newTask(title: string, areaId: string | null = null): Task {
     tags: [],
     comments: [],
     archived: false,
+    estimate: null,
+    subtasks: [],
     createdAt: ts,
     updatedAt: ts,
   };

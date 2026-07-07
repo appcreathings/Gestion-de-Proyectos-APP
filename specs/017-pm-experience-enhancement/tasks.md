@@ -243,35 +243,35 @@ avanzar.
 
 ### Fase 10 — Estimación y subtareas (HU-10, HU-11)
 
-- [ ] T1790 `src/domain/schemas/project.ts`: agregar campo `estimate` a TaskSchema.
+- [x] T1790 `src/domain/schemas/project.ts`: agregar campo `estimate` a TaskSchema.
   - Tipo: `z.number().nullable().default(null)`.
   - Significa horas o story points.
-- [ ] T1791 `src/domain/schemas/project.ts`: crear SubtaskSchema.
+- [x] T1791 `src/domain/schemas/project.ts`: crear SubtaskSchema.
   - Campos: id, title, done, createdAt, updatedAt.
   - Agregar campo `subtasks` a TaskSchema: `z.array(SubtaskSchema).default([])`.
-- [ ] T1792 `src/domain/migrations.ts`: implementar migración v3 → v4.
+- [x] T1792 `src/domain/migrations.ts`: implementar migración v5 → v6.
   - Agregar `estimate: null` a todas las tareas existentes.
   - Agregar `subtasks: []` a todas las tareas existentes.
-  - Incrementar `schemaVersion` a 4.
-- [ ] T1793 `TaskDetailDrawer.tsx`: agregar input de estimación.
+  - Incrementar `schemaVersion` a 6.
+- [x] T1793 `TaskDetailDrawer.tsx`: agregar input de estimación.
   - Input numérico con label "Estimación (horas)".
   - Placeholder: "Ej: 8".
   - Actualizar `task.estimate` y llamar a `handleUpdateTask`.
-- [ ] T1794 `TaskDetailDrawer.tsx`: agregar sección de subtareas.
+- [x] T1794 `TaskDetailDrawer.tsx`: agregar sección de subtareas.
   - Lista de subtareas con checkbox (done).
   - Input para agregar nueva subtarea.
   - Botón para eliminar subtarea.
-- [ ] T1795 `TaskCard.tsx`: mostrar estimación en la card (si está definida).
+- [x] T1795 `TaskCard.tsx`: mostrar estimación en la card (si está definida).
   - Icono: Clock (lucide-react).
   - Formato: "8h" o "8sp" (story points).
-- [ ] T1796 `TaskCard.tsx`: mostrar progreso de subtareas en la card.
+- [x] T1796 `TaskCard.tsx`: mostrar progreso de subtareas en la card.
   - Formato: "2/5" (done/total).
   - Solo mostrar si hay subtareas.
-- [ ] T1797 `OverviewTab.tsx`: mostrar suma de estimaciones por estado.
+- [x] T1797 `OverviewTab.tsx`: mostrar suma de estimaciones por estado.
   - Nueva fila: "Estimación total" con suma de `task.estimate` agrupada por status.
-- [ ] T1798 Verificar: campos se guardan, se muestran, migración funciona.
+- [x] T1798 Verificar: campos se guardan, se muestran, migración funciona.
   - Smoke visual: agregar estimación y subtareas a una tarea, verificar que se muestran en la card.
-  - Verificar que la migración v3 → v4 funciona sin pérdida de datos.
+  - Verificar que la migración v5 → v6 funciona sin pérdida de datos.
   - `npx tsc --noEmit`, `npx vitest run`.
 
 ### Fase 11 — WIP limits (HU-12)

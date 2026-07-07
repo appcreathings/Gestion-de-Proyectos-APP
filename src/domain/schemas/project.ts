@@ -78,6 +78,15 @@ export const CommentSchema = z.object({
 });
 export type Comment = z.infer<typeof CommentSchema>;
 
+export const SubtaskSchema = z.object({
+  id: Id,
+  title: z.string(),
+  done: z.boolean().default(false),
+  createdAt: IsoDate,
+  updatedAt: IsoDate,
+});
+export type Subtask = z.infer<typeof SubtaskSchema>;
+
 export const TaskSchema = z.object({
   id: Id,
   title: z.string(),
@@ -93,6 +102,8 @@ export const TaskSchema = z.object({
   tags: z.array(z.string()).default([]),
   comments: z.array(CommentSchema).default([]),
   archived: z.boolean().default(false),
+  estimate: z.number().nullable().default(null),
+  subtasks: z.array(SubtaskSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

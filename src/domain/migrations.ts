@@ -40,6 +40,9 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // v4 -> v5: added Task.archived (spec 015). New field is optional/defaulted
     // in the Zod schema, so existing v4 records need no data transformation.
     { to: 5, up: (data) => data },
+    // v5 -> v6: added Task.estimate and Task.subtasks (spec 017). New fields are
+    // optional/defaulted in the Zod schema, so existing v5 records need no data transformation.
+    { to: 6, up: (data) => data },
   ],
 };
 
