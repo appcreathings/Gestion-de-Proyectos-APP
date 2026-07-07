@@ -10,8 +10,8 @@ import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { priorityLabel, taskStatusLabel } from "@/domain/labels";
-import { uuid } from "@/lib/utils";
-import { nowIso } from "@/lib/utils";
+import { daysUntil } from "@/domain/compute";
+import { uuid, nowIso, cn } from "@/lib/utils";
 import type { Area, Comment, Person, Priority, Sprint, Task, TaskStatus } from "@/domain/schemas";
 
 interface Props {
@@ -256,6 +256,11 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
 
   if (!task) return null;
 
+  const d = daysUntil(task.dueDate);
+  const overdue = task.status !== "done" && d !== null && d < 0;
+  const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
+  const isBlocked = task.status === "blocked";
+
   return (
     <>
       <div
@@ -269,7 +274,12 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
         aria-modal="false"
         aria-label={`Detalle de tarea: ${task.title}`}
         style={{ width: drawerWidth }}
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[800px] flex-col border-l bg-background shadow-lg transition-transform duration-200 ease-out md:max-w-none"
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-[800px] flex-col border-l bg-background shadow-lg transition-transform duration-200 ease-out md:max-w-none",
+          isBlocked && "border-l-4 border-l-red-500",
+          overdue && "bg-red-50 dark:bg-red-950/20",
+          dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
+        )}
       >
         <div
           className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize bg-transparent hover:bg-primary/50 active:bg-primary hidden md:block"

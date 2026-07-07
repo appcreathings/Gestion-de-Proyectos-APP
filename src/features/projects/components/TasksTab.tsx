@@ -17,7 +17,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Archive, Filter, Plus, Search, X } from "lucide-react";
+import { Archive, Filter, LayoutGrid, List, Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ import { KanbanColumn } from "./kanban/KanbanColumn";
 import { TaskCard } from "./kanban/TaskCard";
 import { TaskDetailDrawer } from "./kanban/TaskDetailDrawer";
 import { ArchivedTasksList } from "./kanban/ArchivedTasksList";
+import { KanbanListView } from "./kanban/KanbanListView";
 import { useDebounce } from "@/hooks/useDebounce";
 
 interface Props {
@@ -89,6 +90,26 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   // Search state (spec 017)
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 300);
+
+  // View mode state (spec 017)
+  const [viewMode, setViewMode] = useState<"kanban" | "list">(() => {
+    try {
+      const saved = localStorage.getItem("kanban-view-mode");
+      return (saved as "kanban" | "list") || "kanban";
+    } catch {
+      return "kanban";
+    }
+  });
+
+  function toggleViewMode() {
+    const next = viewMode === "kanban" ? "list" : "kanban";
+    setViewMode(next);
+    try {
+      localStorage.setItem("kanban-view-mode", next);
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
 
   // Filter state (spec 017)
   const priorityFilter = searchParams.get("priority") as Priority | null;
@@ -511,6 +532,28 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
+          <div className="flex items-center rounded-md border border-border/70">
+            <Button
+              variant={viewMode === "kanban" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={toggleViewMode}
+              className="rounded-r-none"
+              title="Vista Kanban"
+            >
+              <LayoutGrid className="size-3.5 mr-1.5" />
+              Kanban
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={toggleViewMode}
+              className="rounded-l-none border-l border-border/70"
+              title="Vista Lista"
+            >
+              <List className="size-3.5 mr-1.5" />
+              Lista
+            </Button>
+          </div>
           <Button
             variant={showArchived ? "secondary" : "outline"}
             size="sm"
@@ -541,6 +584,13 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
           people={people}
           onOpenDetail={openDetail}
           onUnarchive={handleUnarchive}
+        />
+      ) : viewMode === "list" ? (
+        <KanbanListView
+          tasks={tasksInScope}
+          areas={project.areas}
+          people={people}
+          onOpenDetail={openDetail}
         />
       ) : (
         <DndContext

@@ -84,8 +84,11 @@ Cada push a `main` redespliega automáticamente.
 - ✅ Spec 017 Wave 1: mejora integral de la experiencia PM — búsqueda por texto con resaltado,
   filtros enriquecidos (prioridad, assignee, fecha, tags), vista "Mis tareas" cross-proyecto,
   gestión de tags en UI.
-- 🔄 Spec 017 Wave 2-3: pendientes — indicadores visuales, vista lista, atajos de teclado,
-  estimación, WIP limits, Dashboard enriquecido.
+- ✅ Spec 017 Wave 2: indicadores visuales prominentes (bloqueadas/vencidas/por vencer),
+  vista de lista alternativa en Kanban, atajos de teclado globales, quick add de tareas,
+  vista Daily Standup.
+- 🔄 Spec 017 Wave 3: pendiente — estimación, subtareas, WIP limits, operaciones bulk,
+  Dashboard enriquecido.
 
 ## Arquitectura (resumen)
 ```

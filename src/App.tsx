@@ -85,6 +85,11 @@ const MyTasksPage = lazy(() =>
     default: m.MyTasksPage,
   })),
 );
+const DailyStandupPage = lazy(() =>
+  import("@/features/daily/DailyStandupPage").then((m) => ({
+    default: m.DailyStandupPage,
+  })),
+);
 
 function page(el: ReactNode) {
   return <Suspense fallback={<Loading />}>{el}</Suspense>;
@@ -139,6 +144,7 @@ const router = createBrowserRouter([
             ],
           },
           { path: "my-tasks", element: page(<MyTasksPage />) },
+          { path: "daily", element: page(<DailyStandupPage />) },
           { path: "quarters", element: page(<QuartersPage />) },
           { path: "library", element: page(<LibraryPage />) },
           { path: "automations", element: page(<AutomationsPage />) },

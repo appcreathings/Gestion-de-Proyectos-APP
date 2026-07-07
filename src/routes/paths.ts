@@ -8,6 +8,7 @@ export const ROUTES = {
   projectsByQuarter: (quarterId: string) => `/app/projects?quarter=${quarterId}`,
   project: (id: string) => `/app/projects/${id}`,
   myTasks: "/app/my-tasks",
+  daily: "/app/daily",
   quarters: "/app/quarters",
   library: (tab?: string) => (tab ? `/app/library?tab=${tab}` : "/app/library"),
   automations: "/app/automations",

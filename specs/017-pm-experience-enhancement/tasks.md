@@ -121,116 +121,116 @@ avanzar.
 
 ### Fase 5 — Indicadores visuales prominentes (HU-05)
 
-- [ ] T1740 `TaskCard.tsx`: agregar indicador visual para tareas bloqueadas.
+- [x] T1740 `TaskCard.tsx`: agregar indicador visual para tareas bloqueadas.
   - Borde izquierdo rojo (4px): `border-l-4 border-l-red-500`.
   - Icono de candado (Lock) visible en la card.
-- [ ] T1741 `TaskCard.tsx`: agregar indicador visual para tareas vencidas.
+- [x] T1741 `TaskCard.tsx`: agregar indicador visual para tareas vencidas.
   - Fondo rojo suave: `bg-red-50 dark:bg-red-950/20`.
   - Icono de alerta (AlertCircle) visible junto a la fecha.
-- [ ] T1742 `TaskCard.tsx`: agregar indicador visual para tareas por vencer (3 días).
+- [x] T1742 `TaskCard.tsx`: agregar indicador visual para tareas por vencer (3 días).
   - Fondo ámbar suave: `bg-amber-50 dark:bg-amber-950/20`.
   - Solo aplicar si la tarea no está vencida (d >= 0 && d <= 3).
-- [ ] T1743 `TaskDetailDrawer.tsx`: aplicar mismos indicadores visuales en el drawer.
+- [x] T1743 `TaskDetailDrawer.tsx`: aplicar mismos indicadores visuales en el drawer.
   - Consistencia visual entre card y drawer.
-- [ ] T1744 Verificar: indicadores son visibles y consistentes.
+- [x] T1744 Verificar: indicadores son visibles y consistentes.
   - Smoke visual: crear tareas bloqueadas, vencidas y por vencer, verificar indicadores.
   - `npx tsc --noEmit`, `npx vitest run`.
 
 ### Fase 6 — Vista de lista en Kanban (HU-06)
 
-- [ ] T1750 `TasksTab.tsx`: agregar toggle "Kanban / Lista" en la barra superior.
+- [x] T1750 `TasksTab.tsx`: agregar toggle "Kanban / Lista" en la barra superior.
   - Botones: "Kanban" y "Lista" (uno activo, otro inactivo).
   - Icono: LayoutGrid (Kanban) y List (Lista) de lucide-react.
-- [ ] T1751 `TasksTab.tsx`: agregar estado `viewMode` con persistencia en localStorage.
+- [x] T1751 `TasksTab.tsx`: agregar estado `viewMode` con persistencia en localStorage.
   - Key: `kanban-view-mode`.
   - Valores: `"kanban" | "list"`.
   - Default: `"kanban"`.
-- [ ] T1752 Crear componente `src/features/projects/components/kanban/KanbanListView.tsx`.
+- [x] T1752 Crear componente `src/features/projects/components/kanban/KanbanListView.tsx`.
   - Tabla con columnas: Estado, Título, Área, Prioridad, Assignee, Fecha.
   - Cada fila es clickable y abre el drawer de detalle.
   - Respetar filtros y búsqueda.
-- [ ] T1753 `KanbanListView.tsx`: implementar ordenamiento por columnas.
+- [x] T1753 `KanbanListView.tsx`: implementar ordenamiento por columnas.
   - Click en header de columna ordena ascendente/descendente.
   - Icono de flecha (ArrowUp/ArrowDown) en header.
-- [ ] T1754 `TasksTab.tsx`: renderizar condicionalmente Kanban o Lista según `viewMode`.
+- [x] T1754 `TasksTab.tsx`: renderizar condicionalmente Kanban o Lista según `viewMode`.
   - Si `viewMode === "kanban"`: renderizar `KanbanBoard` (actual).
   - Si `viewMode === "list"`: renderizar `KanbanListView`.
-- [ ] T1755 Verificar: toggle funciona, vista de lista muestra todas las columnas, click abre drawer.
+- [x] T1755 Verificar: toggle funciona, vista de lista muestra todas las columnas, click abre drawer.
   - Smoke visual: alternar entre Kanban y Lista, verificar que los datos son consistentes.
   - Verificar que los filtros y la búsqueda funcionan en ambas vistas.
   - `npx tsc --noEmit`, `npx vitest run`.
 
 ### Fase 7 — Atajos de teclado globales (HU-07)
 
-- [ ] T1760 Crear hook `src/hooks/useKeyboardShortcuts.ts`.
+- [x] T1760 Crear hook `src/hooks/useKeyboardShortcuts.ts`.
   - Registrar atajos globales con `document.addEventListener("keydown", ...)`.
   - Soporte para Ctrl/Cmd + tecla.
   - Soporte para combinaciones (Ctrl+Shift+tecla).
-- [ ] T1761 Crear contexto `src/contexts/KeyboardShortcutsContext.tsx` para gestionar atajos.
+- [x] T1761 Crear contexto `src/contexts/KeyboardShortcutsContext.tsx` para gestionar atajos.
   - Proveer funciones: `openCommandPalette()`, `openQuickAdd()`, `archiveSelectedTask()`, `openShortcutsModal()`.
   - Consumir en `App.tsx` o layout principal.
-- [ ] T1762 `src/App.tsx` (o layout): registrar atajos globales.
+- [x] T1762 `src/App.tsx` (o layout): registrar atajos globales.
   - `Ctrl/Cmd + K`: abrir búsqueda global (command palette).
   - `Ctrl/Cmd + N`: crear nueva tarea (en el proyecto actual).
   - `Ctrl/Cmd + Shift + A`: archivar tarea seleccionada.
   - `Ctrl/Cmd + /`: mostrar modal de atajos.
-- [ ] T1763 Crear componente `src/components/KeyboardShortcutsModal.tsx`.
+- [x] T1763 Crear componente `src/components/KeyboardShortcutsModal.tsx`.
   - Modal con lista de atajos disponibles.
   - Accesible desde el menú de ayuda (icono "?" o "Atajos").
-- [ ] T1764 Verificar: atajos funcionan, modal muestra lista de atajos.
+- [x] T1764 Verificar: atajos funcionan, modal muestra lista de atajos.
   - Smoke visual: probar cada atajo, verificar que funciona.
   - Verificar que el modal de atajos es accesible desde el menú de ayuda.
   - `npx tsc --noEmit`, `npx vitest run`.
 
 ### Fase 8 — Quick add de tareas (HU-08)
 
-- [ ] T1770 Crear componente `src/components/QuickAddButton.tsx`.
+- [x] T1770 Crear componente `src/components/QuickAddButton.tsx`.
   - Botón "+" flotante en la esquina inferior derecha.
   - Posición: `fixed bottom-6 right-6`.
   - Icono: Plus (lucide-react).
   - Visible en todas las vistas (excepto modal/drawer abiertos).
-- [ ] T1771 Crear componente `src/components/QuickAddTask.tsx`.
+- [x] T1771 Crear componente `src/components/QuickAddTask.tsx`.
   - Modal minimalista con campos: título, proyecto, área, prioridad.
   - Botones: "Cancelar" y "Crear y editar".
   - Enter crea la tarea y la deja abierta para editar más detalles.
   - Escape cierra el modal sin crear.
-- [ ] T1772 `QuickAddTask.tsx`: implementar lógica de creación de tarea.
+- [x] T1772 `QuickAddTask.tsx`: implementar lógica de creación de tarea.
   - Validar que el título no esté vacío.
   - Crear tarea con `ops.createTask()`.
   - Abrir drawer de detalle después de crear.
-- [ ] T1773 `src/App.tsx` (o layout): renderizar `QuickAddButton` y `QuickAddTask`.
+- [x] T1773 `src/App.tsx` (o layout): renderizar `QuickAddButton` y `QuickAddTask`.
   - Estado: `isQuickAddOpen` para controlar visibilidad del modal.
   - Conectar con atajo de teclado `Ctrl/Cmd + N`.
-- [ ] T1774 Verificar: botón es visible, modal abre/cierra, tarea se crea correctamente.
+- [x] T1774 Verificar: botón es visible, modal abre/cierra, tarea se crea correctamente.
   - Smoke visual: hacer click en "+", llenar campos, crear tarea, verificar que aparece en el Kanban.
   - Verificar que Enter crea la tarea y abre el drawer.
   - `npx tsc --noEmit`, `npx vitest run`.
 
 ### Fase 9 — Daily Standup (HU-09)
 
-- [ ] T1780 Crear directorio `src/features/daily/`.
-- [ ] T1781 `src/features/daily/DailyStandupPage.tsx`: crear componente principal.
+- [x] T1780 Crear directorio `src/features/daily/`.
+- [x] T1781 `src/features/daily/DailyStandupPage.tsx`: crear componente principal.
   - Tres secciones: "Hecho recientemente", "Para hoy", "Bloqueado".
   - Fecha actual en el header.
-- [ ] T1782 `DailyStandupPage.tsx`: implementar sección "Hecho recientemente".
+- [x] T1782 `DailyStandupPage.tsx`: implementar sección "Hecho recientemente".
   - Tareas completadas en las últimas 24h (status = "done", updatedAt >= now - 24h).
   - Mostrar: título, proyecto, área, prioridad.
-- [ ] T1783 `DailyStandupPage.tsx`: implementar sección "Para hoy".
+- [x] T1783 `DailyStandupPage.tsx`: implementar sección "Para hoy".
   - Tareas con dueDate = hoy.
   - Mostrar: título, proyecto, área, prioridad, estado.
-- [ ] T1784 `DailyStandupPage.tsx`: implementar sección "Bloqueado".
+- [x] T1784 `DailyStandupPage.tsx`: implementar sección "Bloqueado".
   - Tareas con status = "blocked".
   - Mostrar: título, proyecto, área, prioridad, fecha de bloqueo.
-- [ ] T1785 `DailyStandupPage.tsx`: implementar click en tarea para abrir drawer.
+- [x] T1785 `DailyStandupPage.tsx`: implementar click en tarea para abrir drawer.
   - Reutilizar `TaskDetailDrawer` de Kanban.
   - Pasar `project` y `task` al drawer.
-- [ ] T1786 `src/routes/`: agregar ruta `/daily` en el router.
+- [x] T1786 `src/routes/`: agregar ruta `/daily` en el router.
   - Ruta: `<Route path="/daily" element={<DailyStandupPage />} />`.
   - Agregar en `src/routes/paths.ts` como `ROUTES.daily = "/daily"`.
-- [ ] T1787 `src/components/layout/Sidebar.tsx` (o equivalente): agregar link "Daily Standup" en el menú lateral.
+- [x] T1787 `src/components/layout/Sidebar.tsx` (o equivalente): agregar link "Daily Standup" en el menú lateral.
   - Icono: Calendar o Sun (lucide-react).
   - Posición: después de "Mis tareas".
-- [ ] T1788 Verificar: vista muestra tareas recientes, de hoy y bloqueadas.
+- [x] T1788 Verificar: vista muestra tareas recientes, de hoy y bloqueadas.
   - Smoke visual: crear tareas con diferentes estados y fechas, verificar que aparecen en las secciones correctas.
   - Verificar que click en tarea abre el drawer.
   - `npx tsc --noEmit`, `npx vitest run`.

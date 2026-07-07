@@ -77,6 +77,8 @@ export function TaskCard({
 
   const d = daysUntil(task.dueDate);
   const overdue = task.status !== "done" && d !== null && d < 0;
+  const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
+  const isBlocked = task.status === "blocked";
 
   return (
     <div
@@ -97,6 +99,10 @@ export function TaskCard({
               "border-dashed border-border/50 bg-foreground/[0.02]"
             : "border-border/70 bg-background hover:border-border cursor-pointer",
         focused && !isPlaceholder && !isOverlay && "ring-2 ring-foreground/60",
+        // Spec 017: Visual indicators for blocked, overdue, and due-soon tasks
+        !isPlaceholder && !isOverlay && isBlocked && "border-l-4 border-l-red-500",
+        !isPlaceholder && !isOverlay && overdue && "bg-red-50 dark:bg-red-950/20",
+        !isPlaceholder && !isOverlay && dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
       )}
       onClick={!isOverlay && !isPlaceholder ? onOpenDetail : undefined}
     >
@@ -111,9 +117,14 @@ export function TaskCard({
           <GripVertical className="size-3.5" />
         </button>
         <div className="flex flex-col min-w-0 flex-1">
-          <p className="text-sm font-medium leading-tight break-words line-clamp-2">
-            {searchQuery ? highlightText(task.title, searchQuery) : task.title}
-          </p>
+          <div className="flex items-center gap-1.5">
+            {isBlocked && !isPlaceholder && (
+              <Lock className="size-3.5 text-red-500 shrink-0" />
+            )}
+            <p className="text-sm font-medium leading-tight break-words line-clamp-2">
+              {searchQuery ? highlightText(task.title, searchQuery) : task.title}
+            </p>
+          </div>
           {task.summary && !isPlaceholder && (
             <p className="text-xs text-muted-foreground leading-tight mt-0.5 line-clamp-2">
               {searchQuery ? highlightText(task.summary, searchQuery) : task.summary}

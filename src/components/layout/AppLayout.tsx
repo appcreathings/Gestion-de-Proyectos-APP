@@ -1,10 +1,11 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
   FolderKanban,
   CalendarRange,
+  Calendar,
   Library,
   Workflow,
   Bell,
@@ -26,6 +27,10 @@ import { CommandPalette } from "@/features/command/CommandPalette";
 import { ProjectTree } from "@/components/layout/ProjectTree";
 import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
+import { QuickAddButton } from "@/components/QuickAddButton";
+import { QuickAddTask } from "@/components/QuickAddTask";
 
 // Lazy: solo se descarga la primera vez que se abre el panel (Ctrl/Cmd+J).
 // Si falla el import (chunk desactualizado tras deploy), recarga la página una vez.
@@ -51,6 +56,7 @@ const NAV = [
   { to: ROUTES.products, label: "Productos", icon: Package },
   { to: ROUTES.projects, label: "Proyectos", icon: FolderKanban },
   { to: ROUTES.myTasks, label: "Mis tareas", icon: UserCheck },
+  { to: ROUTES.daily, label: "Daily Standup", icon: Calendar },
   { to: ROUTES.library(), label: "Biblioteca", icon: Library },
   { to: ROUTES.quarters, label: "Trimestres", icon: CalendarRange },
   { to: ROUTES.automations, label: "Automatizaciones", icon: Workflow },
@@ -229,6 +235,8 @@ export function AppLayout() {
   const toggleAssistant = useChatStore((s) => s.toggleOpen);
   const isDesktop = useBreakpoint("lg");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   // Close sidebar on Escape
   useEffect(() => {
@@ -252,13 +260,34 @@ export function AppLayout() {
     return () => document.removeEventListener("keydown", onKey);
   }, [toggleAssistant]);
 
+  // Global keyboard shortcuts (spec 017)
+  const toggleShortcutsModal = useCallback(() => {
+    setShortcutsModalOpen((prev) => !prev);
+  }, []);
+
+  const toggleQuickAdd = useCallback(() => {
+    setQuickAddOpen((prev) => !prev);
+  }, []);
+
+  const shortcuts = useMemo(
+    () => ({
+      "mod+/": toggleShortcutsModal,
+      "mod+n": toggleQuickAdd,
+    }),
+    [toggleShortcutsModal, toggleQuickAdd],
+  );
+
+  useKeyboardShortcuts(shortcuts);
+
   // Lock body scroll when drawer or assistant is open on mobile
   useEffect(() => {
     const locked = sidebarOpen || (assistantOpen && !isDesktop);
     if (locked) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
-      return () => { document.body.style.overflow = prev; };
+      return () => {
+        document.body.style.overflow = prev;
+      };
     }
   }, [sidebarOpen, assistantOpen, isDesktop]);
 
@@ -347,6 +376,16 @@ export function AppLayout() {
 
       {/* Global command palette — mounted once at layout level */}
       <CommandPalette />
+
+      {/* Keyboard shortcuts modal (spec 017) */}
+      <KeyboardShortcutsModal
+        open={shortcutsModalOpen}
+        onClose={() => setShortcutsModalOpen(false)}
+      />
+
+      {/* Quick add task (spec 017) */}
+      <QuickAddButton onClick={toggleQuickAdd} />
+      <QuickAddTask open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
     </div>
   );
 }
