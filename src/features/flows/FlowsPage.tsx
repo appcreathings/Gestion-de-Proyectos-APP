@@ -24,6 +24,7 @@ import { useDataStore } from "@/store/useDataStore";
 import type { FlowRule } from "@/domain/schemas/flow";
 import type { DomainEvent } from "@/automations/events";
 import { buildGraphFromRule, graphFromPersisted } from "@/flows/graph";
+import { duplicateFlow } from "@/flows/migration";
 import { FlowPreviewCanvas } from "./canvas/FlowPreviewCanvas";
 import { RunEventFlowDialog } from "./RunEventFlowDialog";
 import { ROUTES } from "@/routes/paths";
@@ -31,6 +32,7 @@ import { ROUTES } from "@/routes/paths";
 export function FlowsPage() {
   const navigate = useNavigate();
   const flows = useFlowStore((s) => s.flows);
+  const addFlow = useFlowStore((s) => s.addFlow);
   const updateFlow = useFlowStore((s) => s.updateFlow);
   const deleteFlow = useFlowStore((s) => s.deleteFlow);
   const runFlowNow = useDataStore((s) => s.runFlowNow);
@@ -47,6 +49,12 @@ export function FlowsPage() {
 
   const handleEdit = (flow: FlowRule) => {
     navigate(ROUTES.flowEdit(flow.id));
+  };
+
+  const handleDuplicate = async (flow: FlowRule) => {
+    const copy = duplicateFlow(flow);
+    await addFlow(copy);
+    navigate(ROUTES.flowEdit(copy.id));
   };
 
   const handleDelete = async () => {
@@ -132,6 +140,7 @@ export function FlowsPage() {
                 key={flow.id}
                 flow={flow}
                 onEdit={() => handleEdit(flow)}
+                onDuplicate={() => handleDuplicate(flow)}
                 onDelete={() => setToDelete(flow)}
                 onToggle={() => handleToggle(flow)}
                 onRun={
@@ -189,6 +198,7 @@ export function FlowsPage() {
 function FlowCard({
   flow,
   onEdit,
+  onDuplicate,
   onDelete,
   onToggle,
   onRun,
@@ -198,6 +208,7 @@ function FlowCard({
 }: {
   flow: FlowRule;
   onEdit: () => void;
+  onDuplicate: () => void;
   onDelete: () => void;
   onToggle: () => void;
   /** Flujos de poll abren el `ConfirmDialog` genérico; flujos de evento abren
@@ -257,6 +268,9 @@ function FlowCard({
           )}
           <Button variant="ghost" size="sm" onClick={onEdit} className="h-8 text-xs">
             Editar
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onDuplicate} className="h-8 text-xs">
+            Duplicar
           </Button>
           <Button
             variant="ghost"

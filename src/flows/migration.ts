@@ -163,3 +163,25 @@ export function createEmptyFlow(name: string): FlowRule {
     updatedAt: now,
   };
 }
+
+/**
+ * Clona un flujo existente para "Duplicar" (spec 024 §F7): copia
+ * trigger/logic/outputs/graph tal cual, pero con id nuevo, nombre "(copia)",
+ * inactivo (para no registrar polling hasta que el usuario lo active a
+ * propósito) y sin historial propio — `runCount`/`lastRunAt` arrancan en
+ * cero, igual que un flujo recién creado.
+ */
+export function duplicateFlow(flow: FlowRule): FlowRule {
+  const now = nowIso();
+  return {
+    ...flow,
+    id: uuid(),
+    schemaVersion: SCHEMA_VERSION,
+    name: `${flow.name} (copia)`,
+    enabled: false,
+    lastRunAt: null,
+    runCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  };
+}

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { migrateAutomationToFlow, migrateAutomationsToFlows, createEmptyFlow } from "./migration";
+import { migrateAutomationToFlow, migrateAutomationsToFlows, createEmptyFlow, duplicateFlow } from "./migration";
 import type { AutomationRule } from "@/domain/schemas";
+import type { FlowRule } from "@/domain/schemas/flow";
 
 function makeRule(overrides: Partial<AutomationRule> = {}): AutomationRule {
   return {
@@ -82,5 +83,40 @@ describe("createEmptyFlow", () => {
     expect(flow.enabled).toBe(true);
     expect(flow.trigger).toEqual({ type: "event", event: "task.statusChanged" });
     expect(flow.outputs).toEqual([]);
+  });
+});
+
+describe("duplicateFlow (spec 024 §F7)", () => {
+  const original: FlowRule = {
+    id: "flow-1",
+    schemaVersion: 10,
+    name: "Original flow",
+    enabled: true,
+    trigger: { type: "event", event: "task.statusChanged" },
+    logic: { conditions: [{ field: "status", op: "==", value: "done" }], mapping: [] },
+    outputs: [{ type: "createNotification", severity: "info", message: "Hi" }],
+    lastRunAt: "2026-01-01T00:00:00.000Z",
+    runCount: 42,
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+  };
+
+  it("copies trigger/logic/outputs but resets identity and run history", () => {
+    const copy = duplicateFlow(original);
+
+    expect(copy.id).not.toBe(original.id);
+    expect(copy.name).toBe("Original flow (copia)");
+    expect(copy.enabled).toBe(false);
+    expect(copy.runCount).toBe(0);
+    expect(copy.lastRunAt).toBeNull();
+    expect(copy.trigger).toEqual(original.trigger);
+    expect(copy.logic).toEqual(original.logic);
+    expect(copy.outputs).toEqual(original.outputs);
+  });
+
+  it("does not mutate the original flow", () => {
+    const before = JSON.parse(JSON.stringify(original));
+    duplicateFlow(original);
+    expect(original).toEqual(before);
   });
 });
