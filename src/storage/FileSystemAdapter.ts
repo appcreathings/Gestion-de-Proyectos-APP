@@ -252,6 +252,15 @@ export class FileSystemAdapter implements StorageAdapter {
     bundle.people = await this.readDoc("people");
     bundle.notifications = await this.readDoc("notifications");
     bundle.activity = await this.readDoc("activity");
+    // Antes el export "general" no incluía los Flujos modernos en absoluto
+    // (solo la colección legacy `automations`) — un usuario que exportaba
+    // todo su workspace creyendo que eso respaldaba sus flujos se llevaba una
+    // sorpresa al importar en otra instancia (spec 024 §F14). Las Conexiones
+    // (Dexie `hito-integrations`, con secretos cifrados) quedan fuera de este
+    // bundle a propósito — no comparten el modelo de storage de este adapter
+    // y requieren su propio flujo de export sin secretos.
+    bundle.flows = await this.readDoc("flows");
+    bundle["flow-runs"] = await this.readDoc("flow-runs");
     return new Blob([JSON.stringify(bundle, null, 2)], {
       type: "application/json",
     });
@@ -268,6 +277,8 @@ export class FileSystemAdapter implements StorageAdapter {
     if (bundle.notifications)
       await this.writeDoc("notifications", bundle.notifications);
     if (bundle.activity) await this.writeDoc("activity", bundle.activity);
+    if (bundle.flows) await this.writeDoc("flows", bundle.flows);
+    if (bundle["flow-runs"]) await this.writeDoc("flow-runs", bundle["flow-runs"]);
   }
 
   async backup(): Promise<void> {

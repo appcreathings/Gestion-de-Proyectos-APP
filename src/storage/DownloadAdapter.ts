@@ -135,6 +135,10 @@ export class DownloadAdapter implements StorageAdapter {
     bundle.people = await this.readDoc("people");
     bundle.notifications = await this.readDoc("notifications");
     bundle.activity = await this.readDoc("activity");
+    // Mismo fix que en FileSystemAdapter (spec 024 §F14): el export general
+    // no incluía los Flujos modernos, solo la colección legacy `automations`.
+    bundle.flows = await this.readDoc("flows");
+    bundle["flow-runs"] = await this.readDoc("flow-runs");
     return new Blob([JSON.stringify(bundle, null, 2)], {
       type: "application/json",
     });
@@ -160,6 +164,8 @@ export class DownloadAdapter implements StorageAdapter {
     if (bundle.notifications)
       await this.writeDoc("notifications", bundle.notifications);
     if (bundle.activity) await this.writeDoc("activity", bundle.activity);
+    if (bundle.flows) await this.writeDoc("flows", bundle.flows);
+    if (bundle["flow-runs"]) await this.writeDoc("flow-runs", bundle["flow-runs"]);
   }
 
   async backup(): Promise<void> {

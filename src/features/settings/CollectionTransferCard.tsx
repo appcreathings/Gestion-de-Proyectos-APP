@@ -22,12 +22,13 @@ const ITEMS: { key: Key; label: string }[] = [
   { key: "project-types", label: "Tipos de proyecto" },
   { key: "checklist-templates", label: "Plantillas de checklist" },
   { key: "process-templates", label: "Plantillas de proceso" },
-  { key: "automations", label: "Automatizaciones" },
+  { key: "automations", label: "Automatizaciones (legacy)" },
+  { key: "flows", label: "Flujos" },
   { key: "people", label: "Personas" },
   { key: "notifications", label: "Notificaciones" },
 ];
 
-const DOCS = new Set<Key>(["people", "notifications"]);
+const DOCS = new Set<Key>(["people", "notifications", "flows"]);
 const isDoc = (k: Key): k is DocName => DOCS.has(k);
 
 async function exportCollection(adapter: StorageAdapter, key: Key): Promise<Blob> {
