@@ -83,10 +83,10 @@ async function unregisterPollTrigger(trigger: FlowRule["trigger"]): Promise<void
   try {
     if (trigger.provider === "hubspot") {
       const { unregisterHubSpotPolling } = await import("@/integrations/inbound/hubspot-polling-manager");
-      unregisterHubSpotPolling(trigger.config.objectType ?? "contacts");
+      unregisterHubSpotPolling(trigger);
     } else {
       const { unregisterSheetsPolling } = await import("@/integrations/inbound/sheets-polling-manager");
-      unregisterSheetsPolling();
+      unregisterSheetsPolling(trigger);
     }
   } catch (error) {
     console.error(`Error unregistering ${trigger.provider} polling:`, error);

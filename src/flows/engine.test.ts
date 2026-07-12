@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { runFlowEngine } from "./engine";
-import type { FlowRule } from "@/domain/schemas/flow";
+import { runFlowEngine, pollTriggerKey } from "./engine";
+import type { FlowRule, PollTrigger } from "@/domain/schemas/flow";
 import type { DomainEvent } from "@/automations/events";
 import type { Project } from "@/domain/schemas";
 import { newProject, newTask } from "@/domain/factories";
@@ -202,6 +202,28 @@ describe("FlowEngine", () => {
     });
   });
 
+  describe("pollTriggerKey (spec 024 §F10)", () => {
+    it("includes connectionId so two connections of the same provider/objectType never share a key", () => {
+      const hubspotA: PollTrigger = {
+        type: "poll",
+        provider: "hubspot",
+        config: { connectionId: "conn-a", objectType: "contacts", fields: [], filters: [], intervalMs: 300_000 },
+      };
+      const hubspotB: PollTrigger = { ...hubspotA, config: { ...hubspotA.config, connectionId: "conn-b" } };
+      const sheetsA: PollTrigger = {
+        type: "poll",
+        provider: "google-sheets",
+        config: { connectionId: "conn-a", fields: [], filters: [], intervalMs: 300_000 },
+      };
+      const sheetsB: PollTrigger = { ...sheetsA, config: { ...sheetsA.config, connectionId: "conn-b" } };
+
+      expect(pollTriggerKey(hubspotA)).not.toBe(pollTriggerKey(hubspotB));
+      expect(pollTriggerKey(sheetsA)).not.toBe(pollTriggerKey(sheetsB));
+      // Misma conexión + mismo objectType → misma key (determinístico).
+      expect(pollTriggerKey(hubspotA)).toBe(pollTriggerKey({ ...hubspotA }));
+    });
+  });
+
   describe("Poll Trigger", () => {
     it("processes external data from polling", async () => {
       const flow: FlowRule = {
@@ -245,7 +267,7 @@ describe("FlowEngine", () => {
       };
 
       const externalData = new Map<string, Record<string, unknown>[]>();
-      externalData.set("hubspot", [
+      externalData.set("hubspot:conn-1:contacts", [
         { email: "jane@example.com", firstname: "Jane" },
       ]);
 
@@ -263,6 +285,53 @@ describe("FlowEngine", () => {
       expect(result.newPeople).toHaveLength(1);
       expect(result.newPeople[0].email).toBe("jane@example.com");
       expect(result.newPeople[0].name).toBe("Jane");
+    });
+
+    it("does not leak records between two flows polling the same provider/objectType via different connections (spec 024 §F10)", async () => {
+      // Antes, `pollTriggerKey` solo dependía de provider+objectType — dos
+      // flujos de HubSpot contacts con conexiones distintas mapeaban a la
+      // MISMA key ("hubspot"), así que ambos habrían recibido los mismos
+      // registros aunque vinieran de cuentas de HubSpot completamente
+      // distintas. Ahora la key incluye `connectionId`, así que cada flujo
+      // solo procesa los registros de su propia conexión.
+      const pollTrigger = (connectionId: string): FlowRule["trigger"] => ({
+        type: "poll",
+        provider: "hubspot",
+        config: { connectionId, objectType: "contacts", fields: [], filters: [], intervalMs: 300_000 },
+      });
+
+      const flowA: FlowRule = {
+        id: "flow-a",
+        schemaVersion: 10,
+        name: "Sync conexión A",
+        enabled: true,
+        trigger: pollTrigger("conn-a"),
+        logic: { conditions: [], mapping: [{ source: "email", target: "email" }] },
+        outputs: [{ type: "createPerson", matchField: "email", ifNotFound: "create", data: { email: "{{email}}" } }],
+        lastRunAt: null,
+        runCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const flowB: FlowRule = { ...flowA, id: "flow-b", name: "Sync conexión B", trigger: pollTrigger("conn-b") };
+
+      const externalData = new Map<string, Record<string, unknown>[]>();
+      externalData.set("hubspot:conn-a:contacts", [{ email: "a@conn-a.com" }]);
+      externalData.set("hubspot:conn-b:contacts", [{ email: "b@conn-b.com" }]);
+
+      const result = await runFlowEngine({
+        flows: [flowA, flowB],
+        events: [],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+        externalData,
+      });
+
+      expect(result.newPeople.map((p) => p.email).sort()).toEqual(["a@conn-a.com", "b@conn-b.com"]);
+      expect(result.executedFlowIds.sort()).toEqual(["flow-a", "flow-b"]);
     });
   });
 
@@ -540,7 +609,7 @@ describe("FlowEngine", () => {
       };
 
       const externalData = new Map<string, Record<string, unknown>[]>();
-      externalData.set("hubspot", [
+      externalData.set("hubspot:conn-1:contacts", [
         { email: "jane@example.com", name: "Jane" },
       ]);
 
@@ -662,7 +731,7 @@ describe("FlowEngine", () => {
       };
 
       const externalData = new Map<string, Record<string, unknown>[]>();
-      externalData.set("hubspot", [{ email: "x@example.com" }]);
+      externalData.set("hubspot:conn-1:contacts", [{ email: "x@example.com" }]);
 
       const result = await runFlowEngine({
         flows: [flow],
@@ -1105,7 +1174,7 @@ describe("FlowEngine", () => {
         updatedAt: new Date().toISOString(),
       };
 
-      const externalData = new Map([["hubspot-deals", [{ dealId: "deal-1", dealname: "Acme Deal" }]]]);
+      const externalData = new Map([["hubspot:conn-1:deals", [{ dealId: "deal-1", dealname: "Acme Deal" }]]]);
 
       const result = await runFlowEngine({
         flows: [flow],
@@ -1151,7 +1220,7 @@ describe("FlowEngine", () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      const externalData = new Map([["hubspot", [{ id: "contact-1", firstname: "Ana" }]]]);
+      const externalData = new Map([["hubspot:conn-1:contacts", [{ id: "contact-1", firstname: "Ana" }]]]);
 
       const firstRun = await runFlowEngine({
         flows: [flow],
@@ -1365,7 +1434,7 @@ describe("FlowEngine", () => {
         updatedAt: new Date().toISOString(),
       };
       const records = Array.from({ length: 8 }, (_, i) => ({ id: `c-${i}` }));
-      const externalData = new Map([["hubspot", records]]);
+      const externalData = new Map([["hubspot:conn-1:contacts", records]]);
 
       const result = await runFlowEngine({
         flows: [flow],

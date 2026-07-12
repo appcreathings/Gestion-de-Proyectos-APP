@@ -299,14 +299,22 @@ export async function runFlowEngine(input: FlowEngineInput): Promise<FlowEngineR
 
 /** Key bajo la que `externalData` indexa los registros de un poll trigger.
  * Debe coincidir exactamente con la key que registra el poller
- * (`hubspot-polling-manager.ts`/`sheets-polling-manager.ts`). Sheets usa una
- * única key fija — no tiene objectType. Exportada para que `manual-run.ts`
- * (spec 022 §B, "Ejecutar ahora") construya el mismo `externalData` sin
- * duplicar esta lógica. */
+ * (`hubspot-polling-manager.ts`/`sheets-polling-manager.ts`). Exportada para
+ * que `manual-run.ts` (spec 022 §B, "Ejecutar ahora") construya el mismo
+ * `externalData` sin duplicar esta lógica.
+ *
+ * Incluye `connectionId` (spec 024 §F10) — antes la key era solo
+ * `provider`/`provider-objectType` (ej. "hubspot", "hubspot-deals"), así que
+ * dos flujos con el mismo provider+objectType pero **conexiones distintas**
+ * colisionaban: `pollingManager.register` desregistraba el timer del primero
+ * al registrar el segundo (bug de correctitud, no solo de límites de tasa —
+ * el primer flujo dejaba de correr en silencio), y aunque ambos hubieran
+ * sobrevivido, `runPolledFlow` los habría alimentado con los registros de la
+ * conexión equivocada, porque el despacho también usa esta misma key. */
 export function pollTriggerKey(trigger: PollTrigger): string {
-  if (trigger.provider === "google-sheets") return "google-sheets";
+  if (trigger.provider === "google-sheets") return `google-sheets:${trigger.config.connectionId}`;
   const objectType = trigger.config.objectType ?? "contacts";
-  return objectType === "contacts" ? "hubspot" : `hubspot-${objectType}`;
+  return `hubspot:${trigger.config.connectionId}:${objectType}`;
 }
 
 function matchesTrigger(

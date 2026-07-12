@@ -6,14 +6,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@/store/useFlowStore", () => ({
   useFlowStore: { getState: vi.fn() },
 }));
+// Debe reflejar la key real de `pollTriggerKey` (engine.ts) — incluye
+// connectionId desde spec 024 §F10, no solo provider/objectType.
 vi.mock("@/flows/engine", () => ({
   runFlowEngine: vi.fn(),
-  pollTriggerKey: (trigger: { provider: string; config?: { objectType?: string } }) =>
+  pollTriggerKey: (trigger: { provider: string; config?: { connectionId?: string; objectType?: string } }) =>
     trigger.provider === "google-sheets"
-      ? "google-sheets"
-      : trigger.config?.objectType && trigger.config.objectType !== "contacts"
-        ? `hubspot-${trigger.config.objectType}`
-        : "hubspot",
+      ? `google-sheets:${trigger.config?.connectionId}`
+      : `hubspot:${trigger.config?.connectionId}:${trigger.config?.objectType ?? "contacts"}`,
 }));
 vi.mock("@/flows/manual-run", () => ({
   fetchPollSampleForFlow: vi.fn(),
@@ -193,7 +193,7 @@ describe("useDataStore.runFlowNow", () => {
 
     expect(mockedFetchPollSample).toHaveBeenCalledWith(flow.trigger);
     const engineInput = mockedRunFlowEngine.mock.calls[0][0];
-    expect(engineInput.externalData?.get("hubspot-deals")).toEqual([{ id: "1" }]);
+    expect(engineInput.externalData?.get("hubspot:conn-1:deals")).toEqual([{ id: "1" }]);
   });
 
   it("returns a clear message AND records it in the flow's history when the connection fetch fails before reaching the engine", async () => {

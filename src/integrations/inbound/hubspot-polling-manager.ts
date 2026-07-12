@@ -1,5 +1,6 @@
 import { pollingManager } from "../polling/polling-manager";
 import type { PollTrigger } from "@/domain/schemas/flow";
+import { pollTriggerKey } from "@/flows/engine";
 import type { HubSpotConfig } from "./hubspot-poller";
 import { pollHubSpot } from "./hubspot-poller";
 import { pollHubSpotDeals } from "./hubspot-deals-poller";
@@ -46,7 +47,10 @@ export async function registerHubSpotPolling(trigger: PollTrigger): Promise<void
     filters: trigger.config.filters,
   };
 
-  const key = objectType === "contacts" ? "hubspot" : `hubspot-${objectType}`;
+  // Incluye connectionId (spec 024 §F10) — antes era solo por objectType, así
+  // que dos conexiones distintas consultando el mismo tipo de objeto se
+  // pisaban entre sí (ver el comentario en `pollTriggerKey`, engine.ts).
+  const key = pollTriggerKey(trigger);
 
   // Seleccionar el poller correcto según objectType
   const poller = objectType === "deals"
@@ -88,7 +92,6 @@ export async function registerHubSpotPolling(trigger: PollTrigger): Promise<void
   });
 }
 
-export function unregisterHubSpotPolling(objectType: string): void {
-  const key = objectType === "contacts" ? "hubspot" : `hubspot-${objectType}`;
-  pollingManager.unregister(key);
+export function unregisterHubSpotPolling(trigger: PollTrigger): void {
+  pollingManager.unregister(pollTriggerKey(trigger));
 }
