@@ -86,8 +86,11 @@ const GestorOfflinePage = lazy(() =>
 const ChangelogPage = lazy(() =>
   import("@/features/seo/ChangelogPage").then((m) => ({ default: m.ChangelogPage })),
 );
-const DocsPage = lazy(() =>
-  import("@/features/seo/DocsPage").then((m) => ({ default: m.DocsPage })),
+const DocsIndexPage = lazy(() =>
+  import("@/features/docs/pages/DocsIndexPage").then((m) => ({ default: m.DocsIndexPage })),
+);
+const DocModulePage = lazy(() =>
+  import("@/features/docs/pages/DocModulePage").then((m) => ({ default: m.DocModulePage })),
 );
 const BlogIndexPage = lazy(() =>
   import("@/features/blog/pages/BlogIndexPage").then((m) => ({
@@ -120,7 +123,8 @@ const router = createBrowserRouter([
   { path: "/alternativa-notion-local", element: page(<AlternativaNotionPage />) },
   { path: "/gestor-proyectos-offline", element: page(<GestorOfflinePage />) },
   { path: "/changelog", element: page(<ChangelogPage />) },
-  { path: "/docs", element: page(<DocsPage />) },
+  { path: "/docs", element: page(<DocsIndexPage />) },
+  { path: "/docs/:slug", element: page(<DocModulePage />) },
   { path: "/blogs", element: page(<BlogIndexPage />) },
   { path: "/blogs/:slug", element: page(<BlogPostPage />) },
   // Redirecciones por renombre de slugs (SEO-friendly, conserva link equity)

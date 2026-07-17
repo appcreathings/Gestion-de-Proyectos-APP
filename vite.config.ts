@@ -4,6 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import ViteSitemapPlugin from "vite-plugin-sitemap";
 import path from "node:path";
 import { BLOG_SLUGS } from "./src/features/blog/data/slugs";
+import { DOC_SLUGS } from "./src/features/docs/data/slugs";
 
 export default defineConfig({
   plugins: [
@@ -25,6 +26,7 @@ export default defineConfig({
         "/app/notifications",
         "/app/settings",
         ...BLOG_SLUGS.map((slug) => `/blogs/${slug}`),
+        ...DOC_SLUGS.map((slug) => `/docs/${slug}`),
       ],
       generateRobotsTxt: false,
     }),

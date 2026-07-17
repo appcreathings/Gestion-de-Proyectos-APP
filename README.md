@@ -55,7 +55,14 @@ Cada push a `main` redespliega automáticamente.
   `workspace.json` ni en las exportaciones. Se borra con un clic desde Ajustes.
 - La conversación se guarda solo en el dispositivo (última conversación, IndexedDB).
 
-## Documentación (Spec Kit)
+## Documentación pública (`/docs`)
+Hub de guías de usuario dentro de la misma app — `hito.autos/docs` (índice) y `/docs/:slug` (guía),
+agrupadas en 4 secciones: Primeros pasos, Organizar tu trabajo, Plantillas/automatización/IA,
+Seguimiento y configuración. Implementado como páginas TSX estáticas con contenido tipado
+(`src/features/docs/`), mismo patrón que el blog (`src/features/blog/`) — sin CMS, sin markdown ni
+framework de documentación externo. Detalle en [`specs/029-docs-inhouse/`](specs/029-docs-inhouse/).
+
+## Documentación de desarrollo (Spec Kit)
 
 | Artefacto | Ruta | Qué contiene |
 |-----------|------|--------------|
@@ -88,6 +95,8 @@ Cada push a `main` redespliega automáticamente.
   vista Daily Standup, estimación de tareas, subtareas, WIP limits por columna,
   operaciones bulk (mover/archivar/eliminar), Dashboard enriquecido con drill-down y
   vista de carga de trabajo por persona.
+- ✅ Spec 029: documentación pública in-house (`/docs`) — 12 guías de usuario agrupadas por tema,
+  mismo patrón de páginas estáticas que el blog, sin framework externo.
 
 ## Arquitectura (resumen)
 ```
@@ -97,8 +106,8 @@ src/automations/  Motor trigger→condición→acción + evaluador temporal + lo
 src/ai/tools/     Capa MCP-style: tools Zod→JSON Schema sobre el estado (read/write)
 src/ai/gemini/    Cliente @google/genai, system prompt, loop agéntico con confirmaciones
 src/store/        Zustand: app (conexión/workspace), data (entidades), aiConfig, chat
-src/features/     Páginas: dashboard, productos, proyectos, biblioteca, automatizaciones,
-                  notificaciones, ajustes, asistente (panel)
+src/features/     Páginas: dashboard, productos, proyectos, biblioteca, flows/integrations,
+                  notificaciones, ajustes, asistente (panel), landing, blog, docs (público)
 ```
 
 ## Modelo de dominio (resumen)
