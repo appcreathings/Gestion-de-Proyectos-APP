@@ -11,4 +11,5 @@ export const BLOG_SLUGS = [
   "migrar-trello-a-hito",
   "que-es-mcp",
   "local-first-guia-definitiva-2026",
+  "versionar-proyectos-con-git",
 ] as const;
