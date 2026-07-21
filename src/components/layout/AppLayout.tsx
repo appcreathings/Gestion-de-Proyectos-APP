@@ -10,8 +10,6 @@ import {
   Workflow,
   Bell,
   Settings,
-  HardDriveDownload,
-  CheckCircle2,
   Search,
   Sparkles,
   Menu,
@@ -21,11 +19,12 @@ import {
   Webhook,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
 import { useChatStore } from "@/store/useChatStore";
 import { CommandPalette } from "@/features/command/CommandPalette";
 import { ProjectTree } from "@/components/layout/ProjectTree";
+import { WorkspaceStatus } from "@/components/layout/WorkspaceStatus";
+import { DemoBanner } from "@/components/layout/DemoBanner";
 import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -72,7 +71,6 @@ const NAV = [
 const MOBILE_PRIMARY_NAV = NAV.slice(0, 4);
 
 function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
-  const adapterKind = useAppStore((s) => s.adapter.kind);
   const unread = useDataStore((s) => s.notifications.filter((n) => !n.read).length);
   const assistantOpen = useChatStore((s) => s.open);
   const toggleAssistant = useChatStore((s) => s.toggleOpen);
@@ -158,21 +156,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
           </kbd>
         </button>
       </div>
-      <div className="border-t border-border/70 px-5 py-3 font-mono text-[10px] text-muted-foreground">
-        <div className="flex items-center gap-2">
-          {adapterKind === "filesystem" ? (
-            <>
-              <CheckCircle2 className="size-3.5 text-success" />
-              sincronizado · carpeta local
-            </>
-          ) : (
-            <>
-              <HardDriveDownload className="size-3.5 text-warning" />
-              modo export/import
-            </>
-          )}
-        </div>
-      </div>
+      <WorkspaceStatus />
     </>
   );
 }
@@ -361,6 +345,7 @@ export function AppLayout() {
 
         <main id="main-content" className="flex-1 overflow-y-auto pb-16 lg:pb-0">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-8 lg:py-12">
+            <DemoBanner />
             <Outlet />
           </div>
         </main>

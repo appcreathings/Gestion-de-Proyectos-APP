@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Download, FolderOpen, Upload } from "lucide-react";
+import { Download, Eraser, FolderOpen, Sparkles, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Panel } from "@/components/ui/Panel";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store/useAppStore";
+import { useDataStore } from "@/store/useDataStore";
 import { PeopleCard } from "./PeopleCard";
 import { CollectionTransferCard } from "./CollectionTransferCard";
 import { AiSettingsCard } from "./AiSettingsCard";
@@ -211,6 +213,8 @@ function SettingsContent() {
           </div>
         </Panel>
 
+        <DemoDataCard />
+
         <AiSettingsCard />
 
         <RagSettingsCard />
@@ -220,5 +224,54 @@ function SettingsContent() {
         <PeopleCard />
       </div>
     </div>
+  );
+}
+
+/** Demo lifecycle controls — only relevant in browser mode (spec 030 §8). */
+function DemoDataCard() {
+  const mode = useAppStore((s) => s.mode);
+  const loadDemo = useAppStore((s) => s.loadDemo);
+  const clearWorkspace = useAppStore((s) => s.clearWorkspace);
+  const hasData = useDataStore((s) => s.projects.length + s.products.length > 0);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  if (mode !== "browser") return null;
+
+  async function cargar() {
+    setPending(true);
+    try {
+      await loadDemo(); // reloads on success
+    } catch {
+      setPending(false);
+    }
+  }
+
+  return (
+    <Panel
+      label="Datos de ejemplo"
+      title="Datos de ejemplo"
+      description="Explora la app con un escenario de ejemplo (Nimbus, una startup SaaS) o empieza desde cero."
+    >
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" disabled={hasData || pending} onClick={cargar}>
+          <Sparkles className="size-4" />
+          Cargar datos de ejemplo
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setConfirmClear(true)}>
+          <Eraser className="size-4" />
+          Vaciar y empezar de cero
+        </Button>
+      </div>
+      <ConfirmDialog
+        open={confirmClear}
+        onOpenChange={setConfirmClear}
+        title="Empezar de cero"
+        description="Se borrarán todos los datos de este navegador. No se puede deshacer."
+        confirmLabel="Vaciar y empezar de cero"
+        confirmVariant="destructive"
+        onConfirm={() => void clearWorkspace()}
+      />
+    </Panel>
   );
 }

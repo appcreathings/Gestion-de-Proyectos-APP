@@ -9,6 +9,7 @@ import {
   Gauge,
   ArrowRight,
   Library,
+  Sparkles,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -21,6 +22,7 @@ import { HierarchyLegend } from "@/components/HierarchyLegend";
 import { HealthBadge, HealthDot, healthColorClass } from "@/components/HealthBadge";
 import { useDataStore } from "@/store/useDataStore";
 import { useAppStore } from "@/store/useAppStore";
+import { isDemoCleared } from "@/storage/mode";
 import { projectStatusLabel } from "@/domain/labels";
 import { computePortfolio, type DueRow, type ProductRollup } from "./portfolio";
 import type { Health, Project, ProjectStatus } from "@/domain/schemas";
@@ -33,6 +35,8 @@ export function DashboardPage() {
   const products = useDataStore((s) => s.products);
   const people = useDataStore((s) => s.people);
   const settings = useAppStore((s) => s.workspace?.settings);
+  const mode = useAppStore((s) => s.mode);
+  const loadDemo = useAppStore((s) => s.loadDemo);
 
   const stats = useMemo(
     () => (settings ? computePortfolio(projects, products, settings, new Date(), people) : null),
@@ -68,6 +72,12 @@ export function DashboardPage() {
                     2. Crear proyecto
                   </Button>
                 </Link>
+                {mode === "browser" && !isDemoCleared() && (
+                  <Button variant="outline" size="sm" onClick={() => void loadDemo()}>
+                    <Sparkles className="size-4" />
+                    Cargar datos de ejemplo
+                  </Button>
+                )}
               </div>
             }
           />
