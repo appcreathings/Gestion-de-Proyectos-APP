@@ -14,4 +14,5 @@ export const BLOG_SLUGS = [
   "versionar-proyectos-con-git",
   "hito-vs-clickup",
   "como-priorizar-tareas",
+  "prompts-gestion-proyectos-ia",
 ] as const;
