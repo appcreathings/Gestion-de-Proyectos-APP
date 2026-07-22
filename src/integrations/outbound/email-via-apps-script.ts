@@ -3,6 +3,10 @@ import { integrationDb } from "@/storage/integration-db";
 export interface EmailConfig {
   proxyUrl: string;
   fromEmail: string;
+  /** Conexión de email de origen (spec 033 A2) — se persiste en el syncLog
+   *  para el semáforo de salud por conexión. Opcional: los call-sites que no
+   *  la conocen (pruebas de conexión) la omiten. */
+  connectionId?: string;
 }
 
 export interface EmailPayload {
@@ -44,19 +48,19 @@ export async function sendEmailViaAppsScript(
       };
     }
 
-    await logEmailDelivery(config.proxyUrl, email, null);
+    await logEmailDelivery(email, null, config.connectionId);
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    await logEmailDelivery(config.proxyUrl, email, errorMessage);
+    await logEmailDelivery(email, errorMessage, config.connectionId);
     return { success: false, error: errorMessage, transient: true };
   }
 }
 
 async function logEmailDelivery(
-  _proxyUrl: string,
   email: EmailPayload,
-  error: string | null
+  error: string | null,
+  connectionId?: string
 ): Promise<void> {
   await integrationDb.syncLogs.add({
     id: crypto.randomUUID(),
@@ -70,5 +74,6 @@ async function logEmailDelivery(
     errorMessage: error,
     retryCount: 0,
     createdAt: new Date().toISOString(),
+    connectionId,
   });
 }

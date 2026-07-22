@@ -86,6 +86,11 @@ export interface SyncLog {
    *  `secret` de firma NO va aquí (se recupera del Flujo vivo); este es
    *  el registro que el output ya procesó (mismo que se envió en el body). */
   replayData?: string;
+  /** Conexión de origen de una salida que sí referencia una (email — spec 033
+   *  A2), para que el semáforo de salud por conexión asocie la última salida
+   *  OK a su conexión. Los webhooks NO llevan `connectionId` (su URL/secret
+   *  son inline, no una conexión reutilizable). */
+  connectionId?: string;
 }
 
 export interface OutboundDelivery {

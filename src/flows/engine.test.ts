@@ -2166,6 +2166,13 @@ describe("FlowEngine", () => {
       const out = result.traces["flow-retry"]!.records[0].outputs[0];
       expect(out.outcome).toBe("executed");
       expect(out.attempts).toBe(3);
+      // Spec 033 A1 (fix): los 3 intentos se colapsan a UNA sola entrega —la
+      // del desenlace final (HTTP 200)— con el conteo real de intentos, en vez
+      // de dejar [500, 500, 200] en el log.
+      expect(result.outboundDeliveries).toHaveLength(1);
+      expect(result.outboundDeliveries[0].status).toBe(200);
+      expect(result.outboundDeliveries[0].attempts).toBe(3);
+      expect(result.outboundDeliveries[0].error).toBeUndefined();
     });
 
     it("never retries a 4xx (permanent failure)", async () => {
@@ -2198,6 +2205,12 @@ describe("FlowEngine", () => {
       const out = result.traces["flow-retry"]!.records[0].outputs[0];
       expect(out.outcome).toBe("error");
       expect(out.attempts).toBe(3);
+      // Spec 033 A1 (fix): una sola entrega colapsada, con el error final y el
+      // conteo real de intentos (no una fila por cada 503).
+      expect(result.outboundDeliveries).toHaveLength(1);
+      expect(result.outboundDeliveries[0].status).toBe(503);
+      expect(result.outboundDeliveries[0].attempts).toBe(3);
+      expect(result.outboundDeliveries[0].error).toBeTruthy();
     });
 
     it("keeps the exact previous behavior for flows without retry configured (baseline)", async () => {

@@ -192,6 +192,32 @@ export interface EmailDelivery {
   body: string;
 }
 
+/** Spec 033 A1: un webhook con `retry` empuja una entrega por intento a
+ * `deliveries`. Este helper colapsa todas las entregas de un mismo output
+ * (las que van del índice `from` al final) a UNA sola —la del desenlace
+ * final (la última)— y le estampa la metadata de replay + el conteo real de
+ * intentos. Devuelve la entrega final (o `undefined` si el output no empujó
+ * ninguna, ej. un output interno o un dry-run). Muta `deliveries` in place. */
+function collapseAndStampDeliveries(
+  deliveries: OutboundDelivery[],
+  from: number,
+  flowId: string,
+  outputIndex: number,
+  data: Record<string, unknown>,
+  attempts: number,
+): OutboundDelivery | undefined {
+  const count = deliveries.length - from;
+  if (count <= 0) return undefined;
+  // Descartar los intentos intermedios, conservar solo el último (desenlace).
+  if (count > 1) deliveries.splice(from, count - 1);
+  const final = deliveries[from];
+  final.flowId = flowId;
+  final.outputIndex = outputIndex;
+  final.data = data;
+  final.attempts = attempts;
+  return final;
+}
+
 /**
  * De dónde vino el registro que dispara el flow (evento interno o registro
  * externo de polling). Se usa para targetear proyecto/área/tarea de forma
@@ -357,15 +383,13 @@ export async function runFlowEngine(input: FlowEngineInput): Promise<FlowEngineR
           }
           for (const id of outputResult.mutatedProjectIds) changedProjectIds.add(id);
           if (!(input.describeOutputs ?? false)) executedFlowIds.add(flow.id);
-          // Spec 033 A1: estampar replay metadata + intentos en cada
-          // entrega de este output para que `applyFlowResult` la persista y
-          // `DeliveryDetailDrawer` pueda reconstruir la request.
-          for (const d of result.outboundDeliveries.slice(deliveriesBefore)) {
-            d.flowId = flow.id;
-            d.outputIndex = outputIndex;
-            d.data = transformed;
-            d.attempts = attempts;
-          }
+          // Spec 033 A1: cada intento de un webhook con retry empuja su propia
+          // entrega; colapsar a UNA sola fila (la del desenlace final) para no
+          // inflar el log con [500, 500, 200]. El conteo real de intentos
+          // queda en `attempts` (→ `retryCount = attempts-1`). Estampar replay
+          // metadata para que `applyFlowResult` la persista y
+          // `DeliveryDetailDrawer` reconstruya la request.
+          collapseAndStampDeliveries(result.outboundDeliveries, deliveriesBefore, flow.id, outputIndex, transformed, attempts);
           recordTrace?.outputs.push({
             type: output.type,
             outcome: outputResult.outcome,
@@ -384,16 +408,13 @@ export async function runFlowEngine(input: FlowEngineInput): Promise<FlowEngineR
             stage: "output",
             message,
           });
-          // Spec 033 A1: la entrega que se registró pre-red (spec 024 §F2)
-          // queda con su `error` y el conteo de intentos, para que el log
-          // durable refleje el fallo real.
-          for (const d of result.outboundDeliveries.slice(deliveriesBefore)) {
-            d.flowId = flow.id;
-            d.outputIndex = outputIndex;
-            d.data = transformed;
-            d.attempts = attempts;
-            if (!d.error) d.error = message;
-          }
+          // Spec 033 A1: colapsar los intentos a una sola entrega (la del
+          // fallo final, spec 024 §F2) con su `error` y el conteo real de
+          // intentos, para que el log durable refleje un único desenlace.
+          const collapsed = collapseAndStampDeliveries(
+            result.outboundDeliveries, deliveriesBefore, flow.id, outputIndex, transformed, attempts,
+          );
+          if (collapsed && !collapsed.error) collapsed.error = message;
           recordTrace?.outputs.push({
             type: output.type,
             outcome: "error",
@@ -1412,7 +1433,10 @@ async function executeOutput(
       // (spec 024 §F2). Ahora si falla se relanza para que el catch del
       // loop principal lo cuente como error real del output; `transient`
       // decide si el fallo es reintentable (spec 027 §E).
-      const sendResult = await sendEmailViaAppsScript({ proxyUrl, fromEmail }, emailData);
+      const sendResult = await sendEmailViaAppsScript(
+        { proxyUrl, fromEmail, connectionId: output.connectionId },
+        emailData,
+      );
       if (!sendResult.success) {
         const message = `Envío fallido: ${sendResult.error ?? "error desconocido"}`;
         if (sendResult.transient) throw new TransientOutputError(message);

@@ -71,7 +71,6 @@ export function ScheduledServicesPage() {
           (f): f is FlowRule & { trigger: PollTrigger } =>
             f.trigger.type === "poll" && f.enabled && f.trigger.config.connectionId === conn.id
         );
-        const flowIds = new Set(connFlows.map((f) => f.id));
         const cadenceMs = connFlows.length
           ? Math.min(...connFlows.map((f) => f.trigger.config.intervalMs))
           : 0;
@@ -83,9 +82,16 @@ export function ScheduledServicesPage() {
               ? l.eventType === `inbox:${conn.id}`
               : l.provider === conn.provider)
         );
-        const outboundLogs = allLogs.filter(
-          (l) => l.direction === "outbound" && l.flowId != null && flowIds.has(l.flowId)
-        );
+        // La "última salida" por conexión solo es significativa para email
+        // (su output referencia `connectionId`). Los webhooks tienen URL/secret
+        // inline —no una conexión— así que no cuentan como salida de ninguna
+        // conexión (spec 033 A2, fix). `flowIds` deja de usarse para outbound.
+        const outboundLogs =
+          conn.provider === "email"
+            ? allLogs.filter(
+                (l) => l.direction === "outbound" && l.provider === "email" && l.connectionId === conn.id
+              )
+            : [];
 
         const backlog =
           // El inbox es el único proveedor con backlog (hubspot/sheets leen de
