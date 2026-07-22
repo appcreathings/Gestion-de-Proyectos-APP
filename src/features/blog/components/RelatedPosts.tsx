@@ -1,16 +1,14 @@
 import { Link } from "react-router-dom";
-import { BLOG_ARTICLES } from "../data/articles";
-import type { BlogArticle } from "../types";
+import { getRelatedMeta } from "../data/articles-index";
+import type { BlogCategory } from "../types";
 
 type RelatedPostsProps = {
   currentSlug: string;
-  category: BlogArticle["category"];
+  category: BlogCategory;
 };
 
 export function RelatedPosts({ currentSlug, category }: RelatedPostsProps) {
-  const related = BLOG_ARTICLES.filter(
-    (a) => a.slug !== currentSlug && a.category === category,
-  ).slice(0, 2);
+  const related = getRelatedMeta(currentSlug, category);
 
   if (related.length === 0) return null;
 

@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import ViteSitemapPlugin from "vite-plugin-sitemap";
 import path from "node:path";
-import { BLOG_SLUGS } from "./src/features/blog/data/slugs";
+import { BLOG_SLUGS } from "./src/features/blog/data/articles-index";
 import { DOC_SLUGS } from "./src/features/docs/data/slugs";
 
 export default defineConfig({

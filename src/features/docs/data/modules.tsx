@@ -802,13 +802,20 @@ export const DOC_MODULES: DocModule[] = [
               </p>
               <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
                 <li>
-                  <code>data/articles.tsx</code> — el array{" "}
-                  <code>BLOG_ARTICLES</code> con cada artículo (tipo{" "}
-                  <code>BlogArticle</code>).
+                  <code>data/articles/&lt;slug&gt;.tsx</code> — un archivo por
+                  artículo, con <code>export const article: BlogArticle</code>
+                  (metadata + <code>content</code> JSX). El cuerpo se carga de
+                  forma diferida (un chunk por artículo).
                 </li>
                 <li>
-                  <code>data/slugs.ts</code> — <code>BLOG_SLUGS</code>, la lista
-                  de slugs usada para el prerender/SSG del sitemap.
+                  <code>data/articles/index.ts</code> — registro{" "}
+                  <code>slug → import()</code> y <code>loadArticle(slug)</code>,
+                  que resuelve el cuerpo bajo demanda.
+                </li>
+                <li>
+                  <code>data/articles-index.ts</code> — <code>BLOG_ARTICLES_META</code>{" "}
+                  (metadata sin JSX; lo consumen índice, tarjetas y relacionados) y{" "}
+                  <code>BLOG_SLUGS</code> derivado, usado para el sitemap.
                 </li>
                 <li>
                   <code>data/categories.ts</code> — catálogo de categorías
@@ -816,15 +823,17 @@ export const DOC_MODULES: DocModule[] = [
                   categoría de aquí.
                 </li>
                 <li>
-                  <code>types.ts</code> — la forma de <code>BlogArticle</code> y
-                  la unión <code>BlogCategory</code>.
+                  <code>types.ts</code> — <code>BlogArticleMeta</code>,{" "}
+                  <code>BlogArticleContent</code>, <code>BlogArticle</code> y la
+                  unión <code>BlogCategory</code>.
                 </li>
               </ul>
               <p>
-                El render lo resuelve dinámicamente{" "}
-                <code>BlogPostPage</code> vía <code>getArticleBySlug(slug)</code>,
-                así que <strong>no hace falta tocar rutas ni páginas</strong> al
-                agregar un post.
+                El render lo resuelve dinámicamente <code>BlogPostPage</code>:
+                metadata síncrona vía <code>getArticleMeta(slug)</code> +
+                contenido diferido vía <code>loadArticle(slug)</code>, así que{" "}
+                <strong>no hace falta tocar rutas ni páginas</strong> al agregar
+                un post.
               </p>
             </>
           ),
@@ -932,16 +941,22 @@ export const DOC_MODULES: DocModule[] = [
           ),
         },
         {
-          heading: "4. Registrar el slug y la categoría",
+          heading: "4. Registrar el artículo (metadata + loader)",
           body: (
             <>
               <p>
-                Dos pasos que se olvidan fácilmente y rompen el prerender:
+                Un artículo nuevo se da de alta en dos registros (el{" "}
+                <code>BLOG_SLUGS</code> del sitemap se deriva solo de la
+                metadata, ya no hay lista manual):
               </p>
               <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
                 <li>
-                  Agregar el <code>slug</code> al array <code>BLOG_SLUGS</code> en{" "}
-                  <code>data/slugs.ts</code>.
+                  Añadir su metadata a <code>BLOG_ARTICLES_META</code> en{" "}
+                  <code>data/articles-index.ts</code> (mismo slug que el archivo).
+                </li>
+                <li>
+                  Añadir la entrada <code>"slug": () =&gt; import("./slug")</code>{" "}
+                  al registro de <code>data/articles/index.ts</code>.
                 </li>
                 <li>
                   Si usás una categoría nueva, añadirla a la unión{" "}
@@ -961,7 +976,7 @@ export const DOC_MODULES: DocModule[] = [
               <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
                 <li>
                   Eliminá el archivo fuente <code>public/post.md</code> (el
-                  contenido ya vive en <code>articles.tsx</code>).
+                  contenido ya vive en <code>data/articles/&lt;slug&gt;.tsx</code>).
                 </li>
                 <li>
                   Verificá que compila y que el lint pasa:
@@ -985,8 +1000,8 @@ export const DOC_MODULES: DocModule[] = [
               <li>Borrador en <code>public/post.md</code> (Markdown + frontmatter).</li>
               <li>Mapear frontmatter → campos planos de <code>BlogArticle</code>.</li>
               <li>Convertir el cuerpo a <code>sections</code> de <code>ReactNode</code> (descartar notas internas).</li>
-              <li>Append al array <code>BLOG_ARTICLES</code> en <code>articles.tsx</code>.</li>
-              <li>Registrar slug en <code>slugs.ts</code> (y categoría si es nueva).</li>
+              <li>Crear <code>data/articles/&lt;slug&gt;.tsx</code> con <code>export const article: BlogArticle</code>.</li>
+              <li>Registrar metadata en <code>articles-index.ts</code> + loader en <code>articles/index.ts</code> (y categoría si es nueva).</li>
               <li>Borrar <code>post.md</code>.</li>
               <li>Verificar con <code>lint</code> + <code>typecheck</code> + <code>build</code>.</li>
             </ol>

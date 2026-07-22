@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
-import type { BlogArticle } from "../types";
+import type { BlogArticleMeta } from "../types";
 
 type BlogCardProps = {
-  article: BlogArticle;
+  article: BlogArticleMeta;
 };
 
 export function BlogCard({ article }: BlogCardProps) {

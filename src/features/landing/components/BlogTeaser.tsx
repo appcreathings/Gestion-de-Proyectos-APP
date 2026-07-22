@@ -9,10 +9,10 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BLOG_ARTICLES } from "@/features/blog/data/articles";
+import { BLOG_ARTICLES_META } from "@/features/blog/data/articles-index";
 import { BlogCard } from "@/features/blog/components/BlogCard";
 
-const TEASER_ARTICLES = [...BLOG_ARTICLES]
+const TEASER_ARTICLES = [...BLOG_ARTICLES_META]
   .sort((a, b) => {
     if (a.featured !== b.featured) return a.featured ? -1 : 1;
     return b.publishedAt.localeCompare(a.publishedAt);

@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { SeoPage } from "@/features/seo/SeoPage";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/routes/paths";
-import { BLOG_ARTICLES } from "../data/articles";
+import { BLOG_ARTICLES_META } from "../data/articles-index";
 import { BLOG_CATEGORIES } from "../data/categories";
 import { BlogCard } from "../components/BlogCard";
 import { CategoryBadge } from "../components/CategoryBadge";
@@ -15,12 +15,12 @@ export function BlogIndexPage() {
   const activeCategory = searchParams.get("categoria") as BlogCategory | null;
 
   const filteredArticles = useMemo(() => {
-    if (!activeCategory) return BLOG_ARTICLES;
-    return BLOG_ARTICLES.filter((a) => a.category === activeCategory);
+    if (!activeCategory) return BLOG_ARTICLES_META;
+    return BLOG_ARTICLES_META.filter((a) => a.category === activeCategory);
   }, [activeCategory]);
 
   const featuredArticle = useMemo(
-    () => BLOG_ARTICLES.find((a) => a.featured),
+    () => BLOG_ARTICLES_META.find((a) => a.featured),
     [],
   );
 
