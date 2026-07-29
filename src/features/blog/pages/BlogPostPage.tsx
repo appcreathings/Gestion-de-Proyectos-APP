@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { SeoPage } from "@/features/seo/SeoPage";
 import { SeoArticle } from "@/features/seo/SeoArticle";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { getArticleMeta } from "../data/articles-index";
 import { loadArticle } from "../data/articles";
 import type { BlogArticleContent } from "../types";
@@ -40,6 +41,11 @@ export function BlogPostPage() {
       description={meta.seo.description}
       path={`/blogs/${meta.slug}`}
       ogImageAlt={meta.seo.ogImageAlt}
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Blog", path: "/blogs" },
+        { label: meta.title, path: `/blogs/${meta.slug}` },
+      ]}
       schemaJson={{
         "@context": "https://schema.org",
         "@type": "BlogPosting",
@@ -53,6 +59,10 @@ export function BlogPostPage() {
     >
       <article className="border-b border-border/60">
         <div className="mx-auto max-w-3xl px-6 pt-24 sm:pt-32">
+          <Breadcrumb
+            items={[{ label: "Blog", href: "/blogs" }, { label: meta.title }]}
+            className="mb-6"
+          />
           <div className="mb-4 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="font-mono uppercase tracking-widest">
               {meta.categoryLabel}

@@ -18,6 +18,11 @@ export function DocModulePage() {
       description={doc.seo.description}
       path={`/docs/${doc.slug}`}
       ogImageAlt={doc.seo.ogImageAlt}
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Documentación", path: "/docs" },
+        { label: doc.title, path: `/docs/${doc.slug}` },
+      ]}
       schemaJson={{
         "@context": "https://schema.org",
         "@type": "TechArticle",

@@ -4,12 +4,16 @@ import { LandingNav } from "@/features/landing/components/LandingNav";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { StickyCta } from "@/features/landing/components/StickyCta";
 
+export type SeoBreadcrumbItem = { label: string; path: string };
+
 type SeoPageProps = {
   title: string;
   description: string;
   path: string;
   ogImageAlt?: string;
   schemaJson?: object;
+  /** Trail from home to the current page (inclusive) — emits BreadcrumbList JSON-LD. */
+  breadcrumb?: SeoBreadcrumbItem[];
   children: React.ReactNode;
 };
 
@@ -24,6 +28,7 @@ export function SeoPage({
   path,
   ogImageAlt,
   schemaJson,
+  breadcrumb,
   children,
 }: SeoPageProps) {
   const url = `https://hito.autos${path}`;
@@ -49,6 +54,20 @@ export function SeoPage({
         <meta name="twitter:image" content="https://hito.autos/og-image.png" />
         {schemaJson ? (
           <script type="application/ld+json">{JSON.stringify(schemaJson)}</script>
+        ) : null}
+        {breadcrumb ? (
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: breadcrumb.map((item, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                name: item.label,
+                item: `https://hito.autos${item.path}`,
+              })),
+            })}
+          </script>
         ) : null}
       </Helmet>
       <ScrollToHash />

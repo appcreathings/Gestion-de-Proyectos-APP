@@ -9,6 +9,10 @@ export function DocsIndexPage() {
       title="Documentación — Hito"
       description="Guías para sacarle provecho a cada módulo de Hito: proyectos, procesos, Kanban, Flujos e integraciones, asistente IA y más."
       path="/docs"
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Documentación", path: "/docs" },
+      ]}
     >
       <div className="border-b border-border/60">
         <div className="mx-auto max-w-3xl px-6 py-24 sm:py-32">

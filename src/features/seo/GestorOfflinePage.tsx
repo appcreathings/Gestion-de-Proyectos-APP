@@ -8,6 +8,10 @@ export function GestorOfflinePage() {
       description="Hito es un gestor de proyectos que funciona 100% offline. PWA instalable, datos en archivos .json, sin servidor, sin cuenta. Open source (MIT)."
       path="/gestor-proyectos-offline"
       ogImageAlt="Hito: gestor de proyectos offline. PWA instalable, datos locales en .json."
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Gestor de proyectos offline", path: "/gestor-proyectos-offline" },
+      ]}
       schemaJson={{
         "@context": "https://schema.org",
         "@type": "Article",

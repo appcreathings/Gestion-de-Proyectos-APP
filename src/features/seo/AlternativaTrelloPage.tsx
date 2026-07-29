@@ -8,6 +8,10 @@ export function AlternativaTrelloPage() {
       description="¿Buscas una alternativa a Trello que funcione offline y guarde tus datos en una carpeta de tu equipo? Hito es open source, local-first, y gratuita."
       path="/alternativa-trello"
       ogImageAlt="Hito como alternativa local-first a Trello: Kanban drag-and-drop, datos en .json."
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Alternativa a Trello", path: "/alternativa-trello" },
+      ]}
       schemaJson={{
         "@context": "https://schema.org",
         "@type": "Article",

@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { ScrollToHash } from "@/components/ScrollToHash";
+import { FAQS } from "./data/faqs";
 import { Hero } from "./components/Hero";
 import { TrustBar } from "./components/TrustBar";
 import { ProductMockup } from "./components/ProductMockup";
@@ -43,8 +44,11 @@ import { BlogTeaser } from "./components/BlogTeaser";
  * │ LandingFooter       → Footer con links y legal           │
  * └─────────────────────────────────────────────────────────┘
  *
- * SEO: Helmet inyecta title, meta, OG, Twitter Cards y 3 bloques
- * JSON-LD (Organization, WebSite, FAQPage) para rich snippets.
+ * SEO: Helmet inyecta title, meta, OG, Twitter Cards y bloques JSON-LD
+ * (Organization, WebSite, SoftwareApplication, SoftwareSourceCode, FAQPage)
+ * para rich snippets. FAQPage se genera desde ./data/faqs.ts, la misma
+ * fuente que renderiza <Faq />, para que el schema nunca quede desincronizado
+ * del contenido visible.
  *
  * El asistente IA (Gemini) se destaca en dos secciones:
  * - FeatureHighlights: tarjeta resumen con icono Sparkles
@@ -85,7 +89,12 @@ export function LandingPage() {
             "description": "Gestor de proyectos, procesos y checklists local-first y open source.",
             "sameAs": [
               "https://github.com/appcreathings/Gestion-de-Proyectos-APP"
-            ]
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "technical support",
+              "url": "https://github.com/appcreathings/Gestion-de-Proyectos-APP/issues/new"
+            }
           })}
         </script>
         <script type="application/ld+json">
@@ -101,65 +110,45 @@ export function LandingPage() {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Hito",
+            "description": "Gestor de proyectos, procesos (SOPs) y checklists local-first. Tus datos viven en archivos .json en tu equipo, no en la nube.",
+            "applicationCategory": "ProductivityApplication",
+            "operatingSystem": "Web, PWA, Windows, macOS, Linux",
+            "url": "https://hito.autos/",
+            "screenshot": "https://hito.autos/og-image.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock",
+              "category": "Free"
+            },
+            "author": { "@type": "Organization", "name": "Hito" },
+            "publisher": { "@type": "Organization", "name": "Hito" }
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareSourceCode",
+            "name": "Hito",
+            "description": "Código fuente de Hito, gestor de proyectos local-first open source.",
+            "codeRepository": "https://github.com/appcreathings/Gestion-de-Proyectos-APP",
+            "programmingLanguage": ["TypeScript", "React"],
+            "license": "https://github.com/appcreathings/Gestion-de-Proyectos-APP/blob/main/LICENSE",
+            "author": { "@type": "Organization", "name": "Hito" }
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "¿Mis datos están seguros en Hito?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Sí. Hito es local-first: tus datos nunca se envían a ningún servidor. Viven en archivos .json dentro de una carpeta que tú eliges en tu equipo. No hay backend, no hay nube, no hay terceros con acceso."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "¿Puedo compartir la carpeta con mi equipo?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Sí. Como los datos son archivos .json en una carpeta local, puedes compartirla por red, Dropbox, Google Drive, Git o cualquier medio que ya uses. Cada persona abre la misma carpeta desde su Hito."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "¿Hito funciona sin internet?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Sí. Hito es una PWA (Progressive Web App) que funciona completamente offline. Una vez instalada, puedes gestionar proyectos, procesos y tareas sin conexión. Los datos se sincronizan cuando vuelves a estar online si compartes la carpeta."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "¿Hito es realmente gratis?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Sí. Hito es 100% gratuito y open source bajo licencia MIT. No hay planes pagos, no hay suscripciones, no hay límites ocultos. Puedes usarlo para proyectos personales, profesionales o comerciales sin restricciones."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "¿Qué diferencia a Hito de Trello, Notion o ClickUp?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "La diferencia fundamental es la privacidad y el control de datos. Trello, Notion y ClickUp guardan tus datos en sus servidores. Hito es local-first: tus datos viven en tu equipo, son archivos .json legibles y versionables con Git. No necesitas cuenta, no hay límite de usuarios, y funcionas offline."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "¿Cómo funciona el asistente de IA sin comprometer mi privacidad?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "El asistente usa Gemini con arquitectura MCP + RAG local. Tu API key se guarda en IndexedDB, nunca en el workspace exportable. Los embeddings se generan y almacenan localmente. El modelo solo recibe el contexto semántico de tu consulta, no todo tu workspace. Puedes desactivar el asistente o el RAG en cualquier momento."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "¿Qué es MCP y cómo lo usa el asistente?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "MCP (Model Context Protocol) es un estándar para que modelos de IA interactúen con herramientas externas. En Hito, el asistente expone más de 20 herramientas MCP con esquemas Zod validados para leer y escribir datos de tu workspace de forma controlada. Las escrituras siempre requieren confirmación explícita."
-                }
-              }
-            ]
+            "mainEntity": FAQS.map((faq) => ({
+              "@type": "Question",
+              "name": faq.q,
+              "acceptedAnswer": { "@type": "Answer", "text": faq.a },
+            })),
           })}
         </script>
       </Helmet>

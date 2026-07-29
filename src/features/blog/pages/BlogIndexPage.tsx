@@ -29,6 +29,10 @@ export function BlogIndexPage() {
       title="Blog — Hito"
       description="Reflexiones, guías e ideas sobre gestión de proyectos, privacidad, procesos y el futuro del trabajo local-first."
       path="/blogs"
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Blog", path: "/blogs" },
+      ]}
     >
       <div className="border-b border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-24 sm:py-32">

@@ -56,6 +56,10 @@ export function ChangelogPage() {
       title="Hito — Changelog"
       description="Novedades y releases de Hito, gestor de proyectos local-first. Historial público de cambios, sin filtros."
       path="/changelog"
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Changelog", path: "/changelog" },
+      ]}
     >
       <article className="border-b border-border/60">
         <div className="mx-auto max-w-3xl px-6 py-24 sm:py-32">

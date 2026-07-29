@@ -8,6 +8,10 @@ export function AlternativaNotionPage() {
       description="Hito es una alternativa local a Notion para proyectos, procesos (SOPs) y checklists. Tus datos viven en archivos .json, no en la nube. Open source y gratuita."
       path="/alternativa-notion-local"
       ogImageAlt="Hito: alternativa local a Notion con jerarquía Producto→Proyecto→Área→Proceso→Tarea."
+      breadcrumb={[
+        { label: "Inicio", path: "/" },
+        { label: "Alternativa a Notion", path: "/alternativa-notion-local" },
+      ]}
       schemaJson={{
         "@context": "https://schema.org",
         "@type": "Article",
