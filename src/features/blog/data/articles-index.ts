@@ -3,8 +3,13 @@ import type { BlogArticleMeta, BlogCategory } from "../types";
 /**
  * Fuente de verdad de la LISTA del blog: metadata sin cuerpo JSX.
  * Módulo ligero — no importa el contenido de ningún artículo.
+ *
+ * `author` es opcional por artículo: la mayoría no lo declara y
+ * `BLOG_ARTICLES_META` lo completa con `DEFAULT_AUTHOR` abajo.
  */
-export const BLOG_ARTICLES_META: BlogArticleMeta[] = [
+export const DEFAULT_AUTHOR = { name: "Equipo Hito", role: "Producto" };
+
+const RAW_ARTICLES: BlogArticleMeta[] = [
   {
     slug: "gestion-proyectos-sin-nube",
     title: "Gestión de proyectos sin nube: por qué la soberanía de datos es una ventaja",
@@ -66,6 +71,7 @@ export const BLOG_ARTICLES_META: BlogArticleMeta[] = [
     publishedAt: "2026-07-05",
     readingTime: "7 min",
     featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
     seo: {
       title: "Cómo organizar proyectos y tareas: jerarquía práctica — Hito",
       description:
@@ -100,6 +106,7 @@ export const BLOG_ARTICLES_META: BlogArticleMeta[] = [
     publishedAt: "2026-07-07",
     readingTime: "6 min",
     featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
     seo: {
       title: "Qué es un hito en gestión de proyectos: guía práctica — Hito",
       description:
@@ -117,6 +124,7 @@ export const BLOG_ARTICLES_META: BlogArticleMeta[] = [
     publishedAt: "2026-07-07",
     readingTime: "7 min",
     featured: true,
+    pillar: "gestion-de-proyectos-guia-completa",
     seo: {
       title: "Hito Project: gestión de proyectos por hitos, sin nube — Hito",
       description:
@@ -253,6 +261,7 @@ export const BLOG_ARTICLES_META: BlogArticleMeta[] = [
     publishedAt: "2026-09-14",
     readingTime: "10 min",
     featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
     seo: {
       title: "Cómo priorizar tareas: 4 métodos con ejemplos | Hito",
       description:
@@ -312,7 +321,137 @@ export const BLOG_ARTICLES_META: BlogArticleMeta[] = [
         "Configurar Hito para un estudio jurídico: expedientes, clientes y colaboración.",
     },
   },
+  // --- Cluster "Gestión de proyectos" (spec 040) — primeros 6 de un roadmap de 32,
+  // ver ROADMAP_BLOG.md. Pilar + 5 satélites; el resto del cluster cuelga de aquí
+  // a medida que se publica.
+  {
+    slug: "gestion-de-proyectos-guia-completa",
+    title: "Gestión de proyectos: la guía completa y práctica",
+    excerpt:
+      "Qué es la gestión de proyectos, sus fases, roles y métodos — explicado sin jerga, con ejemplos que podés aplicar hoy mismo, uses la herramienta que uses.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-12",
+    readingTime: "12 min",
+    featured: true,
+    related: [
+      "fases-de-un-proyecto",
+      "como-estimar-tiempos-proyecto",
+      "matriz-raci",
+      "alcance-de-proyecto-scope-creep",
+      "scrum-vs-kanban",
+    ],
+    seo: {
+      title: "Gestión de proyectos: la guía completa y práctica | Hito",
+      description:
+        "Qué es la gestión de proyectos, sus fases, roles y métodos explicados sin jerga, con ejemplos aplicables hoy mismo con cualquier herramienta.",
+      ogImageAlt: "Guía completa de gestión de proyectos: fases, roles y métodos.",
+    },
+  },
+  {
+    slug: "fases-de-un-proyecto",
+    title: "Las 5 fases de un proyecto, con ejemplos",
+    excerpt:
+      "Inicio, planificación, ejecución, seguimiento y cierre: las 5 fases de cualquier proyecto explicadas con un ejemplo real, sin depender de una metodología específica.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-19",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+    seo: {
+      title: "Las 5 fases de un proyecto, con ejemplos | Hito",
+      description:
+        "Inicio, planificación, ejecución, seguimiento y cierre: las 5 fases de cualquier proyecto explicadas con un ejemplo real.",
+      ogImageAlt: "Las 5 fases de un proyecto explicadas con ejemplos.",
+    },
+  },
+  {
+    slug: "como-estimar-tiempos-proyecto",
+    title: "Cómo estimar tiempos de un proyecto sin fallar siempre",
+    excerpt:
+      "3 técnicas de estimación —por analogía, PERT y Planning Poker— y por qué casi siempre subestimamos. Con ejemplos para tu próximo proyecto.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-26",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["fases-de-un-proyecto", "matriz-raci"],
+    seo: {
+      title: "Cómo estimar tiempos de un proyecto sin fallar siempre | Hito",
+      description:
+        "3 técnicas de estimación de tiempos —analogía, PERT y Planning Poker— y por qué casi siempre subestimamos. Con ejemplos prácticos.",
+      ogImageAlt: "Cómo estimar tiempos de un proyecto: 3 técnicas con ejemplos.",
+    },
+  },
+  {
+    slug: "matriz-raci",
+    title: "Matriz RACI: qué es, cómo armarla y plantilla",
+    excerpt:
+      "La matriz RACI aclara quién hace, quién aprueba y quién solo necesita estar informado. Cómo construirla paso a paso, con un ejemplo completo y errores comunes.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-11-02",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+    seo: {
+      title: "Matriz RACI: qué es, cómo armarla y plantilla | Hito",
+      description:
+        "La matriz RACI aclara quién hace, quién aprueba y quién solo necesita estar informado. Paso a paso, con ejemplo y errores comunes.",
+      ogImageAlt: "Matriz RACI: responsable, aprobador, consultado e informado.",
+    },
+  },
+  {
+    // Cuelga temporalmente del pilar general: cuando se publique el pilar del
+    // cluster "Metodologías" (`metodologias-gestion-proyectos`, ver ROADMAP_BLOG.md)
+    // este `pillar` debe apuntar ahí.
+    slug: "scrum-vs-kanban",
+    title: "Scrum vs Kanban: diferencias reales y cuál elegir",
+    excerpt:
+      "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para decidir cuál conviene a tu equipo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-11-09",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["fases-de-un-proyecto", "matriz-raci"],
+    seo: {
+      title: "Scrum vs Kanban: diferencias reales y cuál elegir | Hito",
+      description:
+        "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para elegir bien.",
+      ogImageAlt: "Scrum vs Kanban: comparativa de roles, ritmo y flujo.",
+    },
+  },
+  {
+    slug: "alcance-de-proyecto-scope-creep",
+    title: "Alcance de proyecto: definirlo y evitar el scope creep",
+    excerpt:
+      "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-11-16",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["fases-de-un-proyecto", "matriz-raci"],
+    seo: {
+      title: "Alcance de proyecto: definirlo y evitar el scope creep | Hito",
+      description:
+        "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
+      ogImageAlt: "Alcance de proyecto y cómo evitar el scope creep.",
+    },
+  },
 ];
+
+export const BLOG_ARTICLES_META: BlogArticleMeta[] = RAW_ARTICLES.map((a) => ({
+  author: DEFAULT_AUTHOR,
+  ...a,
+}));
 
 export const BLOG_SLUGS = BLOG_ARTICLES_META.map((a) => a.slug);
 
@@ -331,12 +470,45 @@ export function getRecentArticles(limit?: number): BlogArticleMeta[] {
   return limit ? sorted.slice(0, limit) : sorted;
 }
 
+/**
+ * Relacionados en cascada: (1) `related` explícito del artículo, (2) resto del
+ * cluster (mismo `pillar`, o el propio pilar si el actual es un satélite), (3)
+ * relleno por categoría — comportamiento previo, para clusters aún sin poblar.
+ */
 export function getRelatedMeta(
   currentSlug: string,
   category: BlogCategory,
-  limit = 2,
+  limit = 3,
 ): BlogArticleMeta[] {
-  return BLOG_ARTICLES_META.filter(
-    (a) => a.slug !== currentSlug && a.category === category,
-  ).slice(0, limit);
+  const current = getArticleMeta(currentSlug);
+  const result: BlogArticleMeta[] = [];
+  const seen = new Set<string>([currentSlug]);
+
+  const add = (candidates: BlogArticleMeta[]) => {
+    for (const a of candidates) {
+      if (result.length >= limit) return;
+      if (seen.has(a.slug)) continue;
+      seen.add(a.slug);
+      result.push(a);
+    }
+  };
+
+  if (current?.related?.length) {
+    add(
+      current.related
+        .map((slug) => getArticleMeta(slug))
+        .filter((a): a is BlogArticleMeta => Boolean(a)),
+    );
+  }
+
+  if (result.length < limit) {
+    const pillarSlug = current?.pillar ?? currentSlug;
+    add(BLOG_ARTICLES_META.filter((a) => a.slug === pillarSlug || a.pillar === pillarSlug));
+  }
+
+  if (result.length < limit) {
+    add(BLOG_ARTICLES_META.filter((a) => a.category === category));
+  }
+
+  return result.slice(0, limit);
 }

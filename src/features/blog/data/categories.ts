@@ -36,4 +36,14 @@ export const BLOG_CATEGORIES: Record<
     label: "Implementación",
     description: "Guías paso a paso para adoptar y migrar a Hito.",
   },
+  "gestion-proyectos": {
+    label: "Gestión de proyectos",
+    description: "Fundamentos, metodologías y práctica real.",
+  },
+  plantillas: {
+    label: "Plantillas",
+    description: "Formatos listos para copiar y adaptar.",
+  },
 };
+
+export const BLOG_CATEGORY_SLUGS = Object.keys(BLOG_CATEGORIES) as BlogCategory[];

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { SeoPage } from "@/features/seo/SeoPage";
 import { Button } from "@/components/ui/button";
@@ -11,18 +11,19 @@ import { CategoryBadge } from "../components/CategoryBadge";
 import type { BlogCategory } from "../types";
 
 export function BlogIndexPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeCategory = searchParams.get("categoria") as BlogCategory | null;
-
-  const filteredArticles = useMemo(() => {
-    if (!activeCategory) return BLOG_ARTICLES_META;
-    return BLOG_ARTICLES_META.filter((a) => a.category === activeCategory);
-  }, [activeCategory]);
-
+  const [searchParams] = useSearchParams();
   const featuredArticle = useMemo(
     () => BLOG_ARTICLES_META.find((a) => a.featured),
     [],
   );
+
+  // `?categoria=X` era la única forma de filtrar por categoría antes de que
+  // existiera /blogs/categoria/:category (spec 040) — conserva el link equity
+  // de cualquier enlace o bookmark viejo que aún la use.
+  const legacyCategory = searchParams.get("categoria");
+  if (legacyCategory) {
+    return <Navigate to={`/blogs/categoria/${legacyCategory}`} replace />;
+  }
 
   return (
     <SeoPage
@@ -64,7 +65,7 @@ export function BlogIndexPage() {
       </div>
 
       {/* Featured post */}
-      {featuredArticle && !activeCategory && (
+      {featuredArticle && (
         <div className="border-b border-border/60 bg-muted/20">
           <div className="mx-auto max-w-6xl px-6 py-16">
             <p className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -99,34 +100,22 @@ export function BlogIndexPage() {
         </div>
       )}
 
-      {/* Filters */}
+      {/* Filters — cada categoría es una URL propia (/blogs/categoria/:category),
+          indexable, en vez del ?categoria= de antes. */}
       <div className="border-b border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-6">
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setSearchParams({})}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                !activeCategory
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-              }`}
-            >
+            <span className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background">
               Todos
-            </button>
-            {(
-              Object.keys(BLOG_CATEGORIES) as BlogCategory[]
-            ).map((category) => (
-              <button
+            </span>
+            {(Object.keys(BLOG_CATEGORIES) as BlogCategory[]).map((category) => (
+              <Link
                 key={category}
-                onClick={() => setSearchParams({ categoria: category })}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  activeCategory === category
-                    ? "bg-foreground text-background"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                }`}
+                to={`/blogs/categoria/${category}`}
+                className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
               >
                 {BLOG_CATEGORIES[category].label}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -134,17 +123,11 @@ export function BlogIndexPage() {
 
       {/* Articles grid */}
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        {filteredArticles.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground">
-            No hay artículos en esta categoría todavía.
-          </p>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredArticles.map((article) => (
-              <BlogCard key={article.slug} article={article} />
-            ))}
-          </div>
-        )}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {BLOG_ARTICLES_META.map((article) => (
+            <BlogCard key={article.slug} article={article} />
+          ))}
+        </div>
       </div>
     </SeoPage>
   );

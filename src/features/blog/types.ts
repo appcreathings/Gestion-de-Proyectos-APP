@@ -8,7 +8,9 @@ export type BlogCategory =
   | "productividad"
   | "pensamiento"
   | "comparativas"
-  | "implementacion";
+  | "implementacion"
+  | "gestion-proyectos"
+  | "plantillas";
 
 /**
  * Metadata ligera de un artículo — sin el cuerpo JSX.
@@ -22,8 +24,22 @@ export type BlogArticleMeta = {
   category: BlogCategory;
   categoryLabel: string;
   publishedAt: string;
+  /** ISO; si falta, el render y el schema caen a `publishedAt`. */
+  updatedAt?: string;
   readingTime: string;
   featured: boolean;
+  /**
+   * Señal E-E-A-T para schema `author` — no se muestra como bio pública.
+   * Opcional: los artículos anteriores a spec 040 no lo declaran en su propio
+   * `data/articles/<slug>.tsx` (esos archivos duplican metadata que
+   * `BlogPostPage` no usa) y reciben `DEFAULT_AUTHOR` vía `BLOG_ARTICLES_META`
+   * en `articles-index.ts`, la única fuente que el render realmente consume.
+   */
+  author?: { name: string; role?: string };
+  /** Slug del artículo pilar del cluster (vacío en los propios pilares). */
+  pillar?: string;
+  /** Slugs relacionados explícitos, cross-categoría; tienen prioridad sobre el fallback por categoría. */
+  related?: string[];
   seo: {
     title: string;
     description: string;
@@ -39,6 +55,10 @@ export type BlogArticleContent = {
   eyebrow: string;
   intro: ReactNode;
   sections: { heading: string; body: ReactNode }[];
+  /** Preguntas frecuentes — alimenta el schema FAQPage y se renderiza al final del artículo. */
+  faq?: { question: string; answer: string }[];
+  /** Procedimiento paso a paso — alimenta el schema HowTo. */
+  howTo?: { name: string; steps: { name: string; text: string }[] };
 };
 
 export type BlogArticle = BlogArticleMeta & {

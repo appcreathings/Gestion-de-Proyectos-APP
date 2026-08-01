@@ -8,11 +8,13 @@ type SeoArticleProps = {
   title: React.ReactNode;
   intro: React.ReactNode;
   sections: { heading: string; body: React.ReactNode }[];
+  /** Preguntas frecuentes, renderizadas al final — su schema FAQPage lo emite el caller. */
+  faq?: { question: string; answer: string }[];
   cta: { label: string; href?: string };
 };
 
-/** Editorial layout for SEO satellite pages: eyebrow → h1 → intro → sections → CTA. */
-export function SeoArticle({ eyebrow, title, intro, sections, cta }: SeoArticleProps) {
+/** Editorial layout for SEO satellite pages: eyebrow → h1 → intro → sections → FAQ → CTA. */
+export function SeoArticle({ eyebrow, title, intro, sections, faq, cta }: SeoArticleProps) {
   return (
     <article className="border-b border-border/60">
       <div className="mx-auto max-w-3xl px-6 py-24 sm:py-32">
@@ -32,6 +34,22 @@ export function SeoArticle({ eyebrow, title, intro, sections, cta }: SeoArticleP
             </section>
           ))}
         </div>
+
+        {faq && faq.length > 0 ? (
+          <div className="mt-4">
+            <h2 className="text-2xl font-semibold tracking-tight">Preguntas frecuentes</h2>
+            <dl className="mt-6 space-y-6">
+              {faq.map((item) => (
+                <div key={item.question}>
+                  <dt className="font-semibold tracking-tight">{item.question}</dt>
+                  <dd className="mt-2 text-base leading-relaxed text-muted-foreground">
+                    {item.answer}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ) : null}
 
         <div className="mt-16 rounded-2xl border border-border/60 bg-muted/30 p-8">
           <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">

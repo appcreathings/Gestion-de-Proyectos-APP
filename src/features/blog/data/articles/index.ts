@@ -24,6 +24,12 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "prompts-gestion-proyectos-ia": () => import("./prompts-gestion-proyectos-ia"),
   "rag-local-explicado": () => import("./rag-local-explicado"),
   "hito-para-estudio-juridico": () => import("./hito-para-estudio-juridico"),
+  "gestion-de-proyectos-guia-completa": () => import("./gestion-de-proyectos-guia-completa"),
+  "fases-de-un-proyecto": () => import("./fases-de-un-proyecto"),
+  "como-estimar-tiempos-proyecto": () => import("./como-estimar-tiempos-proyecto"),
+  "matriz-raci": () => import("./matriz-raci"),
+  "scrum-vs-kanban": () => import("./scrum-vs-kanban"),
+  "alcance-de-proyecto-scope-creep": () => import("./alcance-de-proyecto-scope-creep"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

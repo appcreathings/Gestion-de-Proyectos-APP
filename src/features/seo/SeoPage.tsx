@@ -11,7 +11,9 @@ type SeoPageProps = {
   description: string;
   path: string;
   ogImageAlt?: string;
-  schemaJson?: object;
+  schemaJson?: object | object[];
+  /** `"article"` para posts de blog; por defecto `"website"`. */
+  ogType?: "website" | "article";
   /** Trail from home to the current page (inclusive) — emits BreadcrumbList JSON-LD. */
   breadcrumb?: SeoBreadcrumbItem[];
   children: React.ReactNode;
@@ -28,17 +30,19 @@ export function SeoPage({
   path,
   ogImageAlt,
   schemaJson,
+  ogType = "website",
   breadcrumb,
   children,
 }: SeoPageProps) {
   const url = `https://hito.autos${path}`;
+  const schemas = schemaJson ? (Array.isArray(schemaJson) ? schemaJson : [schemaJson]) : [];
   return (
     <>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={url} />
-        <meta property="og:type" content="website" />
+        <meta property="og:type" content={ogType} />
         <meta property="og:locale" content="es_CO" />
         <meta property="og:site_name" content="Hito" />
         <meta property="og:title" content={title} />
@@ -52,9 +56,11 @@ export function SeoPage({
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://hito.autos/og-image.png" />
-        {schemaJson ? (
-          <script type="application/ld+json">{JSON.stringify(schemaJson)}</script>
-        ) : null}
+        {schemas.map((schema, i) => (
+          <script key={i} type="application/ld+json">
+            {JSON.stringify(schema)}
+          </script>
+        ))}
         {breadcrumb ? (
           <script type="application/ld+json">
             {JSON.stringify({

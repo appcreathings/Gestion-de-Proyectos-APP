@@ -4,6 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import ViteSitemapPlugin from "vite-plugin-sitemap";
 import path from "node:path";
 import { BLOG_SLUGS } from "./src/features/blog/data/articles-index";
+import { BLOG_CATEGORY_SLUGS } from "./src/features/blog/data/categories";
 import { DOC_SLUGS } from "./src/features/docs/data/slugs";
 
 export default defineConfig({
@@ -26,6 +27,7 @@ export default defineConfig({
         "/app/notifications",
         "/app/settings",
         ...BLOG_SLUGS.map((slug) => `/blogs/${slug}`),
+        ...BLOG_CATEGORY_SLUGS.map((slug) => `/blogs/categoria/${slug}`),
         ...DOC_SLUGS.map((slug) => `/docs/${slug}`),
       ],
       generateRobotsTxt: false,
@@ -50,6 +52,20 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,svg}"],
         navigateFallback: "/index.html",
+        // Spec 040 fase C: /blogs, /docs y las páginas satélite SEO ahora
+        // tienen su propio dist/<ruta>/index.html prerenderizado (HTML real,
+        // no el shell vacío). Sin este denylist, un visitante recurrente con
+        // el service worker ya instalado recibiría el shell de
+        // `navigateFallback` en vez del HTML estático — vacío hasta que
+        // hidrate, y peor para cualquier crawler que no ejecute JS.
+        navigateFallbackDenylist: [
+          /^\/blogs/,
+          /^\/docs/,
+          /^\/changelog/,
+          /^\/alternativa-trello/,
+          /^\/alternativa-notion-local/,
+          /^\/gestor-proyectos-offline/,
+        ],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
