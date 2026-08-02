@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -17,6 +17,7 @@ import { Select } from "@/components/ui/select";
 import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect, MultiPersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview, DateRangeSummary } from "@/components/forms/DateFieldPreview";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { priorityLabel, projectStatusLabel } from "@/domain/labels";
 import type { Priority, Project, ProjectStatus, Stakeholder } from "@/domain/schemas";
 import { newProject } from "@/domain/factories";
@@ -54,6 +55,8 @@ export function ProjectFormDialog({
   const [ownerId, setOwnerId] = useState<string>("");
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -69,11 +72,19 @@ export function ProjectFormDialog({
       setOwnerId(project?.ownerId ?? "");
       setStakeholders(project?.stakeholders ?? []);
       setShowAdvanced(!!project);
+      clear();
     }
-  }, [open, project, defaultProductId]);
+  }, [open, project, defaultProductId, clear]);
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = project ?? newProject(name);
     onSubmit({
       ...base,
@@ -104,6 +115,7 @@ export function ProjectFormDialog({
             <Label htmlFor="pr-name">Nombre</Label>
             <Input
               id="pr-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
@@ -114,7 +126,13 @@ export function ProjectFormDialog({
                 }
               }}
               placeholder="Nombre del proyecto"
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           {/* ── Producto: siempre visible (contexto esencial) ── */}
@@ -295,8 +313,8 @@ export function ProjectFormDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
-            {project ? "Guardar" : "Crear"}
+          <Button onClick={submit}>
+            {project ? "Guardar" : "Crear proyecto"}
           </Button>
         </DialogFooter>
       </DialogContent>

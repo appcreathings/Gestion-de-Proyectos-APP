@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogBody,
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { PersonSelect } from "@/components/forms/PersonSelect";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { productStatusLabel } from "@/domain/labels";
 import type { Product, ProductStatus } from "@/domain/schemas";
 import { newProduct } from "@/domain/factories";
@@ -32,6 +33,8 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
   const [vision, setVision] = useState("");
   const [status, setStatus] = useState<ProductStatus>("active");
   const [ownerId, setOwnerId] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -40,11 +43,19 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
       setVision(product?.vision ?? "");
       setStatus(product?.status ?? "active");
       setOwnerId(product?.ownerId ?? "");
+      clear();
     }
-  }, [open, product]);
+  }, [open, product, clear]);
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = product ?? newProduct(name);
     onSubmit({
       ...base,
@@ -68,12 +79,19 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
             <Label htmlFor="p-name">Nombre</Label>
             <Input
               id="p-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submit()}
               placeholder="Nombre del producto"
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="p-vision">Visión</Label>
@@ -122,7 +140,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {product ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

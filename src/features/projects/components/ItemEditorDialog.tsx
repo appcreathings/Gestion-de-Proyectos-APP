@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ListChecks } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import type { ChecklistItem, Person } from "@/domain/schemas";
 
 interface Props {
@@ -42,6 +43,8 @@ export function ItemEditorDialog({
   const [dueDate, setDueDate] = useState(item.dueDate ?? "");
   const [assigneeId, setAssigneeId] = useState(item.assigneeId ?? "");
   const [notes, setNotes] = useState(item.notes);
+  const textRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -50,11 +53,19 @@ export function ItemEditorDialog({
       setDueDate(item.dueDate ?? "");
       setAssigneeId(item.assigneeId ?? "");
       setNotes(item.notes);
+      clear();
     }
-  }, [open, item]);
+  }, [open, item, clear]);
 
   function submit() {
-    if (!text.trim()) return;
+    const errs = validate(
+      { text },
+      [{ field: "text", message: "El texto no puede estar vacío", test: (v) => v.text.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      textRef.current?.focus();
+      return;
+    }
     onSubmit({
       ...item,
       text: text.trim(),
@@ -77,10 +88,17 @@ export function ItemEditorDialog({
             <Label htmlFor="it-text">Texto</Label>
             <Input
               id="it-text"
+              ref={textRef}
               value={text}
               autoFocus
               onChange={(e) => setText(e.target.value)}
+              {...fieldAria("text", errors)}
             />
+            {errors.text && (
+              <p id="text-err" role="alert" className="text-xs text-destructive">
+                {errors.text}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Checkbox checked={required} onCheckedChange={setRequired} aria-label="Requerido" />
@@ -141,7 +159,7 @@ export function ItemEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!text.trim()}>
+          <Button onClick={submit}>
             Guardar
           </Button>
         </DialogFooter>

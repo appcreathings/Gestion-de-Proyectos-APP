@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, SlidersHorizontal, X } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -18,6 +18,7 @@ import { Select } from "@/components/ui/select";
 import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { priorityLabel, taskStatusLabel } from "@/domain/labels";
 import { newTask } from "@/domain/factories";
 import type { Area, Person, Priority, Sprint, Task, TaskStatus } from "@/domain/schemas";
@@ -56,6 +57,8 @@ export function TaskFormDialog({
   const [sprintId, setSprintId] = useState("");
   // "Más opciones" toggle: start expanded when editing an existing task
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -69,11 +72,25 @@ export function TaskFormDialog({
       setSprintId(task?.sprintId ?? defaultSprintId ?? "");
       // Expand advanced options automatically when editing
       setShowAdvanced(!!task);
+      clear();
     }
-  }, [open, task, defaultStatus, defaultSprintId]);
+  }, [open, task, defaultStatus, defaultSprintId, clear]);
 
   function submit() {
-    if (!title.trim()) return;
+    const errs = validate(
+      { title },
+      [
+        {
+          field: "title",
+          message: "El título no puede estar vacío",
+          test: (v) => v.title.trim().length > 0,
+        },
+      ],
+    );
+    if (errs.length > 0) {
+      titleRef.current?.focus();
+      return;
+    }
     const base = task ?? newTask(title);
     onSubmit({
       ...base,
@@ -110,6 +127,7 @@ export function TaskFormDialog({
               </Label>
               <Input
                 id="t-title"
+                ref={titleRef}
                 value={title}
                 autoFocus
                 placeholder="Ej: Revisar propuesta de diseño"
@@ -120,7 +138,13 @@ export function TaskFormDialog({
                     submit();
                   }
                 }}
+                {...fieldAria("title", errors)}
               />
+              {errors.title && (
+                <p id="title-err" role="alert" className="text-xs text-destructive">
+                  {errors.title}
+                </p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="t-desc">Descripción</Label>
@@ -274,7 +298,7 @@ export function TaskFormDialog({
             <X className="mr-2 size-4" />
             Cerrar
           </Button>
-          <Button onClick={submit} disabled={!title.trim()}>
+          <Button onClick={submit}>
             {task ? "Guardar cambios" : "Crear tarea"}
           </Button>
         </DialogFooter>

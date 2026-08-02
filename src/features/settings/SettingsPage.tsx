@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Download, Eraser, FolderOpen, Sparkles, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { PeopleCard } from "./PeopleCard";
 import { CollectionTransferCard } from "./CollectionTransferCard";
 import { AiSettingsCard } from "./AiSettingsCard";
@@ -44,9 +45,12 @@ function SettingsContent() {
   const folderName = adapter.getRootName();
 
   const [orgName, setOrgName] = useState(ws?.org.name ?? "");
+  const orgNameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
   useEffect(() => {
     setOrgName(ws?.org.name ?? "");
-  }, [ws?.org.name]);
+    clear();
+  }, [ws?.org.name, clear]);
 
   // Deep-link a una sección concreta (p. ej. /settings#ia desde el asistente).
   useEffect(() => {
@@ -73,6 +77,18 @@ function SettingsContent() {
     await useAppStore.getState().refreshWorkspace();
   }
 
+  function saveOrg() {
+    const errs = validate(
+      { orgName },
+      [{ field: "orgName", message: "El nombre no puede estar vacío", test: (v) => v.orgName.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      orgNameRef.current?.focus();
+      return;
+    }
+    updateOrg(orgName.trim());
+  }
+
   return (
     <div>
       <PageHeader label="Ajustes" title="Ajustes" description="Preferencias y datos." />
@@ -80,16 +96,32 @@ function SettingsContent() {
       <div className="grid gap-6">
         <Panel label="Organización" title="Organización" description="Nombre que aparece en la barra lateral y en el asistente.">
           <div className="flex max-w-md gap-2">
-            <Input
-              value={orgName}
-              aria-label="Nombre de la organización"
-              onChange={(e) => setOrgName(e.target.value)}
-            />
+            <div className="grid flex-1 gap-1">
+              <Input
+                id="org-name"
+                ref={orgNameRef}
+                value={orgName}
+                aria-label="Nombre de la organización"
+                onChange={(e) => setOrgName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    saveOrg();
+                  }
+                }}
+                {...fieldAria("orgName", errors)}
+              />
+              {errors.orgName && (
+                <p id="orgName-err" role="alert" className="text-xs text-destructive">
+                  {errors.orgName}
+                </p>
+              )}
+            </div>
             <Button
               size="sm"
               className="shrink-0 self-center"
-              disabled={!orgName.trim() || orgName.trim() === ws?.org.name}
-              onClick={() => updateOrg(orgName.trim())}
+              disabled={orgName.trim() === ws?.org.name}
+              onClick={saveOrg}
             >
               Guardar
             </Button>

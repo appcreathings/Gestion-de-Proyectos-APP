@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, Zap } from "lucide-react";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDataStore } from "@/store/useDataStore";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import {
   EVENT_TRIGGERS,
   actionLabel,
@@ -61,6 +62,8 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
   const [triggerType, setTriggerType] = useState<string>("checklist.completed");
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -70,6 +73,7 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
       setTriggerType(rule?.trigger.type ?? "checklist.completed");
       setConditions(rule?.conditions ?? []);
       setActions(rule?.actions ?? []);
+      clear();
     }
     // defaultScope queda fuera a propósito: es un literal del padre y añadirlo
     // resetearía el formulario en cada re-render mientras el diálogo está abierto.
@@ -98,7 +102,14 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
   }
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = rule ?? newAutomation(name);
     onSubmit({
       ...base,
@@ -127,11 +138,18 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
             <Label htmlFor="au-name">Nombre</Label>
             <Input
               id="au-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
               placeholder="p. ej. Cerrar área al completar su checklist"
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -330,7 +348,7 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim() || actions.length === 0}>
+          <Button onClick={submit} disabled={actions.length === 0}>
             {rule ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

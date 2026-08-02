@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SortableItem } from "@/components/dnd/SortableItem";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { ProcessTemplate } from "@/domain/schemas";
 import { newProcessTemplate } from "@/domain/factories";
@@ -51,6 +52,8 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [steps, setSteps] = useState<Step[]>([]);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -58,11 +61,19 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
       setCategory(template?.category ?? "");
       setDescription(template?.description ?? "");
       setSteps(template?.steps ?? []);
+      clear();
     }
-  }, [open, template]);
+  }, [open, template, clear]);
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = template ?? newProcessTemplate(name);
     onSubmit({
       ...base,
@@ -104,11 +115,18 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
               <Label htmlFor="pt-name">Nombre</Label>
               <Input
                 id="pt-name"
+                ref={nameRef}
                 value={name}
                 autoFocus
                 onChange={(e) => setName(e.target.value)}
                 placeholder="p. ej. Onboarding cliente"
+                {...fieldAria("name", errors)}
               />
+              {errors.name && (
+                <p id="name-err" role="alert" className="text-xs text-destructive">
+                  {errors.name}
+                </p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="pt-cat">Categoría</Label>
@@ -224,7 +242,7 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {template ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

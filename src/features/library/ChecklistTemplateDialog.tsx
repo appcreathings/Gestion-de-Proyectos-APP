@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SortableItem } from "@/components/dnd/SortableItem";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { ChecklistTemplate, TemplateItem } from "@/domain/schemas";
 import { newChecklistTemplate } from "@/domain/factories";
@@ -45,6 +46,8 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
   const [category, setCategory] = useState("");
   const [items, setItems] = useState<TemplateItem[]>([]);
   const [draft, setDraft] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -52,8 +55,9 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
       setCategory(template?.category ?? "");
       setItems(template?.items ?? []);
       setDraft("");
+      clear();
     }
-  }, [open, template]);
+  }, [open, template, clear]);
 
   function addItem() {
     if (!draft.trim()) return;
@@ -62,7 +66,14 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
   }
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = template ?? newChecklistTemplate(name);
     onSubmit({ ...base, name: name.trim(), category, items });
     onOpenChange(false);
@@ -98,11 +109,18 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
               <Label htmlFor="ct-name">Nombre</Label>
               <Input
                 id="ct-name"
+                ref={nameRef}
                 value={name}
                 autoFocus
                 onChange={(e) => setName(e.target.value)}
                 placeholder="p. ej. QA Release"
+                {...fieldAria("name", errors)}
               />
+              {errors.name && (
+                <p id="name-err" role="alert" className="text-xs text-destructive">
+                  {errors.name}
+                </p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ct-cat">Categoría</Label>
@@ -218,7 +236,7 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {template ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

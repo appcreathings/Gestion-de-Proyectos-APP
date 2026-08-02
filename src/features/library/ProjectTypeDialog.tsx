@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { IconPicker } from "@/components/forms/IconPicker";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { AREA_ICONS } from "@/features/projects/components/AreaFormDialog";
 import type {
   ChecklistTemplate,
@@ -44,14 +45,17 @@ export function ProjectTypeDialog({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [areas, setAreas] = useState<DefaultArea[]>([]);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
       setName(type?.name ?? "");
       setDescription(type?.description ?? "");
       setAreas(type?.defaultAreas ?? []);
+      clear();
     }
-  }, [open, type]);
+  }, [open, type, clear]);
 
   function addArea() {
     setAreas((s) => [
@@ -76,7 +80,14 @@ export function ProjectTypeDialog({
   }
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = type ?? newProjectType(name);
     onSubmit({
       ...base,
@@ -100,11 +111,18 @@ export function ProjectTypeDialog({
             <Label htmlFor="ty-name">Nombre</Label>
             <Input
               id="ty-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
               placeholder="p. ej. Proyecto de Software"
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="ty-desc">Descripción</Label>
@@ -194,7 +212,7 @@ export function ProjectTypeDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {type ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

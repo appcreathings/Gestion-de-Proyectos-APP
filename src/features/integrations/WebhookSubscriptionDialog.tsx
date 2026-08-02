@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Copy, CheckCircle2, AlertCircle } from "lucide-react";
 import {
   Dialog,
@@ -20,6 +20,7 @@ import {
 import type { WebhookSubscription } from "@/storage/integration-db";
 import { EVENT_TRIGGERS, triggerLabel } from "@/domain/labels";
 import { WebhookSignatureGuide } from "@/features/flows/canvas/WebhookSignatureGuide";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 
 interface Props {
   open: boolean;
@@ -44,6 +45,9 @@ export function WebhookSubscriptionDialog({
   const [secret, setSecret] = useState("");
   const [copied, setCopied] = useState(false);
   const [signatureGuideOpen, setSignatureGuideOpen] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   // Spec 034 §B: si la migración no pudo descifrar el secreto (vault bloqueado),
   // la suscripción quedó `needsReconnect` — pedir reingresarlo.
@@ -59,8 +63,9 @@ export function WebhookSubscriptionDialog({
       // no hay secreto recuperable, arrancar vacío para que se reingrese.
       setSecret(needsReconnect ? "" : subscription?.secret ?? "");
       setCopied(false);
+      clear();
     }
-  }, [open, subscription, needsReconnect]);
+  }, [open, subscription, needsReconnect, clear]);
 
   // Preset derivado (spec 034 §A): con secreto ⇒ Firmado, sin secreto ⇒ Simple.
   const signed = secret.trim().length > 0;
@@ -72,7 +77,18 @@ export function WebhookSubscriptionDialog({
   }
 
   async function handleSubmit() {
-    if (!name.trim() || !url.trim() || events.length === 0) return;
+    const errs = validate(
+      { name, url },
+      [
+        { field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 },
+        { field: "url", message: "La URL no puede estar vacía", test: (v) => v.url.trim().length > 0 },
+      ],
+    );
+    if (errs.length > 0) {
+      (errs[0].field === "url" ? urlRef : nameRef).current?.focus();
+      return;
+    }
+    if (events.length === 0) return;
 
     // Secreto en claro (spec 034 §B): sin cifrado ni gate de vault. Sin secreto
     // ⇒ webhook limpio sin firma. Guardar siempre limpia `needsReconnect`.
@@ -135,20 +151,34 @@ export function WebhookSubscriptionDialog({
               <Label htmlFor="ws-name">Nombre</Label>
               <Input
                 id="ws-name"
+                ref={nameRef}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Notificar a Slack cuando tarea se complete"
+                {...fieldAria("name", errors)}
               />
+              {errors.name && (
+                <p id="name-err" role="alert" className="text-xs text-destructive">
+                  {errors.name}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="ws-url">URL del Webhook</Label>
               <Input
                 id="ws-url"
+                ref={urlRef}
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://hooks.zapier.com/hooks/catch/..."
+                {...fieldAria("url", errors)}
               />
+              {errors.url && (
+                <p id="url-err" role="alert" className="text-xs text-destructive">
+                  {errors.url}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -229,7 +259,7 @@ export function WebhookSubscriptionDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || !url.trim() || events.length === 0}
+            disabled={events.length === 0}
           >
             {subscription ? "Guardar" : "Crear"}
           </Button>

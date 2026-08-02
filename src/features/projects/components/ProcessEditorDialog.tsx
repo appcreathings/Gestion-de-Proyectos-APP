@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { AiImproveButton } from "@/components/ai/AiImproveButton";
 import {
@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { SortableItem } from "@/components/dnd/SortableItem";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { Person, Process, ProcessStep } from "@/domain/schemas";
 import { newProcess } from "@/domain/factories";
@@ -53,6 +54,8 @@ export function ProcessEditorDialog({
   const [description, setDescription] = useState("");
   const [steps, setSteps] = useState<ProcessStep[]>([]);
   const [ownerId, setOwnerId] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -60,8 +63,9 @@ export function ProcessEditorDialog({
       setDescription(process?.description ?? "");
       setSteps(process?.steps ?? []);
       setOwnerId(process?.ownerId ?? "");
+      clear();
     }
-  }, [open, process]);
+  }, [open, process, clear]);
 
   function addStep() {
     setSteps((s) => [...s, { id: uuid(), text: "", details: "" }]);
@@ -90,7 +94,14 @@ export function ProcessEditorDialog({
   }
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = process ?? newProcess(name);
     onSubmit({
       ...base,
@@ -114,6 +125,7 @@ export function ProcessEditorDialog({
             <Label htmlFor="proc-name">Nombre del proceso (SOP)</Label>
             <Input
               id="proc-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
@@ -124,7 +136,13 @@ export function ProcessEditorDialog({
                 }
               }}
               placeholder="p. ej. Despliegue a producción"
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           {people.length > 0 && (
@@ -246,7 +264,7 @@ export function ProcessEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {process ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

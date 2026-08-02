@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogBody,
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { DateFieldPreview, DateRangeSummary } from "@/components/forms/DateFieldPreview";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { sprintStatusLabel } from "@/domain/labels";
 import { newSprint } from "@/domain/factories";
 import type { Sprint, SprintStatus } from "@/domain/schemas";
@@ -30,6 +31,8 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<SprintStatus>("planned");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -38,11 +41,19 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
       setStartDate(sprint?.startDate ?? "");
       setEndDate(sprint?.endDate ?? "");
       setStatus(sprint?.status ?? "planned");
+      clear();
     }
-  }, [open, sprint]);
+  }, [open, sprint, clear]);
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = sprint ?? newSprint(name);
     onSubmit({
       ...base,
@@ -66,6 +77,7 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
             <Label htmlFor="sp-name">Nombre</Label>
             <Input
               id="sp-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
@@ -76,7 +88,13 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
                   submit();
                 }
               }}
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
@@ -117,7 +135,7 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {sprint ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogBody,
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { DateFieldPreview, DateRangeSummary } from "@/components/forms/DateFieldPreview";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { quarterStatusLabel } from "@/domain/labels";
 import { newQuarter } from "@/domain/factories";
 import type { Quarter, QuarterStatus } from "@/domain/schemas";
@@ -30,6 +31,8 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<QuarterStatus>("planned");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
@@ -38,11 +41,19 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
       setStartDate(quarter?.startDate ?? "");
       setEndDate(quarter?.endDate ?? "");
       setStatus(quarter?.status ?? "planned");
+      clear();
     }
-  }, [open, quarter]);
+  }, [open, quarter, clear]);
 
   function submit() {
-    if (!name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
     const base = quarter ?? newQuarter(name);
     onSubmit({
       ...base,
@@ -66,6 +77,7 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
             <Label htmlFor="q-name">Nombre</Label>
             <Input
               id="q-name"
+              ref={nameRef}
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
@@ -76,7 +88,13 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
                   submit();
                 }
               }}
+              {...fieldAria("name", errors)}
             />
+            {errors.name && (
+              <p id="name-err" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
@@ -117,7 +135,7 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!name.trim()}>
+          <Button onClick={submit}>
             {quarter ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

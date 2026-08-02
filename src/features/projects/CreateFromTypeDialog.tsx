@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { useDataStore } from "@/store/useDataStore";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { ROUTES } from "@/routes/paths";
 
 interface Props {
@@ -30,19 +31,30 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
   const [typeId, setTypeId] = useState("");
   const [name, setName] = useState("");
   const [productId, setProductId] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { errors, validate, clear } = useFieldErrors();
 
   useEffect(() => {
     if (open) {
       setTypeId(types[0]?.id ?? "");
       setName("");
       setProductId("");
+      clear();
     }
-  }, [open, types]);
+  }, [open, types, clear]);
 
   const selectedType = types.find((t) => t.id === typeId);
 
   async function submit() {
-    if (!typeId || !name.trim()) return;
+    const errs = validate(
+      { name },
+      [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      nameRef.current?.focus();
+      return;
+    }
+    if (!typeId) return;
     const id = await createProjectFromType(typeId, name.trim(), productId || null);
     onOpenChange(false);
     if (id) navigate(ROUTES.project(id));
@@ -84,10 +96,17 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
               <Label htmlFor="cf-name">Nombre del proyecto</Label>
               <Input
                 id="cf-name"
+                ref={nameRef}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre del nuevo proyecto"
+                {...fieldAria("name", errors)}
               />
+              {errors.name && (
+                <p id="name-err" role="alert" className="text-xs text-destructive">
+                  {errors.name}
+                </p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="cf-product">Producto</Label>
@@ -111,7 +130,7 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!typeId || !name.trim()}>
+          <Button onClick={submit} disabled={!typeId}>
             Crear proyecto
           </Button>
         </DialogFooter>

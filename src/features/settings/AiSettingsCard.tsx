@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, Eye, EyeOff, ExternalLink, Sparkles, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { AI_MODELS, type AiConfig } from "@/ai/config";
 import { FALLBACK_CHAINS, getModelDef } from "@/ai/models";
 import { AI_ERROR_MESSAGES } from "@/ai/gemini/errors";
 import { useAiConfigStore, type KeyStatus } from "@/store/useAiConfigStore";
+import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 
 export function AiSettingsCard() {
   const config = useAiConfigStore((s) => s.config);
@@ -31,11 +32,21 @@ export function AiSettingsCard() {
 
   const [draft, setDraft] = useState("");
   const [show, setShow] = useState(false);
+  const keyRef = useRef<HTMLInputElement>(null);
+  const { errors, validate } = useFieldErrors();
 
   const hasKey = keyStatus === "valid";
   const preferredDef = getModelDef(config.model);
 
   async function onSave() {
+    const errs = validate(
+      { key: draft },
+      [{ field: "key", message: "La API key no puede estar vacía", test: (v) => v.key.trim().length > 0 }],
+    );
+    if (errs.length > 0) {
+      keyRef.current?.focus();
+      return;
+    }
     const ok = await saveAndValidateKey(draft);
     if (ok) setDraft("");
   }
@@ -64,15 +75,25 @@ export function AiSettingsCard() {
             <div className="relative flex-1">
               <Input
                 id="ai-key"
+                ref={keyRef}
                 type={show ? "text" : "password"}
                 value={draft}
                 placeholder={hasKey ? "••••••••  (clave guardada)" : "AIza…"}
                 autoComplete="off"
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && draft.trim()) void onSave();
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void onSave();
+                  }
                 }}
+                {...fieldAria("key", errors)}
               />
+              {errors.key && (
+                <p id="key-err" role="alert" className="text-xs text-destructive">
+                  {errors.key}
+                </p>
+              )}
               <button
                 type="button"
                 className="absolute inset-y-0 right-2 text-muted-foreground hover:text-foreground"
@@ -84,7 +105,7 @@ export function AiSettingsCard() {
             </div>
             <Button
               onClick={onSave}
-              disabled={!draft.trim() || keyStatus === "validating"}
+              disabled={keyStatus === "validating"}
             >
               {keyStatus === "validating" ? "Validando…" : "Validar y guardar"}
             </Button>
