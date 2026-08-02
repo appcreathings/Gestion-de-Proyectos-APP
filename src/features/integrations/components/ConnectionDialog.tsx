@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useVaultStore } from "@/integrations/vault";
+import { useToastStore } from "@/store/useToastStore";
 import { runInboxRoundTrip, type InboxRoundTripResult } from "@/integrations/inbound/inbox-round-trip";
 import {
   createConnection,
@@ -252,7 +253,7 @@ export function ConnectionDialog({ open, onOpenChange, provider, connection, onS
         // inbox abierto (secreto opcional vacío) no lo necesita.
         const secretToSave = needsSecret && secretValue.trim() ? secretValue.trim() : undefined;
         if (secretToSave && !useVaultStore.getState().isUnlocked) {
-          alert("Desbloquea el vault para guardar credenciales.");
+          useToastStore.getState().toast.error("Desbloquea el vault para guardar credenciales.");
           return;
         }
         await createConnection({
@@ -265,7 +266,7 @@ export function ConnectionDialog({ open, onOpenChange, provider, connection, onS
       onSaved();
       onOpenChange(false);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Error al guardar la conexión.");
+      useToastStore.getState().toast.error(error instanceof Error ? error.message : "Error al guardar la conexión.");
     } finally {
       setSaving(false);
     }

@@ -31,6 +31,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { QuickAddButton } from "@/components/QuickAddButton";
 import { QuickAddTask } from "@/components/QuickAddTask";
+import { Toaster } from "@/components/ui/Toaster";
 
 // Lazy: solo se descarga la primera vez que se abre el panel (Ctrl/Cmd+J).
 // Si falla el import (chunk desactualizado tras deploy), recarga la página una vez.
@@ -373,6 +374,9 @@ export function AppLayout() {
       {/* Quick add task (spec 017) */}
       <QuickAddButton onClick={toggleQuickAdd} />
       <QuickAddTask open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+
+      {/* Global toaster (spec 040) */}
+      <Toaster />
     </div>
   );
 }
