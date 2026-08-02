@@ -68,7 +68,7 @@ export function ItemEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="md" description="Edita el texto, la fecha límite y el responsable de este ítem de checklist.">
         <DialogHeader>
           <DialogTitle>Editar ítem</DialogTitle>
         </DialogHeader>

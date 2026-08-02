@@ -533,7 +533,7 @@ export function FlowBuilderPage() {
         {/* Spec 027 §A: guardado con errores — el trabajo del usuario nunca
             se pierde por validación; lo que se protege es la ACTIVACIÓN. */}
         <Dialog open={saveDialog !== null} onOpenChange={(o) => !o && setSaveDialog(null)}>
-          <DialogContent className="md:max-w-lg sm:h-auto md:h-auto lg:h-auto">
+          <DialogContent size="sm">
             <DialogHeader>
               <DialogTitle>
                 Este flujo tiene {errors.length} problema{errors.length !== 1 ? "s" : ""} y no puede

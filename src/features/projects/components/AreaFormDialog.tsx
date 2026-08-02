@@ -59,7 +59,7 @@ export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-lg sm:h-auto sm:min-h-[65vh] md:h-auto md:min-h-[65vh] lg:h-auto lg:min-h-[65vh]">
+      <DialogContent size="sm" description="Completa los datos del área: nombre, icono y responsable." className="sm:min-h-[65vh]">
         <DialogHeader>
           <DialogTitle>{area ? "Editar área" : "Nueva área"}</DialogTitle>
         </DialogHeader>

@@ -94,7 +94,7 @@ export function ProjectFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="md" description="Completa los datos del proyecto: nombre, producto y tipo.">
         <DialogHeader>
           <DialogTitle>{project ? "Editar proyecto" : "Nuevo proyecto"}</DialogTitle>
         </DialogHeader>

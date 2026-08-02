@@ -53,7 +53,7 @@ export function ConnectFolderDialog({ open, onOpenChange }: ConnectFolderDialogP
         onOpenChange(o);
       }}
     >
-      <DialogContent className="md:max-w-lg sm:h-auto md:h-auto lg:h-auto">
+      <DialogContent size="sm">
         <DialogHeader>
           <DialogTitle>Conectar carpeta</DialogTitle>
           <DialogDescription>

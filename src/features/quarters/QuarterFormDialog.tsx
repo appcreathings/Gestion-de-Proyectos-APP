@@ -57,7 +57,7 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-2xl">
+      <DialogContent size="md" description="Completa los datos del trimestre: nombre, rango de fechas, estado y meta.">
         <DialogHeader>
           <DialogTitle>{quarter ? "Editar trimestre" : "Nuevo trimestre"}</DialogTitle>
         </DialogHeader>

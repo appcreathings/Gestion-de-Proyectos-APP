@@ -89,7 +89,7 @@ export function ProjectTypeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-4xl">
+      <DialogContent size="lg" description="Define las áreas y plantillas que se generan al crear un proyecto de este tipo.">
         <DialogHeader>
           <DialogTitle>
             {type ? "Editar tipo de proyecto" : "Nuevo tipo de proyecto"}

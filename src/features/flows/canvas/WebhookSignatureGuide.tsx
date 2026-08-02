@@ -164,7 +164,7 @@ function CodeBlock({ label, code }: { label: string; code: string }) {
 export function WebhookSignatureGuide({ open, onOpenChange }: WebhookSignatureGuideProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-3xl">
+      <DialogContent size="lg" description="Cómo verificar la firma HMAC-SHA256 que acompaña a cada envío del webhook saliente.">
         <DialogHeader>
           <DialogTitle>Cómo verificar la firma del webhook</DialogTitle>
         </DialogHeader>

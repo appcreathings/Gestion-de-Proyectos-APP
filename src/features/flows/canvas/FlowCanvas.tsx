@@ -653,7 +653,7 @@ function CanvasInner({
       </div>
 
       <Dialog open={selectedNode !== undefined} onOpenChange={(o) => !o && setSelectedId(null)}>
-        <DialogContent className="md:max-w-lg">
+        <DialogContent size="sm" description="Configura el nodo seleccionado del flujo: disparador, condición, transformación o acción.">
           <DialogHeader>
             <DialogTitle>{selectedNode && drawerTitle(selectedNode.data.kind)}</DialogTitle>
           </DialogHeader>

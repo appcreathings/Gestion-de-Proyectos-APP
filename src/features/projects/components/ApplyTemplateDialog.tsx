@@ -65,7 +65,7 @@ export function ApplyTemplateDialog({
         onOpenChange(o);
       }}
     >
-      <DialogContent>
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>

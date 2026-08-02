@@ -105,7 +105,7 @@ export function ProcessEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-4xl">
+      <DialogContent size="lg" description="Documenta el proceso (SOP), su responsable y sus pasos.">
         <DialogHeader>
           <DialogTitle>{process ? "Editar proceso" : "Nuevo proceso"}</DialogTitle>
         </DialogHeader>

@@ -274,7 +274,7 @@ export function ConnectionDialog({ open, onOpenChange, provider, connection, onS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-lg">
+      <DialogContent size="md" description="Configura los campos de la conexión y, si aplica, su secreto cifrado.">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? `Editar conexión — ${meta.label}` : `Nueva conexión — ${meta.label}`}

@@ -57,7 +57,7 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-2xl">
+      <DialogContent size="md" description="Completa los datos del sprint: nombre, rango de fechas, estado y meta.">
         <DialogHeader>
           <DialogTitle>{sprint ? "Editar sprint" : "Nuevo sprint"}</DialogTitle>
         </DialogHeader>

@@ -114,7 +114,7 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-4xl">
+      <DialogContent size="lg" description="Define el disparador, el filtro y las acciones que se ejecutan al cumplirse la condición.">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Zap className="size-5 text-primary" />

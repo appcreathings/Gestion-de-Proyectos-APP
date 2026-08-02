@@ -50,7 +50,7 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Crear proyecto desde tipo</DialogTitle>
           <DialogDescription>

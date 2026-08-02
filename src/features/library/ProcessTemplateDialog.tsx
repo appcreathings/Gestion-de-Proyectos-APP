@@ -92,7 +92,7 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-4xl">
+      <DialogContent size="lg" description="Define los pasos y la descripción de esta plantilla de proceso reutilizable.">
         <DialogHeader>
           <DialogTitle>
             {template ? "Editar plantilla de proceso" : "Nueva plantilla de proceso"}

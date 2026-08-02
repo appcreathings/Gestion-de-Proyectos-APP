@@ -55,7 +55,7 @@ export function CommandPalette() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="md:max-w-3xl gap-0 overflow-hidden p-0 sm:h-auto md:h-auto lg:h-auto">
+      <DialogContent size="lg" descriptionless className="gap-0 overflow-hidden p-0">
       {/* cmdk requires these inner primitives */}
       <Command
         className="flex w-full flex-col overflow-hidden rounded-lg border-0 bg-popover text-popover-foreground shadow-none sm:rounded-lg sm:border"

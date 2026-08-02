@@ -50,7 +50,7 @@ export function ShortcutsDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-md sm:h-auto md:h-auto lg:h-auto">
+      <DialogContent size="sm">
         <DialogHeader>
           <DialogTitle>Atajos del canvas</DialogTitle>
           <DialogDescription>

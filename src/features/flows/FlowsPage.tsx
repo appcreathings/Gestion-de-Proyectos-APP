@@ -382,7 +382,7 @@ export function FlowsPage() {
         {/* Spec 027 §A: activar un flujo con errores exige confirmación
             explícita con la lista de problemas a la vista. */}
         <Dialog open={!!toActivate} onOpenChange={(o) => !o && setToActivate(undefined)}>
-          <DialogContent className="md:max-w-lg sm:h-auto md:h-auto lg:h-auto">
+          <DialogContent size="sm">
             <DialogHeader>
               <DialogTitle>{`"${toActivate?.name}" tiene problemas de configuración`}</DialogTitle>
               <DialogDescription>
@@ -424,7 +424,7 @@ export function FlowsPage() {
 
         {/* Spec 027 §C: galería de plantillas. */}
         <Dialog open={templatesOpen} onOpenChange={setTemplatesOpen}>
-          <DialogContent className="md:max-w-2xl">
+          <DialogContent size="md">
             <DialogHeader>
               <DialogTitle>Plantillas de flujos</DialogTitle>
               <DialogDescription>

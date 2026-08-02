@@ -67,7 +67,7 @@ export function VaultSetupDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-md">
+      <DialogContent size="sm" description="Configura la contraseña que cifra tus credenciales localmente con AES-GCM.">
         <DialogHeader>
           <DialogTitle>
             {hasMasterPassword ? "Desbloquear Vault" : "Crear Contraseña Maestra"}

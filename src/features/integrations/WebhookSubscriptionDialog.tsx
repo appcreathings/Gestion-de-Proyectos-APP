@@ -114,7 +114,7 @@ export function WebhookSubscriptionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-2xl">
+      <DialogContent size="md" description="Configura la URL, los eventos que disparan el envío y la firma del webhook saliente.">
         <DialogHeader>
           <DialogTitle>
             {subscription ? "Editar suscripción" : "Nueva suscripción de Webhook"}

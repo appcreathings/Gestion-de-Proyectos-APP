@@ -86,7 +86,7 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-2xl">
+      <DialogContent size="md" description="Define los ítems reutilizables de esta plantilla de checklist y su orden.">
         <DialogHeader>
           <DialogTitle>
             {template ? "Editar plantilla de checklist" : "Nueva plantilla de checklist"}

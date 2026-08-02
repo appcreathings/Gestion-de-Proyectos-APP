@@ -79,7 +79,7 @@ export function RunEventFlowDialog({ open, onOpenChange, flow, onRun }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-lg">
+      <DialogContent size="sm" description="Elige la entidad sobre la que simular el evento; las acciones configuradas se ejecutan de verdad.">
         <DialogHeader>
           <DialogTitle>¿Ejecutar "{flow.name}" ahora?</DialogTitle>
         </DialogHeader>

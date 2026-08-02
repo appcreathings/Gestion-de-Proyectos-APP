@@ -59,7 +59,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="md" description="Completa los datos del producto: nombre, visión, estado y responsable.">
         <DialogHeader>
           <DialogTitle>{product ? "Editar producto" : "Nuevo producto"}</DialogTitle>
         </DialogHeader>
