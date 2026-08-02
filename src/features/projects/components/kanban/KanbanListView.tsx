@@ -49,9 +49,18 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
               return (
                 <tr
                   key={task.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Abrir detalle de ${task.title}`}
                   onClick={() => onOpenDetail(task.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onOpenDetail(task.id);
+                    }
+                  }}
                   className={cn(
-                    "cursor-pointer transition-colors hover:bg-accent/50",
+                    "cursor-pointer outline-none transition-colors hover:bg-accent/50 focus-visible:bg-accent/50",
                     overdue && "bg-red-50 dark:bg-red-950/20",
                     dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
                   )}

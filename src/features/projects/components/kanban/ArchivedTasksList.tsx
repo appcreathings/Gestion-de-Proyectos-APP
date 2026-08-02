@@ -1,6 +1,7 @@
 import { Archive, Calendar, MessageCircle, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ClickableCard } from "@/components/ui/ClickableCard";
 import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels";
 import type { Area, Person, Task } from "@/domain/schemas";
 
@@ -38,10 +39,11 @@ export function ArchivedTasksList({ tasks, areas, people, onOpenDetail, onUnarch
         const assignee = people.find((p) => p.id === task.assigneeId);
 
         return (
-          <div
+          <ClickableCard
             key={task.id}
             className="group rounded-lg border bg-muted/30 p-3 hover:bg-muted/50 transition-colors cursor-pointer"
-            onClick={() => onOpenDetail(task.id)}
+            onActivate={() => onOpenDetail(task.id)}
+            aria-label={`Abrir detalle de ${task.title}`}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
@@ -101,7 +103,7 @@ export function ArchivedTasksList({ tasks, areas, people, onOpenDetail, onUnarch
                 Desarchivar
               </Button>
             </div>
-          </div>
+          </ClickableCard>
         );
       })}
     </div>

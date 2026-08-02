@@ -50,6 +50,12 @@ const DialogContent = React.forwardRef<
           className,
         )}
         {...props}
+        // `descriptionless` es la declaración explícita de "este diálogo no
+        // necesita descripción": fuerza `aria-describedby={undefined}` para que
+        // Radix no emita su aviso de Missing Description (CA-04.3). Sin esto NI
+        // `description` NI una <DialogDescription> visible, el aviso se deja
+        // aparecer a propósito — es la señal de que alguien olvidó decidir.
+        {...(descriptionless ? { "aria-describedby": undefined } : {})}
       >
         {children}
         {description && !hasVisibleDescription && (

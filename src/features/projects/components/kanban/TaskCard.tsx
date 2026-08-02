@@ -17,6 +17,7 @@ import {
   CheckSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ClickableCard } from "@/components/ui/ClickableCard";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -91,7 +92,7 @@ export function TaskCard({
   const isBlocked = task.status === "blocked";
 
   return (
-    <div
+    <ClickableCard
       ref={(node) => {
         setNodeRef(node);
         if (focusRef && focused && node) {
@@ -116,7 +117,8 @@ export function TaskCard({
         !isPlaceholder && !isOverlay && overdue && "bg-red-50 dark:bg-red-950/20",
         !isPlaceholder && !isOverlay && dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
       )}
-      onClick={!isOverlay && !isPlaceholder ? onOpenDetail : undefined}
+      onActivate={!isOverlay && !isPlaceholder ? onOpenDetail : undefined}
+      aria-label={!isOverlay && !isPlaceholder ? `Abrir detalle de ${task.title}` : undefined}
     >
       <div className="flex min-w-0 items-start gap-1.5 mb-1.5">
         {/* Spec 017 HU-13: Checkbox in flow before drag handle (only in selection mode) */}
@@ -297,6 +299,6 @@ export function TaskCard({
           </DropdownMenu>
         </div>
       )}
-    </div>
+    </ClickableCard>
   );
 }
