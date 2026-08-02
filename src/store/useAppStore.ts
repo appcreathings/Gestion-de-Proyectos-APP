@@ -23,6 +23,8 @@ export type ConnectionState =
   | "ready"
   | "error";
 
+export type WriteStatus = "synced" | "writing" | "error";
+
 /** Runtime list of writeable collections (the `Collection` type is a union). */
 const COLLECTION_COLS: Collection[] = [
   "products",
@@ -44,6 +46,12 @@ interface AppState {
   mode: WorkspaceMode | null;
   /** True while the user is browsing the seeded demo in browser mode. */
   isDemo: boolean;
+  /** Write status for guardado veraz (spec 040). */
+  writeStatus: WriteStatus;
+  /** Last write error message (spec 040). */
+  lastWriteError: string | null;
+  /** Last failed operation to retry (spec 040). */
+  lastFailedOperation: (() => Promise<void>) | null;
 
   bootstrap: () => Promise<void>;
   connectFolder: () => Promise<void>;
@@ -58,6 +66,14 @@ interface AppState {
   clearWorkspace: () => Promise<void>;
   /** Seed the demo into the current (browser-mode) workspace. */
   loadDemo: () => Promise<void>;
+  /** Set write error state (spec 040). */
+  setWriteError: (message: string, operation?: () => Promise<void>) => void;
+  /** Clear write error state (spec 040). */
+  clearWriteError: () => void;
+  /** Mark a write as in-flight (spec 040 CA-01.3). */
+  setWriting: () => void;
+  /** Retry last failed operation (spec 040). */
+  retryLastFailedOperation: () => Promise<void>;
 }
 
 // Best synchronous guess; `bootstrap()` re-resolves (and may reassign) the
@@ -73,6 +89,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   workspace: null,
   mode: null,
   isDemo: false,
+  writeStatus: "synced",
+  lastWriteError: null,
+  lastFailedOperation: null,
 
   async bootstrap() {
     try {
@@ -215,6 +234,31 @@ export const useAppStore = create<AppState>((set, get) => ({
     await seedDemo(adapter);
     markDemoSeeded();
     window.location.reload();
+  },
+
+  setWriteError(message, operation) {
+    set({ writeStatus: "error", lastWriteError: message, lastFailedOperation: operation ?? null });
+  },
+
+  clearWriteError() {
+    set({ writeStatus: "synced", lastWriteError: null, lastFailedOperation: null });
+  },
+
+  setWriting() {
+    set({ writeStatus: "writing" });
+  },
+
+  async retryLastFailedOperation() {
+    const op = get().lastFailedOperation;
+    if (!op) return;
+    set({ writeStatus: "writing" });
+    try {
+      await op();
+      set({ writeStatus: "synced", lastWriteError: null, lastFailedOperation: null });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      set({ writeStatus: "error", lastWriteError: message });
+    }
   },
 }));
 

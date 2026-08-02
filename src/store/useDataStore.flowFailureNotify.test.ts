@@ -15,7 +15,18 @@ vi.mock("@/flows/engine", () => ({
       : `hubspot:${trigger.config?.connectionId}:${trigger.config?.objectType ?? "contacts"}`,
 }));
 vi.mock("@/store/useAppStore", () => ({
-  useAppStore: { getState: vi.fn(() => ({ adapter: { writeDoc: vi.fn() } })) },
+  useAppStore: {
+    getState: vi.fn(() => ({
+      adapter: { writeDoc: vi.fn() },
+      writeStatus: "synced",
+      lastWriteError: null,
+      lastFailedOperation: null,
+      setWriteError: vi.fn(),
+      clearWriteError: vi.fn(),
+      setWriting: vi.fn(),
+      retryLastFailedOperation: vi.fn(),
+    })),
+  },
 }));
 
 const { useDataStore } = await import("@/store/useDataStore");

@@ -21,6 +21,7 @@ import { appendEntries, describeEvents } from "@/automations/activity";
 import { runEngine } from "@/automations/engine";
 import { evaluateTemporal } from "@/automations/temporal";
 import { useAppStore } from "./useAppStore";
+import { withPersist } from "./withPersist";
 
 interface DataState {
   hydrated: boolean;
@@ -187,31 +188,54 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   async createProduct(p) {
-    await adapter().write("products", p);
-    set({ products: [...get().products, p] });
-    await reindex();
+    const prev = get().products;
+    const next = [...prev, p];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ products: nextState }),
+      async () => {
+        await adapter().write("products", p);
+        await reindex();
+      },
+    );
   },
   async updateProduct(p) {
+    const prev = get().products;
     const updated = { ...p, updatedAt: nowIso() };
-    await adapter().write("products", updated);
-    set({ products: get().products.map((x) => (x.id === p.id ? updated : x)) });
-    await reindex();
+    const next = prev.map((x) => (x.id === p.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ products: nextState }),
+      async () => {
+        await adapter().write("products", updated);
+        await reindex();
+      },
+    );
   },
   async deleteProduct(id) {
-    await adapter().remove("products", id);
-    const detached = get().projects.map((p) =>
+    const prevProducts = get().products;
+    const prevProjects = get().projects;
+    const nextProducts = prevProducts.filter((x) => x.id !== id);
+    const nextProjects = prevProjects.map((p) =>
       p.productId === id ? { ...p, productId: null } : p,
     );
-    await Promise.all(
-      detached
-        .filter((p, i) => p !== get().projects[i])
-        .map((p) => adapter().write("projects", p)),
+
+    await withPersist(
+      prevProducts,
+      nextProducts,
+      (nextState) => set({ products: nextState }),
+      async () => {
+        await adapter().remove("products", id);
+        const detached = nextProjects.filter((p, i) => p !== prevProjects[i]);
+        await Promise.all(
+          detached.map((p) => adapter().write("projects", p)),
+        );
+        set({ projects: nextProjects });
+        await reindex();
+      },
     );
-    set({
-      products: get().products.filter((x) => x.id !== id),
-      projects: detached,
-    });
-    await reindex();
   },
 
   async createProject(p) {
@@ -238,9 +262,17 @@ export const useDataStore = create<DataState>((set, get) => ({
     await get().saveProject(next);
   },
   async deleteProject(id) {
-    await adapter().remove("projects", id);
-    set({ projects: get().projects.filter((x) => x.id !== id) });
-    await reindex();
+    const prev = get().projects;
+    const next = prev.filter((x) => x.id !== id);
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ projects: nextState }),
+      async () => {
+        await adapter().remove("projects", id);
+        await reindex();
+      },
+    );
   },
   async createProjectFromType(typeId, name, productId) {
     const type = get().projectTypes.find((t) => t.id === typeId);
@@ -257,160 +289,312 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   async createChecklistTemplate(t) {
-    await adapter().write("checklist-templates", t);
-    set({ checklistTemplates: [...get().checklistTemplates, t] });
-    await reindex();
+    const prev = get().checklistTemplates;
+    const next = [...prev, t];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ checklistTemplates: nextState }),
+      async () => {
+        await adapter().write("checklist-templates", t);
+        await reindex();
+      },
+    );
   },
   async updateChecklistTemplate(t) {
+    const prev = get().checklistTemplates;
     const updated = { ...t, updatedAt: nowIso() };
-    await adapter().write("checklist-templates", updated);
-    set({
-      checklistTemplates: get().checklistTemplates.map((x) =>
-        x.id === t.id ? updated : x,
-      ),
-    });
-    await reindex();
+    const next = prev.map((x) => (x.id === t.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ checklistTemplates: nextState }),
+      async () => {
+        await adapter().write("checklist-templates", updated);
+        await reindex();
+      },
+    );
   },
   async deleteChecklistTemplate(id) {
-    await adapter().remove("checklist-templates", id);
-    set({ checklistTemplates: get().checklistTemplates.filter((x) => x.id !== id) });
-    await reindex();
+    const prev = get().checklistTemplates;
+    const next = prev.filter((x) => x.id !== id);
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ checklistTemplates: nextState }),
+      async () => {
+        await adapter().remove("checklist-templates", id);
+        await reindex();
+      },
+    );
   },
 
   async createProcessTemplate(t) {
-    await adapter().write("process-templates", t);
-    set({ processTemplates: [...get().processTemplates, t] });
-    await reindex();
+    const prev = get().processTemplates;
+    const next = [...prev, t];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ processTemplates: nextState }),
+      async () => {
+        await adapter().write("process-templates", t);
+        await reindex();
+      },
+    );
   },
   async updateProcessTemplate(t) {
+    const prev = get().processTemplates;
     const updated = { ...t, updatedAt: nowIso() };
-    await adapter().write("process-templates", updated);
-    set({
-      processTemplates: get().processTemplates.map((x) =>
-        x.id === t.id ? updated : x,
-      ),
-    });
-    await reindex();
+    const next = prev.map((x) => (x.id === t.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ processTemplates: nextState }),
+      async () => {
+        await adapter().write("process-templates", updated);
+        await reindex();
+      },
+    );
   },
   async deleteProcessTemplate(id) {
-    await adapter().remove("process-templates", id);
-    set({ processTemplates: get().processTemplates.filter((x) => x.id !== id) });
-    await reindex();
+    const prev = get().processTemplates;
+    const next = prev.filter((x) => x.id !== id);
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ processTemplates: nextState }),
+      async () => {
+        await adapter().remove("process-templates", id);
+        await reindex();
+      },
+    );
   },
 
   async createProjectType(t) {
-    await adapter().write("project-types", t);
-    set({ projectTypes: [...get().projectTypes, t] });
-    await reindex();
+    const prev = get().projectTypes;
+    const next = [...prev, t];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ projectTypes: nextState }),
+      async () => {
+        await adapter().write("project-types", t);
+        await reindex();
+      },
+    );
   },
   async updateProjectType(t) {
+    const prev = get().projectTypes;
     const updated = { ...t, updatedAt: nowIso() };
-    await adapter().write("project-types", updated);
-    set({ projectTypes: get().projectTypes.map((x) => (x.id === t.id ? updated : x)) });
-    await reindex();
+    const next = prev.map((x) => (x.id === t.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ projectTypes: nextState }),
+      async () => {
+        await adapter().write("project-types", updated);
+        await reindex();
+      },
+    );
   },
   async deleteProjectType(id) {
-    await adapter().remove("project-types", id);
-    set({ projectTypes: get().projectTypes.filter((x) => x.id !== id) });
-    await reindex();
+    const prev = get().projectTypes;
+    const next = prev.filter((x) => x.id !== id);
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ projectTypes: nextState }),
+      async () => {
+        await adapter().remove("project-types", id);
+        await reindex();
+      },
+    );
   },
 
   async createAutomation(r) {
-    await adapter().write("automations", r);
-    set({ automations: [...get().automations, r] });
-    await reindex();
+    const prev = get().automations;
+    const next = [...prev, r];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ automations: nextState }),
+      async () => {
+        await adapter().write("automations", r);
+        await reindex();
+      },
+    );
   },
   async updateAutomation(r) {
+    const prev = get().automations;
     const updated = { ...r, updatedAt: nowIso() };
-    await adapter().write("automations", updated);
-    set({ automations: get().automations.map((x) => (x.id === r.id ? updated : x)) });
-    await reindex();
+    const next = prev.map((x) => (x.id === r.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ automations: nextState }),
+      async () => {
+        await adapter().write("automations", updated);
+        await reindex();
+      },
+    );
   },
   async deleteAutomation(id) {
-    await adapter().remove("automations", id);
-    set({ automations: get().automations.filter((x) => x.id !== id) });
-    await reindex();
+    const prev = get().automations;
+    const next = prev.filter((x) => x.id !== id);
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ automations: nextState }),
+      async () => {
+        await adapter().remove("automations", id);
+        await reindex();
+      },
+    );
   },
 
   async createQuarter(q) {
-    await adapter().write("quarters", q);
-    set({ quarters: [...get().quarters, q] });
-    await reindex();
+    const prev = get().quarters;
+    const next = [...prev, q];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ quarters: nextState }),
+      async () => {
+        await adapter().write("quarters", q);
+        await reindex();
+      },
+    );
   },
   async updateQuarter(q) {
+    const prev = get().quarters;
     const updated = { ...q, updatedAt: nowIso() };
-    await adapter().write("quarters", updated);
-    set({ quarters: get().quarters.map((x) => (x.id === q.id ? updated : x)) });
-    await reindex();
+    const next = prev.map((x) => (x.id === q.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ quarters: nextState }),
+      async () => {
+        await adapter().write("quarters", updated);
+        await reindex();
+      },
+    );
   },
   async deleteQuarter(id) {
-    await adapter().remove("quarters", id);
-    const detached = get().projects.map((p) =>
+    const prevQuarters = get().quarters;
+    const prevProjects = get().projects;
+    const nextQuarters = prevQuarters.filter((x) => x.id !== id);
+    const nextProjects = prevProjects.map((p) =>
       p.quarterId === id ? { ...p, quarterId: null } : p,
     );
-    await Promise.all(
-      detached
-        .filter((p, i) => p !== get().projects[i])
-        .map((p) => adapter().write("projects", p)),
+
+    await withPersist(
+      prevQuarters,
+      nextQuarters,
+      (nextState) => set({ quarters: nextState }),
+      async () => {
+        await adapter().remove("quarters", id);
+        const detached = nextProjects.filter((p, i) => p !== prevProjects[i]);
+        await Promise.all(detached.map((p) => adapter().write("projects", p)));
+        set({ projects: nextProjects });
+        await reindex();
+      },
     );
-    set({
-      quarters: get().quarters.filter((x) => x.id !== id),
-      projects: detached,
-    });
-    await reindex();
   },
 
   async addNotifications(list) {
     const existing = new Set(get().notifications.map((n) => n.id));
     const fresh = list.filter((n) => !existing.has(n.id));
     if (fresh.length === 0) return;
-    const next = [...fresh, ...get().notifications];
-    set({ notifications: next });
-    await persistNotifications(next);
+    const prev = get().notifications;
+    const next = [...fresh, ...prev];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ notifications: nextState }),
+      async () => await persistNotifications(next),
+    );
   },
   async markNotificationRead(id) {
-    const next = get().notifications.map((n) =>
-      n.id === id ? { ...n, read: true } : n,
+    const prev = get().notifications;
+    const next = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ notifications: nextState }),
+      async () => await persistNotifications(next),
     );
-    set({ notifications: next });
-    await persistNotifications(next);
   },
   async markAllNotificationsRead() {
-    const next = get().notifications.map((n) => ({ ...n, read: true }));
-    set({ notifications: next });
-    await persistNotifications(next);
+    const prev = get().notifications;
+    const next = prev.map((n) => ({ ...n, read: true }));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ notifications: nextState }),
+      async () => await persistNotifications(next),
+    );
   },
   async clearNotifications() {
-    set({ notifications: [] });
-    await persistNotifications([]);
+    const prev = get().notifications;
+    const next: Notification[] = [];
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ notifications: nextState }),
+      async () => await persistNotifications(next),
+    );
   },
 
   async createPerson(p) {
-    set({ people: [...get().people, p] });
-    await persistPeople(get().people);
+    const prev = get().people;
+    await withPersist(
+      prev,
+      [...prev, p],
+      (next) => set({ people: next }),
+      async () => await persistPeople([...prev, p]),
+    );
   },
   async updatePerson(p) {
+    const prev = get().people;
     const updated = { ...p, updatedAt: nowIso() };
-    set({ people: get().people.map((x) => (x.id === p.id ? updated : x)) });
-    await persistPeople(get().people);
+    const next = prev.map((x) => (x.id === p.id ? updated : x));
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ people: nextState }),
+      async () => await persistPeople(next),
+    );
   },
   async deletePerson(id) {
-    set({ people: get().people.filter((x) => x.id !== id) });
-    await persistPeople(get().people);
+    const prev = get().people;
+    const next = prev.filter((x) => x.id !== id);
+    await withPersist(
+      prev,
+      next,
+      (nextState) => set({ people: nextState }),
+      async () => await persistPeople(next),
+    );
   },
 }));
 
 /** Low-level project write (no automations) used by saves and engine effects. */
 async function persistProject(p: Project) {
   const s = useDataStore.getState();
-  await adapter().write("projects", p);
-  const exists = s.projects.some((x) => x.id === p.id);
-  useDataStore.setState({
-    projects: exists
-      ? s.projects.map((x) => (x.id === p.id ? p : x))
-      : [...s.projects, p],
-  });
-  await reindex();
+  const prev = s.projects;
+  const next = prev.some((x) => x.id === p.id)
+    ? prev.map((x) => (x.id === p.id ? p : x))
+    : [...prev, p];
+  await withPersist(
+    prev,
+    next,
+    (nextState) => {
+      useDataStore.setState({ projects: nextState });
+    },
+    async () => {
+      await adapter().write("projects", p);
+      await reindex();
+    },
+  );
 }
 
 /** Append human-readable entries to the aggregated activity doc (project history). */
@@ -419,9 +603,14 @@ async function logActivity(events: DomainEvent[], project: Project) {
   const entries = describeEvents(events, project);
   if (entries.length === 0) return;
   const s = useDataStore.getState();
-  const doc = appendEntries({ schemaVersion: 1, entries: s.activity }, entries);
-  useDataStore.setState({ activity: doc.entries });
-  await adapter().writeDoc<ActivityDoc>("activity", doc);
+  const prev = s.activity;
+  const doc = appendEntries({ schemaVersion: 1, entries: prev }, entries);
+  await withPersist(
+    prev,
+    doc.entries,
+    (nextState) => useDataStore.setState({ activity: nextState }),
+    async () => await adapter().writeDoc<ActivityDoc>("activity", doc),
+  );
 }
 
 /** Cooldown entre notificaciones de fallo del mismo flow (spec 024 §F3) —
