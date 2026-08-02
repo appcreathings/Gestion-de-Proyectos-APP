@@ -22,7 +22,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   sprint?: Sprint;
-  onSubmit: (s: Sprint) => void;
+  onSubmit: (s: Sprint) => void | Promise<void>;
 }
 
 export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props) {
@@ -31,6 +31,7 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<SprintStatus>("planned");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -45,7 +46,7 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
     }
   }, [open, sprint, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -55,15 +56,22 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
       return;
     }
     const base = sprint ?? newSprint(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      goal,
-      startDate: startDate || null,
-      endDate: endDate || null,
-      status,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        goal,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        status,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -135,7 +143,7 @@ export function SprintFormDialog({ open, onOpenChange, sprint, onSubmit }: Props
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {sprint ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

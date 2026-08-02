@@ -22,7 +22,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   quarter?: Quarter;
-  onSubmit: (q: Quarter) => void;
+  onSubmit: (q: Quarter) => void | Promise<void>;
 }
 
 export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Props) {
@@ -31,6 +31,7 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<QuarterStatus>("planned");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -45,7 +46,7 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
     }
   }, [open, quarter, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -55,15 +56,22 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
       return;
     }
     const base = quarter ?? newQuarter(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      goal,
-      startDate: startDate || null,
-      endDate: endDate || null,
-      status,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        goal,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        status,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -135,7 +143,7 @@ export function QuarterFormDialog({ open, onOpenChange, quarter, onSubmit }: Pro
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {quarter ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

@@ -31,6 +31,7 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
   const [typeId, setTypeId] = useState("");
   const [name, setName] = useState("");
   const [productId, setProductId] = useState("");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -55,9 +56,16 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
       return;
     }
     if (!typeId) return;
-    const id = await createProjectFromType(typeId, name.trim(), productId || null);
-    onOpenChange(false);
-    if (id) navigate(ROUTES.project(id));
+    setSaving(true);
+    try {
+      const id = await createProjectFromType(typeId, name.trim(), productId || null);
+      onOpenChange(false);
+      if (id) navigate(ROUTES.project(id));
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -130,7 +138,7 @@ export function CreateFromTypeDialog({ open, onOpenChange }: Props) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!typeId}>
+          <Button onClick={submit} disabled={!typeId} pending={saving}>
             Crear proyecto
           </Button>
         </DialogFooter>

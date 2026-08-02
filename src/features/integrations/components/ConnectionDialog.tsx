@@ -529,8 +529,8 @@ export function ConnectionDialog({ open, onOpenChange, provider, connection, onS
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSave || saving}>
-            {saving ? "Guardando..." : isEditing ? "Guardar" : "Crear conexión"}
+          <Button onClick={handleSubmit} disabled={!canSave} pending={saving}>
+            {isEditing ? "Guardar" : "Crear conexión"}
           </Button>
         </DialogFooter>
 

@@ -25,7 +25,7 @@ interface Props {
   item: ChecklistItem;
   people: Person[];
   hasTask: boolean;
-  onSubmit: (item: ChecklistItem) => void;
+  onSubmit: (item: ChecklistItem) => void | Promise<void>;
   onConvertToTask: () => void;
 }
 
@@ -43,6 +43,7 @@ export function ItemEditorDialog({
   const [dueDate, setDueDate] = useState(item.dueDate ?? "");
   const [assigneeId, setAssigneeId] = useState(item.assigneeId ?? "");
   const [notes, setNotes] = useState(item.notes);
+  const [saving, setSaving] = useState(false);
   const textRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -57,7 +58,7 @@ export function ItemEditorDialog({
     }
   }, [open, item, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { text },
       [{ field: "text", message: "El texto no puede estar vacío", test: (v) => v.text.trim().length > 0 }],
@@ -66,15 +67,22 @@ export function ItemEditorDialog({
       textRef.current?.focus();
       return;
     }
-    onSubmit({
-      ...item,
-      text: text.trim(),
-      required,
-      dueDate: dueDate || null,
-      assigneeId: assigneeId || null,
-      notes,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...item,
+        text: text.trim(),
+        required,
+        dueDate: dueDate || null,
+        assigneeId: assigneeId || null,
+        notes,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -159,7 +167,7 @@ export function ItemEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             Guardar
           </Button>
         </DialogFooter>

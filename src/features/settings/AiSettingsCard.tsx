@@ -106,6 +106,7 @@ export function AiSettingsCard() {
             <Button
               onClick={onSave}
               disabled={keyStatus === "validating"}
+              pending={keyStatus === "validating"}
             >
               {keyStatus === "validating" ? "Validando…" : "Validar y guardar"}
             </Button>

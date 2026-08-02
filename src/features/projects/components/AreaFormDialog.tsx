@@ -35,13 +35,14 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   area?: Area;
   people?: Person[];
-  onSubmit: (a: Area) => void;
+  onSubmit: (a: Area) => void | Promise<void>;
 }
 
 export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit }: Props) {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string>("folder");
   const [ownerId, setOwnerId] = useState("");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -54,7 +55,7 @@ export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit
     }
   }, [open, area, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -64,8 +65,15 @@ export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit
       return;
     }
     const base = area ?? newArea(name, icon);
-    onSubmit({ ...base, name: name.trim(), icon, ownerId: ownerId || null });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({ ...base, name: name.trim(), icon, ownerId: ownerId || null });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -130,7 +138,7 @@ export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {area ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

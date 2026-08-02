@@ -35,7 +35,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   rule?: AutomationRule;
-  onSubmit: (r: AutomationRule) => void;
+  onSubmit: (r: AutomationRule) => void | Promise<void>;
   /** Pre-selected scope for new rules (e.g. from a project's Automatizaciones tab). */
   defaultScope?: Scope;
 }
@@ -62,6 +62,7 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
   const [triggerType, setTriggerType] = useState<string>("checklist.completed");
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -101,7 +102,7 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
     setActions((s) => s.map((x, i) => (i === idx ? a : x)));
   }
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -111,16 +112,23 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
       return;
     }
     const base = rule ?? newAutomation(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      enabled,
-      scope,
-      trigger: { type: triggerType as AutomationRule["trigger"]["type"] },
-      conditions,
-      actions,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        enabled,
+        scope,
+        trigger: { type: triggerType as AutomationRule["trigger"]["type"] },
+        conditions,
+        actions,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -348,7 +356,7 @@ export function AutomationDialog({ open, onOpenChange, rule, onSubmit, defaultSc
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={actions.length === 0}>
+          <Button onClick={submit} disabled={actions.length === 0} pending={saving}>
             {rule ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

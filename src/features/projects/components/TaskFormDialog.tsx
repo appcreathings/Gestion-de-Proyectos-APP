@@ -33,7 +33,7 @@ interface Props {
   defaultStatus?: TaskStatus;
   /** Sprint pre-selected for a new task (e.g. created from within a sprint scope). */
   defaultSprintId?: string | null;
-  onSubmit: (t: Task) => void;
+  onSubmit: (t: Task) => void | Promise<void>;
 }
 
 export function TaskFormDialog({
@@ -57,6 +57,7 @@ export function TaskFormDialog({
   const [sprintId, setSprintId] = useState("");
   // "Más opciones" toggle: start expanded when editing an existing task
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [saving, setSaving] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -76,7 +77,7 @@ export function TaskFormDialog({
     }
   }, [open, task, defaultStatus, defaultSprintId, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { title },
       [
@@ -92,18 +93,25 @@ export function TaskFormDialog({
       return;
     }
     const base = task ?? newTask(title);
-    onSubmit({
-      ...base,
-      title: title.trim(),
-      description,
-      status,
-      priority,
-      areaId: areaId || null,
-      assigneeId: assigneeId || null,
-      dueDate: dueDate || null,
-      sprintId: sprintId || null,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        title: title.trim(),
+        description,
+        status,
+        priority,
+        areaId: areaId || null,
+        assigneeId: assigneeId || null,
+        dueDate: dueDate || null,
+        sprintId: sprintId || null,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -298,7 +306,7 @@ export function TaskFormDialog({
             <X className="mr-2 size-4" />
             Cerrar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {task ? "Guardar cambios" : "Crear tarea"}
           </Button>
         </DialogFooter>

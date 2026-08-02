@@ -31,7 +31,7 @@ interface Props {
   type?: ProjectType;
   checklistTemplates: ChecklistTemplate[];
   processTemplates: ProcessTemplate[];
-  onSubmit: (t: ProjectType) => void;
+  onSubmit: (t: ProjectType) => void | Promise<void>;
 }
 
 export function ProjectTypeDialog({
@@ -45,6 +45,7 @@ export function ProjectTypeDialog({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [areas, setAreas] = useState<DefaultArea[]>([]);
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -79,7 +80,7 @@ export function ProjectTypeDialog({
     );
   }
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -89,13 +90,20 @@ export function ProjectTypeDialog({
       return;
     }
     const base = type ?? newProjectType(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      description,
-      defaultAreas: areas.filter((a) => a.name.trim()),
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        description,
+        defaultAreas: areas.filter((a) => a.name.trim()),
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -212,7 +220,7 @@ export function ProjectTypeDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {type ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

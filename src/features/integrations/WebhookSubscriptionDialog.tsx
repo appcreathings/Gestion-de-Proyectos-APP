@@ -45,6 +45,7 @@ export function WebhookSubscriptionDialog({
   const [secret, setSecret] = useState("");
   const [copied, setCopied] = useState(false);
   const [signatureGuideOpen, setSignatureGuideOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const urlRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
@@ -90,36 +91,43 @@ export function WebhookSubscriptionDialog({
     }
     if (events.length === 0) return;
 
-    // Secreto en claro (spec 034 §B): sin cifrado ni gate de vault. Sin secreto
-    // ⇒ webhook limpio sin firma. Guardar siempre limpia `needsReconnect`.
-    const secretValue = signed ? secret.trim() : undefined;
+    setSaving(true);
+    try {
+      // Secreto en claro (spec 034 §B): sin cifrado ni gate de vault. Sin secreto
+      // ⇒ webhook limpio sin firma. Guardar siempre limpia `needsReconnect`.
+      const secretValue = signed ? secret.trim() : undefined;
 
-    if (subscription) {
-      await updateWebhookSubscription(subscription.id, {
+      if (subscription) {
+        await updateWebhookSubscription(subscription.id, {
+          name: name.trim(),
+          url: url.trim(),
+          events,
+          secret: secretValue,
+          needsReconnect: false,
+        });
+        onSaved();
+        onOpenChange(false);
+        return;
+      }
+
+      await createWebhookSubscription({
+        id: crypto.randomUUID(),
         name: name.trim(),
         url: url.trim(),
         events,
         secret: secretValue,
         needsReconnect: false,
+        filters: {},
+        enabled: true,
       });
+
       onSaved();
       onOpenChange(false);
-      return;
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
     }
-
-    await createWebhookSubscription({
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      url: url.trim(),
-      events,
-      secret: secretValue,
-      needsReconnect: false,
-      filters: {},
-      enabled: true,
-    });
-
-    onSaved();
-    onOpenChange(false);
   }
 
   function toggleEvent(event: string) {
@@ -260,6 +268,7 @@ export function WebhookSubscriptionDialog({
           <Button
             onClick={handleSubmit}
             disabled={events.length === 0}
+            pending={saving}
           >
             {subscription ? "Guardar" : "Crear"}
           </Button>

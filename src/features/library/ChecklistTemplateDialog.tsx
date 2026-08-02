@@ -38,7 +38,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   template?: ChecklistTemplate;
-  onSubmit: (t: ChecklistTemplate) => void;
+  onSubmit: (t: ChecklistTemplate) => void | Promise<void>;
 }
 
 export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit }: Props) {
@@ -46,6 +46,7 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
   const [category, setCategory] = useState("");
   const [items, setItems] = useState<TemplateItem[]>([]);
   const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -65,7 +66,7 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
     setDraft("");
   }
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -75,8 +76,15 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
       return;
     }
     const base = template ?? newChecklistTemplate(name);
-    onSubmit({ ...base, name: name.trim(), category, items });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({ ...base, name: name.trim(), category, items });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   const sensors = useSensors(
@@ -236,7 +244,7 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {template ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

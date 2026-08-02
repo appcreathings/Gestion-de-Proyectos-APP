@@ -44,7 +44,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   template?: ProcessTemplate;
-  onSubmit: (t: ProcessTemplate) => void;
+  onSubmit: (t: ProcessTemplate) => void | Promise<void>;
 }
 
 export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }: Props) {
@@ -52,6 +52,7 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [steps, setSteps] = useState<Step[]>([]);
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -65,7 +66,7 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
     }
   }, [open, template, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -75,14 +76,21 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
       return;
     }
     const base = template ?? newProcessTemplate(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      category,
-      description,
-      steps: steps.filter((s) => s.text.trim()),
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        category,
+        description,
+        steps: steps.filter((s) => s.text.trim()),
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   const sensors = useSensors(
@@ -242,7 +250,7 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {template ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

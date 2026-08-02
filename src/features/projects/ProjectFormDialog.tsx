@@ -28,7 +28,7 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   project?: Project;
   defaultProductId?: string | null;
-  onSubmit: (p: Project) => void;
+  onSubmit: (p: Project) => void | Promise<void>;
 }
 
 export function ProjectFormDialog({
@@ -55,6 +55,7 @@ export function ProjectFormDialog({
   const [ownerId, setOwnerId] = useState<string>("");
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -76,7 +77,7 @@ export function ProjectFormDialog({
     }
   }, [open, project, defaultProductId, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -86,21 +87,28 @@ export function ProjectFormDialog({
       return;
     }
     const base = project ?? newProject(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      description,
-      productId: productId || null,
-      typeId: typeId || null,
-      quarterId: quarterId || null,
-      status,
-      priority,
-      dueDate: dueDate || null,
-      startDate: startDate || null,
-      ownerId: ownerId || null,
-      stakeholders,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        description,
+        productId: productId || null,
+        typeId: typeId || null,
+        quarterId: quarterId || null,
+        status,
+        priority,
+        dueDate: dueDate || null,
+        startDate: startDate || null,
+        ownerId: ownerId || null,
+        stakeholders,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -313,7 +321,7 @@ export function ProjectFormDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {project ? "Guardar" : "Crear proyecto"}
           </Button>
         </DialogFooter>

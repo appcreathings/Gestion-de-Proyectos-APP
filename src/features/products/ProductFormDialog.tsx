@@ -23,7 +23,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   product?: Product;
-  onSubmit: (p: Product) => void;
+  onSubmit: (p: Product) => void | Promise<void>;
 }
 
 export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Props) {
@@ -33,6 +33,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
   const [vision, setVision] = useState("");
   const [status, setStatus] = useState<ProductStatus>("active");
   const [ownerId, setOwnerId] = useState("");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -47,7 +48,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
     }
   }, [open, product, clear]);
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -57,15 +58,22 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
       return;
     }
     const base = product ?? newProduct(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      description,
-      vision,
-      status,
-      ownerId: ownerId || null,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        description,
+        vision,
+        status,
+        ownerId: ownerId || null,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -140,7 +148,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {product ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>

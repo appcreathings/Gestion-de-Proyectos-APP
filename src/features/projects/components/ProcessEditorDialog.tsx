@@ -40,7 +40,7 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   process?: Process;
   people?: Person[];
-  onSubmit: (p: Process) => void;
+  onSubmit: (p: Process) => void | Promise<void>;
 }
 
 export function ProcessEditorDialog({
@@ -54,6 +54,7 @@ export function ProcessEditorDialog({
   const [description, setDescription] = useState("");
   const [steps, setSteps] = useState<ProcessStep[]>([]);
   const [ownerId, setOwnerId] = useState("");
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
 
@@ -93,7 +94,7 @@ export function ProcessEditorDialog({
     });
   }
 
-  function submit() {
+  async function submit() {
     const errs = validate(
       { name },
       [{ field: "name", message: "El nombre no puede estar vacío", test: (v) => v.name.trim().length > 0 }],
@@ -103,15 +104,22 @@ export function ProcessEditorDialog({
       return;
     }
     const base = process ?? newProcess(name);
-    onSubmit({
-      ...base,
-      name: name.trim(),
-      description,
-      steps: steps.filter((s) => s.text.trim()),
-      version: process ? base.version + 1 : 1,
-      ownerId: ownerId || null,
-    });
-    onOpenChange(false);
+    setSaving(true);
+    try {
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        description,
+        steps: steps.filter((s) => s.text.trim()),
+        version: process ? base.version + 1 : 1,
+        ownerId: ownerId || null,
+      });
+      onOpenChange(false);
+    } catch {
+      // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -264,7 +272,7 @@ export function ProcessEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit}>
+          <Button onClick={submit} pending={saving}>
             {process ? "Guardar" : "Crear"}
           </Button>
         </DialogFooter>
