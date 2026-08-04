@@ -27,9 +27,9 @@
 | 🟩 | `como-estimar-tiempos-proyecto` | Cómo estimar tiempos de un proyecto sin fallar siempre | "cómo estimar tiempos de un proyecto" |
 | 🟩 | `alcance-de-proyecto-scope-creep` | Alcance de proyecto: definirlo y evitar el scope creep | "scope creep", "alcance de proyecto" |
 | 🟩 | `matriz-raci` | Matriz RACI: qué es, cómo armarla y plantilla | "matriz RACI", "qué es RACI" |
-| ⬜ | `ruta-critica-proyecto` | Ruta crítica: qué tareas no se pueden atrasar | "ruta crítica proyecto", "método del camino crítico" |
-| ⬜ | `objetivos-proyecto-smart-okr` | Objetivos de proyecto: SMART, OKR y cuándo cada uno | "objetivos SMART proyecto", "OKR vs SMART" |
-| ⬜ | `gestion-de-riesgos-simple` | Gestión de riesgos para equipos pequeños | "gestión de riesgos en proyectos" |
+| 🟩 | `ruta-critica-proyecto` | Ruta crítica: qué tareas no se pueden atrasar | "ruta crítica proyecto", "método del camino crítico" |
+| 🟩 | `objetivos-proyecto-smart-okr` | Objetivos de proyecto: SMART, OKR y cuándo cada uno | "objetivos SMART proyecto", "OKR vs SMART" |
+| 🟩 | `gestion-de-riesgos-simple` | Gestión de riesgos para equipos pequeños | "gestión de riesgos en proyectos" |
 
 ## Cluster 2 — Metodologías
 
@@ -37,10 +37,10 @@
 
 | Estado | Slug | Título | Intención de búsqueda |
 |---|---|---|---|
-| ⬜ | `metodologias-gestion-proyectos` | **PILAR** — Metodologías de gestión de proyectos: cuál usar según tu equipo | "metodologías de gestión de proyectos" |
-| 🟩* | `scrum-vs-kanban` | Scrum vs Kanban: diferencias reales y cuál elegir | "scrum vs kanban" *(publicado en fase 1, cuelga temporalmente del pilar de Fundamentos — reasignar `pillar` cuando se publique este)* |
-| ⬜ | `que-es-scrum-equipos-pequenos` | Qué es Scrum, sin certificaciones | "qué es scrum" |
-| ⬜ | `kanban-limites-wip` | Kanban en la práctica: límites WIP | "límites WIP kanban", "qué es WIP" |
+| 🟩 | `metodologias-gestion-proyectos` | **PILAR** — Metodologías de gestión de proyectos: cuál usar según tu equipo | "metodologías de gestión de proyectos" |
+| 🟩 | `scrum-vs-kanban` | Scrum vs Kanban: diferencias reales y cuál elegir | "scrum vs kanban" |
+| 🟩 | `que-es-scrum-equipos-pequenos` | Qué es Scrum, sin certificaciones | "qué es scrum" |
+| 🟩 | `kanban-limites-wip` | Kanban en la práctica: límites WIP | "límites WIP kanban", "qué es WIP" |
 | ⬜ | `sprint-planning-como-hacerlo` | Sprint planning que se cumple | "cómo hacer sprint planning" |
 | ⬜ | `daily-standup-util` | Daily standup que no sea pérdida de tiempo | "daily standup", "reunión diaria scrum" |
 | ⬜ | `retrospectivas-formatos` | Retrospectivas: 5 formatos y cómo elegir | "formatos de retrospectiva", "retrospectiva de sprint" |
@@ -94,7 +94,9 @@ enlazarán a este pilar cuando se publique.)*
 - **Fase 1 (2026-07-31, spec 040):** 6 artículos publicados — el pilar de Fundamentos completo
   (`gestion-de-proyectos-guia-completa`) + 4 satélites del mismo cluster + `scrum-vs-kanban` adelantado
   del cluster 2 (cuelga del pilar de Fundamentos hasta que exista el propio).
-- **Siguiente:** completar cluster 1 (3 artículos restantes), luego cluster 2 empezando por su pilar.
+- **Fase 2 (2026-08-03):** 6 artículos publicados — Completado Cluster 1 de Fundamentos (3 artículos adicionales)
+  + iniciado Cluster 2 de Metodologías con su pilar y 2 satélites.
+- **Siguiente:** completar cluster 2 (3 artículos restantes), luego cluster 3 empezando por su pilar.
 
 ## Cadencia
 

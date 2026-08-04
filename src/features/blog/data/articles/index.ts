@@ -30,6 +30,12 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "matriz-raci": () => import("./matriz-raci"),
   "scrum-vs-kanban": () => import("./scrum-vs-kanban"),
   "alcance-de-proyecto-scope-creep": () => import("./alcance-de-proyecto-scope-creep"),
+  "ruta-critica-proyecto": () => import("./ruta-critica-proyecto"),
+  "objetivos-proyecto-smart-okr": () => import("./objetivos-proyecto-smart-okr"),
+  "gestion-de-riesgos-simple": () => import("./gestion-de-riesgos-simple"),
+  "metodologias-gestion-proyectos": () => import("./metodologias-gestion-proyectos"),
+  "que-es-scrum-equipos-pequenos": () => import("./que-es-scrum-equipos-pequenos"),
+  "kanban-limites-wip": () => import("./kanban-limites-wip"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

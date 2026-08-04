@@ -406,19 +406,17 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     },
   },
   {
-    // Cuelga temporalmente del pilar general: cuando se publique el pilar del
-    // cluster "Metodologías" (`metodologias-gestion-proyectos`, ver ROADMAP_BLOG.md)
-    // este `pillar` debe apuntar ahí.
-    slug: "scrum-vs-kanban",
-    title: "Scrum vs Kanban: diferencias reales y cuál elegir",
-    excerpt:
-      "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para decidir cuál conviene a tu equipo.",
-    category: "gestion-proyectos",
-    categoryLabel: "Gestión de proyectos",
-    publishedAt: "2026-11-09",
-    readingTime: "10 min",
-    featured: false,
-    pillar: "gestion-de-proyectos-guia-completa",
+  // Cuelga del pilar del cluster "Metodologías" (ver ROADMAP_BLOG.md)
+  slug: "scrum-vs-kanban",
+  title: "Scrum vs Kanban: diferencias reales y cuál elegir",
+  excerpt:
+    "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para decidir cuál conviene a tu equipo.",
+  category: "gestion-proyectos",
+  categoryLabel: "Gestión de proyectos",
+  publishedAt: "2026-11-09",
+  readingTime: "10 min",
+  featured: false,
+  pillar: "metodologias-gestion-proyectos",
     related: ["fases-de-un-proyecto", "matriz-raci"],
     seo: {
       title: "Scrum vs Kanban: diferencias reales y cuál elegir | Hito",
@@ -444,6 +442,124 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
       ogImageAlt: "Alcance de proyecto y cómo evitar el scope creep.",
+    },
+  },
+  {
+    slug: "ruta-critica-proyecto",
+    title: "Ruta crítica: qué tareas no se pueden atrasar",
+    excerpt:
+      "La ruta crítica identifica qué tareas determinan la fecha de entrega de tu proyecto. Cómo calcularla, por qué importa y qué hacer cuando se mueve.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-11-23",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["como-estimar-tiempos-proyecto", "fases-de-un-proyecto"],
+    seo: {
+      title: "Ruta crítica: qué tareas no se pueden atrasar | Hito",
+      description:
+        "La ruta crítica identifica qué tareas determinan la fecha de entrega. Cómo calcularla, por qué importa y qué hacer cuando se mueve.",
+      ogImageAlt: "Ruta crítica del proyecto: tareas que no pueden atrasarse.",
+    },
+  },
+  {
+    slug: "objetivos-proyecto-smart-okr",
+    title: "Objetivos de proyecto: SMART, OKR y cuándo cada uno",
+    excerpt:
+      "¿Objetivos SMART u OKR? Depende del tipo de proyecto y el horizonte de tiempo. Cuál elegir, con ejemplos y por qué mezclarlos suele ser el error.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-11-30",
+    readingTime: "11 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["como-estimar-tiempos-proyecto", "fases-de-un-proyecto"],
+    seo: {
+      title: "Objetivos de proyecto: SMART, OKR y cuándo cada uno | Hito",
+      description:
+        "¿Objetivos SMART u OKR? Depende del tipo de proyecto y el horizonte de tiempo. Cuál elegir, con ejemplos y por qué mezclarlos suele ser el error.",
+      ogImageAlt: "Objetivos de proyecto: SMART vs OKR.",
+    },
+  },
+  {
+    slug: "gestion-de-riesgos-simple",
+    title: "Gestión de riesgos para equipos pequeños",
+    excerpt:
+      "No necesitás matrices 50×50. Gestión de riesgos para equipos pequeños: cómo identificar, priorizar y mitigar en 15 minutos por semana.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-12-07",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "gestion-de-proyectos-guia-completa",
+    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+    seo: {
+      title: "Gestión de riesgos para equipos pequeños | Hito",
+      description:
+        "No necesitás matrices 50×50. Gestión de riesgos para equipos pequeños: cómo identificar, priorizar y mitigar en 15 minutos por semana.",
+      ogImageAlt: "Gestión de riesgos simple para equipos pequeños.",
+    },
+  },
+  {
+    slug: "metodologias-gestion-proyectos",
+    title: "PILAR — Metodologías de gestión de proyectos: cuál usar según tu equipo",
+    excerpt:
+      "Scrum, Kanban, Waterfall, Agile: cuál conviene según el tipo de proyecto, el tamaño del equipo y la incertidumbre del alcance. Guía práctica sin certificaciones.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-12-14",
+    readingTime: "14 min",
+    featured: true,
+    related: [
+      "scrum-vs-kanban",
+      "que-es-scrum-equipos-pequenos",
+      "kanban-limites-wip",
+      "waterfall-vs-agile",
+    ],
+    seo: {
+      title: "Metodologías de gestión de proyectos: cuál usar según tu equipo | Hito",
+      description:
+        "Scrum, Kanban, Waterfall, Agile: cuál conviene según el tipo de proyecto, el tamaño del equipo y la incertidumbre del alcance. Guía práctica sin certificaciones.",
+      ogImageAlt: "Metodologías de gestión de proyectos: cuál elegir según tu equipo.",
+    },
+  },
+  {
+    slug: "que-es-scrum-equipos-pequenos",
+    title: "Qué es Scrum, sin certificaciones",
+    excerpt:
+      "Scrum explicado sin la burocracia de certificaciones: qué es, cómo funciona en la práctica para equipos pequeños, y qué ceremonias son realmente necesarias.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-12-21",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: ["scrum-vs-kanban", "kanban-limites-wip", "sprint-planning-como-hacerlo"],
+    seo: {
+      title: "Qué es Scrum, sin certificaciones | Hito",
+      description:
+        "Scrum explicado sin la burocracia de certificaciones: qué es, cómo funciona en la práctica para equipos pequeños, y qué ceremonias son realmente necesarias.",
+      ogImageAlt: "Qué es Scrum explicado sin certificaciones.",
+    },
+  },
+  {
+    slug: "kanban-limites-wip",
+    title: "Kanban en la práctica: límites WIP",
+    excerpt:
+      "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-12-28",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: ["scrum-vs-kanban", "que-es-scrum-equipos-pequenos", "reducir-trabajo-en-curso"],
+    seo: {
+      title: "Kanban en la práctica: límites WIP | Hito",
+      description:
+        "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
+      ogImageAlt: "Kanban en la práctica: límites WIP explicados.",
     },
   },
 ];
