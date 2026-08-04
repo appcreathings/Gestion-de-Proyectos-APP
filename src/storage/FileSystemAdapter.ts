@@ -284,14 +284,20 @@ export class FileSystemAdapter implements StorageAdapter {
   async removeBlobTree(relativePrefix: string): Promise<void> {
     assertSafeAttachmentPath(relativePrefix);
     const root = this.requireRoot();
-    const segments = relativePrefix.split("/");
-    let current = root;
-    for (const segment of segments) {
-      current = await current.getDirectoryHandle(segment);
+    // Prefijo tipo "attachments/projects/<id>" — hay que borrar el último
+    // segmento desde su padre, no desde la raíz (bug: removeEntry en root
+    // nunca encontraba process-templates/<id> ni projects/<id>).
+    const segments = relativePrefix.replace(/\/+$/, "").split("/").filter(Boolean);
+    if (segments.length === 0) return;
+    let parent = root;
+    try {
+      for (let i = 0; i < segments.length - 1; i++) {
+        parent = await parent.getDirectoryHandle(segments[i]);
+      }
+      await parent.removeEntry(segments[segments.length - 1], { recursive: true });
+    } catch {
+      // Prefijo ya inexistente: no-op (cascada best-effort).
     }
-    const parent = root;
-    const targetName = segments[segments.length - 1];
-    await parent.removeEntry(targetName, { recursive: true }).catch(() => undefined);
   }
 
   async exportAll(): Promise<Blob> {

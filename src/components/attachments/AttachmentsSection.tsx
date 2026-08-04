@@ -5,6 +5,7 @@ import type { AttachmentParent } from "@/domain/attachments/paths";
 import { getAttachmentsFromState } from "@/domain/attachments/ops";
 import { AttachmentDropZone } from "./AttachmentDropZone";
 import { AttachmentRow } from "./AttachmentRow";
+import { AttachmentPreviewDialog } from "./AttachmentPreviewDialog";
 import { useAttachmentActions } from "@/hooks/useAttachmentActions";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useDataStore } from "@/store/useDataStore";
@@ -42,6 +43,8 @@ export function AttachmentsSection({
       projects: s.projects,
       products: s.products,
       processTemplates: s.processTemplates,
+      checklistTemplates: s.checklistTemplates,
+      projectTypes: s.projectTypes,
     }),
   );
   const attachments = storeList.length > 0 || !attachmentsProp ? storeList : attachmentsProp;
@@ -58,6 +61,12 @@ export function AttachmentsSection({
     updateDescription,
     download,
     thumbUrlFor,
+    preview,
+    previewUrl,
+    previewLoading,
+    previewError,
+    openPreview,
+    closePreview,
   } = useAttachmentActions(parent);
 
   const [filter, setFilter] = useState<"all" | AttachmentKind>("all");
@@ -71,20 +80,45 @@ export function AttachmentsSection({
     return list.filter((a) => a.kind === filter);
   }, [attachments, filter]);
 
+  // Solo ids de imagen: evita re-disparar el effect por nueva ref de `attachments`
+  // cuando el contenido no cambió.
+  const imageIds = useMemo(
+    () =>
+      attachments
+        .filter((a) => a.kind === "image")
+        .map((a) => a.id)
+        .join("|"),
+    [attachments],
+  );
+
   useEffect(() => {
     let cancelled = false;
     const images = attachments.filter((a) => a.kind === "image");
+    if (images.length === 0) return;
     void (async () => {
       const next: Record<string, string | null> = {};
       for (const att of images) {
         next[att.id] = await thumbUrlFor(att);
       }
-      if (!cancelled) setThumbs((prev) => ({ ...prev, ...next }));
+      if (cancelled) return;
+      setThumbs((prev) => {
+        // No re-render si las URLs no cambiaron.
+        let changed = false;
+        for (const [id, url] of Object.entries(next)) {
+          if (prev[id] !== url) {
+            changed = true;
+            break;
+          }
+        }
+        return changed ? { ...prev, ...next } : prev;
+      });
     })();
     return () => {
       cancelled = true;
     };
-  }, [attachments, thumbUrlFor]);
+    // imageIds captura el contenido relevante; attachments se lee del render actual.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- imageIds es la clave estable
+  }, [imageIds, thumbUrlFor]);
 
   const atCap = attachments.length >= maxCount;
 
@@ -125,7 +159,8 @@ export function AttachmentsSection({
       {!disabled && !atCap && (
         <AttachmentDropZone
           busy={busy}
-          disabled={disabled}
+          // Mientras hay preview, no recibir clics (evita file picker al usar el video).
+          disabled={disabled || preview !== null}
           maxBytes={maxBytes}
           onFiles={(files) => void addFiles(files)}
         />
@@ -149,6 +184,7 @@ export function AttachmentsSection({
                 thumbUrl={thumbs[att.id]}
                 busy={busy}
                 onDownload={() => void download(att)}
+                onPreview={() => void openPreview(att)}
                 onRemove={() => setPendingDelete(att)}
                 onUpdateDescription={(d) => void updateDescription(att.id, d)}
               />
@@ -158,6 +194,10 @@ export function AttachmentsSection({
       )}
 
       <ConfirmDialog
+        // No-modal: esta sección vive a menudo dentro de otro Dialog
+        // (plantilla, área, producto…). Un confirm modal anidado deja la UI
+        // bloqueada al cerrar.
+        modal={false}
         open={pendingDelete !== null}
         onOpenChange={(o) => {
           if (!o) setPendingDelete(null);
@@ -170,6 +210,18 @@ export function AttachmentsSection({
         description="Se borrará del disco / de este navegador. No se puede deshacer."
         confirmLabel="Eliminar"
         onConfirm={() => confirmRemove()}
+      />
+
+      <AttachmentPreviewDialog
+        attachment={preview}
+        open={preview !== null}
+        onOpenChange={closePreview}
+        url={previewUrl}
+        loading={previewLoading}
+        error={previewError}
+        onDownload={() => {
+          if (preview) void download(preview);
+        }}
       />
     </div>
   );

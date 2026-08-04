@@ -21,6 +21,11 @@ interface ConfirmDialogProps {
    *  que resuelve, y si rechaza se queda abierto (el error lo anuncia quien lo
    *  provoca, vía toast — design 040 §F2, CA-07.2). */
   onConfirm: () => void | Promise<void>;
+  /**
+   * `false` cuando el confirm va anidado dentro de otro Dialog (p. ej. anexos
+   * en plantilla de proceso). Evita dejar la UI sin pointer-events al cerrar.
+   */
+  modal?: boolean;
 }
 
 /**
@@ -35,6 +40,7 @@ export function ConfirmDialog({
   confirmLabel = "Eliminar",
   confirmVariant = "destructive",
   onConfirm,
+  modal = true,
 }: ConfirmDialogProps) {
   const [pending, setPending] = useState(false);
 
@@ -52,7 +58,7 @@ export function ConfirmDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={modal}>
       <DialogContent
         size="sm"
         className="w-[min(100%,22rem)] max-w-sm gap-0 p-0"

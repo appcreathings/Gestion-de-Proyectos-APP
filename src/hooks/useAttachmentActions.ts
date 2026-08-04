@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Attachment } from "@/domain/schemas/attachment";
 import type { AttachmentParent } from "@/domain/attachments/paths";
 import { maxBytesFor, maxCountFor } from "@/domain/attachments/limits";
+import { blobForMedia } from "@/domain/attachments/mediaBlob";
 import { AttachmentValidationError } from "@/domain/attachments/ops";
 import { useDataStore } from "@/store/useDataStore";
 import { useAppStore } from "@/store/useAppStore";
@@ -20,7 +21,12 @@ export function useAttachmentActions(parent: AttachmentParent | null) {
 
   const [busy, setBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Attachment | null>(null);
+  const [preview, setPreview] = useState<Attachment | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const objectUrls = useRef<Map<string, string>>(new Map());
+  const previewOnlyUrl = useRef<string | null>(null);
 
   const adapterKind = adapter.kind;
   const maxBytes = maxBytesFor(adapterKind);
@@ -32,25 +38,68 @@ export function useAttachmentActions(parent: AttachmentParent | null) {
         URL.revokeObjectURL(url);
       }
       objectUrls.current.clear();
+      if (previewOnlyUrl.current) {
+        URL.revokeObjectURL(previewOnlyUrl.current);
+        previewOnlyUrl.current = null;
+      }
     };
   }, []);
+
+  const blobUrlFor = useCallback(
+    async (att: Attachment): Promise<string> => {
+      const cached = objectUrls.current.get(att.id);
+      if (cached) return cached;
+      // FS/IDB a menudo devuelven type vacío u octet-stream → <video> no decodifica.
+      const raw = await adapter.readBlob(att.relativePath);
+      const blob = blobForMedia(raw, att);
+      const url = URL.createObjectURL(blob);
+      objectUrls.current.set(att.id, url);
+      return url;
+    },
+    [adapter],
+  );
 
   const thumbUrlFor = useCallback(
     async (att: Attachment): Promise<string | null> => {
       if (att.kind !== "image") return null;
-      const cached = objectUrls.current.get(att.id);
-      if (cached) return cached;
       try {
-        const blob = await adapter.readBlob(att.relativePath);
-        const url = URL.createObjectURL(blob);
-        objectUrls.current.set(att.id, url);
-        return url;
+        return await blobUrlFor(att);
       } catch {
         return null;
       }
     },
-    [adapter],
+    [blobUrlFor],
   );
+
+  const openPreview = useCallback(
+    async (att: Attachment) => {
+      setPreview(att);
+      setPreviewError(null);
+      setPreviewUrl(null);
+      setPreviewLoading(true);
+      try {
+        const url = await blobUrlFor(att);
+        setPreviewUrl(url);
+      } catch {
+        setPreviewError(
+          "Archivo no encontrado en disco. Si importaste el JSON, copiá también la carpeta attachments/.",
+        );
+      } finally {
+        setPreviewLoading(false);
+      }
+    },
+    [blobUrlFor],
+  );
+
+  const closePreview = useCallback((open: boolean) => {
+    // onOpenChange(false) del overlay / Escape / botón Cerrar.
+    // Al cerrar limpiamos estado; no tocamos object URLs cacheados (thumbs).
+    if (open) return;
+    setPreview(null);
+    setPreviewUrl(null);
+    setPreviewError(null);
+    setPreviewLoading(false);
+  }, []);
 
   const addFiles = useCallback(
     async (files: File[]) => {
@@ -121,7 +170,8 @@ export function useAttachmentActions(parent: AttachmentParent | null) {
   const download = useCallback(
     async (att: Attachment) => {
       try {
-        const blob = await adapter.readBlob(att.relativePath);
+        const raw = await adapter.readBlob(att.relativePath);
+        const blob = blobForMedia(raw, att);
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -152,5 +202,11 @@ export function useAttachmentActions(parent: AttachmentParent | null) {
     updateDescription,
     download,
     thumbUrlFor,
+    preview,
+    previewUrl,
+    previewLoading,
+    previewError,
+    openPreview,
+    closePreview,
   };
 }

@@ -63,10 +63,13 @@ function SettingsContent() {
   if (!settings) return null;
 
   async function onExport() {
+    const s = useDataStore.getState();
     const n = countWorkspaceAttachments({
-      projects: useDataStore.getState().projects,
-      products: useDataStore.getState().products,
-      processTemplates: useDataStore.getState().processTemplates,
+      projects: s.projects,
+      products: s.products,
+      processTemplates: s.processTemplates,
+      checklistTemplates: s.checklistTemplates,
+      projectTypes: s.projectTypes,
     });
     if (n > 0) {
       useToastStore.getState().toast.info(

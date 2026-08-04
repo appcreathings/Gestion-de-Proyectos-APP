@@ -35,6 +35,7 @@ import { cn, uuid } from "@/lib/utils";
 import type { Person, Process, ProcessStep } from "@/domain/schemas";
 import { newProcess } from "@/domain/factories";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { useDataStore } from "@/store/useDataStore";
 
 interface Props {
   open: boolean;
@@ -107,7 +108,18 @@ export function ProcessEditorDialog({
       nameRef.current?.focus();
       return;
     }
-    const base = process ?? newProcess(name);
+    // Preservar anexos del store al guardar el form del proceso.
+    let base = process ?? newProcess(name);
+    if (process && projectId) {
+      const proj = useDataStore.getState().projects.find((p) => p.id === projectId);
+      for (const a of proj?.areas ?? []) {
+        const live = a.processes.find((pr) => pr.id === process.id);
+        if (live) {
+          base = live;
+          break;
+        }
+      }
+    }
     setSaving(true);
     try {
       await onSubmit({
@@ -117,6 +129,7 @@ export function ProcessEditorDialog({
         steps: steps.filter((s) => s.text.trim()),
         version: process ? base.version + 1 : 1,
         ownerId: ownerId || null,
+        attachments: base.attachments ?? [],
       });
       onOpenChange(false);
     } catch {

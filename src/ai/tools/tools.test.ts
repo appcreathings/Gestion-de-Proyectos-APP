@@ -594,6 +594,7 @@ function newProjectTypeFixture(): ProjectType {
     statusWorkflow: ["backlog", "active", "paused", "blocked", "done", "archived"],
     defaultAreas: [],
     defaultAutomationIds: [],
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };

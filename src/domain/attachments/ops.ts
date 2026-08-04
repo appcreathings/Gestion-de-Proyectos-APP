@@ -1,5 +1,11 @@
 import type { Attachment } from "@/domain/schemas/attachment";
-import type { ProcessTemplate, Product, Project } from "@/domain/schemas";
+import type {
+  ChecklistTemplate,
+  ProcessTemplate,
+  Product,
+  Project,
+  ProjectType,
+} from "@/domain/schemas";
 import { classifyFile } from "./allowlist";
 import { maxBytesFor, maxCountFor, type AdapterKind } from "./limits";
 import {
@@ -82,6 +88,10 @@ export function attachmentTreePrefix(parent: AttachmentParent): string {
       return `attachments/products/${parent.productId}`;
     case "processTemplate":
       return `attachments/process-templates/${parent.templateId}`;
+    case "checklistTemplate":
+      return `attachments/checklist-templates/${parent.templateId}`;
+    case "projectType":
+      return `attachments/project-types/${parent.typeId}`;
   }
 }
 
@@ -144,44 +154,63 @@ export function removedSubtreePrefixes(prev: Project, next: Project): string[] {
   return prefixes;
 }
 
+export type AttachmentStateSlice = {
+  projects: Project[];
+  products: Product[];
+  processTemplates: ProcessTemplate[];
+  checklistTemplates: ChecklistTemplate[];
+  projectTypes: ProjectType[];
+};
+
+/**
+ * Array vacío **estable** para selectores de Zustand.
+ * Devolver `[]` literal en cada lectura hace `Object.is` fallar y React entra
+ * en "Maximum update depth exceeded" (useSyncExternalStore).
+ */
+export const EMPTY_ATTACHMENTS: Attachment[] = [];
+
 export function getAttachmentsFromState(
   parent: AttachmentParent,
-  state: {
-    projects: Project[];
-    products: Product[];
-    processTemplates: ProcessTemplate[];
-  },
+  state: AttachmentStateSlice,
 ): Attachment[] {
   switch (parent.type) {
     case "project": {
       const p = state.projects.find((x) => x.id === parent.projectId);
-      return p?.attachments ?? [];
+      return p?.attachments ?? EMPTY_ATTACHMENTS;
     }
     case "area": {
       const p = state.projects.find((x) => x.id === parent.projectId);
       const area = p?.areas.find((a) => a.id === parent.areaId);
-      return area?.attachments ?? [];
+      return area?.attachments ?? EMPTY_ATTACHMENTS;
     }
     case "process": {
       const p = state.projects.find((x) => x.id === parent.projectId);
       for (const area of p?.areas ?? []) {
         const proc = area.processes.find((pr) => pr.id === parent.processId);
-        if (proc) return proc.attachments ?? [];
+        if (proc) return proc.attachments ?? EMPTY_ATTACHMENTS;
       }
-      return [];
+      return EMPTY_ATTACHMENTS;
     }
     case "task": {
       const p = state.projects.find((x) => x.id === parent.projectId);
       const task = p?.tasks.find((t) => t.id === parent.taskId);
-      return task?.attachments ?? [];
+      return task?.attachments ?? EMPTY_ATTACHMENTS;
     }
     case "product": {
       const prod = state.products.find((x) => x.id === parent.productId);
-      return prod?.attachments ?? [];
+      return prod?.attachments ?? EMPTY_ATTACHMENTS;
     }
     case "processTemplate": {
       const t = state.processTemplates.find((x) => x.id === parent.templateId);
-      return t?.attachments ?? [];
+      return t?.attachments ?? EMPTY_ATTACHMENTS;
+    }
+    case "checklistTemplate": {
+      const t = state.checklistTemplates.find((x) => x.id === parent.templateId);
+      return t?.attachments ?? EMPTY_ATTACHMENTS;
+    }
+    case "projectType": {
+      const t = state.projectTypes.find((x) => x.id === parent.typeId);
+      return t?.attachments ?? EMPTY_ATTACHMENTS;
     }
   }
 }
@@ -190,16 +219,14 @@ export function getAttachmentsFromState(
 export function withAttachments(
   parent: AttachmentParent,
   nextAttachments: Attachment[],
-  state: {
-    projects: Project[];
-    products: Product[];
-    processTemplates: ProcessTemplate[];
-  },
+  state: AttachmentStateSlice,
   now: string,
 ):
   | { kind: "project"; project: Project }
   | { kind: "product"; product: Product }
-  | { kind: "processTemplate"; template: ProcessTemplate } {
+  | { kind: "processTemplate"; template: ProcessTemplate }
+  | { kind: "checklistTemplate"; template: ChecklistTemplate }
+  | { kind: "projectType"; projectType: ProjectType } {
   switch (parent.type) {
     case "project": {
       const p = state.projects.find((x) => x.id === parent.projectId);
@@ -260,10 +287,26 @@ export function withAttachments(
     }
     case "processTemplate": {
       const t = state.processTemplates.find((x) => x.id === parent.templateId);
-      if (!t) throw new AttachmentValidationError("Plantilla no encontrada.");
+      if (!t) throw new AttachmentValidationError("Plantilla de proceso no encontrada.");
       return {
         kind: "processTemplate",
         template: { ...t, attachments: nextAttachments, updatedAt: now },
+      };
+    }
+    case "checklistTemplate": {
+      const t = state.checklistTemplates.find((x) => x.id === parent.templateId);
+      if (!t) throw new AttachmentValidationError("Plantilla de checklist no encontrada.");
+      return {
+        kind: "checklistTemplate",
+        template: { ...t, attachments: nextAttachments, updatedAt: now },
+      };
+    }
+    case "projectType": {
+      const t = state.projectTypes.find((x) => x.id === parent.typeId);
+      if (!t) throw new AttachmentValidationError("Tipo de proyecto no encontrado.");
+      return {
+        kind: "projectType",
+        projectType: { ...t, attachments: nextAttachments, updatedAt: now },
       };
     }
   }

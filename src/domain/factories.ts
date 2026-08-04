@@ -205,6 +205,7 @@ export function newChecklistTemplate(name: string): ChecklistTemplate {
     category: "",
     items: [],
     tags: [],
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };
@@ -252,6 +253,7 @@ export function newProjectType(name: string): ProjectType {
     statusWorkflow: ["backlog", "active", "paused", "blocked", "done", "archived"],
     defaultAreas: [],
     defaultAutomationIds: [],
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };

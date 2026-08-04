@@ -21,10 +21,15 @@ export function AttachmentDropZone({
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
-  const pick = useCallback(() => {
-    if (disabled || busy) return;
-    inputRef.current?.click();
-  }, [disabled, busy]);
+  const pick = useCallback(
+    (e?: { stopPropagation(): void; preventDefault(): void }) => {
+      e?.stopPropagation();
+      e?.preventDefault();
+      if (disabled || busy) return;
+      inputRef.current?.click();
+    },
+    [disabled, busy],
+  );
 
   const emit = useCallback(
     (list: FileList | File[] | null) => {
@@ -50,6 +55,7 @@ export function AttachmentDropZone({
     (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
+        e.stopPropagation();
         pick();
       }
     },
@@ -62,7 +68,9 @@ export function AttachmentDropZone({
       tabIndex={disabled || busy ? -1 : 0}
       aria-disabled={disabled || busy || undefined}
       aria-label="Adjuntar archivos"
-      onClick={pick}
+      // Solo el gesto explícito de esta zona abre el picker — no un click
+      // “fantasma” que burbujea desde la preview de video (portal React).
+      onClick={(e) => pick(e)}
       onKeyDown={onKeyDown}
       onDragEnter={(e) => {
         e.preventDefault();
@@ -86,12 +94,15 @@ export function AttachmentDropZone({
         (disabled || busy) && "pointer-events-none opacity-60",
       )}
     >
+      {/* `hidden` + pointer-events-none: el input no recibe clics; solo se abre vía pick(). */}
       <input
         ref={inputRef}
         type="file"
         multiple
-        className="sr-only"
+        tabIndex={-1}
+        className="pointer-events-none fixed h-0 w-0 opacity-0"
         disabled={disabled || busy}
+        onClick={(e) => e.stopPropagation()}
         onChange={(e) => {
           emit(e.target.files);
           e.target.value = "";

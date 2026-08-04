@@ -31,6 +31,8 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // v1 -> v17 (spec 042): Product.attachments. New field is optional/defaulted
     // in the Zod schema, so existing v1 records need no data transformation.
     { to: 17, up: (data) => data },
+    // v17 -> v18: sin cambio en products (bump compartido con checklist/project-types).
+    { to: 18, up: (data) => data },
   ],
   // v1 -> v2: added Sprints (spec 008). All new fields (`Project.sprints`,
   // `Project.quarterId`, `Task.sprintId`) are optional/defaulted in the Zod
@@ -65,6 +67,15 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // transformation. No project-level change happened at v11/v12/v13/v14/v15/v16
     // (those bumps came from `flows`-only changes in specs 024/025/026/027/032/033).
     { to: 17, up: (data) => data },
+    { to: 18, up: (data) => data },
+  ],
+  "checklist-templates": [
+    // v1 -> v18: ChecklistTemplate.attachments.
+    { to: 18, up: (data) => data },
+  ],
+  "project-types": [
+    // v1 -> v18: ProjectType.attachments.
+    { to: 18, up: (data) => data },
   ],
   // v7 -> v8 (spec 020): PollTrigger and the `email` output stopped embedding
   // credentials/proxy URLs per-flow and now reference a reusable
@@ -127,6 +138,12 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     { to: 15, up: (data) => data },
     { to: 16, up: (data) => data },
     { to: 17, up: (data) => data },
+    { to: 18, up: (data) => data },
+  ],
+  "process-templates": [
+    // v1/v17 -> v18: identity (attachments ya en 17; bump compartido).
+    { to: 17, up: (data) => data },
+    { to: 18, up: (data) => data },
   ],
 };
 

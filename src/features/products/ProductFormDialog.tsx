@@ -58,7 +58,11 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
       nameRef.current?.focus();
       return;
     }
-    const base = product ?? newProduct(name);
+    // No pisar anexos añadidos en el diálogo (viven en el store).
+    const live = product
+      ? useDataStore.getState().products.find((p) => p.id === product.id)
+      : undefined;
+    const base = live ?? product ?? newProduct(name);
     setSaving(true);
     try {
       await onSubmit({
@@ -68,6 +72,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
         vision,
         status,
         ownerId: ownerId || null,
+        attachments: live?.attachments ?? base.attachments ?? [],
       });
       onOpenChange(false);
     } catch {

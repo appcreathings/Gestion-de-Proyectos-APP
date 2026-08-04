@@ -241,7 +241,13 @@ describe("getAttachmentsFromState / withAttachments", () => {
         },
       ],
     });
-    const state = { projects: [project], products: [], processTemplates: [] };
+    const state = {
+      projects: [project],
+      products: [],
+      processTemplates: [],
+      checklistTemplates: [],
+      projectTypes: [],
+    };
     expect(
       getAttachmentsFromState(
         { type: "task", projectId: "p1", taskId: "t1" },

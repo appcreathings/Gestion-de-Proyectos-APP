@@ -4,7 +4,9 @@ export type AttachmentParent =
   | { type: "process"; projectId: string; processId: string }
   | { type: "task"; projectId: string; taskId: string }
   | { type: "product"; productId: string }
-  | { type: "processTemplate"; templateId: string };
+  | { type: "processTemplate"; templateId: string }
+  | { type: "checklistTemplate"; templateId: string }
+  | { type: "projectType"; typeId: string };
 
 export function safeFileBase(originalName: string): string {
   let name = originalName;
@@ -54,6 +56,10 @@ export function attachmentRelativePath(
       return `attachments/products/${parent.productId}/${filename}`;
     case "processTemplate":
       return `attachments/process-templates/${parent.templateId}/${filename}`;
+    case "checklistTemplate":
+      return `attachments/checklist-templates/${parent.templateId}/${filename}`;
+    case "projectType":
+      return `attachments/project-types/${parent.typeId}/${filename}`;
   }
 }
 

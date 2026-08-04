@@ -17,6 +17,7 @@ import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import type { Area, Person } from "@/domain/schemas";
 import { newArea } from "@/domain/factories";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { useDataStore } from "@/store/useDataStore";
 
 export const AREA_ICONS = [
   "folder",
@@ -74,10 +75,24 @@ export function AreaFormDialog({
       nameRef.current?.focus();
       return;
     }
-    const base = area ?? newArea(name, icon);
+    // Preservar anexos del store (addAttachment los escribe aparte del form).
+    let base = area ?? newArea(name, icon);
+    if (area && projectId) {
+      const liveArea = useDataStore
+        .getState()
+        .projects.find((p) => p.id === projectId)
+        ?.areas.find((a) => a.id === area.id);
+      if (liveArea) base = liveArea;
+    }
     setSaving(true);
     try {
-      await onSubmit({ ...base, name: name.trim(), icon, ownerId: ownerId || null });
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        icon,
+        ownerId: ownerId || null,
+        attachments: base.attachments ?? [],
+      });
       onOpenChange(false);
     } catch {
       // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.

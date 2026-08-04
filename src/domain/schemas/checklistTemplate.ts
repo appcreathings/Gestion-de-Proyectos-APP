@@ -16,6 +16,7 @@ export const ChecklistTemplateSchema = z.object({
   category: z.string().default(""),
   items: z.array(TemplateItemSchema).default([]),
   tags: z.array(z.string()).default([]),
+  attachments: z.array(AttachmentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

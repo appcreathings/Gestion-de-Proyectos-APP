@@ -34,6 +34,8 @@ import { cn, uuid } from "@/lib/utils";
 import type { ProcessTemplate } from "@/domain/schemas";
 import { newProcessTemplate } from "@/domain/factories";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { EMPTY_ATTACHMENTS } from "@/domain/attachments/ops";
+import { useDataStore } from "@/store/useDataStore";
 
 interface Step {
   id: string;
@@ -56,6 +58,15 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
   const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
+  // Anexos viven en el store. EMPTY estable — `?? []` re-crea array y crashea React.
+  const templateId = template?.id;
+  const liveAttachments = useDataStore((s) => {
+    if (!templateId) return EMPTY_ATTACHMENTS;
+    return (
+      s.processTemplates.find((t) => t.id === templateId)?.attachments ??
+      EMPTY_ATTACHMENTS
+    );
+  });
 
   useEffect(() => {
     if (open) {
@@ -65,7 +76,7 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
       setSteps(template?.steps ?? []);
       clear();
     }
-  }, [open, template, clear]);
+  }, [open, template?.id, clear]); // eslint-disable-line react-hooks/exhaustive-deps -- solo al abrir / cambiar plantilla
 
   async function submit() {
     const errs = validate(
@@ -76,7 +87,12 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
       nameRef.current?.focus();
       return;
     }
-    const base = template ?? newProcessTemplate(name);
+    // Preferir el snapshot del store para no pisar anexos añadidos en el diálogo.
+    const wasNew = !template;
+    const live = template
+      ? useDataStore.getState().processTemplates.find((t) => t.id === template.id)
+      : undefined;
+    const base = live ?? template ?? newProcessTemplate(name);
     setSaving(true);
     try {
       await onSubmit({
@@ -85,8 +101,11 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
         category,
         description,
         steps: steps.filter((s) => s.text.trim()),
+        attachments: live?.attachments ?? base.attachments ?? [],
       });
-      onOpenChange(false);
+      // Tras crear, el padre pasa a `editing = t` y re-renderiza con anexos.
+      // No cerramos: el usuario puede adjuntar de inmediato.
+      if (!wasNew) onOpenChange(false);
     } catch {
       // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
     } finally {
@@ -246,17 +265,21 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
               }
             }}
           />
-          {template && (
-            <div className="space-y-2">
+          {template ? (
+            <div className="space-y-2 border-t border-border pt-4">
               <AttachmentsSection
                 parent={{ type: "processTemplate", templateId: template.id }}
-                attachments={template.attachments ?? []}
+                attachments={liveAttachments}
               />
               <p className="text-[11px] text-muted-foreground">
-                Los anexos de la plantilla no se copian al instanciar un proyecto: la plantilla
-                sigue siendo la fuente de referencia.
+                Los anexos se guardan al adjuntarlos (no hace falta pulsar Guardar). No se
+                copian al instanciar un proyecto: la plantilla sigue siendo la fuente.
               </p>
             </div>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">
+              Guardá la plantilla primero para poder adjuntar archivos de referencia.
+            </p>
           )}
         </DialogBody>
         <DialogFooter>

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Id, IsoDate, ProjectStatus, SCHEMA_VERSION } from "./common";
+import { AttachmentSchema } from "./attachment";
 
 export const DefaultAreaSchema = z.object({
   name: z.string(),
@@ -24,6 +25,7 @@ export const ProjectTypeSchema = z.object({
   ]),
   defaultAreas: z.array(DefaultAreaSchema).default([]),
   defaultAutomationIds: z.array(Id).default([]),
+  attachments: z.array(AttachmentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

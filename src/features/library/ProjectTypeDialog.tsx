@@ -24,6 +24,9 @@ import type {
   ProjectType,
 } from "@/domain/schemas";
 import { newProjectType } from "@/domain/factories";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { EMPTY_ATTACHMENTS } from "@/domain/attachments/ops";
+import { useDataStore } from "@/store/useDataStore";
 
 interface Props {
   open: boolean;
@@ -48,6 +51,11 @@ export function ProjectTypeDialog({
   const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
+  const typeId = type?.id;
+  const liveAttachments = useDataStore((s) => {
+    if (!typeId) return EMPTY_ATTACHMENTS;
+    return s.projectTypes.find((t) => t.id === typeId)?.attachments ?? EMPTY_ATTACHMENTS;
+  });
 
   useEffect(() => {
     if (open) {
@@ -56,7 +64,7 @@ export function ProjectTypeDialog({
       setAreas(type?.defaultAreas ?? []);
       clear();
     }
-  }, [open, type, clear]);
+  }, [open, type?.id, clear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function addArea() {
     setAreas((s) => [
@@ -89,7 +97,11 @@ export function ProjectTypeDialog({
       nameRef.current?.focus();
       return;
     }
-    const base = type ?? newProjectType(name);
+    const wasNew = !type;
+    const live = type
+      ? useDataStore.getState().projectTypes.find((t) => t.id === type.id)
+      : undefined;
+    const base = live ?? type ?? newProjectType(name);
     setSaving(true);
     try {
       await onSubmit({
@@ -97,8 +109,9 @@ export function ProjectTypeDialog({
         name: name.trim(),
         description,
         defaultAreas: areas.filter((a) => a.name.trim()),
+        attachments: live?.attachments ?? base.attachments ?? [],
       });
-      onOpenChange(false);
+      if (!wasNew) onOpenChange(false);
     } catch {
       // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
     } finally {
@@ -215,6 +228,22 @@ export function ProjectTypeDialog({
               }
             }}
           />
+          {type ? (
+            <div className="space-y-2 border-t border-border pt-4">
+              <AttachmentsSection
+                parent={{ type: "projectType", typeId: type.id }}
+                attachments={liveAttachments}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Los anexos se guardan al adjuntarlos. Son material de referencia del tipo (no se
+                copian a cada proyecto instanciado).
+              </p>
+            </div>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">
+              Guardá el tipo primero para poder adjuntar archivos.
+            </p>
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Download,
+  Eye,
   FileArchive,
   FileImage,
   FileText,
@@ -35,6 +36,7 @@ interface Props {
   thumbUrl?: string | null;
   busy?: boolean;
   onDownload: () => void;
+  onPreview: () => void;
   onRemove: () => void;
   onUpdateDescription: (description: string) => void;
 }
@@ -44,6 +46,7 @@ export function AttachmentRow({
   thumbUrl,
   busy,
   onDownload,
+  onPreview,
   onRemove,
   onUpdateDescription,
 }: Props) {
@@ -76,22 +79,31 @@ export function AttachmentRow({
         busy && "opacity-70",
       )}
     >
-      <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
+      <button
+        type="button"
+        onClick={onPreview}
+        disabled={busy}
+        className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={`Vista previa de ${attachment.name}`}
+        title="Vista previa"
+      >
         {attachment.kind === "image" && thumbUrl ? (
-          <img
-            src={thumbUrl}
-            alt=""
-            className="size-full object-cover"
-          />
+          <img src={thumbUrl} alt="" className="size-full object-cover" />
         ) : (
           <Icon className="size-4 text-muted-foreground" aria-hidden />
         )}
-      </div>
+      </button>
 
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="truncate text-sm font-medium leading-tight" title={attachment.name}>
+        <button
+          type="button"
+          onClick={onPreview}
+          disabled={busy}
+          className="block w-full truncate text-left text-sm font-medium leading-tight hover:underline"
+          title={attachment.name}
+        >
           {attachment.name}
-        </p>
+        </button>
         <p className="text-[10px] text-muted-foreground">
           {formatBytes(attachment.size)} · {dateLabel}
         </p>
@@ -140,13 +152,17 @@ export function AttachmentRow({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onDownload}>
+          <DropdownMenuItem onClick={onPreview} className="gap-2">
+            <Eye className="size-4" />
+            Vista previa
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onDownload} className="gap-2">
             <Download className="size-4" />
             Descargar
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={onRemove}
-            className="text-destructive focus:text-destructive"
+            className="gap-2 text-destructive focus:text-destructive"
           >
             <Trash2 className="size-4" />
             Eliminar

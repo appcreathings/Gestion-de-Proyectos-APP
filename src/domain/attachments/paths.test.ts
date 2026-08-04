@@ -78,6 +78,22 @@ describe("attachmentRelativePath", () => {
     expect(path).toBe(`attachments/projects/${projectId}/processes/${processId}/${attachmentId}__${safeBase}.${ext}`);
   });
 
+  it("checklistTemplate parent genera ruta correcta", () => {
+    const parent: AttachmentParent = { type: "checklistTemplate", templateId };
+    const path = attachmentRelativePath(parent, attachmentId, safeBase, ext);
+    expect(path).toBe(
+      `attachments/checklist-templates/${templateId}/${attachmentId}__${safeBase}.${ext}`,
+    );
+  });
+
+  it("projectType parent genera ruta correcta", () => {
+    const parent: AttachmentParent = { type: "projectType", typeId: "type-1" };
+    const path = attachmentRelativePath(parent, attachmentId, safeBase, ext);
+    expect(path).toBe(
+      `attachments/project-types/type-1/${attachmentId}__${safeBase}.${ext}`,
+    );
+  });
+
   it("task parent genera ruta correcta", () => {
     const parent: AttachmentParent = { type: "task", projectId, taskId };
     const path = attachmentRelativePath(parent, attachmentId, safeBase, ext);

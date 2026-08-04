@@ -120,7 +120,15 @@ export class DownloadAdapter implements StorageAdapter {
 
   async writeBlob(relativePath: string, data: Blob | ArrayBuffer | Uint8Array): Promise<void> {
     assertSafeAttachmentPath(relativePath);
-    await idbSet(BLOB_KEY(relativePath), data);
+    // Siempre Blob: al releer desde IDB hace falta instancia real para
+    // createObjectURL y para que <video>/<audio> vean un type usable.
+    const blob =
+      data instanceof Blob
+        ? data
+        : data instanceof Uint8Array
+          ? new Blob([data.slice()])
+          : new Blob([new Uint8Array(data)]);
+    await idbSet(BLOB_KEY(relativePath), blob);
     const index = await idbGet<string[]>(BLOB_INDEX) ?? [];
     if (!index.includes(relativePath)) {
       await idbSet(BLOB_INDEX, [...index, relativePath]);
@@ -129,9 +137,17 @@ export class DownloadAdapter implements StorageAdapter {
 
   async readBlob(relativePath: string): Promise<Blob> {
     assertSafeAttachmentPath(relativePath);
-    const data = await idbGet<Blob>(BLOB_KEY(relativePath));
-    if (!data) throw new Error(`Blob no encontrado: ${relativePath}`);
-    return data;
+    const data = await idbGet<unknown>(BLOB_KEY(relativePath));
+    if (data == null) throw new Error(`Blob no encontrado: ${relativePath}`);
+    if (data instanceof Blob) return data;
+    if (data instanceof ArrayBuffer) return new Blob([new Uint8Array(data)]);
+    if (ArrayBuffer.isView(data)) {
+      const view = data as ArrayBufferView;
+      return new Blob([
+        new Uint8Array(view.buffer, view.byteOffset, view.byteLength).slice(),
+      ]);
+    }
+    throw new Error(`Blob inválido: ${relativePath}`);
   }
 
   async removeBlob(relativePath: string): Promise<void> {

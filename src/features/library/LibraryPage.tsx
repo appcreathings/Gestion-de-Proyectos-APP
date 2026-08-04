@@ -140,6 +140,8 @@ function ChecklistTemplatesTab() {
               >
                 <p className="text-sm text-muted-foreground">
                   {t.items.length} {t.items.length === 1 ? "ítem" : "ítems"}
+                  {(t.attachments?.length ?? 0) > 0 &&
+                    ` · ${t.attachments!.length} anexo${t.attachments!.length === 1 ? "" : "s"}`}
                 </p>
               </EntityCard>
             ))}
@@ -155,9 +157,22 @@ function ChecklistTemplatesTab() {
 
       <ChecklistTemplateDialog
         open={open}
-        onOpenChange={setOpen}
-        template={editing}
-        onSubmit={(t) => (editing ? update(t) : create(t))}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) setEditing(undefined);
+        }}
+        template={
+          editing
+            ? (templates.find((t) => t.id === editing.id) ?? editing)
+            : undefined
+        }
+        onSubmit={async (t) => {
+          if (editing) await update(t);
+          else await create(t);
+          setEditing(
+            useDataStore.getState().checklistTemplates.find((x) => x.id === t.id) ?? t,
+          );
+        }}
       />
       <ConfirmDialog
         open={!!toDelete}
@@ -229,6 +244,8 @@ function ProcessTemplatesTab() {
               >
                 <p className="text-sm text-muted-foreground">
                   {t.steps.length} {t.steps.length === 1 ? "paso" : "pasos"}
+                  {(t.attachments?.length ?? 0) > 0 &&
+                    ` · ${t.attachments!.length} anexo${t.attachments!.length === 1 ? "" : "s"}`}
                 </p>
               </EntityCard>
             ))}
@@ -244,9 +261,25 @@ function ProcessTemplatesTab() {
 
       <ProcessTemplateDialog
         open={open}
-        onOpenChange={setOpen}
-        template={editing}
-        onSubmit={(t) => (editing ? update(t) : create(t))}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) setEditing(undefined);
+        }}
+        // Siempre el objeto vivo del store (no el snapshot al abrir editar).
+        template={
+          editing
+            ? (templates.find((t) => t.id === editing.id) ?? editing)
+            : undefined
+        }
+        onSubmit={async (t) => {
+          if (editing) {
+            await update(t);
+          } else {
+            await create(t);
+          }
+          // Mantener la plantilla viva del store (con anexos) en el form abierto.
+          setEditing(useDataStore.getState().processTemplates.find((x) => x.id === t.id) ?? t);
+        }}
       />
       <ConfirmDialog
         open={!!toDelete}
@@ -336,6 +369,8 @@ function TypesTab() {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <LayoutGrid className="size-4" />
                   {t.defaultAreas.length} {t.defaultAreas.length === 1 ? "área" : "áreas"}
+                  {(t.attachments?.length ?? 0) > 0 &&
+                    ` · ${t.attachments!.length} anexo${t.attachments!.length === 1 ? "" : "s"}`}
                 </div>
                 {t.defaultAreas.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
@@ -361,11 +396,22 @@ function TypesTab() {
 
       <ProjectTypeDialog
         open={open}
-        onOpenChange={setOpen}
-        type={editing}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) setEditing(undefined);
+        }}
+        type={
+          editing ? (types.find((t) => t.id === editing.id) ?? editing) : undefined
+        }
         checklistTemplates={checklistTemplates}
         processTemplates={processTemplates}
-        onSubmit={(t) => (editing ? update(t) : create(t))}
+        onSubmit={async (t) => {
+          if (editing) await update(t);
+          else await create(t);
+          setEditing(
+            useDataStore.getState().projectTypes.find((x) => x.id === t.id) ?? t,
+          );
+        }}
       />
       <ConfirmDialog
         open={!!toDelete}

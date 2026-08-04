@@ -33,6 +33,9 @@ import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { ChecklistTemplate, TemplateItem } from "@/domain/schemas";
 import { newChecklistTemplate } from "@/domain/factories";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { EMPTY_ATTACHMENTS } from "@/domain/attachments/ops";
+import { useDataStore } from "@/store/useDataStore";
 
 interface Props {
   open: boolean;
@@ -49,6 +52,14 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
   const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const { errors, validate, clear } = useFieldErrors();
+  const templateId = template?.id;
+  const liveAttachments = useDataStore((s) => {
+    if (!templateId) return EMPTY_ATTACHMENTS;
+    return (
+      s.checklistTemplates.find((t) => t.id === templateId)?.attachments ??
+      EMPTY_ATTACHMENTS
+    );
+  });
 
   useEffect(() => {
     if (open) {
@@ -58,7 +69,7 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
       setDraft("");
       clear();
     }
-  }, [open, template, clear]);
+  }, [open, template?.id, clear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function addItem() {
     if (!draft.trim()) return;
@@ -75,11 +86,22 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
       nameRef.current?.focus();
       return;
     }
-    const base = template ?? newChecklistTemplate(name);
+    const wasNew = !template;
+    const live = template
+      ? useDataStore.getState().checklistTemplates.find((t) => t.id === template.id)
+      : undefined;
+    const base = live ?? template ?? newChecklistTemplate(name);
     setSaving(true);
     try {
-      await onSubmit({ ...base, name: name.trim(), category, items });
-      onOpenChange(false);
+      await onSubmit({
+        ...base,
+        name: name.trim(),
+        category,
+        items,
+        attachments: live?.attachments ?? base.attachments ?? [],
+      });
+      // Tras crear, el padre deja la plantilla en edición para adjuntar archivos.
+      if (!wasNew) onOpenChange(false);
     } catch {
       // El error ya se anuncia por el toast de Fase B; dejamos el diálogo abierto.
     } finally {
@@ -239,6 +261,21 @@ export function ChecklistTemplateDialog({ open, onOpenChange, template, onSubmit
               }
             }}
           />
+          {template ? (
+            <div className="space-y-2 border-t border-border pt-4">
+              <AttachmentsSection
+                parent={{ type: "checklistTemplate", templateId: template.id }}
+                attachments={liveAttachments}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Los anexos se guardan al adjuntarlos. No se copian al aplicar la plantilla a un área.
+              </p>
+            </div>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">
+              Guardá la plantilla primero para poder adjuntar archivos.
+            </p>
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

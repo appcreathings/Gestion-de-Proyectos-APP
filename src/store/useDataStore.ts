@@ -361,6 +361,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       async () => {
         await adapter().remove("checklist-templates", id);
         await reindex();
+        await adapter()
+          .removeBlobTree(
+            attachmentTreePrefix({ type: "checklistTemplate", templateId: id }),
+          )
+          .catch(() => undefined);
       },
     );
   },
@@ -448,6 +453,9 @@ export const useDataStore = create<DataState>((set, get) => ({
       async () => {
         await adapter().remove("project-types", id);
         await reindex();
+        await adapter()
+          .removeBlobTree(attachmentTreePrefix({ type: "projectType", typeId: id }))
+          .catch(() => undefined);
       },
     );
   },
@@ -682,20 +690,35 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 }));
 
-/** Persiste la lista de anexos del parent (muta project / product / process-template). */
+/** Persiste la lista de anexos del parent (muta la entidad contenedora). */
 async function applyAttachmentList(
   parent: AttachmentParent,
   nextAttachments: Attachment[],
 ) {
   const state = useDataStore.getState();
   const now = nowIso();
-  const result = withAttachments(parent, nextAttachments, state, now);
+  const result = withAttachments(
+    parent,
+    nextAttachments,
+    {
+      projects: state.projects,
+      products: state.products,
+      processTemplates: state.processTemplates,
+      checklistTemplates: state.checklistTemplates,
+      projectTypes: state.projectTypes,
+    },
+    now,
+  );
   if (result.kind === "project") {
     await useDataStore.getState().saveProject(result.project);
   } else if (result.kind === "product") {
     await useDataStore.getState().updateProduct(result.product);
-  } else {
+  } else if (result.kind === "processTemplate") {
     await useDataStore.getState().updateProcessTemplate(result.template);
+  } else if (result.kind === "checklistTemplate") {
+    await useDataStore.getState().updateChecklistTemplate(result.template);
+  } else {
+    await useDataStore.getState().updateProjectType(result.projectType);
   }
 }
 
