@@ -332,7 +332,7 @@ export function DeliveryDetailDrawer({ log, onClose }: Props) {
           description="Se enviará de nuevo el body firmado al destino. Es una llamada real al webhook."
           confirmLabel="Reenviar"
           confirmVariant="default"
-          onConfirm={() => void handleReplay()}
+          onConfirm={handleReplay}
         />
       </div>
     </div>

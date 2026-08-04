@@ -302,7 +302,7 @@ function DemoDataCard() {
         description="Se borrarán todos los datos de este navegador. No se puede deshacer."
         confirmLabel="Vaciar y empezar de cero"
         confirmVariant="destructive"
-        onConfirm={() => void clearWorkspace()}
+        onConfirm={clearWorkspace}
       />
     </Panel>
   );

@@ -149,7 +149,7 @@ function NotificationsContent() {
         title="Limpiar notificaciones"
         description="Se eliminarán todas las notificaciones. Esta acción no se puede deshacer."
         confirmLabel="Limpiar"
-        onConfirm={() => void clearAll()}
+        onConfirm={clearAll}
       />
     </div>
   );

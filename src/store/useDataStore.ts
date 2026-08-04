@@ -578,7 +578,10 @@ export const useDataStore = create<DataState>((set, get) => ({
 }));
 
 /** Low-level project write (no automations) used by saves and engine effects. */
-async function persistProject(p: Project) {
+async function persistProject(
+  p: Project,
+  options?: { alreadyTriggeredAutomations?: boolean },
+) {
   const s = useDataStore.getState();
   const prev = s.projects;
   const next = prev.some((x) => x.id === p.id)
@@ -594,6 +597,7 @@ async function persistProject(p: Project) {
       await adapter().write("projects", p);
       await reindex();
     },
+    options,
   );
 }
 
@@ -647,7 +651,10 @@ async function applyFlowResult(
 ) {
   const s = useDataStore.getState();
   for (const p of flowResult.changedProjects) {
-    await persistProject({ ...p, updatedAt: nowIso() });
+    await persistProject(
+      { ...p, updatedAt: nowIso() },
+      { alreadyTriggeredAutomations: true },
+    );
   }
   // `createProject` (no `persistProject`/`saveProject`): dispara el evento
   // `project.created` + registro de actividad + webhooks salientes, igual
@@ -839,7 +846,10 @@ async function runAutomations(events: DomainEvent[]) {
     checklistTemplates: s.checklistTemplates,
   });
   for (const p of changedProjects) {
-    await persistProject({ ...p, updatedAt: nowIso() });
+    await persistProject(
+      { ...p, updatedAt: nowIso() },
+      { alreadyTriggeredAutomations: true },
+    );
   }
   if (notifications.length > 0) await s.addNotifications(notifications);
 

@@ -158,8 +158,8 @@ function ProjectDetailContent({ projectId }: { projectId: string }) {
         onOpenChange={setConfirmDelete}
         title={`¿Eliminar "${project.name}"?`}
         description="Se eliminará el proyecto y todo su contenido (áreas, procesos, checklists y tareas)."
-        onConfirm={() => {
-          void deleteProject(project.id);
+        onConfirm={async () => {
+          await deleteProject(project.id);
           navigate(ROUTES.projects);
         }}
       />

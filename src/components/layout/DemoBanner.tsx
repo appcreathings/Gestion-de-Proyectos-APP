@@ -57,7 +57,7 @@ export function DemoBanner() {
         description="Se borrarán todos los datos de ejemplo (y cualquier cambio que hayas hecho) de este navegador. No se puede deshacer."
         confirmLabel="Vaciar y empezar de cero"
         confirmVariant="destructive"
-        onConfirm={() => void clearWorkspace()}
+        onConfirm={clearWorkspace}
       />
     </>
   );
