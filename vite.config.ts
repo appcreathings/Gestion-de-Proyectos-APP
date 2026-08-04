@@ -14,6 +14,7 @@ export default defineConfig({
       hostname: "https://hito.autos",
       dynamicRoutes: [
         "/docs",
+        "/releases",
         "/changelog",
         "/alternativa-trello",
         "/alternativa-notion-local",
@@ -61,6 +62,7 @@ export default defineConfig({
         navigateFallbackDenylist: [
           /^\/blogs/,
           /^\/docs/,
+          /^\/releases/,
           /^\/changelog/,
           /^\/alternativa-trello/,
           /^\/alternativa-notion-local/,

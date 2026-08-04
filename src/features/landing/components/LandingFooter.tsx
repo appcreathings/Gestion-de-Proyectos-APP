@@ -28,6 +28,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "Blog", to: "/blogs" },
       { label: "Documentación", href: DOCS_URL, external: true },
+      { label: "Releases y roadmap", to: "/releases" },
       { label: "Código fuente", href: GITHUB_URL, external: true },
       { label: "Reportar issue", href: `${GITHUB_URL}/issues/new`, external: true },
     ],

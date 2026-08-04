@@ -12,6 +12,7 @@ const NAV_LINKS: { label: string; to: string }[] = [
   { to: "/#uso", label: "Casos de uso" },
   { to: "/#faq", label: "FAQ" },
   { to: "/blogs", label: "Blog" },
+  { to: "/releases", label: "Releases" },
 ];
 
 export function LandingNav() {

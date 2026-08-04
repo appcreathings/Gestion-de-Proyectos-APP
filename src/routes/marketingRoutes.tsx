@@ -21,8 +21,10 @@ const GestorOfflinePage = lazy(() =>
     default: m.GestorOfflinePage,
   })),
 );
-const ChangelogPage = lazy(() =>
-  import("@/features/seo/ChangelogPage").then((m) => ({ default: m.ChangelogPage })),
+const ReleasesPage = lazy(() =>
+  import("@/features/releases/ReleasesPage").then((m) => ({
+    default: m.ReleasesPage,
+  })),
 );
 const DocsIndexPage = lazy(() =>
   import("@/features/docs/pages/DocsIndexPage").then((m) => ({ default: m.DocsIndexPage })),
@@ -75,7 +77,9 @@ export const marketingRoutes: RouteObject[] = [
   { path: "/alternativa-trello", element: page(<AlternativaTrelloPage />) },
   { path: "/alternativa-notion-local", element: page(<AlternativaNotionPage />) },
   { path: "/gestor-proyectos-offline", element: page(<GestorOfflinePage />) },
-  { path: "/changelog", element: page(<ChangelogPage />) },
+  { path: "/releases", element: page(<ReleasesPage />) },
+  // Renombre público: el changelog vivía en /changelog; conserva bookmarks y SEO.
+  { path: "/changelog", element: <Navigate to="/releases" replace /> },
   { path: "/docs", element: page(<DocsIndexPage />) },
   { path: "/docs/:slug", element: page(<DocModulePage />) },
   { path: "/blogs", element: page(<BlogIndexPage />) },

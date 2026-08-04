@@ -25,7 +25,7 @@ const GENERIC_ROUTES = [
   "/alternativa-trello",
   "/alternativa-notion-local",
   "/gestor-proyectos-offline",
-  "/changelog",
+  "/releases",
   "/docs",
   "/blogs",
   ...DOC_SLUGS.map((slug) => `/docs/${slug}`),

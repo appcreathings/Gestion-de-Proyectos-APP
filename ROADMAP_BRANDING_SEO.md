@@ -17,7 +17,7 @@
 | Color accent verde esmeralda | ✅ | `--brand-accent` en `src/index.css` + `tailwind.config.js`. |
 | CTA sticky post-Hero | ✅ | `src/features/landing/components/StickyCta.tsx`. |
 | TrustBadges "construido en público" | ✅ | `src/features/landing/components/TrustBadges.tsx`. |
-| Páginas satélite SEO | ✅ | `/alternativa-trello`, `/alternativa-notion-local`, `/gestor-proyectos-offline`, `/changelog`, `/docs`. |
+| Páginas satélite SEO | ✅ | `/alternativa-trello`, `/alternativa-notion-local`, `/gestor-proyectos-offline`, `/releases` (antes `/changelog`), `/docs`. |
 | Sitemap ampliado | ✅ | `public/sitemap.xml`. |
 | `Reveal` respeta `prefers-reduced-motion` | ✅ | ya estaba bien implementado. |
 | Typecheck | ✅ | `tsc --noEmit` limpio. |
