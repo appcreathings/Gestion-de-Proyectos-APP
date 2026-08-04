@@ -3,8 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,6 +23,10 @@ interface ConfirmDialogProps {
   onConfirm: () => void | Promise<void>;
 }
 
+/**
+ * Aviso corto de confirmación. Layout propio (sin DialogHeader/Footer de
+ * formulario) para que el alto siga solo a título + texto + botones.
+ */
 export function ConfirmDialog({
   open,
   onOpenChange,
@@ -51,19 +53,37 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-            Cancelar
-          </Button>
-          <Button variant={confirmVariant} pending={pending} onClick={handleConfirm}>
-            {confirmLabel}
-          </Button>
-        </DialogFooter>
+      <DialogContent
+        size="sm"
+        className="w-[min(100%,22rem)] max-w-sm gap-0 p-0"
+        description={description}
+      >
+        <div className="flex flex-col gap-3 p-4 sm:p-5">
+          <div className="space-y-1.5 pr-6">
+            <DialogTitle className="text-base leading-snug">{title}</DialogTitle>
+            {description && (
+              <DialogDescription className="text-sm leading-relaxed">{description}</DialogDescription>
+            )}
+          </div>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={pending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              variant={confirmVariant}
+              pending={pending}
+              onClick={handleConfirm}
+            >
+              {confirmLabel}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -10,16 +10,16 @@ const DialogClose = DialogPrimitive.Close;
 type DialogSize = "sm" | "md" | "lg" | "xl" | "full";
 
 /**
- * Tope de caja del diálogo. sm/md/lg (resto de la app) se alinean al confort
- * de trabajo de xl (flows): buen ancho + altura útil sin ir a fullscreen.
- * - sm: confirmaciones y formularios cortos — más aire que un alert, sin min-h.
- * - md/lg: formularios de entidad; lg un poco por encima de xl.
+ * Tope de caja del diálogo.
+ * - sm: confirmaciones y avisos cortos — crece con el contenido, sin min-h ni
+ *   ancho de formulario (si no, "¿Descartar?" se ve con un mar de vacío).
+ * - md/lg: formularios de entidad; confort de trabajo similar a xl (flows).
  * - xl: config de nodos en el canvas.
  * - full: altura fija al viewport.
  */
 const DIALOG_SIZE: Record<DialogSize, string> = {
-  sm: "sm:max-h-[85vh] md:max-w-2xl",
-  // Similar a flows (xl): ~68–88vh y max-w-5xl.
+  // h-auto: el alto sigue al contenido (crítico en confirms sin DialogBody).
+  sm: "h-auto max-h-[70vh] sm:max-w-md",
   md: "sm:min-h-[68vh] sm:max-h-[88vh] sm:w-[calc(100vw-3rem)] md:max-w-5xl",
   lg: "sm:min-h-[72vh] sm:max-h-[90vh] sm:w-[calc(100vw-2rem)] md:max-w-6xl",
   xl: "sm:min-h-[68vh] sm:max-h-[88vh] sm:w-[calc(100vw-3rem)] md:max-w-5xl",
@@ -52,10 +52,12 @@ const DialogContent = React.forwardRef<
         ref={ref}
         className={cn(
           "fixed z-50 flex w-full flex-col overflow-hidden border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          // Móvil (< sm): hoja inferior, max-h-99vh. sm:+ la base no impone
-          // altura — cada `size` decide su max-h / h, y `full` reproduce el
-          // comportamiento anterior (CA-03.1, CA-03.4).
-          "bottom-0 left-0 right-0 top-auto max-h-[99vh] rounded-t-xl sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl",
+          // Móvil (< sm): hoja inferior (bottom-0 + left/right 0).
+          // Desktop (sm+): centrado. CRÍTICO: resetear bottom/right — si
+          // quedan `bottom-0`+`top-1/2` (o `right-0`+`left-1/2`), CSS calcula
+          // la caja por anclajes opuestos y el diálogo queda ~50vh de alto
+          // con un mar de vacío (p. ej. ConfirmDialog "¿Descartar?").
+          "bottom-0 left-0 right-0 top-auto max-h-[99vh] rounded-t-xl sm:bottom-auto sm:right-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl",
           DIALOG_SIZE[size],
           className,
         )}

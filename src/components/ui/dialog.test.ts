@@ -7,7 +7,7 @@ describe("DIALOG_SIZE", () => {
     /** Fragmentos de clase que deben aparecer para este tamaño. */
     contains: string[];
   }> = [
-    { size: "sm", contains: ["sm:max-h-[85vh]", "md:max-w-2xl"] },
+    { size: "sm", contains: ["h-auto", "max-h-[70vh]", "sm:max-w-md"] },
     {
       size: "md",
       contains: ["sm:min-h-[68vh]", "sm:max-h-[88vh]", "md:max-w-5xl"],
@@ -33,11 +33,12 @@ describe("DIALOG_SIZE", () => {
     }
   });
 
-  it("todos los tamaños usan max-h o h (nunca quedan sin tope de altura en sm:+)", () => {
+  it("todos los tamaños usan max-h o h (nunca quedan sin tope de altura)", () => {
     for (const size of Object.keys(DIALOG_SIZE) as DialogSize[]) {
       const cls = DIALOG_SIZE[size];
-      const hasHeightCap = /sm:(max-h-|h-)/.test(cls);
-      expect(hasHeightCap, `size ${size} no define tope de altura en sm:+`).toBe(true);
+      // sm usa max-h sin prefijo; el resto suele usar sm:max-h / sm:h / sm:min-h+max-h.
+      const hasHeightCap = /(^|\s)(sm:)?(max-h-|min-h-|h-)/.test(cls);
+      expect(hasHeightCap, `size ${size} no define tope de altura`).toBe(true);
     }
   });
 
