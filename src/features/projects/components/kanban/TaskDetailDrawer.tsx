@@ -358,10 +358,12 @@ export function TaskDetailDrawer({
         aria-label={`Detalle de tarea: ${task.title}`}
         style={{ width: drawerWidth }}
         className={cn(
+          // Solid bg-background only: full-panel red/amber tints (esp. dark:/20)
+          // wash through the form and make fields hard to read.
           "fixed inset-y-0 right-0 z-50 flex w-full max-w-[800px] flex-col border-l bg-background shadow-lg transition-transform duration-200 ease-out md:max-w-none",
           isBlocked && "border-l-4 border-l-red-500",
-          overdue && "bg-red-50 dark:bg-red-950/20",
-          dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
+          !isBlocked && overdue && "border-l-4 border-l-red-500",
+          !isBlocked && dueSoon && !overdue && "border-l-4 border-l-amber-500",
         )}
       >
         <div
@@ -372,11 +374,28 @@ export function TaskDetailDrawer({
           }}
           aria-hidden="true"
         />
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <span className="text-xs text-muted-foreground">
-            {taskStatusLabel[task.status]}
-          </span>
-          <Button variant="ghost" size="icon" className="size-8" onClick={onClose}>
+        <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {taskStatusLabel[task.status]}
+            </span>
+            {overdue && (
+              <Badge variant="destructive" className="text-[11px] leading-tight px-1.5 py-0.5">
+                {d !== null && d < 0
+                  ? `Vencida hace ${Math.abs(d)} día${Math.abs(d) === 1 ? "" : "s"}`
+                  : "Vencida"}
+              </Badge>
+            )}
+            {dueSoon && !overdue && (
+              <Badge
+                variant="outline"
+                className="border-amber-500/50 bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100 text-[11px] leading-tight px-1.5 py-0.5"
+              >
+                {d === 0 ? "Vence hoy" : `Vence en ${d} día${d === 1 ? "" : "s"}`}
+              </Badge>
+            )}
+          </div>
+          <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={onClose}>
             <X className="size-4" />
           </Button>
         </div>

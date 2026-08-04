@@ -1515,8 +1515,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1785822452.7967014,
-    "ast_hash": "6ae64242235d36f73f244e7a2e7d2bd1",
+    "mtime": 1785884271.61665,
+    "ast_hash": "8db24c3fa7dbd419594852b7082e0a6b",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -2165,9 +2165,9 @@
     "semantic_hash": "b84a00cad3da1546ce9db508961f650b"
   },
   "vercel.json": {
-    "mtime": 1783247694.8619177,
-    "ast_hash": "3c46083a52f2594714939992411ef98b",
-    "semantic_hash": "3c46083a52f2594714939992411ef98b"
+    "mtime": 1785866663.268041,
+    "ast_hash": "7bed6822baa1ab81ce76044222cb68ce",
+    "semantic_hash": ""
   },
   "vite.config.ts": {
     "mtime": 1785866589.468336,
@@ -3105,28 +3105,33 @@
     "semantic_hash": ""
   },
   "src/features/releases/ReleasesPage.tsx": {
-    "mtime": 1785866589.4472167,
-    "ast_hash": "4bcc766d877e91d29aa7e39added3448",
+    "mtime": 1785868236.9132142,
+    "ast_hash": "f36666511c434600610055393165f68b",
     "semantic_hash": ""
   },
   "src/features/releases/data/index.ts": {
-    "mtime": 1785866545.4628491,
-    "ast_hash": "e8ef0fe55ef458eb25dbd1aa591d5fbc",
+    "mtime": 1785868236.848999,
+    "ast_hash": "453ce4ec24158708f1004a5f748b08b9",
     "semantic_hash": ""
   },
   "src/features/releases/data/releases.ts": {
-    "mtime": 1785866545.4628491,
-    "ast_hash": "ab418a0dab331b7b84271355ebb23dfc",
+    "mtime": 1785868256.1571827,
+    "ast_hash": "2d4f9e438bf3d5ed7eb49ec3cc34f3ea",
     "semantic_hash": ""
   },
   "src/features/releases/data/roadmap.ts": {
-    "mtime": 1785866545.461848,
-    "ast_hash": "51b5a83f2a5c7141aaf14f5c3e93bd4a",
+    "mtime": 1785868185.4581096,
+    "ast_hash": "5f45bf6779992d5907faa9352b7bbdec",
     "semantic_hash": ""
   },
   "src/features/releases/types.ts": {
     "mtime": 1785866545.461848,
     "ast_hash": "efaaf54553f2928a6aeb3165caaccdaf",
+    "semantic_hash": ""
+  },
+  "src/features/releases/data/capabilities.ts": {
+    "mtime": 1785868236.848999,
+    "ast_hash": "0a065c3a67c3f1201d84014e3c72f663",
     "semantic_hash": ""
   }
 }
