@@ -80,7 +80,7 @@ export function AssistantPanel() {
         className={cn(
           "relative flex flex-col overflow-hidden",
           isDesktop
-            ? "w-[400px] shrink-0 border-l bg-card"
+            ? "w-[400px] shrink-0 border-l bg-card z-50"
             : "fixed inset-0 z-50 border-0 bg-card",
         )}
       >
