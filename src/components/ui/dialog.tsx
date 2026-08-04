@@ -7,13 +7,23 @@ const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
 const DialogClose = DialogPrimitive.Close;
 
-type DialogSize = "sm" | "md" | "lg" | "full";
+type DialogSize = "sm" | "md" | "lg" | "xl" | "full";
 
+/**
+ * Tope de caja del diálogo. sm/md/lg (resto de la app) se alinean al confort
+ * de trabajo de xl (flows): buen ancho + altura útil sin ir a fullscreen.
+ * - sm: confirmaciones y formularios cortos — más aire que un alert, sin min-h.
+ * - md/lg: formularios de entidad; lg un poco por encima de xl.
+ * - xl: config de nodos en el canvas.
+ * - full: altura fija al viewport.
+ */
 const DIALOG_SIZE: Record<DialogSize, string> = {
-  sm: "sm:max-h-[70vh] md:max-w-md",
-  md: "sm:max-h-[85vh] md:max-w-2xl",
-  lg: "sm:max-h-[90vh] md:max-w-4xl",
-  full: "sm:h-[99vh] md:h-[99vh] lg:h-[99vh] md:max-w-5xl",
+  sm: "sm:max-h-[85vh] md:max-w-2xl",
+  // Similar a flows (xl): ~68–88vh y max-w-5xl.
+  md: "sm:min-h-[68vh] sm:max-h-[88vh] sm:w-[calc(100vw-3rem)] md:max-w-5xl",
+  lg: "sm:min-h-[72vh] sm:max-h-[90vh] sm:w-[calc(100vw-2rem)] md:max-w-6xl",
+  xl: "sm:min-h-[68vh] sm:max-h-[88vh] sm:w-[calc(100vw-3rem)] md:max-w-5xl",
+  full: "sm:h-[99vh] md:h-[99vh] lg:h-[99vh] sm:w-[calc(100vw-1rem)] md:max-w-[min(96rem,calc(100vw-1rem))]",
 } as const;
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
@@ -90,13 +100,24 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = "DialogOverlay";
 
 function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex shrink-0 flex-col space-y-2.5 border-b px-5 py-5 sm:px-8 sm:py-6", className)} {...props} />;
+  // Chrome compacto: cede alto al body (formularios densos / config de flujos).
+  return (
+    <div
+      className={cn("flex shrink-0 flex-col space-y-1 border-b px-4 py-3 sm:px-6 sm:py-3", className)}
+      {...props}
+    />
+  );
 }
 
 function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex min-h-0 flex-auto flex-col gap-5 overflow-y-auto p-5 sm:gap-6 sm:p-8", className)}
+      className={cn(
+        // flex-1 + min-h-0: en paneles xl/lg de altura fija el body llena el
+        // hueco entre header y footer y scrollea ahí (no se achica el panel).
+        "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:gap-5 sm:px-6 sm:py-5",
+        className,
+      )}
       {...props}
     />
   );
@@ -105,7 +126,10 @@ function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement
 function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex shrink-0 flex-col-reverse gap-3 border-t px-5 py-5 sm:flex-row sm:justify-end sm:px-8 sm:py-6", className)}
+      className={cn(
+        "flex shrink-0 flex-col-reverse gap-2 border-t px-4 py-3 sm:flex-row sm:justify-end sm:px-6 sm:py-3",
+        className,
+      )}
       {...props}
     />
   );

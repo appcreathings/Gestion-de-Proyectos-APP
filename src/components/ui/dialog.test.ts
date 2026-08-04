@@ -7,10 +7,23 @@ describe("DIALOG_SIZE", () => {
     /** Fragmentos de clase que deben aparecer para este tamaño. */
     contains: string[];
   }> = [
-    { size: "sm", contains: ["sm:max-h-[70vh]", "md:max-w-md"] },
-    { size: "md", contains: ["sm:max-h-[85vh]", "md:max-w-2xl"] },
-    { size: "lg", contains: ["sm:max-h-[90vh]", "md:max-w-4xl"] },
-    { size: "full", contains: ["sm:h-[99vh]", "md:h-[99vh]", "lg:h-[99vh]", "md:max-w-5xl"] },
+    { size: "sm", contains: ["sm:max-h-[85vh]", "md:max-w-2xl"] },
+    {
+      size: "md",
+      contains: ["sm:min-h-[68vh]", "sm:max-h-[88vh]", "md:max-w-5xl"],
+    },
+    {
+      size: "lg",
+      contains: ["sm:min-h-[72vh]", "sm:max-h-[90vh]", "md:max-w-6xl"],
+    },
+    {
+      size: "xl",
+      contains: ["sm:min-h-[68vh]", "sm:max-h-[88vh]", "md:max-w-5xl"],
+    },
+    {
+      size: "full",
+      contains: ["sm:h-[99vh]", "md:h-[99vh]", "lg:h-[99vh]", "md:max-w-[min(96rem,calc(100vw-1rem))]"],
+    },
   ];
 
   it.each(cases)("size $size contiene las clases esperadas", ({ size, contains }) => {

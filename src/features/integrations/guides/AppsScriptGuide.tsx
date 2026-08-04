@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Check, ChevronRight, ChevronLeft, Copy, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ConnectionProvider } from "@/integrations/connections";
 
@@ -436,13 +444,20 @@ export function AppsScriptGuide({ open, onOpenChange, provider }: AppsScriptGuid
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [copied, setCopied] = useState(false);
 
-  if (!open) return null;
-
   const content = PROVIDER_CONTENT[provider];
   const steps = getSteps(provider, content);
   const step = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
   const isFirstStep = currentStep === 0;
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
+      setCurrentStep(0);
+      setCompletedSteps(new Set());
+      setCopied(false);
+    }
+    onOpenChange(next);
+  };
 
   const handleNext = () => {
     setCompletedSteps((prev) => new Set([...prev, currentStep]));
@@ -465,33 +480,24 @@ export function AppsScriptGuide({ open, onOpenChange, provider }: AppsScriptGuid
 
   const handleFinish = () => {
     setCompletedSteps((prev) => new Set([...prev, currentStep]));
-    onOpenChange(false);
-    setCurrentStep(0);
+    handleOpenChange(false);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl border border-border bg-background shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-border p-6">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">
-              Guía de configuración: Proxy {content.label}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Paso {currentStep + 1} de {steps.length}
-            </p>
-          </div>
-          <button
-            onClick={() => onOpenChange(false)}
-            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-          >
-            ✕
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        size="lg"
+        description="Guía paso a paso para desplegar el proxy de Apps Script y conectar Hito con servicios externos."
+      >
+        <DialogHeader>
+          <DialogTitle>Guía de configuración: Proxy {content.label}</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Paso {currentStep + 1} de {steps.length}
+          </p>
+        </DialogHeader>
 
         {/* Progress bar */}
-        <div className="flex gap-1 border-b border-border px-6 pt-4">
+        <div className="flex shrink-0 gap-1 border-b border-border px-5 pb-4 sm:px-8">
           {steps.map((_, idx) => (
             <div
               key={idx}
@@ -500,15 +506,14 @@ export function AppsScriptGuide({ open, onOpenChange, provider }: AppsScriptGuid
                 completedSteps.has(idx)
                   ? "bg-success"
                   : idx === currentStep
-                  ? "bg-primary"
-                  : "bg-muted"
+                    ? "bg-primary"
+                    : "bg-muted",
               )}
             />
           ))}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <DialogBody>
           <div className="space-y-6">
             {/* Step indicator */}
             <div className="flex items-center gap-3">
@@ -832,10 +837,9 @@ export function AppsScriptGuide({ open, onOpenChange, provider }: AppsScriptGuid
               </div>
             )}
           </div>
-        </div>
+        </DialogBody>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t border-border p-6">
+        <DialogFooter className="justify-between sm:justify-between">
           <Button
             variant="outline"
             onClick={handlePrev}
@@ -859,8 +863,8 @@ export function AppsScriptGuide({ open, onOpenChange, provider }: AppsScriptGuid
               </Button>
             )}
           </div>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

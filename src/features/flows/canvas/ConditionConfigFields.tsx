@@ -91,65 +91,69 @@ export function ConditionConfigFields({
       : null;
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-2">
-        <Label htmlFor="condition-field">Campo</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            id="condition-field"
-            ref={fieldInputRef}
-            value={condition.field}
-            onChange={(e) => onChange({ field: e.target.value })}
-            placeholder="amount"
-            className="flex-1"
-          />
-          <ConditionFieldPicker
-            rows={rows}
-            inputRef={fieldInputRef}
-            // El pre-rellenado del valor viaja en el MISMO `onChange` que el
-            // campo (CA-06.2) — no en un `useEffect`, que se dispararía
-            // también al cargar el flujo y al deshacer.
-            onPick={(updates) =>
-              onChange(conditionUpdatesWithPrefill(condition, updates, rows, sample))
-            }
-          />
-        </div>
-        {fieldIsUnknown && (
-          // El icono lleva el color; el texto queda en `foreground` — el ámbar
-          // sobre fondo claro no llega a AA en tamaño normal (design §6).
-          <p className="flex items-start gap-1.5 text-xs">
-            <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-warning" />
-            <span>
-              <code className="font-mono">{condition.field}</code> no aparece entre los campos
-              conocidos. Si es un campo que solo llega a veces, está bien; si es un error de
-              tipeo, la condición no se cumplirá nunca.
-            </span>
+    <div className="space-y-5">
+      {/* En desktop: campo + operador en fila para aprovechar el ancho del
+          diálogo (md+); en móvil se apilan. */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <Label htmlFor="condition-field">Campo</Label>
+          <div className="flex items-center gap-2">
+            <Input
+              id="condition-field"
+              ref={fieldInputRef}
+              value={condition.field}
+              onChange={(e) => onChange({ field: e.target.value })}
+              placeholder="amount"
+              className="flex-1"
+            />
+            <ConditionFieldPicker
+              rows={rows}
+              inputRef={fieldInputRef}
+              // El pre-rellenado del valor viaja en el MISMO `onChange` que el
+              // campo (CA-06.2) — no en un `useEffect`, que se dispararía
+              // también al cargar el flujo y al deshacer.
+              onPick={(updates) =>
+                onChange(conditionUpdatesWithPrefill(condition, updates, rows, sample))
+              }
+            />
+          </div>
+          {fieldIsUnknown && (
+            // El icono lleva el color; el texto queda en `foreground` — el ámbar
+            // sobre fondo claro no llega a AA en tamaño normal (design §6).
+            <p className="flex items-start gap-1.5 text-xs">
+              <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-warning" />
+              <span>
+                <code className="font-mono">{condition.field}</code> no aparece entre los campos
+                conocidos. Si es un campo que solo llega a veces, está bien; si es un error de
+                tipeo, la condición no se cumplirá nunca.
+              </span>
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Se evalúa contra el registro crudo (pre-mapeo). Es un nombre de campo, no un token: se
+            escribe <code className="font-mono">amount</code>, no{" "}
+            <code className="font-mono">{"{{amount}}"}</code>.
           </p>
-        )}
-        <p className="text-xs text-muted-foreground">
-          Se evalúa contra el registro crudo (pre-mapeo). Es un nombre de campo, no un token: se
-          escribe <code className="font-mono">amount</code>, no{" "}
-          <code className="font-mono">{"{{amount}}"}</code>.
-        </p>
-      </div>
+        </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="condition-op">Operador</Label>
-        {/* Se pinta desde `CONDITION_OPERATORS`, la MISMA lista que el submenú
-            del selector de campo: elegir el operador por un camino o por el
-            otro deja el mismo estado porque llaman al mismo `onChange`, y
-            ahora tampoco pueden divergir en qué operadores ofrecen (CA-05.5). */}
-        <Select
-          id="condition-op"
-          value={condition.op}
-          onChange={(e) => onChange({ op: e.target.value as FlowCondition["op"] })}
-        >
-          {CONDITION_OPERATORS.map((o) => (
-            <option key={o.op} value={o.op}>
-              {o.op} ({o.label})
-            </option>
-          ))}
-        </Select>
+        <div className="grid gap-2">
+          <Label htmlFor="condition-op">Operador</Label>
+          {/* Se pinta desde `CONDITION_OPERATORS`, la MISMA lista que el submenú
+              del selector de campo: elegir el operador por un camino o por el
+              otro deja el mismo estado porque llaman al mismo `onChange`, y
+              ahora tampoco pueden divergir en qué operadores ofrecen (CA-05.5). */}
+          <Select
+            id="condition-op"
+            value={condition.op}
+            onChange={(e) => onChange({ op: e.target.value as FlowCondition["op"] })}
+          >
+            {CONDITION_OPERATORS.map((o) => (
+              <option key={o.op} value={o.op}>
+                {o.op} ({o.label})
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       <div className="grid gap-2">

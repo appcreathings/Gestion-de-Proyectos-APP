@@ -348,7 +348,7 @@ export function TransformConfigFields({
         </div>
 
         {hasRealSample && previewOpen && (
-          <div className="max-h-40 space-y-2 overflow-auto rounded-lg border border-border bg-muted/30 p-3">
+          <div className="max-h-48 space-y-2 overflow-auto rounded-lg border border-border bg-muted/30 p-3 sm:max-h-56">
             {sample!.map((record, i) => (
               <pre key={i} className="text-xs">
                 <code>{JSON.stringify(record, null, 2)}</code>
@@ -662,7 +662,7 @@ export function TransformConfigFields({
           value={transformCode || ""}
           onChange={(e) => onChange({ transformCode: e.target.value })}
           placeholder={`// Debes retornar el objeto transformado\nrecord.name = record.name.toUpperCase();\nreturn record;`}
-          className="min-h-[150px] font-mono text-sm"
+          className="min-h-[180px] font-mono text-sm sm:min-h-[220px]"
         />
         <Button size="sm" onClick={handleTestTransform}>
           <Play className="size-4" />

@@ -61,6 +61,7 @@ import { VariablesPanel } from "./VariablesPanel";
 import { edgeTypes, type InsertEdgeData } from "./InsertEdge";
 import { OUTPUT_TYPES, defaultOutputForType } from "./meta";
 import { TriggerNodeDrawer } from "./TriggerNodeDrawer";
+import { nodeConfigDialogSize } from "./nodeConfigDialog";
 import { ConditionConfigFields } from "./ConditionConfigFields";
 import { TransformConfigFields } from "./TransformConfigFields";
 import { ActionConfigFields } from "./ActionConfigFields";
@@ -653,7 +654,10 @@ function CanvasInner({
       </div>
 
       <Dialog open={selectedNode !== undefined} onOpenChange={(o) => !o && setSelectedId(null)}>
-        <DialogContent size="sm" description="Configura el nodo seleccionado del flujo: disparador, condición, transformación o acción.">
+        <DialogContent
+          size={selectedNode ? nodeConfigDialogSize(selectedNode.data.kind) : "md"}
+          description="Configura el nodo seleccionado del flujo: disparador, condición, transformación o acción."
+        >
           <DialogHeader>
             <DialogTitle>{selectedNode && drawerTitle(selectedNode.data.kind)}</DialogTitle>
           </DialogHeader>
