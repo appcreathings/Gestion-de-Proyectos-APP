@@ -22,6 +22,15 @@ import { runEngine } from "@/automations/engine";
 import { evaluateTemporal } from "@/automations/temporal";
 import { useAppStore } from "./useAppStore";
 import { withPersist } from "./withPersist";
+import type { Attachment } from "@/domain/schemas/attachment";
+import type { AttachmentParent } from "@/domain/attachments/paths";
+import {
+  attachmentTreePrefix,
+  getAttachmentsFromState,
+  prepareAttachment,
+  removedSubtreePrefixes,
+  withAttachments,
+} from "@/domain/attachments/ops";
 
 interface DataState {
   hydrated: boolean;
@@ -92,6 +101,17 @@ interface DataState {
   createPerson: (p: Person) => Promise<void>;
   updatePerson: (p: Person) => Promise<void>;
   deletePerson: (id: string) => Promise<void>;
+
+  /** Spec 042 — anexos multimedia. */
+  addAttachment: (parent: AttachmentParent, file: File) => Promise<Attachment>;
+  removeAttachment: (parent: AttachmentParent, attachmentId: string) => Promise<void>;
+  updateAttachmentMeta: (
+    parent: AttachmentParent,
+    attachmentId: string,
+    patch: { description?: string; name?: string },
+  ) => Promise<void>;
+  /** Purga el árbol de blobs de un parent (best-effort). */
+  purgeAttachmentsForParent: (parent: AttachmentParent) => Promise<void>;
 }
 
 function adapter() {
@@ -234,6 +254,10 @@ export const useDataStore = create<DataState>((set, get) => ({
         );
         set({ projects: nextProjects });
         await reindex();
+        // Cascada de blobs (spec 042 HU-05): best-effort tras borrar el JSON.
+        await adapter()
+          .removeBlobTree(attachmentTreePrefix({ type: "product", productId: id }))
+          .catch(() => undefined);
       },
     );
   },
@@ -250,6 +274,15 @@ export const useDataStore = create<DataState>((set, get) => ({
     const prev = get().projects.find((x) => x.id === p.id);
     await persistProject(p);
     if (prev) {
+      // Cascada: áreas / procesos / tareas eliminadas pierden su árbol de blobs.
+      const prefixes = removedSubtreePrefixes(prev, p);
+      await Promise.all(
+        prefixes.map((prefix) =>
+          adapter()
+            .removeBlobTree(prefix)
+            .catch(() => undefined),
+        ),
+      );
       const events = diffProjectEvents(prev, p);
       await logActivity(events, p);
       await runAutomations(events);
@@ -271,6 +304,9 @@ export const useDataStore = create<DataState>((set, get) => ({
       async () => {
         await adapter().remove("projects", id);
         await reindex();
+        await adapter()
+          .removeBlobTree(attachmentTreePrefix({ type: "project", projectId: id }))
+          .catch(() => undefined);
       },
     );
   },
@@ -366,6 +402,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       async () => {
         await adapter().remove("process-templates", id);
         await reindex();
+        await adapter()
+          .removeBlobTree(
+            attachmentTreePrefix({ type: "processTemplate", templateId: id }),
+          )
+          .catch(() => undefined);
       },
     );
   },
@@ -575,7 +616,88 @@ export const useDataStore = create<DataState>((set, get) => ({
       async () => await persistPeople(next),
     );
   },
+
+  // ── Spec 042: anexos ────────────────────────────────────────────────────
+
+  async addAttachment(parent, file) {
+    const a = adapter();
+    const state = get();
+    const existing = getAttachmentsFromState(parent, state);
+    const meta = prepareAttachment({
+      file,
+      parent,
+      existingCount: existing.length,
+      adapterKind: a.kind,
+      id: uuid(),
+      now: nowIso(),
+    });
+
+    // Blob primero; si falla el JSON, rollback del blob (design §4.4).
+    await a.writeBlob(meta.relativePath, file);
+    try {
+      await applyAttachmentList(parent, [...existing, meta]);
+    } catch (e) {
+      await a.removeBlob(meta.relativePath).catch(() => undefined);
+      throw e;
+    }
+    return meta;
+  },
+
+  async removeAttachment(parent, attachmentId) {
+    const state = get();
+    const existing = getAttachmentsFromState(parent, state);
+    const target = existing.find((x) => x.id === attachmentId);
+    if (!target) return;
+    const next = existing.filter((x) => x.id !== attachmentId);
+    // Metadato primero; blob best-effort (design §4.4).
+    await applyAttachmentList(parent, next);
+    await adapter()
+      .removeBlob(target.relativePath)
+      .catch(() => undefined);
+  },
+
+  async updateAttachmentMeta(parent, attachmentId, patch) {
+    const state = get();
+    const existing = getAttachmentsFromState(parent, state);
+    const now = nowIso();
+    const next = existing.map((x) =>
+      x.id === attachmentId
+        ? {
+            ...x,
+            description: patch.description !== undefined ? patch.description : x.description,
+            // Rename solo label UI — relativePath inmutable (design §5.1).
+            name: patch.name !== undefined && patch.name.trim() ? patch.name.trim() : x.name,
+            updatedAt: now,
+          }
+        : x,
+    );
+    if (next.every((x, i) => x === existing[i])) return;
+    await applyAttachmentList(parent, next);
+  },
+
+  async purgeAttachmentsForParent(parent) {
+    await adapter()
+      .removeBlobTree(attachmentTreePrefix(parent))
+      .catch(() => undefined);
+  },
 }));
+
+/** Persiste la lista de anexos del parent (muta project / product / process-template). */
+async function applyAttachmentList(
+  parent: AttachmentParent,
+  nextAttachments: Attachment[],
+) {
+  const state = useDataStore.getState();
+  const now = nowIso();
+  const result = withAttachments(parent, nextAttachments, state, now);
+  if (result.kind === "project") {
+    await useDataStore.getState().saveProject(result.project);
+  } else if (result.kind === "product") {
+    await useDataStore.getState().updateProduct(result.product);
+  } else {
+    await useDataStore.getState().updateProcessTemplate(result.template);
+  }
+}
 
 /** Low-level project write (no automations) used by saves and engine effects. */
 async function persistProject(

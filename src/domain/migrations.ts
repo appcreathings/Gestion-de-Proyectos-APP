@@ -27,6 +27,11 @@ export interface Migration {
  * `SCHEMA_VERSION` and add the `{ to, up }` steps here.
  */
 export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
+  products: [
+    // v1 -> v17 (spec 042): Product.attachments. New field is optional/defaulted
+    // in the Zod schema, so existing v1 records need no data transformation.
+    { to: 17, up: (data) => data },
+  ],
   // v1 -> v2: added Sprints (spec 008). All new fields (`Project.sprints`,
   // `Project.quarterId`, `Task.sprintId`) are optional/defaulted in the Zod
   // schema, so existing v1 records need no data transformation — this step
@@ -55,6 +60,11 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // convergence fallback in `migrateRecord` carries a v7 project straight to
     // v10 via this single step.
     { to: 10, up: (data) => data },
+    // v10 -> v17 (spec 042): Project/Area/Process/Task.attachments. New fields are
+    // optional/defaulted in the Zod schema, so existing v10 records need no data
+    // transformation. No project-level change happened at v11/v12/v13/v14/v15/v16
+    // (those bumps came from `flows`-only changes in specs 024/025/026/027/032/033).
+    { to: 17, up: (data) => data },
   ],
   // v7 -> v8 (spec 020): PollTrigger and the `email` output stopped embedding
   // credentials/proxy URLs per-flow and now reference a reusable
@@ -103,6 +113,9 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
   // es el compartido de la Fase 2 (B1/B2/B3 sumarán campos opcionales a
   // `flows` bajo el mismo número); aquí el paso `flows` es identidad pura
   // porque ninguna feature de Fase 1 toca el schema de `flows`.
+  // v16 -> v17 (spec 042): `process-templates`.attachments. New field is
+  // optional/defaulted in the Zod schema, so existing v16 records need no
+  // data transformation.
   flows: [
     { to: 8, up: migrateFlowsDocV7ToV8 },
     { to: 9, up: (data) => data },
@@ -113,6 +126,7 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     { to: 14, up: (data) => data },
     { to: 15, up: (data) => data },
     { to: 16, up: (data) => data },
+    { to: 17, up: (data) => data },
   ],
 };
 

@@ -33,6 +33,7 @@ import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { ProcessTemplate } from "@/domain/schemas";
 import { newProcessTemplate } from "@/domain/factories";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 interface Step {
   id: string;
@@ -245,6 +246,18 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
               }
             }}
           />
+          {template && (
+            <div className="space-y-2">
+              <AttachmentsSection
+                parent={{ type: "processTemplate", templateId: template.id }}
+                attachments={template.attachments ?? []}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Los anexos de la plantilla no se copian al instanciar un proyecto: la plantilla
+                sigue siendo la fuente de referencia.
+              </p>
+            </div>
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

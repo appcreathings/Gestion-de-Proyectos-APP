@@ -185,6 +185,7 @@ export function MyTasksPage() {
       {detailTask && detailProject && (
         <TaskDetailDrawer
           task={detailTask}
+          projectId={detailProject.id}
           areas={detailProject.areas}
           people={people}
           sprints={detailProject.sprints}

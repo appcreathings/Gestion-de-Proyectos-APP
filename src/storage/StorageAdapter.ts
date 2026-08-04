@@ -77,6 +77,12 @@ export interface StorageAdapter {
   readDoc<T>(name: DocName): Promise<T>;
   writeDoc<T>(name: DocName, data: T): Promise<void>;
 
+  /** Blob I/O para anexos (spec 042). Rutas relativas a la raíz del workspace. */
+  writeBlob(relativePath: string, data: Blob | ArrayBuffer | Uint8Array): Promise<void>;
+  readBlob(relativePath: string): Promise<Blob>;
+  removeBlob(relativePath: string): Promise<void>;
+  removeBlobTree(relativePrefix: string): Promise<void>;
+
   exportAll(): Promise<Blob>;
   importAll(blob: Blob): Promise<void>;
   backup(): Promise<void>;

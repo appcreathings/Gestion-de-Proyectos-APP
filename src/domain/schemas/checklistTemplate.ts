@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Id, IsoDate, SCHEMA_VERSION } from "./common";
+import { AttachmentSchema } from "./attachment";
 
 export const TemplateItemSchema = z.object({
   id: Id,
@@ -33,6 +34,7 @@ export const ProcessTemplateSchema = z.object({
   description: z.string().default(""),
   category: z.string().default(""),
   steps: z.array(ProcessTemplateStepSchema).default([]),
+  attachments: z.array(AttachmentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

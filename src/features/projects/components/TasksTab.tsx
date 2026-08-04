@@ -923,6 +923,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
 
       <TaskDetailDrawer
         task={detailTask}
+        projectId={project.id}
         areas={project.areas}
         people={people}
         sprints={project.sprints}

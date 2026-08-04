@@ -108,6 +108,7 @@ export function AreasTab({ project, people, mutate, focusId }: Props) {
                     >
                       <AreaCard
                         area={area}
+                        projectId={project.id}
                         people={people}
                         mutate={mutate}
                         tasks={project.tasks.filter((t) => t.areaId === area.id)}
@@ -142,6 +143,7 @@ export function AreasTab({ project, people, mutate, focusId }: Props) {
         open={formOpen}
         onOpenChange={setFormOpen}
         area={editing}
+        projectId={project.id}
         people={people}
         onSubmit={submitArea}
       />

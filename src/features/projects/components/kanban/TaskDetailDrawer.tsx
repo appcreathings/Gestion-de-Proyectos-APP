@@ -14,9 +14,12 @@ import { priorityLabel, taskStatusLabel } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
 import { uuid, nowIso, cn } from "@/lib/utils";
 import type { Area, Comment, Person, Priority, Sprint, Subtask, Task, TaskStatus } from "@/domain/schemas";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 interface Props {
   task: Task | null;
+  /** Id del proyecto contenedor — requerido para anexos (spec 042). */
+  projectId?: string | null;
   areas: Area[];
   people: Person[];
   sprints: Sprint[];
@@ -24,7 +27,15 @@ interface Props {
   onClose: () => void;
 }
 
-export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClose }: Props) {
+export function TaskDetailDrawer({
+  task,
+  projectId,
+  areas,
+  people,
+  sprints,
+  onUpdate,
+  onClose,
+}: Props) {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
@@ -685,6 +696,15 @@ export function TaskDetailDrawer({ task, areas, people, sprints, onUpdate, onClo
                 {task.archived ? "Desarchivar tarea" : "Archivar tarea"}
               </Button>
             </div>
+
+            {projectId && (
+              <div className="border-t pt-4">
+                <AttachmentsSection
+                  parent={{ type: "task", projectId, taskId: task.id }}
+                  attachments={task.attachments ?? []}
+                />
+              </div>
+            )}
 
             <div className="border-t pt-4">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5 mb-3">

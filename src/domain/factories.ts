@@ -29,6 +29,7 @@ export function newProduct(name: string): Product {
     status: "active",
     ownerId: null,
     tags: [],
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };
@@ -62,6 +63,7 @@ export function newProject(name: string, productId: string | null = null): Proje
       blocked: null,
       done: null,
     },
+    attachments: [],
     dedupeKey: null,
     createdAt: ts,
     updatedAt: ts,
@@ -78,6 +80,7 @@ export function newArea(name: string, icon = "folder"): Area {
     completed: false,
     processes: [],
     checklists: [],
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };
@@ -93,6 +96,7 @@ export function newProcess(name: string): Process {
     version: 1,
     ownerId: null,
     templateId: null,
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };
@@ -143,6 +147,7 @@ export function newTask(title: string, areaId: string | null = null): Task {
     archived: false,
     estimate: null,
     subtasks: [],
+    attachments: [],
     dedupeKey: null,
     createdAt: ts,
     updatedAt: ts,
@@ -214,6 +219,7 @@ export function newProcessTemplate(name: string): ProcessTemplate {
     description: "",
     category: "",
     steps: [],
+    attachments: [],
     createdAt: ts,
     updatedAt: ts,
   };

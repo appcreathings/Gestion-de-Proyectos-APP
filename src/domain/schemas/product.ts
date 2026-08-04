@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Id, IsoDate, ProductStatus, SCHEMA_VERSION } from "./common";
+import { AttachmentSchema } from "./attachment";
 
 export const ObjectiveSchema = z.object({
   id: Id,
@@ -19,6 +20,7 @@ export const ProductSchema = z.object({
   status: ProductStatus.default("active"),
   ownerId: Id.nullable().default(null),
   tags: z.array(z.string()).default([]),
+  attachments: z.array(AttachmentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });

@@ -17,6 +17,7 @@ import {
 } from "@/domain/compute";
 import type { Health, Project } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 interface Props {
   project: Project;
@@ -60,6 +61,10 @@ export function OverviewTab({ project, productName, productId, onChangeHealth }:
             pct={tk.pct}
             indicatorClassName="bg-success"
             tooltip={archivedCount > 0 ? `${archivedCount} tarea${archivedCount !== 1 ? "s" : ""} archivada${archivedCount !== 1 ? "s" : ""}` : undefined}
+          />
+          <AttachmentsSection
+            parent={{ type: "project", projectId: project.id }}
+            attachments={project.attachments ?? []}
           />
         </div>
       </Panel>

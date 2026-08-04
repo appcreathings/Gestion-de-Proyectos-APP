@@ -110,6 +110,7 @@ describe("dryRunFlow (spec 025 §C)", () => {
           archived: false,
           estimate: null,
           subtasks: [],
+          attachments: [],
           dedupeKey: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),

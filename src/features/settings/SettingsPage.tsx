@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
+import { useToastStore } from "@/store/useToastStore";
+import { countWorkspaceAttachments } from "@/domain/attachments/count";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { PeopleCard } from "./PeopleCard";
 import { CollectionTransferCard } from "./CollectionTransferCard";
@@ -61,6 +63,18 @@ function SettingsContent() {
   if (!settings) return null;
 
   async function onExport() {
+    const n = countWorkspaceAttachments({
+      projects: useDataStore.getState().projects,
+      products: useDataStore.getState().products,
+      processTemplates: useDataStore.getState().processTemplates,
+    });
+    if (n > 0) {
+      useToastStore.getState().toast.info(
+        adapter.kind === "filesystem"
+          ? `El JSON no incluye los ${n} anexo(s). Respalda también la carpeta attachments/ de tu workspace.`
+          : `El JSON no incluye los ${n} anexo(s); en modo navegador los bytes solo viven en este dispositivo.`,
+      );
+    }
     const blob = await adapter.exportAll();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

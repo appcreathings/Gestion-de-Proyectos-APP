@@ -69,6 +69,18 @@ function makeRecordingAdapter(): StorageAdapter & {
     async backup() {
       /* no-op */
     },
+    async writeBlob(_relativePath: string, _data: Blob | ArrayBuffer | Uint8Array) {
+      /* no-op for demo */
+    },
+    async readBlob(_relativePath: string): Promise<Blob> {
+      return new Blob([]);
+    },
+    async removeBlob(_relativePath: string) {
+      /* no-op */
+    },
+    async removeBlobTree(_relativePrefix: string) {
+      /* no-op */
+    },
     col: (c) => cols.get(c) ?? new Map(),
     doc: (n) => docs.get(n),
     ws: () => workspace,

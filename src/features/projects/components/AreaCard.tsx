@@ -35,6 +35,8 @@ import { ApplyTemplateDialog } from "./ApplyTemplateDialog";
 
 interface Props {
   area: Area;
+  /** Id del proyecto contenedor — anexos de proceso (spec 042). */
+  projectId: string;
   people: Person[];
   mutate: (recipe: (p: Project) => Project) => void;
   onEdit: () => void;
@@ -49,6 +51,7 @@ interface Props {
 
 export function AreaCard({
   area,
+  projectId,
   people,
   mutate,
   onEdit,
@@ -350,6 +353,7 @@ export function AreaCard({
         open={procDialog.open}
         onOpenChange={(o) => setProcDialog((s) => ({ ...s, open: o }))}
         process={procDialog.proc}
+        projectId={projectId}
         people={people}
         onSubmit={saveProcess}
       />

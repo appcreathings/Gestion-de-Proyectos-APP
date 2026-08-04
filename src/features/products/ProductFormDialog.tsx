@@ -18,6 +18,7 @@ import { productStatusLabel } from "@/domain/labels";
 import type { Product, ProductStatus } from "@/domain/schemas";
 import { newProduct } from "@/domain/factories";
 import { useDataStore } from "@/store/useDataStore";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 interface Props {
   open: boolean;
@@ -143,6 +144,12 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
               />
             </div>
           </div>
+          {product && (
+            <AttachmentsSection
+              parent={{ type: "product", productId: product.id }}
+              attachments={product.attachments ?? []}
+            />
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

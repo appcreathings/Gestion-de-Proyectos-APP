@@ -13,6 +13,7 @@ import {
   type DocName,
   type StorageAdapter,
 } from "./StorageAdapter";
+import { assertSafeAttachmentPath } from "@/domain/attachments/paths";
 
 const HANDLE_KEY = "rootDirHandle";
 const WORKSPACE_FILE = "workspace.json";
@@ -155,6 +156,7 @@ export class FileSystemAdapter implements StorageAdapter {
       await root.getDirectoryHandle(dir, { create: true });
     }
     await root.getDirectoryHandle(".backups", { create: true });
+    await root.getDirectoryHandle("attachments", { create: true }); // spec 042
     const exists = await fileExists(root, WORKSPACE_FILE);
     if (!exists) {
       await this.writeWorkspace(emptyWorkspace());
@@ -239,6 +241,57 @@ export class FileSystemAdapter implements StorageAdapter {
       create: true,
     });
     await writeJsonFile(dir, `${name}.json`, data);
+  }
+
+  async writeBlob(relativePath: string, data: Blob | ArrayBuffer | Uint8Array): Promise<void> {
+    assertSafeAttachmentPath(relativePath);
+    const root = this.requireRoot();
+    const segments = relativePath.split("/");
+    let current = root;
+    for (let i = 0; i < segments.length - 1; i++) {
+      current = await current.getDirectoryHandle(segments[i], { create: true });
+    }
+    const filename = segments[segments.length - 1];
+    await writeBlob(current, filename, data);
+  }
+
+  async readBlob(relativePath: string): Promise<Blob> {
+    assertSafeAttachmentPath(relativePath);
+    const root = this.requireRoot();
+    const segments = relativePath.split("/");
+    let current = root;
+    for (const segment of segments.slice(0, -1)) {
+      current = await current.getDirectoryHandle(segment);
+    }
+    const filename = segments[segments.length - 1];
+    const fileHandle = await current.getFileHandle(filename);
+    const file = await fileHandle.getFile();
+    return file;
+  }
+
+  async removeBlob(relativePath: string): Promise<void> {
+    assertSafeAttachmentPath(relativePath);
+    const root = this.requireRoot();
+    const segments = relativePath.split("/");
+    let current = root;
+    for (const segment of segments.slice(0, -1)) {
+      current = await current.getDirectoryHandle(segment);
+    }
+    const filename = segments[segments.length - 1];
+    await current.removeEntry(filename).catch(() => undefined);
+  }
+
+  async removeBlobTree(relativePrefix: string): Promise<void> {
+    assertSafeAttachmentPath(relativePrefix);
+    const root = this.requireRoot();
+    const segments = relativePrefix.split("/");
+    let current = root;
+    for (const segment of segments) {
+      current = await current.getDirectoryHandle(segment);
+    }
+    const parent = root;
+    const targetName = segments[segments.length - 1];
+    await parent.removeEntry(targetName, { recursive: true }).catch(() => undefined);
   }
 
   async exportAll(): Promise<Blob> {
@@ -342,6 +395,26 @@ async function writeRaw(
   const fileHandle = await dir.getFileHandle(name, { create: true });
   const writable = await fileHandle.createWritable();
   await writable.write(text);
+  await writable.close();
+}
+
+async function writeBlob(
+  dir: FileSystemDirectoryHandle,
+  name: string,
+  data: Blob | ArrayBuffer | Uint8Array,
+): Promise<void> {
+  const fileHandle = await dir.getFileHandle(name, { create: true });
+  const writable = await fileHandle.createWritable();
+  if (data instanceof Blob) {
+    await writable.write(data);
+  } else if (data instanceof Uint8Array) {
+    const buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    await writable.write(buf as FileSystemWriteChunkType);
+  } else {
+    const uint8 = new Uint8Array(data);
+    const buf = uint8.buffer.slice(uint8.byteOffset, uint8.byteOffset + uint8.byteLength);
+    await writable.write(buf as FileSystemWriteChunkType);
+  }
   await writable.close();
 }
 

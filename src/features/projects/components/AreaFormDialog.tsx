@@ -16,6 +16,7 @@ import { IconPicker } from "@/components/forms/IconPicker";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import type { Area, Person } from "@/domain/schemas";
 import { newArea } from "@/domain/factories";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 export const AREA_ICONS = [
   "folder",
@@ -34,11 +35,20 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   area?: Area;
+  /** Requerido para anexos al editar un área existente (spec 042). */
+  projectId?: string;
   people?: Person[];
   onSubmit: (a: Area) => void | Promise<void>;
 }
 
-export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit }: Props) {
+export function AreaFormDialog({
+  open,
+  onOpenChange,
+  area,
+  projectId,
+  people = [],
+  onSubmit,
+}: Props) {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string>("folder");
   const [ownerId, setOwnerId] = useState("");
@@ -133,6 +143,12 @@ export function AreaFormDialog({ open, onOpenChange, area, people = [], onSubmit
               }
             }}
           />
+          {area && projectId && (
+            <AttachmentsSection
+              parent={{ type: "area", projectId, areaId: area.id }}
+              attachments={area.attachments ?? []}
+            />
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

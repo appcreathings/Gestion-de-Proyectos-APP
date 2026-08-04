@@ -12,6 +12,7 @@ import {
   SprintStatus,
   TaskStatus,
 } from "./common";
+import { AttachmentSchema } from "./attachment";
 
 export const ChecklistItemSchema = z.object({
   id: Id,
@@ -51,6 +52,7 @@ export const ProcessSchema = z.object({
   version: z.number().default(1),
   ownerId: Id.nullable().default(null),
   templateId: Id.nullable().default(null),
+  attachments: z.array(AttachmentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });
@@ -64,6 +66,7 @@ export const AreaSchema = z.object({
   completed: z.boolean().default(false),
   processes: z.array(ProcessSchema).default([]),
   checklists: z.array(ChecklistSchema).default([]),
+  attachments: z.array(AttachmentSchema).default([]),
   createdAt: IsoDate,
   updatedAt: IsoDate,
 });
@@ -104,6 +107,7 @@ export const TaskSchema = z.object({
   archived: z.boolean().default(false),
   estimate: z.number().nullable().default(null),
   subtasks: z.array(SubtaskSchema).default([]),
+  attachments: z.array(AttachmentSchema).default([]),
   /** Clave de deduplicación interpolada por el flujo que creó esta tarea
    * (ej. el id de un deal de HubSpot) — permite a `createTask` detectar que
    * el registro ya se procesó y omitir un duplicado (spec 023 §E). `null`
@@ -176,6 +180,7 @@ export const ProjectSchema = z.object({
     blocked: null,
     done: null,
   }),
+  attachments: z.array(AttachmentSchema).default([]),
   /** Igual que `Task.dedupeKey` — marca de qué registro externo vino este
    * proyecto, para que `createProject` con `dedupeKey` configurado pueda
    * detectar un duplicado y omitirlo (spec 023 §E). */

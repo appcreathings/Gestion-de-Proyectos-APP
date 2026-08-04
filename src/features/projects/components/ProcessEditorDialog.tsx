@@ -34,11 +34,14 @@ import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { Person, Process, ProcessStep } from "@/domain/schemas";
 import { newProcess } from "@/domain/factories";
+import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   process?: Process;
+  /** Requerido para anexos al editar un proceso existente (spec 042). */
+  projectId?: string;
   people?: Person[];
   onSubmit: (p: Process) => void | Promise<void>;
 }
@@ -47,6 +50,7 @@ export function ProcessEditorDialog({
   open,
   onOpenChange,
   process,
+  projectId,
   people = [],
   onSubmit,
 }: Props) {
@@ -267,6 +271,12 @@ export function ProcessEditorDialog({
               }
             }}
           />
+          {process && projectId && (
+            <AttachmentsSection
+              parent={{ type: "process", projectId, processId: process.id }}
+              attachments={process.attachments ?? []}
+            />
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

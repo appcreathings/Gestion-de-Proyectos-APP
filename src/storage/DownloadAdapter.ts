@@ -12,6 +12,7 @@ import {
   type DocName,
   type StorageAdapter,
 } from "./StorageAdapter";
+import { assertSafeAttachmentPath } from "@/domain/attachments/paths";
 
 /**
  * Fallback for non-Chromium browsers (Firefox/Safari): keeps everything in
@@ -19,6 +20,8 @@ import {
  * so the UI is unchanged (constitución, principio VI).
  */
 const KEY = (s: string) => `download:${s}`;
+const BLOB_KEY = (path: string) => `download:blob:${path}`;
+const BLOB_INDEX = "download:blob-index";
 
 export class DownloadAdapter implements StorageAdapter {
   readonly kind = "download" as const;
@@ -113,6 +116,39 @@ export class DownloadAdapter implements StorageAdapter {
 
   async writeDoc<T>(name: DocName, data: T): Promise<void> {
     await idbSet(KEY(`doc:${name}`), data);
+  }
+
+  async writeBlob(relativePath: string, data: Blob | ArrayBuffer | Uint8Array): Promise<void> {
+    assertSafeAttachmentPath(relativePath);
+    await idbSet(BLOB_KEY(relativePath), data);
+    const index = await idbGet<string[]>(BLOB_INDEX) ?? [];
+    if (!index.includes(relativePath)) {
+      await idbSet(BLOB_INDEX, [...index, relativePath]);
+    }
+  }
+
+  async readBlob(relativePath: string): Promise<Blob> {
+    assertSafeAttachmentPath(relativePath);
+    const data = await idbGet<Blob>(BLOB_KEY(relativePath));
+    if (!data) throw new Error(`Blob no encontrado: ${relativePath}`);
+    return data;
+  }
+
+  async removeBlob(relativePath: string): Promise<void> {
+    assertSafeAttachmentPath(relativePath);
+    await idbSet(BLOB_KEY(relativePath), undefined);
+    const index = await idbGet<string[]>(BLOB_INDEX) ?? [];
+    await idbSet(BLOB_INDEX, index.filter((p) => p !== relativePath));
+  }
+
+  async removeBlobTree(relativePrefix: string): Promise<void> {
+    assertSafeAttachmentPath(relativePrefix);
+    const index = await idbGet<string[]>(BLOB_INDEX) ?? [];
+    const toRemove = index.filter((p) => p.startsWith(relativePrefix));
+    for (const path of toRemove) {
+      await idbSet(BLOB_KEY(path), undefined);
+    }
+    await idbSet(BLOB_INDEX, index.filter((p) => !p.startsWith(relativePrefix)));
   }
 
   async exportAll(): Promise<Blob> {
