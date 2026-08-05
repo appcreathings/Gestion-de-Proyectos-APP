@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Archive, MessageCircle, Send, X, Plus, Trash2 } from "lucide-react";
+import { Archive, Link2, MessageCircle, Send, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,22 @@ import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { priorityLabel, taskStatusLabel } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
 import { uuid, nowIso, cn } from "@/lib/utils";
-import type { Area, Comment, Person, Priority, Sprint, Subtask, Task, TaskStatus } from "@/domain/schemas";
+import {
+  MAX_TASK_LINKS,
+  normalizeTaskLinkUrl,
+  taskLinkDisplayLabel,
+} from "@/lib/taskLinks";
+import type {
+  Area,
+  Comment,
+  Person,
+  Priority,
+  Sprint,
+  Subtask,
+  Task,
+  TaskLink,
+  TaskStatus,
+} from "@/domain/schemas";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 
 interface Props {
@@ -51,6 +66,10 @@ export function TaskDetailDrawer({
   const [estimate, setEstimate] = useState("");
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkLabel, setLinkLabel] = useState("");
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [showAddLink, setShowAddLink] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(() => {
     try {
       const saved = localStorage.getItem("kanban-drawer-width");
@@ -79,6 +98,14 @@ export function TaskDetailDrawer({
       setSubtasks(task.subtasks ?? []);
     }
   }, [task]);
+
+  // Al cambiar de tarea, cierra el formulario de links sin pelear con updates del mismo id.
+  useEffect(() => {
+    setLinkUrl("");
+    setLinkLabel("");
+    setLinkError(null);
+    setShowAddLink(false);
+  }, [task?.id]);
 
   useEffect(() => {
     if (!task) return;
@@ -310,6 +337,63 @@ export function TaskDetailDrawer({
     setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   }, [task, newComment, onUpdate]);
 
+  const links = task?.links ?? [];
+  const linksAtLimit = links.length >= MAX_TASK_LINKS;
+
+  const addLink = useCallback(() => {
+    if (!task) return;
+    if ((task.links ?? []).length >= MAX_TASK_LINKS) {
+      setLinkError(`Máximo ${MAX_TASK_LINKS} links por tarea.`);
+      return;
+    }
+    const normalized = normalizeTaskLinkUrl(linkUrl);
+    if (!normalized.ok) {
+      setLinkError(normalized.error);
+      return;
+    }
+    const entry: TaskLink = {
+      id: uuid(),
+      url: normalized.url,
+      label: linkLabel.trim(),
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    };
+    onUpdate({
+      ...task,
+      links: [...(task.links ?? []), entry],
+      updatedAt: nowIso(),
+    });
+    setLinkUrl("");
+    setLinkLabel("");
+    setLinkError(null);
+    setShowAddLink(false);
+  }, [task, linkUrl, linkLabel, onUpdate]);
+
+  const openAddLink = useCallback(() => {
+    if (linksAtLimit) return;
+    setShowAddLink(true);
+    setLinkError(null);
+  }, [linksAtLimit]);
+
+  const cancelAddLink = useCallback(() => {
+    setShowAddLink(false);
+    setLinkUrl("");
+    setLinkLabel("");
+    setLinkError(null);
+  }, []);
+
+  const removeLink = useCallback(
+    (linkId: string) => {
+      if (!task) return;
+      onUpdate({
+        ...task,
+        links: (task.links ?? []).filter((l) => l.id !== linkId),
+        updatedAt: nowIso(),
+      });
+    },
+    [task, onUpdate],
+  );
+
   const toggleArchive = useCallback(() => {
     if (!task) return;
     onUpdate({
@@ -456,6 +540,159 @@ export function TaskDetailDrawer({
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => persist("description", description)}
               />
+            </div>
+
+            {/* Links externos — chips compactos (spec 043) */}
+            <div className="grid gap-1.5">
+              <Label className="text-xs text-muted-foreground">Links</Label>
+
+              <div className="flex flex-wrap items-center gap-1.5" aria-label="Links de la tarea">
+                {links.map((link) => {
+                  const display = taskLinkDisplayLabel(link);
+                  return (
+                    <div key={link.id} className="group relative max-w-full">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={link.url}
+                        aria-label={`Abrir ${display}`}
+                        className={cn(
+                          "inline-flex h-7 max-w-[11rem] items-center gap-1 rounded-full border border-border/70 bg-muted/40 px-2.5 text-xs font-medium",
+                          "hover:bg-accent hover:text-accent-foreground",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                        )}
+                      >
+                        <Link2 className="size-3 shrink-0 opacity-60" aria-hidden />
+                        <span className="truncate">{display}</span>
+                      </a>
+                      <button
+                        type="button"
+                        title="Eliminar link"
+                        aria-label={`Eliminar link ${display}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeLink(link.id);
+                        }}
+                        className={cn(
+                          "absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full",
+                          "border border-border bg-background text-muted-foreground shadow-sm",
+                          "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          "opacity-80 group-hover:opacity-100",
+                        )}
+                      >
+                        <X className="size-2.5" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {!linksAtLimit && !showAddLink && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="size-7 shrink-0 rounded-full"
+                    title="Añadir link"
+                    aria-label="Añadir link"
+                    aria-expanded={false}
+                    onClick={openAddLink}
+                  >
+                    <Plus className="size-3.5" />
+                  </Button>
+                )}
+              </div>
+
+              {showAddLink && !linksAtLimit && (
+                <div className="flex flex-col gap-1.5 rounded-md border border-border/60 bg-muted/20 p-2">
+                  <div className="flex items-center gap-1.5">
+                    <Label htmlFor="d-link-url" className="sr-only">
+                      URL del link
+                    </Label>
+                    <Input
+                      id="d-link-url"
+                      type="url"
+                      inputMode="url"
+                      autoComplete="off"
+                      autoFocus
+                      placeholder="URL o dominio.com/…"
+                      value={linkUrl}
+                      className="h-8 flex-1 text-xs"
+                      onChange={(e) => {
+                        setLinkUrl(e.target.value);
+                        if (linkError) setLinkError(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addLink();
+                        }
+                        if (e.key === "Escape") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          cancelAddLink();
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="h-8 shrink-0 px-2.5 text-xs"
+                      disabled={!linkUrl.trim()}
+                      onClick={addLink}
+                    >
+                      Añadir
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 shrink-0"
+                      title="Cancelar"
+                      aria-label="Cancelar añadir link"
+                      onClick={cancelAddLink}
+                    >
+                      <X className="size-3.5" />
+                    </Button>
+                  </div>
+                  <Label htmlFor="d-link-label" className="sr-only">
+                    Etiqueta del link (opcional)
+                  </Label>
+                  <Input
+                    id="d-link-label"
+                    type="text"
+                    autoComplete="off"
+                    placeholder="Etiqueta opcional"
+                    value={linkLabel}
+                    className="h-8 text-xs"
+                    onChange={(e) => setLinkLabel(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addLink();
+                      }
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        cancelAddLink();
+                      }
+                    }}
+                  />
+                  {linkError && (
+                    <p className="text-[11px] text-destructive" role="alert">
+                      {linkError}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {linksAtLimit && (
+                <p className="text-[11px] text-muted-foreground">
+                  Máximo {MAX_TASK_LINKS} links.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">

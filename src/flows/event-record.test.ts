@@ -34,6 +34,7 @@ const task: Task = {
   estimate: null,
   subtasks: [],
   attachments: [],
+  links: [],
   dedupeKey: null,
   createdAt: now,
   updatedAt: now,

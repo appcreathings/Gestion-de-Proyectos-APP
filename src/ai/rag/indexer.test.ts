@@ -112,6 +112,7 @@ const sample: ToolData = {
           estimate: null,
           subtasks: [],
           attachments: [],
+          links: [],
           dedupeKey: null,
           createdAt: NOW,
           updatedAt: NOW,

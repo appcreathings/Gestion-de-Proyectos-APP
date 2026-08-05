@@ -15,6 +15,7 @@ import {
   Archive,
   Clock,
   CheckSquare,
+  Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ClickableCard } from "@/components/ui/ClickableCard";
@@ -219,6 +220,16 @@ export function TaskCard({
             >
               <CheckSquare className="size-3" />
               {task.subtasks!.filter((s) => s.done).length}/{task.subtasks!.length}
+            </Badge>
+          )}
+          {(task.links?.length ?? 0) > 0 && (
+            <Badge
+              variant="outline"
+              className="gap-1 text-[11px] leading-tight px-1.5 py-0.5"
+              title={`${task.links!.length} link${task.links!.length === 1 ? "" : "s"}`}
+            >
+              <Link2 className="size-3" />
+              {task.links!.length}
             </Badge>
           )}
           {(task.tags ?? []).slice(0, 3).map((tag) => (

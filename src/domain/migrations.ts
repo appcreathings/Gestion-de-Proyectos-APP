@@ -68,6 +68,8 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // (those bumps came from `flows`-only changes in specs 024/025/026/027/032/033).
     { to: 17, up: (data) => data },
     { to: 18, up: (data) => data },
+    // v18 -> v19 (spec 043): Task.links. New field is optional/defaulted in Zod.
+    { to: 19, up: (data) => data },
   ],
   "checklist-templates": [
     // v1 -> v18: ChecklistTemplate.attachments.

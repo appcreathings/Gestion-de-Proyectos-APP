@@ -90,6 +90,18 @@ export const SubtaskSchema = z.object({
 });
 export type Subtask = z.infer<typeof SubtaskSchema>;
 
+/** Link externo asociado a una tarea (spec 043). URL http(s) + etiqueta opcional. */
+export const TaskLinkSchema = z.object({
+  id: Id,
+  /** URL absoluta http(s) ya normalizada. */
+  url: z.string().min(1),
+  /** Etiqueta visible. Vacío → la UI deriva el hostname. */
+  label: z.string().default(""),
+  createdAt: IsoDate,
+  updatedAt: IsoDate,
+});
+export type TaskLink = z.infer<typeof TaskLinkSchema>;
+
 export const TaskSchema = z.object({
   id: Id,
   title: z.string(),
@@ -108,6 +120,8 @@ export const TaskSchema = z.object({
   estimate: z.number().nullable().default(null),
   subtasks: z.array(SubtaskSchema).default([]),
   attachments: z.array(AttachmentSchema).default([]),
+  /** Links externos (Figma, Notion, ticket…) mostrados como botones bajo la descripción (spec 043). */
+  links: z.array(TaskLinkSchema).default([]),
   /** Clave de deduplicación interpolada por el flujo que creó esta tarea
    * (ej. el id de un deal de HubSpot) — permite a `createTask` detectar que
    * el registro ya se procesó y omitir un duplicado (spec 023 §E). `null`
