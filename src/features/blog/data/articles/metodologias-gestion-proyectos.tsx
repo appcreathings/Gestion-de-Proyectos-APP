@@ -18,6 +18,9 @@ export const article: BlogArticle = {
     "que-es-scrum-equipos-pequenos",
     "kanban-limites-wip",
     "waterfall-vs-agile",
+    "sprint-planning-como-hacerlo",
+    "daily-standup-util",
+    "retrospectivas-formatos",
   ],
   seo: {
     title: "Metodologías de gestión de proyectos: cuál usar según tu equipo | Hito",

@@ -41,10 +41,10 @@
 | 🟩 | `scrum-vs-kanban` | Scrum vs Kanban: diferencias reales y cuál elegir | "scrum vs kanban" |
 | 🟩 | `que-es-scrum-equipos-pequenos` | Qué es Scrum, sin certificaciones | "qué es scrum" |
 | 🟩 | `kanban-limites-wip` | Kanban en la práctica: límites WIP | "límites WIP kanban", "qué es WIP" |
-| ⬜ | `sprint-planning-como-hacerlo` | Sprint planning que se cumple | "cómo hacer sprint planning" |
-| ⬜ | `daily-standup-util` | Daily standup que no sea pérdida de tiempo | "daily standup", "reunión diaria scrum" |
-| ⬜ | `retrospectivas-formatos` | Retrospectivas: 5 formatos y cómo elegir | "formatos de retrospectiva", "retrospectiva de sprint" |
-| ⬜ | `waterfall-vs-agile` | Waterfall vs Agile: cuándo cascada es la respuesta correcta | "waterfall vs agile" |
+| 🟩 | `sprint-planning-como-hacerlo` | Sprint planning que se cumple | "cómo hacer sprint planning" |
+| 🟩 | `daily-standup-util` | Daily standup que no sea pérdida de tiempo | "daily standup", "reunión diaria scrum" |
+| 🟩 | `retrospectivas-formatos` | Retrospectivas: 5 formatos y cómo elegir | "formatos de retrospectiva", "retrospectiva de sprint" |
+| 🟩 | `waterfall-vs-agile` | Waterfall vs Agile: cuándo cascada es la respuesta correcta | "waterfall vs agile" |
 
 ## Cluster 3 — Tips y problemas reales
 
@@ -52,8 +52,8 @@
 
 | Estado | Slug | Título | Intención de búsqueda |
 |---|---|---|---|
-| ⬜ | `gestionar-varios-proyectos-a-la-vez` | **PILAR** — Cómo gestionar varios proyectos a la vez | "gestionar varios proyectos a la vez" |
-| ⬜ | `proyecto-atrasado-que-hacer` | Tu proyecto va atrasado: 6 movimientos antes de pedir plazo | "proyecto atrasado qué hacer" |
+| 🟩 | `gestionar-varios-proyectos-a-la-vez` | **PILAR** — Cómo gestionar varios proyectos a la vez | "gestionar varios proyectos a la vez" |
+| 🟩 | `proyecto-atrasado-que-hacer` | Tu proyecto va atrasado: 6 movimientos antes de pedir plazo | "proyecto atrasado qué hacer" |
 | ⬜ | `reuniones-de-status-eliminar` | Reemplazar reuniones de status por un tablero | "eliminar reuniones de status" |
 | ⬜ | `como-delegar-tareas` | Cómo delegar y dejar de ser el cuello de botella | "cómo delegar tareas" |
 | ⬜ | `seguimiento-de-tareas-equipo` | Seguimiento de tareas sin microgestionar | "seguimiento de tareas de equipo" |
@@ -96,10 +96,30 @@ enlazarán a este pilar cuando se publique.)*
   del cluster 2 (cuelga del pilar de Fundamentos hasta que exista el propio).
 - **Fase 2 (2026-08-03):** 6 artículos publicados — Completado Cluster 1 de Fundamentos (3 artículos adicionales)
   + iniciado Cluster 2 de Metodologías con su pilar y 2 satélites.
-- **Siguiente:** completar cluster 2 (3 artículos restantes), luego cluster 3 empezando por su pilar.
+- **Fase 3 (2026-08-04):** 6 artículos publicados —
+  - **Cluster 2 cerrado** (4): `sprint-planning-como-hacerlo` (2027-01-04), `daily-standup-util`
+    (2027-01-11), `retrospectivas-formatos` (2027-01-18), `waterfall-vs-agile` (2027-01-25, featured).
+  - **Cluster 3 abierto** (2): pilar `gestionar-varios-proyectos-a-la-vez` (2027-02-01, featured) +
+    `proyecto-atrasado-que-hacer` (2027-02-08).
+  - Interlinking: `related` del pilar de metodologías y de `que-es-scrum` actualizado; dead link
+    `waterfall-vs-agile` del cuerpo del pilar resuelto.
+- **Siguiente (Fase 4):** completar Cluster 3 (6 satélites restantes), empezando por
+  `reuniones-de-status-eliminar` y `reducir-trabajo-en-curso` (este último ya enlazado desde
+  `kanban-limites-wip` en el cuerpo). Luego Cluster 4 (plantillas) con su pilar.
 
 ## Cadencia
 
 Un artículo semanal aproximadamente (ver `publishedAt` en `articles-index.ts`), priorizando terminar
 un cluster (incluido su pilar) antes de saltar al siguiente — un pilar sin satélites no compite tan
 bien como un cluster completo.
+
+### Calendario editorial Fase 3
+
+| `publishedAt` | Slug |
+|---|---|
+| 2027-01-04 | `sprint-planning-como-hacerlo` |
+| 2027-01-11 | `daily-standup-util` |
+| 2027-01-18 | `retrospectivas-formatos` |
+| 2027-01-25 | `waterfall-vs-agile` |
+| 2027-02-01 | `gestionar-varios-proyectos-a-la-vez` |
+| 2027-02-08 | `proyecto-atrasado-que-hacer` |

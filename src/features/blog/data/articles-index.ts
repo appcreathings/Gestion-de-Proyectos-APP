@@ -516,6 +516,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "que-es-scrum-equipos-pequenos",
       "kanban-limites-wip",
       "waterfall-vs-agile",
+      "sprint-planning-como-hacerlo",
+      "daily-standup-util",
+      "retrospectivas-formatos",
     ],
     seo: {
       title: "Metodologías de gestión de proyectos: cuál usar según tu equipo | Hito",
@@ -535,7 +538,13 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "metodologias-gestion-proyectos",
-    related: ["scrum-vs-kanban", "kanban-limites-wip", "sprint-planning-como-hacerlo"],
+    related: [
+      "scrum-vs-kanban",
+      "kanban-limites-wip",
+      "sprint-planning-como-hacerlo",
+      "daily-standup-util",
+      "retrospectivas-formatos",
+    ],
     seo: {
       title: "Qué es Scrum, sin certificaciones | Hito",
       description:
@@ -554,12 +563,156 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "8 min",
     featured: false,
     pillar: "metodologias-gestion-proyectos",
-    related: ["scrum-vs-kanban", "que-es-scrum-equipos-pequenos", "reducir-trabajo-en-curso"],
+    related: [
+      "scrum-vs-kanban",
+      "que-es-scrum-equipos-pequenos",
+      "gestionar-varios-proyectos-a-la-vez",
+    ],
     seo: {
       title: "Kanban en la práctica: límites WIP | Hito",
       description:
         "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
       ogImageAlt: "Kanban en la práctica: límites WIP explicados.",
+    },
+  },
+  {
+    slug: "sprint-planning-como-hacerlo",
+    title: "Sprint planning que se cumple",
+    excerpt:
+      "Cómo hacer un sprint planning que el equipo realmente pueda cumplir: capacidad real, poco trabajo bien cortado y un compromiso en una frase.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-01-04",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: [
+      "que-es-scrum-equipos-pequenos",
+      "como-estimar-tiempos-proyecto",
+      "daily-standup-util",
+    ],
+    seo: {
+      title: "Sprint planning que se cumple: guía práctica | Hito",
+      description:
+        "Cómo hacer un sprint planning que el equipo realmente pueda cumplir: capacidad real, poco trabajo bien cortado y un compromiso en una frase.",
+      ogImageAlt: "Sprint planning que se cumple: capacidad, backlog y compromiso.",
+    },
+  },
+  {
+    slug: "daily-standup-util",
+    title: "Daily standup que no sea pérdida de tiempo",
+    excerpt:
+      "El daily no es un status report al jefe: es coordinación de bloqueos en 15 minutos. Formato que funciona y cuándo hacerlo asíncrono.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-01-11",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: [
+      "sprint-planning-como-hacerlo",
+      "que-es-scrum-equipos-pequenos",
+      "scrum-vs-kanban",
+    ],
+    seo: {
+      title: "Daily standup que no sea pérdida de tiempo | Hito",
+      description:
+        "El daily no es un status report al jefe: es coordinación de bloqueos en 15 minutos. Formato que funciona y cuándo hacerlo asíncrono.",
+      ogImageAlt: "Daily standup útil: 15 minutos y foco en bloqueos.",
+    },
+  },
+  {
+    slug: "retrospectivas-formatos",
+    title: "Retrospectivas: 5 formatos y cómo elegir",
+    excerpt:
+      "Una retro sin 1–2 acciones con dueño y fecha es teatro. Cinco formatos prácticos y cómo elegir el correcto en 30 segundos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-01-18",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: [
+      "sprint-planning-como-hacerlo",
+      "que-es-scrum-equipos-pequenos",
+      "scrum-vs-kanban",
+    ],
+    seo: {
+      title: "Retrospectivas: 5 formatos y cómo elegir | Hito",
+      description:
+        "Una retro sin 1–2 acciones con dueño y fecha es teatro. Cinco formatos prácticos y cómo elegir el correcto en 30 segundos.",
+      ogImageAlt: "Formatos de retrospectiva de sprint: Start/Stop, 4Ls, Sailboat y más.",
+    },
+  },
+  {
+    slug: "waterfall-vs-agile",
+    title: "Waterfall vs Agile: cuándo cascada es la respuesta correcta",
+    excerpt:
+      "Cascada no es “vieja y mala”. Cuándo Waterfall es honesto, cuándo Agile es teatro, y una tabla de decisión sin moda de industria.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-01-25",
+    readingTime: "10 min",
+    featured: true,
+    pillar: "metodologias-gestion-proyectos",
+    related: [
+      "metodologias-gestion-proyectos",
+      "scrum-vs-kanban",
+      "fases-de-un-proyecto",
+      "alcance-de-proyecto-scope-creep",
+    ],
+    seo: {
+      title: "Waterfall vs Agile: cuándo cascada es la respuesta correcta | Hito",
+      description:
+        "Cascada no es “vieja y mala”. Cuándo Waterfall es honesto, cuándo Agile es teatro, y una tabla de decisión sin moda de industria.",
+      ogImageAlt: "Waterfall vs Agile: cuándo elegir cascada y cuándo iterar.",
+    },
+  },
+  {
+    slug: "gestionar-varios-proyectos-a-la-vez",
+    title: "Cómo gestionar varios proyectos a la vez",
+    excerpt:
+      "No es multitasking heroico: es un portafolio personal con capacidad compartida, WIP entre proyectos y un ritmo semanal que evita el caos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-02-01",
+    readingTime: "13 min",
+    featured: true,
+    related: [
+      "proyecto-atrasado-que-hacer",
+      "como-priorizar-tareas",
+      "organizar-proyectos-tareas-jerarquia",
+      "kanban-limites-wip",
+    ],
+    seo: {
+      title: "Cómo gestionar varios proyectos a la vez | Hito",
+      description:
+        "No es multitasking heroico: es un portafolio personal con capacidad compartida, WIP entre proyectos y un ritmo semanal que evita el caos.",
+      ogImageAlt: "Gestionar varios proyectos a la vez: portafolio, WIP y ritmo semanal.",
+    },
+  },
+  {
+    slug: "proyecto-atrasado-que-hacer",
+    title: "Tu proyecto va atrasado: 6 movimientos antes de pedir plazo",
+    excerpt:
+      "Playbook de crisis: diagnosticar, congelar alcance, recortar, liberar la ruta crítica y comunicar con datos — antes de pedir más tiempo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-02-08",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "gestionar-varios-proyectos-a-la-vez",
+      "ruta-critica-proyecto",
+      "alcance-de-proyecto-scope-creep",
+      "como-estimar-tiempos-proyecto",
+    ],
+    seo: {
+      title: "Tu proyecto va atrasado: 6 movimientos antes de pedir plazo | Hito",
+      description:
+        "Playbook de crisis: diagnosticar, congelar alcance, recortar, liberar la ruta crítica y comunicar con datos — antes de pedir más tiempo.",
+      ogImageAlt: "Proyecto atrasado: 6 movimientos antes de pedir más plazo.",
     },
   },
 ];

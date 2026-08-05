@@ -14,7 +14,13 @@ export const article: BlogArticle = {
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "metodologias-gestion-proyectos",
-  related: ["scrum-vs-kanban", "kanban-limites-wip", "sprint-planning-como-hacerlo"],
+  related: [
+    "scrum-vs-kanban",
+    "kanban-limites-wip",
+    "sprint-planning-como-hacerlo",
+    "daily-standup-util",
+    "retrospectivas-formatos",
+  ],
   seo: {
     title: "Qué es Scrum, sin certificaciones | Hito",
     description:

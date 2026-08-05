@@ -36,6 +36,13 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "metodologias-gestion-proyectos": () => import("./metodologias-gestion-proyectos"),
   "que-es-scrum-equipos-pequenos": () => import("./que-es-scrum-equipos-pequenos"),
   "kanban-limites-wip": () => import("./kanban-limites-wip"),
+  "sprint-planning-como-hacerlo": () => import("./sprint-planning-como-hacerlo"),
+  "daily-standup-util": () => import("./daily-standup-util"),
+  "retrospectivas-formatos": () => import("./retrospectivas-formatos"),
+  "waterfall-vs-agile": () => import("./waterfall-vs-agile"),
+  "gestionar-varios-proyectos-a-la-vez": () =>
+    import("./gestionar-varios-proyectos-a-la-vez"),
+  "proyecto-atrasado-que-hacer": () => import("./proyecto-atrasado-que-hacer"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

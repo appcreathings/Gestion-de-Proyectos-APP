@@ -14,7 +14,11 @@ export const article: BlogArticle = {
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "metodologias-gestion-proyectos",
-  related: ["scrum-vs-kanban", "que-es-scrum-equipos-pequenos", "reducir-trabajo-en-curso"],
+  related: [
+    "scrum-vs-kanban",
+    "que-es-scrum-equipos-pequenos",
+    "gestionar-varios-proyectos-a-la-vez",
+  ],
   seo: {
     title: "Kanban en la práctica: límites WIP | Hito",
     description:

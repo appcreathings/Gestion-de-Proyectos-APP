@@ -790,8 +790,8 @@
     "semantic_hash": "234368fdb8db42b869389f0ee40062a6"
   },
   "src/features/blog/data/articles-index.ts": {
-    "mtime": 1785816570.6588304,
-    "ast_hash": "7e760b18d749bdfcaecfdaaa655028b9",
+    "mtime": 1785890511.5358481,
+    "ast_hash": "de5d2b9641be81e2870668681afb9046",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/alternativas-a-notion.tsx": {
@@ -845,8 +845,8 @@
     "semantic_hash": "5a80b8e1b332ec3d0d719dd7ff759cd6"
   },
   "src/features/blog/data/articles/index.ts": {
-    "mtime": 1785816552.5839467,
-    "ast_hash": "63fabc14a1ea2cf69a14d22e0edd9b60",
+    "mtime": 1785890457.1793163,
+    "ast_hash": "68e83bdddcb96170ab21da054e8f672d",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/local-first-guia-definitiva-2026.tsx": {
@@ -2260,8 +2260,8 @@
     "semantic_hash": ""
   },
   "ROADMAP_BLOG.md": {
-    "mtime": 1785816645.2002761,
-    "ast_hash": "c934ac68ec8b57d7444005f780962967",
+    "mtime": 1785890511.541356,
+    "ast_hash": "7eba531e1201d653953c3a9c5cdbc595",
     "semantic_hash": ""
   },
   "ROADMAP_BRANDING_SEO.md": {
@@ -3025,13 +3025,13 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/kanban-limites-wip.tsx": {
-    "mtime": 1785816453.408735,
-    "ast_hash": "445563e2792c062b5738afc900df71f9",
+    "mtime": 1785890511.541356,
+    "ast_hash": "df69bb33984d764f8b8a29c89397b332",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/metodologias-gestion-proyectos.tsx": {
-    "mtime": 1785816293.7915044,
-    "ast_hash": "b7d2fbd064d328b911d497d013d1f646",
+    "mtime": 1785890511.541356,
+    "ast_hash": "55b3d877997bcfa436a22f85c6ad3bd0",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/objetivos-proyecto-smart-okr.tsx": {
@@ -3040,8 +3040,8 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/que-es-scrum-equipos-pequenos.tsx": {
-    "mtime": 1785816363.3418932,
-    "ast_hash": "e71f55acb52fd3b72a6db3419225cf24",
+    "mtime": 1785890511.541356,
+    "ast_hash": "059dbfa335ea88ab3199dc907fbddc77",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/ruta-critica-proyecto.tsx": {
@@ -3132,6 +3132,36 @@
   "src/features/releases/data/capabilities.ts": {
     "mtime": 1785868236.848999,
     "ast_hash": "0a065c3a67c3f1201d84014e3c72f663",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/daily-standup-util.tsx": {
+    "mtime": 1785890298.9899778,
+    "ast_hash": "bd479b97b1b3dfd6270d74d0d82ed4af",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/gestionar-varios-proyectos-a-la-vez.tsx": {
+    "mtime": 1785890419.8845725,
+    "ast_hash": "f086ca2b2e828b39e684e04b3e0b3154",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/proyecto-atrasado-que-hacer.tsx": {
+    "mtime": 1785890419.8845725,
+    "ast_hash": "7d809123ec5eba54c3358d5ba1aae6d5",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/retrospectivas-formatos.tsx": {
+    "mtime": 1785890298.9899778,
+    "ast_hash": "7bb079eeaba4a913c065d42032cee184",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/sprint-planning-como-hacerlo.tsx": {
+    "mtime": 1785890298.9894714,
+    "ast_hash": "f1206005cedc5f449db2acd2ff186700",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/waterfall-vs-agile.tsx": {
+    "mtime": 1785890298.9899778,
+    "ast_hash": "e32485fecb24b63f08602467c943c360",
     "semantic_hash": ""
   }
 }
