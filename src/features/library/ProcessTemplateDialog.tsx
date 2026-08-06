@@ -27,8 +27,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { SortableItem } from "@/components/dnd/SortableItem";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
 import type { ProcessTemplate } from "@/domain/schemas";
@@ -167,12 +167,12 @@ export function ProcessTemplateDialog({ open, onOpenChange, template, onSubmit }
             </div>
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="pt-desc">Descripción (Markdown)</Label>
-            <Textarea
+            <Label htmlFor="pt-desc">Descripción</Label>
+            <RichTextField
               id="pt-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="min-h-28 font-mono text-xs"
+              onChange={setDescription}
+              textareaClassName="min-h-28"
             />
           </div>
           <div className="grid gap-2">

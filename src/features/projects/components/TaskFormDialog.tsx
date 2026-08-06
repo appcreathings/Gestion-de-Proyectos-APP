@@ -13,11 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { priorityLabel, taskStatusLabel } from "@/domain/labels";
 import { newTask } from "@/domain/factories";
@@ -156,12 +156,12 @@ export function TaskFormDialog({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="t-desc">Descripción</Label>
-              <Textarea
+              <RichTextField
                 id="t-desc"
                 value={description}
+                onChange={setDescription}
                 placeholder="Añade contexto, criterios de aceptación o notas relevantes..."
-                className="min-h-[100px] resize-y"
-                onChange={(e) => setDescription(e.target.value)}
+                textareaClassName="min-h-[100px]"
               />
             </div>
           </section>

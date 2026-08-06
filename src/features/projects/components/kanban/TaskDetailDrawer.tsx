@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { priorityLabel, taskStatusLabel } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
 import { uuid, nowIso, cn } from "@/lib/utils";
@@ -532,13 +533,14 @@ export function TaskDetailDrawer({
               <Label htmlFor="d-desc" className="text-xs text-muted-foreground">
                 Descripción
               </Label>
-              <Textarea
+              <RichTextField
+                key={task.id}
                 id="d-desc"
                 value={description}
-                placeholder="Añade contexto, criterios de aceptación o notas relevantes..."
-                className="min-h-[120px] resize-y text-sm"
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={setDescription}
                 onBlur={() => persist("description", description)}
+                placeholder="Añade contexto, criterios de aceptación o notas relevantes..."
+                textareaClassName="min-h-[120px]"
               />
             </div>
 

@@ -12,9 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { IconPicker } from "@/components/forms/IconPicker";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { AREA_ICONS } from "@/features/projects/components/AreaFormDialog";
 import type {
@@ -147,10 +147,10 @@ export function ProjectTypeDialog({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="ty-desc">Descripción</Label>
-            <Textarea
+            <RichTextField
               id="ty-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
             />
           </div>
 

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { PersonSelect } from "@/components/forms/PersonSelect";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { productStatusLabel } from "@/domain/labels";
 import type { Product, ProductStatus } from "@/domain/schemas";
@@ -118,10 +119,10 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit }: Pro
           </div>
           <div className="grid gap-2">
             <Label htmlFor="p-desc">Descripción</Label>
-            <Textarea
+            <RichTextField
               id="p-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
             />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

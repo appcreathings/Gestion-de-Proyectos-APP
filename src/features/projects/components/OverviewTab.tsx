@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Markdown } from "@/components/Markdown";
 import {
   healthLabel,
   priorityLabel,
@@ -37,10 +38,10 @@ export function OverviewTab({ project, productName, productId, onChangeHealth }:
         label="Resumen"
         title={project.name}
         description={
-          project.description ? (
-            <span className="text-pretty text-sm leading-relaxed text-foreground">
-              {project.description}
-            </span>
+          project.description.trim() ? (
+            <div className="text-foreground">
+              <Markdown>{project.description}</Markdown>
+            </div>
           ) : (
             <span className="italic text-muted-foreground">Sin descripción.</span>
           )

@@ -12,11 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect, MultiPersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview, DateRangeSummary } from "@/components/forms/DateFieldPreview";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { priorityLabel, projectStatusLabel } from "@/domain/labels";
 import type { Priority, Project, ProjectStatus, Stakeholder } from "@/domain/schemas";
@@ -269,10 +269,10 @@ export function ProjectFormDialog({
 
               <div className="grid gap-2">
                 <Label htmlFor="pr-desc">Descripción</Label>
-                <Textarea
+                <RichTextField
                   id="pr-desc"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={setDescription}
                 />
               </div>
             </>

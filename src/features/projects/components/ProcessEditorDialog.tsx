@@ -27,8 +27,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { PersonSelect } from "@/components/forms/PersonSelect";
+import { RichTextField } from "@/components/forms/RichTextField";
 import { SortableItem } from "@/components/dnd/SortableItem";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { cn, uuid } from "@/lib/utils";
@@ -183,12 +183,12 @@ export function ProcessEditorDialog({
           )}
 
           <div className="grid gap-2">
-            <Label htmlFor="proc-desc">Descripción (Markdown)</Label>
-            <Textarea
+            <Label htmlFor="proc-desc">Descripción</Label>
+            <RichTextField
               id="proc-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="min-h-28 font-mono text-xs"
+              onChange={setDescription}
+              textareaClassName="min-h-28"
               placeholder="Documenta el proceso. Admite **negrita**, listas, `código`…"
             />
           </div>
