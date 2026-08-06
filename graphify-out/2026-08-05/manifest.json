@@ -395,9 +395,9 @@
     "semantic_hash": "dab3807df027a3ec066d2b6b88feda21"
   },
   "src/components/Markdown.tsx": {
-    "mtime": 1785991092.2690547,
-    "ast_hash": "61425eddcfdf3d412d1162e315d41244",
-    "semantic_hash": ""
+    "mtime": 1782448696.2249434,
+    "ast_hash": "4c5f904dff4d8212fce7705d0523d48a",
+    "semantic_hash": "4c5f904dff4d8212fce7705d0523d48a"
   },
   "src/components/PageHeader.tsx": {
     "mtime": 1783267998.981846,
@@ -1355,13 +1355,13 @@
     "semantic_hash": ""
   },
   "src/features/library/ProcessTemplateDialog.tsx": {
-    "mtime": 1785991342.2261815,
-    "ast_hash": "5dcfd390abcaecb32613f0f28c24abba",
+    "mtime": 1785825253.4058528,
+    "ast_hash": "7e7f4f9dfda9e88e17d0d9dcf2800010",
     "semantic_hash": ""
   },
   "src/features/library/ProjectTypeDialog.tsx": {
-    "mtime": 1785991351.8074586,
-    "ast_hash": "2ef20f9505664c1525d4c82d4b6bce14",
+    "mtime": 1785825253.4058528,
+    "ast_hash": "24caeb4d6abea74c61df29159cac3302",
     "semantic_hash": ""
   },
   "src/features/my-tasks/MyTasksPage.tsx": {
@@ -1390,8 +1390,8 @@
     "semantic_hash": "4bc4f9db00e91ea5602a502685b8071a"
   },
   "src/features/products/ProductFormDialog.tsx": {
-    "mtime": 1785991318.306044,
-    "ast_hash": "d11756befdde864e6fe38509290d2a96",
+    "mtime": 1785823520.6724436,
+    "ast_hash": "d4af87d9a5e3ce7c174b32b8705e7f32",
     "semantic_hash": ""
   },
   "src/features/products/ProductsPage.tsx": {
@@ -1410,8 +1410,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/ProjectFormDialog.tsx": {
-    "mtime": 1785991294.459203,
-    "ast_hash": "644d199a1773add6f4cd6c8b44b3adf1",
+    "mtime": 1785686561.8392324,
+    "ast_hash": "5b8bd4590b352f3c9244a95bb108b819",
     "semantic_hash": ""
   },
   "src/features/projects/ProjectsLayout.tsx": {
@@ -1460,13 +1460,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/OverviewTab.tsx": {
-    "mtime": 1785991304.6096907,
-    "ast_hash": "c8697cad1e0562d473aa75cb7d71fd43",
+    "mtime": 1785822520.9501529,
+    "ast_hash": "6ec85452347a10bf751d9700148e6ef1",
     "semantic_hash": ""
   },
   "src/features/projects/components/ProcessEditorDialog.tsx": {
-    "mtime": 1785991330.455088,
-    "ast_hash": "667e5bc383e7c73be555b0f77b128f9f",
+    "mtime": 1785823599.707378,
+    "ast_hash": "3de1460819645782ba34c9828b6ede1e",
     "semantic_hash": ""
   },
   "src/features/projects/components/ProjectAutomationsTab.tsx": {
@@ -1485,8 +1485,8 @@
     "semantic_hash": "b49eb4da1a8f192909f4529e3192cce7"
   },
   "src/features/projects/components/TaskFormDialog.tsx": {
-    "mtime": 1785991229.5561619,
-    "ast_hash": "a78c4fb7fb9c50f0f08e1fdb10f0cd90",
+    "mtime": 1785686764.697831,
+    "ast_hash": "2ae19f4b7feb1dda90ced11cbb74e387",
     "semantic_hash": ""
   },
   "src/features/projects/components/TasksTab.tsx": {
@@ -1515,8 +1515,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1785991242.5489883,
-    "ast_hash": "25a8468b4999882da0c2660dde2a062a",
+    "mtime": 1785969102.0863557,
+    "ast_hash": "fa400c8f15c5c910cd99dea27aa0fa00",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -3187,41 +3187,6 @@
   "specs/043-task-links/tasks.md": {
     "mtime": 1785969160.4687016,
     "ast_hash": "4e1d35ebb359a3d919d89fabc411877b",
-    "semantic_hash": ""
-  },
-  "src/components/forms/RichTextField.tsx": {
-    "mtime": 1785991164.7919154,
-    "ast_hash": "8e6728fa50408c5493a2ddf19c682d09",
-    "semantic_hash": ""
-  },
-  "src/lib/markdownEdit.test.ts": {
-    "mtime": 1785990977.4876022,
-    "ast_hash": "5d57f45192bb96e73130aae215486c5a",
-    "semantic_hash": ""
-  },
-  "src/lib/markdownEdit.ts": {
-    "mtime": 1785990921.1015904,
-    "ast_hash": "d003782d3aa205eec7fbcb0f953a77d7",
-    "semantic_hash": ""
-  },
-  "specs/044-rich-text-descripciones/PROMPT-EJECUCION.md": {
-    "mtime": 1785990448.5157094,
-    "ast_hash": "fba6ad4ad4093d1a462cd9193afdee91",
-    "semantic_hash": ""
-  },
-  "specs/044-rich-text-descripciones/design.md": {
-    "mtime": 1785990304.9105248,
-    "ast_hash": "5f35e496c62493cb457a90ae4ae5a490",
-    "semantic_hash": ""
-  },
-  "specs/044-rich-text-descripciones/spec.md": {
-    "mtime": 1785991411.134143,
-    "ast_hash": "0af7392b83a92aa61b3fbfaa4783f59f",
-    "semantic_hash": ""
-  },
-  "specs/044-rich-text-descripciones/tasks.md": {
-    "mtime": 1785991416.7440045,
-    "ast_hash": "89aa8ced1fb7e0b72d7383f1e8f6973d",
     "semantic_hash": ""
   }
 }
