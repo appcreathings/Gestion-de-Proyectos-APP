@@ -567,6 +567,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "scrum-vs-kanban",
       "que-es-scrum-equipos-pequenos",
       "gestionar-varios-proyectos-a-la-vez",
+      "reducir-trabajo-en-curso",
     ],
     seo: {
       title: "Kanban en la práctica: límites WIP | Hito",
@@ -713,6 +714,150 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Playbook de crisis: diagnosticar, congelar alcance, recortar, liberar la ruta crítica y comunicar con datos — antes de pedir más tiempo.",
       ogImageAlt: "Proyecto atrasado: 6 movimientos antes de pedir más plazo.",
+    },
+  },
+  {
+    slug: "reuniones-de-status-eliminar",
+    title: "Reemplazar reuniones de status por un tablero",
+    excerpt:
+      "La reunión de status no informa a nadie: confirma en voz alta lo que un tablero ya muestra. Cómo migrar a un tablero + update escrito sin perder visibilidad.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-02-15",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "gestionar-varios-proyectos-a-la-vez",
+      "daily-standup-util",
+      "seguimiento-de-tareas-equipo",
+      "reducir-trabajo-en-curso",
+    ],
+    seo: {
+      title: "Reemplazar reuniones de status por un tablero | Hito",
+      description:
+        "La reunión de status no informa a nadie: confirma en voz alta lo que un tablero ya muestra. Cómo migrar a un tablero + update escrito sin perder visibilidad.",
+      ogImageAlt: "Reemplazar reuniones de status por un tablero y un update escrito.",
+    },
+  },
+  {
+    slug: "reducir-trabajo-en-curso",
+    title: "Por qué tu equipo entrega poco: demasiado trabajo empezado",
+    excerpt:
+      "Más tareas “en curso” no es más progreso — es más cambio de contexto y menos entregas. Cómo medir el WIP real y bajarlo sin frenar al equipo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-02-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "kanban-limites-wip",
+      "gestionar-varios-proyectos-a-la-vez",
+      "reuniones-de-status-eliminar",
+      "sprint-planning-como-hacerlo",
+    ],
+    seo: {
+      title: "Por qué tu equipo entrega poco: demasiado trabajo empezado | Hito",
+      description:
+        "Más tareas “en curso” no es más progreso — es más cambio de contexto y menos entregas. Cómo medir el WIP real y bajarlo sin frenar al equipo.",
+      ogImageAlt: "Reducir el trabajo en curso (WIP) para entregar más rápido.",
+    },
+  },
+  {
+    slug: "como-delegar-tareas",
+    title: "Cómo delegar y dejar de ser el cuello de botella",
+    excerpt:
+      "Delegar no es soltar del todo ni microgestionar: son 3 niveles según cuánto confiás en la tarea. Con RACI para que quede claro quién decide qué.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-03-01",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "matriz-raci",
+      "seguimiento-de-tareas-equipo",
+      "gestionar-varios-proyectos-a-la-vez",
+      "proyecto-atrasado-que-hacer",
+    ],
+    seo: {
+      title: "Cómo delegar y dejar de ser el cuello de botella | Hito",
+      description:
+        "Delegar no es soltar del todo ni microgestionar: son 3 niveles según cuánto confiás en la tarea. Con RACI para que quede claro quién decide qué.",
+      ogImageAlt: "Cómo delegar tareas y dejar de ser el cuello de botella del equipo.",
+    },
+  },
+  {
+    slug: "seguimiento-de-tareas-equipo",
+    title: "Seguimiento de tareas sin microgestionar",
+    excerpt:
+      "Preguntar todos los días “¿cómo vas?” no es seguimiento, es ansiedad con forma de mensaje. Un sistema de visibilidad pull que reemplaza el pedido de reportes.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-03-08",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "como-delegar-tareas",
+      "kanban-limites-wip",
+      "daily-standup-util",
+      "reuniones-de-status-eliminar",
+    ],
+    seo: {
+      title: "Seguimiento de tareas sin microgestionar | Hito",
+      description:
+        "Preguntar todos los días “¿cómo vas?” no es seguimiento, es ansiedad con forma de mensaje. Un sistema de visibilidad pull que reemplaza el pedido de reportes.",
+      ogImageAlt: "Seguimiento de tareas de equipo sin caer en la microgestión.",
+    },
+  },
+  {
+    slug: "cierre-de-proyecto-checklist",
+    title: "Cierre de proyecto: el checklist que casi nadie hace",
+    excerpt:
+      "La mayoría de los proyectos no cierran, se apagan: el equipo pasa al siguiente sin archivar, sin retro y sin cobrar el último hito. Checklist de cierre real.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-03-15",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "fases-de-un-proyecto",
+      "retrospectivas-formatos",
+      "gestion-de-proyectos-guia-completa",
+      "gestion-de-riesgos-simple",
+    ],
+    seo: {
+      title: "Cierre de proyecto: el checklist que casi nadie hace | Hito",
+      description:
+        "La mayoría de los proyectos no cierran, se apagan: el equipo pasa al siguiente sin archivar, sin retro y sin cobrar el último hito. Checklist de cierre real.",
+      ogImageAlt: "Checklist de cierre de proyecto: lo que casi nadie hace al final.",
+    },
+  },
+  {
+    slug: "gestionar-proyectos-con-clientes",
+    title: "Proyectos con clientes externos",
+    excerpt:
+      "Un cliente externo no es un stakeholder más: cambia el costo del cambio de alcance, el canal de comunicación y quién tiene la última palabra. Cómo ordenarlo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-03-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "gestionar-varios-proyectos-a-la-vez",
+    related: [
+      "gestionar-varios-proyectos-a-la-vez",
+      "matriz-raci",
+      "alcance-de-proyecto-scope-creep",
+      "hito-para-estudio-juridico",
+    ],
+    seo: {
+      title: "Proyectos con clientes externos | Hito",
+      description:
+        "Un cliente externo no es un stakeholder más: cambia el costo del cambio de alcance, el canal de comunicación y quién tiene la última palabra. Cómo ordenarlo.",
+      ogImageAlt: "Gestionar proyectos con clientes externos: alcance, canal y RACI.",
     },
   },
 ];

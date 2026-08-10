@@ -43,6 +43,12 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "gestionar-varios-proyectos-a-la-vez": () =>
     import("./gestionar-varios-proyectos-a-la-vez"),
   "proyecto-atrasado-que-hacer": () => import("./proyecto-atrasado-que-hacer"),
+  "reuniones-de-status-eliminar": () => import("./reuniones-de-status-eliminar"),
+  "reducir-trabajo-en-curso": () => import("./reducir-trabajo-en-curso"),
+  "como-delegar-tareas": () => import("./como-delegar-tareas"),
+  "seguimiento-de-tareas-equipo": () => import("./seguimiento-de-tareas-equipo"),
+  "cierre-de-proyecto-checklist": () => import("./cierre-de-proyecto-checklist"),
+  "gestionar-proyectos-con-clientes": () => import("./gestionar-proyectos-con-clientes"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

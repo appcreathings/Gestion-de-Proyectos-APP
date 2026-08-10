@@ -54,12 +54,12 @@
 |---|---|---|---|
 | 🟩 | `gestionar-varios-proyectos-a-la-vez` | **PILAR** — Cómo gestionar varios proyectos a la vez | "gestionar varios proyectos a la vez" |
 | 🟩 | `proyecto-atrasado-que-hacer` | Tu proyecto va atrasado: 6 movimientos antes de pedir plazo | "proyecto atrasado qué hacer" |
-| ⬜ | `reuniones-de-status-eliminar` | Reemplazar reuniones de status por un tablero | "eliminar reuniones de status" |
-| ⬜ | `como-delegar-tareas` | Cómo delegar y dejar de ser el cuello de botella | "cómo delegar tareas" |
-| ⬜ | `seguimiento-de-tareas-equipo` | Seguimiento de tareas sin microgestionar | "seguimiento de tareas de equipo" |
-| ⬜ | `cierre-de-proyecto-checklist` | Cierre de proyecto: el checklist que casi nadie hace | "checklist cierre de proyecto" |
-| ⬜ | `gestionar-proyectos-con-clientes` | Proyectos con clientes externos | "gestionar proyectos con clientes" |
-| ⬜ | `reducir-trabajo-en-curso` | Por qué tu equipo entrega poco: demasiado trabajo empezado | "reducir trabajo en curso", "WIP alto equipo" |
+| 🟩 | `reuniones-de-status-eliminar` | Reemplazar reuniones de status por un tablero | "eliminar reuniones de status" |
+| 🟩 | `como-delegar-tareas` | Cómo delegar y dejar de ser el cuello de botella | "cómo delegar tareas" |
+| 🟩 | `seguimiento-de-tareas-equipo` | Seguimiento de tareas sin microgestionar | "seguimiento de tareas de equipo" |
+| 🟩 | `cierre-de-proyecto-checklist` | Cierre de proyecto: el checklist que casi nadie hace | "checklist cierre de proyecto" |
+| 🟩 | `gestionar-proyectos-con-clientes` | Proyectos con clientes externos | "gestionar proyectos con clientes" |
+| 🟩 | `reducir-trabajo-en-curso` | Por qué tu equipo entrega poco: demasiado trabajo empezado | "reducir trabajo en curso", "WIP alto equipo" |
 
 ## Cluster 4 — Plantillas y herramientas
 
@@ -103,9 +103,16 @@ enlazarán a este pilar cuando se publique.)*
     `proyecto-atrasado-que-hacer` (2027-02-08).
   - Interlinking: `related` del pilar de metodologías y de `que-es-scrum` actualizado; dead link
     `waterfall-vs-agile` del cuerpo del pilar resuelto.
-- **Siguiente (Fase 4):** completar Cluster 3 (6 satélites restantes), empezando por
-  `reuniones-de-status-eliminar` y `reducir-trabajo-en-curso` (este último ya enlazado desde
-  `kanban-limites-wip` en el cuerpo). Luego Cluster 4 (plantillas) con su pilar.
+- **Fase 4 (2026-08-10):** 6 artículos publicados — **Cluster 3 cerrado** (completo, 8/8):
+  `reuniones-de-status-eliminar` (2027-02-15), `reducir-trabajo-en-curso` (2027-02-22),
+  `como-delegar-tareas` (2027-03-01), `seguimiento-de-tareas-equipo` (2027-03-08),
+  `cierre-de-proyecto-checklist` (2027-03-15), `gestionar-proyectos-con-clientes` (2027-03-22).
+  Interlinking: dead links del cuerpo del pilar (`gestionar-varios-proyectos-a-la-vez`) hacia
+  "reuniones de status" y "delegar decisiones RACI" resueltos; `reducir-trabajo-en-curso` sumado
+  al `related` de `kanban-limites-wip`.
+- **Siguiente (Fase 5):** Cluster 4 — Plantillas y herramientas, empezando por su pilar
+  `plantillas-gestion-proyectos` y luego los 5 satélites. Cluster 5 (por rol) queda para después,
+  sin pilar propio.
 
 ## Cadencia
 
@@ -123,3 +130,14 @@ bien como un cluster completo.
 | 2027-01-25 | `waterfall-vs-agile` |
 | 2027-02-01 | `gestionar-varios-proyectos-a-la-vez` |
 | 2027-02-08 | `proyecto-atrasado-que-hacer` |
+
+### Calendario editorial Fase 4
+
+| `publishedAt` | Slug |
+|---|---|
+| 2027-02-15 | `reuniones-de-status-eliminar` |
+| 2027-02-22 | `reducir-trabajo-en-curso` |
+| 2027-03-01 | `como-delegar-tareas` |
+| 2027-03-08 | `seguimiento-de-tareas-equipo` |
+| 2027-03-15 | `cierre-de-proyecto-checklist` |
+| 2027-03-22 | `gestionar-proyectos-con-clientes` |

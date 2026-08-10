@@ -225,13 +225,24 @@ export const article: BlogArticle = {
                 <tr className="border-b border-border/40">
                   <td className="py-2 pr-4 font-medium">Reuniones de status &gt; trabajo</td>
                   <td className="py-2 text-muted-foreground">
-                    Un tablero compartido + update escrito semanal
+                    <Link
+                      to="/blogs/reuniones-de-status-eliminar"
+                      className="underline underline-offset-2"
+                    >
+                      Un tablero compartido + update escrito semanal
+                    </Link>
                   </td>
                 </tr>
                 <tr className="border-b border-border/40">
                   <td className="py-2 pr-4 font-medium">Vos sos el cuello de botella de todos</td>
                   <td className="py-2 text-muted-foreground">
-                    Delegar decisiones RACI; sacar tu nombre de Aprobador eterno
+                    <Link
+                      to="/blogs/como-delegar-tareas"
+                      className="underline underline-offset-2"
+                    >
+                      Delegar decisiones RACI
+                    </Link>
+                    ; sacar tu nombre de Aprobador eterno
                   </td>
                 </tr>
                 <tr>
