@@ -67,8 +67,9 @@ export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
       }),
       execute: async ({ query, topK }) => {
         const { useAiConfigStore } = await import("@/store/useAiConfigStore");
-        const apiKey = useAiConfigStore.getState().config.apiKey;
-        if (!apiKey) return { error: "API key no configurada" };
+        const { geminiKey } = await import("@/ai/config");
+        const apiKey = geminiKey(useAiConfigStore.getState().config);
+        if (!apiKey) return { error: "API key de Gemini no configurada (RAG usa Gemini)" };
         return await semanticSearch(query, apiKey, topK);
       },
     }),

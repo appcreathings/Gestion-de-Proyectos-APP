@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { createClient } from "@/ai/gemini/client";
-import { classifyAiError } from "@/ai/gemini/errors";
 import { rateLimiter } from "@/ai/rateLimiter";
-import { getModelsByGroup } from "@/ai/models";
+import { getModelsByGroup, splitQualified } from "@/ai/models";
+import { getProvider } from "@/ai/providers";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 
 export const SUGGESTION_FIELDS = [
@@ -111,9 +110,8 @@ export function buildImprovePrompt(
 }
 
 export async function runImprove(options: ImproveOptions): Promise<ImproveResult> {
-  const { apiKey, model = "gemini-2.5-flash", entityType, fields, signal } = options;
-
-  const ai = await createClient(apiKey);
+  const { apiKey, model = "gemini:gemini-2.5-flash", entityType, fields, signal } = options;
+  const { provider: providerId, modelId } = splitQualified(model);
   const prompt = buildImprovePrompt(entityType, fields);
 
   if (!rateLimiter.canMakeRequest(model)) {
@@ -121,26 +119,28 @@ export async function runImprove(options: ImproveOptions): Promise<ImproveResult
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
-        abortSignal: signal,
-      },
+    const provider = await getProvider(providerId);
+    const result = await provider.streamTurn({
+      apiKey,
+      model: modelId,
+      systemInstruction: SYSTEM_PROMPT,
+      history: [{ role: "user", content: prompt }],
+      tools: [],
+      signal,
+      onTextDelta: () => undefined,
     });
 
     rateLimiter.recordRequest(model);
-
-    return parseImproveResponse(response.text ?? "");
+    return parseImproveResponse(result.text);
   } catch (e) {
     if (signal?.aborted) {
       return { ok: false, error: "aborted" };
     }
     rateLimiter.recordRequest(model);
+    const provider = await getProvider(providerId).catch(() => null);
     return {
       ok: false,
-      error: classifyAiError(e),
+      error: provider ? provider.classifyError(e) : "unknown",
       rawMessage: e instanceof Error ? e.message : String(e),
     };
   }
@@ -161,12 +161,12 @@ export async function runImproveWithFallback(
 ): Promise<ImproveResultWithMeta> {
   const {
     apiKey,
-    model: preferredModel = "gemini-2.5-flash",
+    model: preferredModel = "gemini:gemini-2.5-flash",
     entityType,
     fields,
     signal,
     autoFallback = true,
-    fallbackGroup = "flash",
+    fallbackGroup = "gemini:flash",
     onFallback,
   } = options;
 

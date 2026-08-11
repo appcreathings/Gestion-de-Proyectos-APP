@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { AiSuggestionsPanel } from "./AiSuggestionsPanel";
 import { AiModelSelector } from "./AiModelSelector";
 import { useAiImprove } from "@/hooks/useAiImprove";
+import { activeKey } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 import type { EntityType } from "@/ai/improve";
 
@@ -13,7 +14,7 @@ export interface AiImproveButtonProps {
 }
 
 export function AiImproveButton({ entityType, fields, onApply }: AiImproveButtonProps) {
-  const apiKey = useAiConfigStore((s) => s.config.apiKey);
+  const apiKey = useAiConfigStore((s) => activeKey(s.config));
   const hasKey = !!apiKey;
 
   const {

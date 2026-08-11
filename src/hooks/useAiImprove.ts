@@ -5,6 +5,7 @@ import {
   type FieldSuggestion,
   type AiImproveResult,
 } from "@/ai/improve";
+import { activeKey } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 
@@ -59,7 +60,8 @@ export function useAiImprove({
   }, [config.model]);
 
   const improve = useCallback(async () => {
-    if (!config.apiKey) {
+    const apiKey = activeKey(config);
+    if (!apiKey) {
       setError("Configura una API key en Ajustes → IA");
       setErrorType("invalid-key");
       return;
@@ -80,7 +82,7 @@ export function useAiImprove({
     setCurrentModel(config.model);
 
     const res = await runImproveWithFallback({
-      apiKey: config.apiKey,
+      apiKey,
       model: config.model,
       entityType,
       fields,
@@ -121,7 +123,7 @@ export function useAiImprove({
       setErrorType(res.error);
       setErrorDetail(res.rawMessage ?? null);
     }
-  }, [config.apiKey, config.model, config.autoFallback, config.fallbackGroup, entityType, fields]);
+  }, [config, entityType, fields]);
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();

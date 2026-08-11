@@ -80,7 +80,7 @@ describe("runGenerateTransform", () => {
 
     const res = await runGenerateTransform({
       apiKey: "fake-key",
-      model: "gemini-2.5-flash",
+      model: "gemini:gemini-2.5-flash",
       instruction: "algo",
     });
 

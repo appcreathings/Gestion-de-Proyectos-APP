@@ -121,7 +121,7 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
     vi.clearAllMocks();
     forceOnline(true);
     // Resetea saturación de tests previos para ambos modelos del grupo.
-    for (const id of ["gemini-embedding-001", "gemini-embedding-2"]) {
+    for (const id of ["gemini:gemini-embedding-001", "gemini:gemini-embedding-2"]) {
       rateLimiter.markSaturated(id, 0);
       rateLimiter.canMakeRequest(id);
     }
@@ -150,7 +150,7 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
     const vec = await embedText("hola", "key");
     expect(vec).toEqual([0.9, 0.8]);
     // El primer modelo quedó marcado saturado en el rate limiter local.
-    expect(rateLimiter.getStatus("gemini-embedding-001").saturated).toBe(true);
+    expect(rateLimiter.getStatus("gemini:gemini-embedding-001").saturated).toBe(true);
   });
 
   it("T3133: NO prueba el segundo modelo ante project-quota-zero (relanza directo)", async () => {
@@ -165,7 +165,7 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
 
     await expect(embedText("hola", "key")).rejects.toBeDefined();
     // No debería haber marcado saturado al primer modelo (eso solo aplica a rate-limit/cuota).
-    expect(rateLimiter.getStatus("gemini-embedding-001").saturated).toBe(false);
+    expect(rateLimiter.getStatus("gemini:gemini-embedding-001").saturated).toBe(false);
   });
 
   it("lanza el último error cuando todos los modelos del grupo fallan por rate-limit", async () => {
@@ -180,8 +180,8 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
     vi.mocked(createClient).mockResolvedValue(client as never);
 
     await expect(embedText("hola", "key")).rejects.toBeDefined();
-    expect(rateLimiter.getStatus("gemini-embedding-001").saturated).toBe(true);
-    expect(rateLimiter.getStatus("gemini-embedding-2").saturated).toBe(true);
+    expect(rateLimiter.getStatus("gemini:gemini-embedding-001").saturated).toBe(true);
+    expect(rateLimiter.getStatus("gemini:gemini-embedding-2").saturated).toBe(true);
   });
 
   it("lanza directamente ante invalid-key (no prueba el segundo modelo)", async () => {
@@ -194,6 +194,6 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
     vi.mocked(createClient).mockResolvedValue(client as never);
 
     await expect(embedText("hola", "key")).rejects.toBe(err400);
-    expect(rateLimiter.getStatus("gemini-embedding-001").saturated).toBe(false);
+    expect(rateLimiter.getStatus("gemini:gemini-embedding-001").saturated).toBe(false);
   });
 });

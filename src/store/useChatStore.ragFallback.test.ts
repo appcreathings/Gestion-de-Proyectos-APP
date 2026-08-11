@@ -20,15 +20,23 @@ vi.mock("@/ai/gemini/systemPrompt", () => ({
   buildSystemPrompt: () => "system prompt",
 }));
 
-vi.mock("@/ai/gemini/agent", () => ({
+vi.mock("@/ai/agent/runAgentTurn", () => ({
   runAgentTurn: (...args: unknown[]) => {
     agentCalls(...args);
     return Promise.resolve({
       history: [],
       roundsExceeded: false,
-      // sin error: el agente respondió bien.
     });
   },
+}));
+
+vi.mock("@/ai/providers", () => ({
+  getProvider: async () => ({
+    id: "gemini",
+    validateKey: async () => ({ ok: true }),
+    streamTurn: async () => ({ text: "", toolCalls: [] }),
+    classifyError: () => "unknown",
+  }),
 }));
 
 vi.mock("@/ai/tools", () => ({
@@ -57,15 +65,23 @@ beforeEach(() => {
   });
   useAiConfigStore.setState({
     config: {
-      apiKey: "test-key",
-      model: "gemini-2.5-flash",
+      configVersion: 2,
+      activeProvider: "gemini",
+      providers: { gemini: { apiKey: "test-key" } },
+      model: "gemini:gemini-2.5-flash",
       autoFallback: true,
-      fallbackGroup: "flash",
+      fallbackGroup: "gemini:flash",
       confirmWrites: false,
       ragEnabled: true,
     } as never,
     loaded: true,
-    keyStatus: "valid",
+    keyStatus: {
+      gemini: "valid",
+      openai: "unset",
+      zai: "unset",
+      nvidia: "unset",
+      "opencode-zen": "unset",
+    },
     lastError: null,
   });
   useAppStore.setState({ workspace: { projects: [], products: [] } } as never);

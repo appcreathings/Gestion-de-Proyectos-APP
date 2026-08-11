@@ -3,6 +3,7 @@ import { AlertTriangle, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getModelDef, getModelsByGroup } from "@/ai/models";
 import { rateLimiter } from "@/ai/rateLimiter";
+import { activeKey } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 
 interface RateLimitStatusProps {
@@ -18,7 +19,7 @@ export function RateLimitStatus({ className }: RateLimitStatusProps) {
     return () => clearInterval(interval);
   }, []);
 
-  if (!config.apiKey) return null;
+  if (!activeKey(config)) return null;
 
   const activeStatus = rateLimiter.getStatus(config.model);
   const activeDef = getModelDef(config.model);

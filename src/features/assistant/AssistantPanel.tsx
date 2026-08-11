@@ -7,6 +7,7 @@ import { AI_ERROR_MESSAGES } from "@/ai/gemini/errors";
 import { rateLimiter } from "@/ai/rateLimiter";
 import { getModelDef } from "@/ai/models";
 import { cn } from "@/lib/utils";
+import { activeKey } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 import { useChatStore } from "@/store/useChatStore";
 import { AssistantEmptyState } from "./AssistantEmptyState";
@@ -31,7 +32,7 @@ export function AssistantPanel() {
   const hydrateFromIdb = useChatStore((s) => s.hydrateFromIdb);
 
   const config = useAiConfigStore((s) => s.config);
-  const hasKey = Boolean(config.apiKey);
+  const hasKey = Boolean(activeKey(config));
 
   const panelRef = useRef<HTMLElement>(null);
   const [showRateLimit, setShowRateLimit] = useState(false);
@@ -90,7 +91,7 @@ export function AssistantPanel() {
         <h2 className="text-sm font-semibold">Asistente</h2>
         {hasKey && (
           <Badge variant={modelBadgeVariant} className="font-mono text-[10px] gap-1">
-            {config.model.replace("gemini-", "")}
+            {config.model.includes(":") ? config.model.split(":").slice(1).join(":") : config.model}
             {isOnFallback && <AlertTriangle className="size-3" />}
           </Badge>
         )}

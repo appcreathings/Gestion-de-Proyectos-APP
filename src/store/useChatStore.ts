@@ -1,11 +1,24 @@
 import { create } from "zustand";
-import type { Content } from "@google/genai";
 import { uuid } from "@/lib/utils";
-import { runAgentTurn, type ToolCallView } from "@/ai/gemini/agent";
+import { runAgentTurn, type ToolCallView } from "@/ai/agent/runAgentTurn";
 import { buildSystemPrompt, buildRagContext } from "@/ai/gemini/systemPrompt";
 import type { AiErrorKind } from "@/ai/gemini/errors";
+import type { AiMessage } from "@/ai/providers/types";
+import { getProvider } from "@/ai/providers";
+import {
+  fromGeminiContents,
+  looksLikeGeminiHistory,
+  looksLikeNeutralHistory,
+} from "@/ai/providers/gemini";
 import { createBoundTools } from "@/ai/tools";
 import { idbDel, idbGet, idbSet } from "@/storage/idb";
+import {
+  activeBaseUrl,
+  activeKey,
+  activeProviderId,
+  geminiKey,
+} from "@/ai/config";
+import { splitQualified } from "@/ai/models";
 import { useAppStore } from "./useAppStore";
 import { useAiConfigStore } from "./useAiConfigStore";
 
@@ -31,13 +44,10 @@ export interface ChatMessage {
 export type ChatStatus = "idle" | "streaming" | "awaiting-confirmation" | "error";
 
 interface ChatState {
-  /** Panel visibility (persisted in localStorage, per device). */
   open: boolean;
   messages: ChatMessage[];
   status: ChatStatus;
   error: AiErrorKind | null;
-  /** Mensaje crudo del SDK (ApiError.message) del último error, para el detalle técnico
-   * colapsable en el AssistantPanel. Vive solo en la sesión de React (Principio I). spec 031 §6. */
   errorDetail: string | null;
   hydrated: boolean;
 
@@ -49,12 +59,11 @@ interface ChatState {
   hydrateFromIdb: () => Promise<void>;
 }
 
-/** Device-local snapshot of the last conversation (never in the workspace). */
 const IDB_KEY = "aiChat:last";
 const MAX_PERSISTED_MESSAGES = 50;
 
-/** Gemini-format history for the next turn; parallel to `messages` for the UI. */
-let geminiHistory: Content[] = [];
+/** Neutral history for the next turn (D2). */
+let agentHistory: AiMessage[] = [];
 let abortController: AbortController | null = null;
 const pendingResolvers = new Map<string, (approved: boolean) => void>();
 
@@ -76,11 +85,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   async hydrateFromIdb() {
     try {
-      const snap = await idbGet<{ messages: ChatMessage[]; history: Content[] }>(
-        IDB_KEY,
-      );
+      const snap = await idbGet<{ messages: ChatMessage[]; history: unknown }>(IDB_KEY);
       if (snap) {
-        geminiHistory = snap.history ?? [];
+        agentHistory = normalizeHistory(snap.history);
         set({ messages: snap.messages ?? [] });
       }
     } catch {
@@ -93,7 +100,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const trimmed = text.trim();
     if (!trimmed || get().status === "streaming") return;
     const { config } = useAiConfigStore.getState();
-    if (!config.apiKey) return;
+    const apiKey = activeKey(config);
+    if (!apiKey) return;
 
     const assistantId = uuid();
     set({
@@ -123,22 +131,26 @@ export const useChatStore = create<ChatState>((set, get) => ({
         ),
       );
 
-    // RAG es una mejora opcional: si falla (cuota, red, embeddings, lo que sea), el turno del
-    // agente continúa sin contexto semántico (spec 031 §4). Mismo patrón best-effort que
-    // `hydrateFromIdb`/`persistSnapshot` en este archivo.
+    const gKey = geminiKey(config);
     const ragContext =
-      config.ragEnabled && config.apiKey
-        ? await buildRagContext(trimmed, config.apiKey).catch(() => "")
+      config.ragEnabled && gKey
+        ? await buildRagContext(trimmed, gKey).catch(() => "")
         : "";
+
+    const providerId = activeProviderId(config);
+    const provider = await getProvider(providerId);
+
     const result = await runAgentTurn({
-      apiKey: config.apiKey,
+      provider,
+      apiKey,
+      baseUrl: activeBaseUrl(config),
       preferredModel: config.model,
       autoFallback: config.autoFallback,
       fallbackGroup: config.autoFallback ? config.fallbackGroup : undefined,
       confirmWrites: config.confirmWrites,
       tools: createBoundTools(),
       systemInstruction: buildSystemPrompt(useAppStore.getState().workspace, ragContext),
-      history: geminiHistory,
+      history: agentHistory,
       userMessage: trimmed,
       signal: abortController.signal,
       callbacks: {
@@ -196,8 +208,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ]);
           }),
         onModelSwitch: (event) => {
-          const from = event.from.replace("gemini-", "");
-          const to = event.to.replace("gemini-", "");
+          const from = splitQualified(event.from).modelId;
+          const to = splitQualified(event.to).modelId;
           patchAssistant((parts) => [
             ...parts,
             {
@@ -210,7 +222,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
 
     abortController = null;
-    geminiHistory = result.history;
+    agentHistory = result.history;
 
     if (result.roundsExceeded) {
       patchAssistant((parts) => [
@@ -234,7 +246,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   stop() {
-    // Cancel any pending confirmation first so the loop can unwind.
     for (const [id, resolve] of pendingResolvers) {
       resolve(false);
       pendingResolvers.delete(id);
@@ -246,7 +257,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const resolve = pendingResolvers.get(id);
     if (!resolve) return;
     pendingResolvers.delete(id);
-    // Replace the pending card; the tool chip arrives via onToolCallStart/End.
     set({
       status: "streaming",
       messages: get().messages.map((m) => ({
@@ -259,11 +269,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   async newConversation() {
     get().stop();
-    geminiHistory = [];
+    agentHistory = [];
     set({ messages: [], status: "idle", error: null, errorDetail: null });
     await idbDel(IDB_KEY).catch(() => undefined);
   },
 }));
+
+function normalizeHistory(raw: unknown): AiMessage[] {
+  try {
+    if (looksLikeNeutralHistory(raw)) return raw;
+    if (looksLikeGeminiHistory(raw)) return fromGeminiContents(raw);
+  } catch {
+    // corrupt snapshot → discard
+  }
+  return [];
+}
 
 async function persistSnapshot(messages: ChatMessage[]): Promise<void> {
   try {
@@ -271,12 +291,11 @@ async function persistSnapshot(messages: ChatMessage[]): Promise<void> {
       .slice(-MAX_PERSISTED_MESSAGES)
       .map((m) => ({
         ...m,
-        // Drop tool payloads and stale confirmations from the snapshot.
         parts: m.parts
           .filter((p) => p.kind !== "pendingWrite")
           .map((p) => (p.kind === "toolCall" ? { ...p, result: undefined } : p)),
       }));
-    await idbSet(IDB_KEY, { messages: trimmed, history: geminiHistory });
+    await idbSet(IDB_KEY, { messages: trimmed, history: agentHistory });
   } catch {
     // best-effort
   }

@@ -1,7 +1,6 @@
-import { createClient } from "@/ai/gemini/client";
-import { classifyAiError } from "@/ai/gemini/errors";
 import { rateLimiter } from "@/ai/rateLimiter";
-import { getModelsByGroup } from "@/ai/models";
+import { getModelsByGroup, splitQualified } from "@/ai/models";
+import { getProvider } from "@/ai/providers";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 
 /** Genera el cuerpo de `transformCode` (`LogicSchema.transformCode`, spec
@@ -69,9 +68,8 @@ export interface GenerateTransformOptions {
 }
 
 export async function runGenerateTransform(options: GenerateTransformOptions): Promise<GenerateTransformResult> {
-  const { apiKey, model = "gemini-2.5-flash", instruction, sampleRecord, availableFields = [], signal } = options;
-
-  const ai = await createClient(apiKey);
+  const { apiKey, model = "gemini:gemini-2.5-flash", instruction, sampleRecord, availableFields = [], signal } = options;
+  const { provider: providerId, modelId } = splitQualified(model);
   const prompt = buildGenerateTransformPrompt(instruction, sampleRecord, availableFields);
 
   if (!rateLimiter.canMakeRequest(model)) {
@@ -79,24 +77,26 @@ export async function runGenerateTransform(options: GenerateTransformOptions): P
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
-        abortSignal: signal,
-      },
+    const provider = await getProvider(providerId);
+    const result = await provider.streamTurn({
+      apiKey,
+      model: modelId,
+      systemInstruction: SYSTEM_PROMPT,
+      history: [{ role: "user", content: prompt }],
+      tools: [],
+      signal,
+      onTextDelta: () => undefined,
     });
 
     rateLimiter.recordRequest(model);
-
-    return parseGenerateTransformResponse(response.text ?? "");
+    return parseGenerateTransformResponse(result.text);
   } catch (e) {
     if (signal?.aborted) {
       return { ok: false, error: "aborted" };
     }
     rateLimiter.recordRequest(model);
-    return { ok: false, error: classifyAiError(e) };
+    const provider = await getProvider(providerId).catch(() => null);
+    return { ok: false, error: provider ? provider.classifyError(e) : "unknown" };
   }
 }
 
@@ -115,13 +115,13 @@ export async function runGenerateTransformWithFallback(
 ): Promise<GenerateTransformResultWithMeta> {
   const {
     apiKey,
-    model: preferredModel = "gemini-2.5-flash",
+    model: preferredModel = "gemini:gemini-2.5-flash",
     instruction,
     sampleRecord,
     availableFields,
     signal,
     autoFallback = true,
-    fallbackGroup = "flash",
+    fallbackGroup = "gemini:flash",
     onFallback,
   } = options;
 

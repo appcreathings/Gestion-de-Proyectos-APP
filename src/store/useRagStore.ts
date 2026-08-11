@@ -57,9 +57,10 @@ export const useRagStore = create<RagState>((set, get) => ({
   },
 
   async startIndexing() {
-    const apiKey = useAiConfigStore.getState().config.apiKey;
+    const { geminiKey } = await import("@/ai/config");
+    const apiKey = geminiKey(useAiConfigStore.getState().config);
     if (!apiKey) {
-      set({ status: "error", error: "API key no configurada" });
+      set({ status: "error", error: "API key de Gemini no configurada (RAG usa Gemini)" });
       return;
     }
 

@@ -6,6 +6,7 @@ export type AiErrorKind =
   | "all-models-exhausted"
   | "offline"
   | "aborted"
+  | "cors-blocked"
   | "unknown";
 
 export const AI_ERROR_MESSAGES: Record<AiErrorKind, string> = {
@@ -22,9 +23,13 @@ export const AI_ERROR_MESSAGES: Record<AiErrorKind, string> = {
     "Asistente IA).",
   "all-models-exhausted":
     "Todos los modelos disponibles alcanzaron su límite. Espera un minuto y vuelve a intentarlo, o cambia el grupo de fallback en Ajustes.",
-  offline: "Sin conexión a internet. El asistente necesita red para hablar con Gemini.",
+  offline: "Sin conexión a internet. El asistente necesita red para hablar con el proveedor de IA.",
   aborted: "Respuesta detenida.",
-  unknown: "Error inesperado al hablar con Gemini. Inténtalo de nuevo.",
+  "cors-blocked":
+    "Tu navegador bloqueó la llamada a este proveedor (CORS). Este proveedor no permite " +
+    "llamadas directas desde una web. Configurá una URL base propia (un proxy tuyo) en " +
+    "Ajustes → Asistente IA, o elegí otro proveedor.",
+  unknown: "Error inesperado al hablar con el proveedor de IA. Inténtalo de nuevo.",
 };
 
 /** Detects `"quota_limit_value":"0"` (or numeric 0) embedded in the SDK error message. */

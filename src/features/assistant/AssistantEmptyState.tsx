@@ -30,8 +30,8 @@ export function AssistantEmptyState({ hasKey, onSuggestion }: Props) {
         <div>
           <h3 className="text-sm font-semibold">Configura tu API key</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            El asistente usa Gemini (Google AI Studio). La clave se guarda solo en este
-            dispositivo y nunca viaja con tus datos exportados.
+            Configurá la API key del proveedor activo en Ajustes. La clave se guarda solo en
+            este dispositivo y nunca viaja con tus datos exportados.
           </p>
         </div>
         <button

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Eye, EyeOff, ExternalLink, Sparkles, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,42 +13,134 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { AI_MODELS, type AiConfig } from "@/ai/config";
-import { FALLBACK_CHAINS, getModelDef } from "@/ai/models";
+import {
+  AI_MODELS,
+  activeProviderId,
+  geminiKey,
+  hasKey as configHasKey,
+  type AiConfig,
+} from "@/ai/config";
+import { FALLBACK_CHAINS, getModelDef, qualify, splitQualified } from "@/ai/models";
+import { PROVIDER_CATALOG, getProviderDef } from "@/ai/providers/catalog";
+import type { ProviderId } from "@/ai/providers/types";
 import { AI_ERROR_MESSAGES } from "@/ai/gemini/errors";
 import { useAiConfigStore, type KeyStatus } from "@/store/useAiConfigStore";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 
+function isValidBaseUrl(url: string): boolean {
+  const t = url.trim();
+  if (!t) return false;
+  try {
+    const u = new URL(t);
+    if (u.protocol === "https:") return true;
+    if (
+      u.protocol === "http:" &&
+      (u.hostname === "localhost" || u.hostname === "127.0.0.1")
+    ) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export function AiSettingsCard() {
   const config = useAiConfigStore((s) => s.config);
-  const keyStatus = useAiConfigStore((s) => s.keyStatus);
+  const keyStatuses = useAiConfigStore((s) => s.keyStatus);
   const lastError = useAiConfigStore((s) => s.lastError);
   const saveAndValidateKey = useAiConfigStore((s) => s.saveAndValidateKey);
   const clearKey = useAiConfigStore((s) => s.clearKey);
+  const setActiveProvider = useAiConfigStore((s) => s.setActiveProvider);
+  const setBaseUrl = useAiConfigStore((s) => s.setBaseUrl);
   const setModel = useAiConfigStore((s) => s.setModel);
   const setConfirmWrites = useAiConfigStore((s) => s.setConfirmWrites);
   const setAutoFallback = useAiConfigStore((s) => s.setAutoFallback);
   const setFallbackGroup = useAiConfigStore((s) => s.setFallbackGroup);
+  const setRagEnabled = useAiConfigStore((s) => s.setRagEnabled);
+
+  const providerId = activeProviderId(config);
+  const def = getProviderDef(providerId);
+  const keyStatus: KeyStatus = keyStatuses[providerId] ?? "unset";
+  const hasKey = keyStatus === "valid";
+  const providerModels = AI_MODELS.filter((m) => m.provider === providerId);
+  const needsCustomModel = def.browserBlocked || providerModels.length === 0;
+  const chainsForProvider = FALLBACK_CHAINS.filter((c) =>
+    c.group.startsWith(`${providerId}:`),
+  );
+  const hasGeminiKey = Boolean(geminiKey(config));
 
   const [draft, setDraft] = useState("");
   const [show, setShow] = useState(false);
+  const [baseDraft, setBaseDraft] = useState(config.providers[providerId]?.baseUrl ?? "");
+  const [customModel, setCustomModel] = useState(() => {
+    const { modelId } = splitQualified(config.model);
+    return needsCustomModel ? modelId : "";
+  });
   const keyRef = useRef<HTMLInputElement>(null);
-  const { errors, validate } = useFieldErrors();
+  const { errors, validate, clear } = useFieldErrors();
 
-  const hasKey = keyStatus === "valid";
-  const preferredDef = getModelDef(config.model);
+  useEffect(() => {
+    setDraft("");
+    setBaseDraft(config.providers[providerId]?.baseUrl ?? "");
+    const { modelId } = splitQualified(config.model);
+    setCustomModel(providerId === splitQualified(config.model).provider ? modelId : "");
+    clear();
+  }, [providerId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function onProviderChange(id: ProviderId) {
+    await setActiveProvider(id);
+  }
 
   async function onSave() {
-    const errs = validate(
-      { key: draft },
-      [{ field: "key", message: "La API key no puede estar vacía", test: (v) => v.key.trim().length > 0 }],
-    );
+    type FormVals = { key: string; baseUrl: string };
+    const rules: import("@/lib/formErrors").FieldRule<FormVals>[] = [
+      {
+        field: "key",
+        message: "La API key no puede estar vacía",
+        test: (v) => v.key.trim().length > 0,
+      },
+    ];
+    if (def.browserBlocked) {
+      rules.push({
+        field: "baseUrl",
+        message: "Este proveedor requiere una URL base https:// (o http://localhost)",
+        test: (v) => isValidBaseUrl(v.baseUrl),
+      });
+    }
+    const errs = validate({ key: draft, baseUrl: baseDraft }, rules);
     if (errs.length > 0) {
       keyRef.current?.focus();
       return;
     }
-    const ok = await saveAndValidateKey(draft);
+    if (def.browserBlocked && baseDraft.trim()) {
+      await setBaseUrl(providerId, baseDraft.trim());
+    }
+    const ok = await saveAndValidateKey(providerId, draft);
     if (ok) setDraft("");
+  }
+
+  async function onSaveBaseUrl() {
+    if (baseDraft.trim() && !isValidBaseUrl(baseDraft)) {
+      validate(
+        { baseUrl: baseDraft },
+        [
+          {
+            field: "baseUrl",
+            message: "Usá https:// o http://localhost / 127.0.0.1",
+            test: () => false,
+          },
+        ],
+      );
+      return;
+    }
+    await setBaseUrl(providerId, baseDraft.trim());
+  }
+
+  async function onCustomModelBlur() {
+    const id = customModel.trim();
+    if (!id) return;
+    await setModel(qualify(providerId, id));
   }
 
   return (
@@ -56,15 +148,66 @@ export function AiSettingsCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="size-5 text-primary" />
-          Asistente IA (Gemini)
+          Asistente IA
         </CardTitle>
         <CardDescription>
-          Conecta una API key de Google AI Studio para chatear con tus datos. La clave se
-          guarda <strong>solo en este dispositivo</strong> (IndexedDB); nunca se incluye en{" "}
+          Conectá la API key del proveedor que uses. Las claves se guardan{" "}
+          <strong>solo en este dispositivo</strong> (IndexedDB); nunca se incluyen en{" "}
           <code>workspace.json</code> ni en las exportaciones.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid max-w-xl gap-5">
+        {/* Proveedor */}
+        <div className="grid max-w-sm gap-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="ai-provider">Proveedor</Label>
+            {hasKey && (
+              <Badge variant="success" className="gap-1">
+                <Check className="size-3" /> key guardada
+              </Badge>
+            )}
+          </div>
+          <Select
+            id="ai-provider"
+            value={providerId}
+            onChange={(e) => void onProviderChange(e.target.value as ProviderId)}
+          >
+            {PROVIDER_CATALOG.map((p) => (
+              <option key={p.id} value={p.id}>
+                {configHasKey(config, p.id) ? "✓ " : ""}
+                {p.label}
+                {p.browserBlocked ? " (requiere URL propia)" : ""}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        {/* baseUrl para browserBlocked */}
+        {def.browserBlocked && (
+          <div className="grid gap-1.5 rounded-md border border-warning/40 bg-warning/5 p-3">
+            <p className="text-xs text-muted-foreground">
+              Este proveedor no permite llamadas directas desde el navegador (CORS).
+              Necesitás una URL base propia (proxy).
+            </p>
+            <Label htmlFor="ai-base-url">URL base</Label>
+            <div className="flex gap-2">
+              <Input
+                id="ai-base-url"
+                value={baseDraft}
+                placeholder="https://mi-proxy.workers.dev/v1"
+                onChange={(e) => setBaseDraft(e.target.value)}
+                onBlur={() => void onSaveBaseUrl()}
+                {...fieldAria("baseUrl", errors)}
+              />
+            </div>
+            {errors.baseUrl && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.baseUrl}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* API Key */}
         <div className="grid gap-1.5">
           <div className="flex items-center justify-between">
@@ -78,7 +221,7 @@ export function AiSettingsCard() {
                 ref={keyRef}
                 type={show ? "text" : "password"}
                 value={draft}
-                placeholder={hasKey ? "••••••••  (clave guardada)" : "AIza…"}
+                placeholder={hasKey ? "••••••••  (clave guardada)" : def.keyHint}
                 autoComplete="off"
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
@@ -104,11 +247,11 @@ export function AiSettingsCard() {
               </button>
             </div>
             <Button
-              onClick={onSave}
+              onClick={() => void onSave()}
               disabled={keyStatus === "validating"}
               pending={keyStatus === "validating"}
             >
-              {keyStatus === "validating" ? "Validando…" : "Validar y guardar"}
+              {keyStatus === "validating" ? "Validando…" : "Guardar"}
             </Button>
           </div>
           {(keyStatus === "invalid" || keyStatus === "network-error") && lastError && (
@@ -117,57 +260,71 @@ export function AiSettingsCard() {
             </p>
           )}
           <a
-            href="https://aistudio.google.com/apikey"
+            href={def.keyUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
           >
-            Obtener una API key gratuita en Google AI Studio
+            Obtener una key
             <ExternalLink className="size-3" />
           </a>
+          <p className="text-xs text-muted-foreground">
+            Se guarda solo en este dispositivo (IndexedDB), nunca en workspace.json.
+          </p>
         </div>
 
-        {/* Modelo principal */}
+        {/* Modelo */}
         <div className="grid gap-2">
-          <Label>Modelo principal</Label>
-          <div className="grid gap-1.5">
-            {AI_MODELS.map((m) => {
-              const def = getModelDef(m.value);
-              const isSelected = config.model === m.value;
-              const limits = def ? formatLimits(def) : "";
-              return (
-                <label
-                  key={m.value}
-                  className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors hover:bg-accent ${
-                    isSelected ? "border-primary bg-accent/50" : "border-border"
-                  } ${!m.available ? "opacity-60" : ""}`}
-                >
-                  <input
-                    type="radio"
-                    name="model"
-                    value={m.value}
-                    checked={isSelected}
-                    onChange={() => setModel(m.value as AiConfig["model"])}
-                    className="mt-1 size-4 accent-primary"
-                  />
-                  <div className="grid gap-0.5 text-sm">
-                    <span className="font-medium">{m.label}</span>
-                    <span className="text-xs text-muted-foreground">{limits}</span>
-                    {!m.available && !isSelected && (
-                      <span className="text-xs text-muted-foreground italic">sin cuota disponible</span>
-                    )}
-                  </div>
-                </label>);
-            })}
-          </div>
-          {preferredDef && preferredDef.limits.rpm === 0 && (
-            <p className="text-xs text-warning">
-              Este modelo no tiene cuota disponible actualmente. El fallback usará otros modelos.
-            </p>
+          <Label>Modelo</Label>
+          {needsCustomModel ? (
+            <div className="grid gap-1.5">
+              <Input
+                value={customModel}
+                placeholder="id de modelo (ej. meta/llama-3.1-8b-instruct)"
+                onChange={(e) => setCustomModel(e.target.value)}
+                onBlur={() => void onCustomModelBlur()}
+              />
+              <p className="text-xs text-muted-foreground">
+                Escribí el id exacto del modelo que expone tu proxy o el catálogo del proveedor.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-1.5">
+              {providerModels.map((m) => {
+                const mDef = getModelDef(m.value);
+                const isSelected = config.model === m.value;
+                const limits = mDef
+                  ? mDef.limitsUnknown
+                    ? "límites no publicados"
+                    : formatLimits(mDef)
+                  : "";
+                return (
+                  <label
+                    key={m.value}
+                    className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors hover:bg-accent ${
+                      isSelected ? "border-primary bg-accent/50" : "border-border"
+                    } ${!m.available ? "opacity-60" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name="model"
+                      value={m.value}
+                      checked={isSelected}
+                      onChange={() => setModel(m.value as AiConfig["model"])}
+                      className="mt-1 size-4 accent-primary"
+                    />
+                    <div className="grid gap-0.5 text-sm">
+                      <span className="font-medium">{m.label}</span>
+                      <span className="text-xs text-muted-foreground">{limits}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* Fallback automático */}
+        {/* Fallback */}
         <div className="grid gap-2">
           <Label className="flex items-center gap-3">
             <Checkbox
@@ -178,14 +335,13 @@ export function AiSettingsCard() {
             <div className="grid gap-0.5">
               <span className="text-sm font-medium">Fallback automático</span>
               <span className="text-xs text-muted-foreground">
-                Cuando un modelo alcanza su límite, cambia automáticamente a otro disponible en el grupo.
+                Cuando un modelo alcanza su límite, cambia a otro del mismo proveedor.
               </span>
             </div>
           </Label>
         </div>
 
-        {/* Grupo de fallback */}
-        {config.autoFallback && (
+        {config.autoFallback && chainsForProvider.length > 0 && (
           <div className="grid max-w-sm gap-1.5">
             <Label htmlFor="ai-fallback-group">Grupo de fallback</Label>
             <Select
@@ -193,26 +349,15 @@ export function AiSettingsCard() {
               value={config.fallbackGroup}
               onChange={(e) => setFallbackGroup(e.target.value)}
             >
-              {FALLBACK_CHAINS.map((chain) => (
+              {chainsForProvider.map((chain) => (
                 <option key={chain.group} value={chain.group}>
                   {chain.label}
                 </option>
               ))}
             </Select>
-            <p className="text-xs text-muted-foreground">
-              {(() => {
-                const chain = FALLBACK_CHAINS.find((c) => c.group === config.fallbackGroup);
-                if (!chain) return "";
-                const names = chain.models
-                  .map((id) => getModelDef(id)?.label ?? id)
-                  .join(" → ");
-                return `Orden: ${names}`;
-              })()}
-            </p>
           </div>
         )}
 
-        {/* Confirmación de escrituras */}
         <label className="flex items-start gap-3">
           <Checkbox
             checked={config.confirmWrites}
@@ -222,17 +367,33 @@ export function AiSettingsCard() {
           <span className="grid gap-0.5">
             <span className="text-sm font-medium">Confirmar antes de escribir datos</span>
             <span className="text-xs text-muted-foreground">
-              El asistente pedirá tu aprobación en el chat antes de crear o modificar
-              proyectos, tareas o checklists. Recomendado.
+              El asistente pedirá tu aprobación antes de crear o modificar datos. Recomendado.
+            </span>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3">
+          <Checkbox
+            checked={config.ragEnabled && hasGeminiKey}
+            disabled={!hasGeminiKey}
+            onCheckedChange={(v) => setRagEnabled(v)}
+            aria-label="Contexto semántico RAG"
+          />
+          <span className="grid gap-0.5">
+            <span className="text-sm font-medium">Contexto semántico (RAG)</span>
+            <span className="text-xs text-muted-foreground">
+              {hasGeminiKey
+                ? "Usa embeddings de Gemini aunque el chat esté en otro proveedor."
+                : "Requiere una API key de Gemini guardada (los embeddings solo corren en Gemini)."}
             </span>
           </span>
         </label>
 
         {hasKey && (
           <div>
-            <Button variant="outline" size="sm" onClick={() => clearKey()}>
+            <Button variant="outline" size="sm" onClick={() => clearKey(providerId)}>
               <Trash2 className="size-4" />
-              Borrar clave de este dispositivo
+              Borrar clave de {def.label}
             </Button>
           </div>
         )}
@@ -264,7 +425,10 @@ function StatusBadge({ status }: { status: KeyStatus }) {
   }
 }
 
-function formatLimits(def: { limits: { rpm: number; tpm: number; rpd: number }; unlimitedTpm?: boolean }): string {
+function formatLimits(def: {
+  limits: { rpm: number; tpm: number; rpd: number };
+  unlimitedTpm?: boolean;
+}): string {
   const parts: string[] = [];
   if (def.limits.rpm > 0) parts.push(`${def.limits.rpm} req/min`);
   if (def.unlimitedTpm) parts.push("tok. ilimitado/min");

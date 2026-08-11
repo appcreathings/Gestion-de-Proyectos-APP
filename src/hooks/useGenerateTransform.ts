@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { runGenerateTransformWithFallback } from "@/ai/generate-transform";
+import { activeKey } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 
@@ -24,6 +25,8 @@ const ERROR_MESSAGES: Record<AiErrorKind, string> = {
   "all-models-exhausted": "Todos los modelos alcanzaron su límite.",
   offline: "Sin conexión a internet.",
   aborted: "Solicitud cancelada.",
+  "cors-blocked":
+    "Tu navegador bloqueó la llamada (CORS). Configurá una URL base propia en Ajustes → IA o elegí otro proveedor.",
   unknown: "No se pudo generar un código válido. Reformula la instrucción o inténtalo de nuevo.",
 };
 
@@ -40,7 +43,8 @@ export function useGenerateTransform(): UseGenerateTransformReturn {
 
   const generate = useCallback(
     async (instruction: string, sampleRecord: Record<string, unknown> | undefined, availableFields: string[]) => {
-      if (!config.apiKey) {
+      const apiKey = activeKey(config);
+      if (!apiKey) {
         setError("Configura una API key en Ajustes → IA");
         setErrorType("invalid-key");
         return;
@@ -57,7 +61,7 @@ export function useGenerateTransform(): UseGenerateTransformReturn {
       setCode(null);
 
       const res = await runGenerateTransformWithFallback({
-        apiKey: config.apiKey,
+        apiKey,
         model: config.model,
         instruction,
         sampleRecord,
@@ -77,7 +81,7 @@ export function useGenerateTransform(): UseGenerateTransformReturn {
         setErrorType(res.error);
       }
     },
-    [config.apiKey, config.model, config.autoFallback, config.fallbackGroup]
+    [config]
   );
 
   const cancel = useCallback(() => {

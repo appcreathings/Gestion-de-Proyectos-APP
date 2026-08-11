@@ -40,3 +40,24 @@ export function toMcpTool(tool: AiTool): McpToolLike {
     inputSchema: toJsonSchema(tool),
   };
 }
+
+/** Shape consumed by OpenAI-compatible `/chat/completions` `tools` array (D14). */
+export interface OpenAiToolLike {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+export function toOpenAiTool(tool: AiTool): OpenAiToolLike {
+  return {
+    type: "function",
+    function: {
+      name: tool.name,
+      description: tool.description,
+      parameters: toJsonSchema(tool),
+    },
+  };
+}

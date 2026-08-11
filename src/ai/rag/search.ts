@@ -19,18 +19,20 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 /**
- * Embedding de un texto probando los modelos del grupo "embedding" en orden (gemini-embedding-001,
- * luego gemini-embedding-2). Solo cae al siguiente modelo ante errores de cuota transitorios
- * (`rate-limit`/`quota-exhausted`); otros (project-quota-zero, invalid-key, offline, unknown) se
- * relanzan directo porque probar otro modelo no va a ayudar.
+ * Embedding de un texto probando los modelos del grupo "gemini:embedding" en orden
+ * (gemini-embedding-001, luego gemini-embedding-2). Solo cae al siguiente modelo ante errores
+ * de cuota transitorios (`rate-limit`/`quota-exhausted`); otros (project-quota-zero, invalid-key,
+ * offline, unknown) se relanzan directo porque probar otro modelo no va a ayudar.
  *
  * Mismo patrón que `runImproveWithFallback` (`src/ai/improve.ts`, spec 012). spec 031 §5.
+ * Ids de rateLimiter son calificados (`gemini:gemini-embedding-001`); el request al SDK usa
+ * el modelId sin prefijo.
  */
 export async function embedText(
   text: string,
   apiKey: string,
 ): Promise<number[]> {
-  const candidates = getModelsByGroup("embedding");
+  const candidates = getModelsByGroup("gemini:embedding");
   let lastError: unknown = new Error("no embedding models available");
 
   for (const modelDef of candidates) {
@@ -41,7 +43,7 @@ export async function embedText(
     try {
       const ai = await createClient(apiKey);
       const response = await ai.models.embedContent({
-        model: `models/${modelDef.id}`,
+        model: `models/${modelDef.modelId}`,
         contents: [text],
       });
       const embedding = response.embeddings?.[0]?.values;

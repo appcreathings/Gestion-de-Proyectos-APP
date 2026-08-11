@@ -38,7 +38,7 @@ const STATUS_VARIANTS: Record<
 export function RagSettingsCard() {
   const ragEnabled = useAiConfigStore((s) => s.config.ragEnabled);
   const setRagEnabled = useAiConfigStore((s) => s.setRagEnabled);
-  const keyStatus = useAiConfigStore((s) => s.keyStatus);
+  const keyStatus = useAiConfigStore((s) => s.keyStatus.gemini ?? "unset");
 
   const status = useRagStore((s) => s.status);
   const progress = useRagStore((s) => s.progress);
