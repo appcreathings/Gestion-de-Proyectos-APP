@@ -127,7 +127,11 @@ export function providerConfig(c: AiConfig, id: ProviderId): AiProviderConfig {
 /** Default model for a provider when switching active provider. */
 export function defaultModelForProvider(id: ProviderId): string {
   const models = getModelsByProvider(id).filter((m) => m.category !== "embedding");
-  return models[0]?.id ?? "";
+  if (models[0]) return models[0].id;
+  // Proveedores sin catálogo fijo: defaults que responden en la free tier.
+  if (id === "opencode-zen") return "opencode-zen:big-pickle";
+  if (id === "nvidia") return "nvidia:meta/llama-3.1-8b-instruct";
+  return "";
 }
 
 export function defaultFallbackGroupForProvider(id: ProviderId): string {

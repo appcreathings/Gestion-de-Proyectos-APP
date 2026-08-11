@@ -17,6 +17,13 @@ export function classifyOpenAiError(e: unknown): AiErrorKind {
   if (e instanceof Error && e.name === "AbortError") return "aborted";
 
   if (e instanceof HttpError) {
+    // OpenCode Zen: key válida pero sin método de pago / créditos en modelos de pago.
+    if (
+      (e.status === 401 || e.status === 403) &&
+      /CreditsError|payment method|billing|insufficient.?credit|no credit/i.test(e.body)
+    ) {
+      return "quota-exhausted";
+    }
     if (e.status === 401 || e.status === 403) return "invalid-key";
     if (e.status === 400 && /api key|token|auth|unauthorized/i.test(e.body)) {
       return "invalid-key";

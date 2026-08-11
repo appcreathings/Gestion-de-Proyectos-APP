@@ -133,6 +133,8 @@ export function finalizeToolCalls(acc: Map<number, ToolCallAcc>): AiToolCall[] {
 
 export interface OpenAiStreamDelta {
   content?: string | null;
+  /** Some gateways (OpenCode Zen free models) stream thinking here with empty `content`. */
+  reasoning_content?: string | null;
   tool_calls?: Array<{
     index?: number;
     id?: string;
@@ -140,12 +142,37 @@ export interface OpenAiStreamDelta {
   }>;
 }
 
+/**
+ * Extract the stream delta. Prefer `content`; if empty/null, fall back to
+ * `reasoning_content` so OpenCode free models (big-pickle, deepseek-v4-flash-free)
+ * still surface text in the chat.
+ */
 export function parseOpenAiChunk(raw: string): OpenAiStreamDelta | null {
   try {
     const json = JSON.parse(raw) as {
-      choices?: Array<{ delta?: OpenAiStreamDelta }>;
+      choices?: Array<{
+        delta?: {
+          content?: string | null;
+          reasoning_content?: string | null;
+          tool_calls?: OpenAiStreamDelta["tool_calls"];
+        };
+      }>;
     };
-    return json.choices?.[0]?.delta ?? null;
+    const delta = json.choices?.[0]?.delta;
+    if (!delta) return null;
+
+    const hasContent = typeof delta.content === "string" && delta.content.length > 0;
+    const hasReasoning =
+      typeof delta.reasoning_content === "string" && delta.reasoning_content.length > 0;
+
+    return {
+      content: hasContent
+        ? delta.content
+        : hasReasoning
+          ? delta.reasoning_content
+          : delta.content ?? null,
+      tool_calls: delta.tool_calls,
+    };
   } catch {
     return null;
   }

@@ -101,7 +101,7 @@ function exampleBaseUrl(providerId: ProviderId): string {
 
 function exampleModel(providerId: ProviderId): string {
   return providerId === "opencode-zen"
-    ? "deepseek-v4-flash-free"
+    ? "big-pickle"
     : "meta/llama-3.1-8b-instruct";
 }
 
@@ -114,9 +114,10 @@ interface Props {
  * Step-by-step guide to deploy a CORS relay on Cloudflare Workers.
  * Shown when the user picks NVIDIA or OpenCode Zen (browserBlocked).
  * Content mirrors specs/047-proveedores-ia-multi/PROXY-CLOUDFLARE.md.
+ * Collapsed by default so it does not dominate the settings card.
  */
 export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const path = proxyPath(providerId);
   const baseExample = exampleBaseUrl(providerId);
@@ -137,25 +138,32 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium"
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium transition-colors hover:bg-primary/5"
         aria-expanded={open}
+        aria-controls="cloudflare-proxy-guide-panel"
       >
         {open ? (
           <ChevronDown className="size-4 shrink-0 text-primary" />
         ) : (
           <ChevronRight className="size-4 shrink-0 text-primary" />
         )}
-        <span>
+        <span className="flex-1">
           Guía: proxy en Cloudflare para {providerLabel}
+        </span>
+        <span className="shrink-0 text-[11px] font-normal text-muted-foreground">
+          {open ? "Ocultar" : "Ver pasos"}
         </span>
       </button>
 
       {open && (
-        <div className="space-y-4 border-t border-primary/20 px-3 py-3 text-xs leading-relaxed text-muted-foreground">
+        <div
+          id="cloudflare-proxy-guide-panel"
+          className="space-y-4 border-t border-primary/20 px-3 py-3 text-xs leading-relaxed text-muted-foreground"
+        >
           <p>
-            {providerLabel} no manda cabeceras CORS, y por eso el navegador bloquea las
-            respuestas. Necesitas un Worker gratis que las agregue. Tu API key se queda
-            solo en este dispositivo: el Worker no la guarda.
+            {providerLabel} no manda cabeceras CORS en las respuestas, y por eso el
+            navegador las bloquea. Necesitas un Worker gratis que las agregue. Tu API key
+            se queda solo en este dispositivo: el Worker no la guarda.
           </p>
 
           <Step n={1} title="Crea el Worker">
@@ -260,7 +268,17 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
                 <code className="rounded bg-muted px-1 font-mono text-[10px]">
                   {modelExample}
                 </code>
-                .
+                {providerId === "opencode-zen" && (
+                  <>
+                    {" "}
+                    (gratis). Otros free:{" "}
+                    <code className="rounded bg-muted px-1 font-mono text-[10px]">
+                      deepseek-v4-flash-free
+                    </code>
+                    . Los de pago piden método de pago en OpenCode.
+                  </>
+                )}
+                {providerId !== "opencode-zen" && "."}
               </li>
             </ol>
           </Step>

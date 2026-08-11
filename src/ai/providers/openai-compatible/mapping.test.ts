@@ -95,6 +95,24 @@ describe("parseOpenAiChunk", () => {
     expect(delta).toEqual({ content: "hi" });
   });
 
+  it("usa reasoning_content cuando content viene vacío (OpenCode free)", () => {
+    const delta = parseOpenAiChunk(
+      JSON.stringify({
+        choices: [{ delta: { content: null, reasoning_content: "Hola" } }],
+      }),
+    );
+    expect(delta).toEqual({ content: "Hola" });
+  });
+
+  it("prioriza content sobre reasoning_content", () => {
+    const delta = parseOpenAiChunk(
+      JSON.stringify({
+        choices: [{ delta: { content: "respuesta", reasoning_content: "pienso…" } }],
+      }),
+    );
+    expect(delta).toEqual({ content: "respuesta" });
+  });
+
   it("devuelve null si el JSON está roto", () => {
     expect(parseOpenAiChunk("{")).toBeNull();
   });

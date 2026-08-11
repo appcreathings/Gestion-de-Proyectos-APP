@@ -289,13 +289,42 @@ export function AiSettingsCard() {
             <div className="grid gap-1.5">
               <Input
                 value={customModel}
-                placeholder="id de modelo (ej. meta/llama-3.1-8b-instruct)"
+                placeholder={
+                  providerId === "opencode-zen"
+                    ? "id de modelo (ej. big-pickle)"
+                    : "id de modelo (ej. meta/llama-3.1-8b-instruct)"
+                }
                 onChange={(e) => setCustomModel(e.target.value)}
                 onBlur={() => void onCustomModelBlur()}
               />
               <p className="text-xs text-muted-foreground">
-                Escribí el id exacto del modelo que expone tu proxy o el catálogo del proveedor.
+                Escribe el id exacto del modelo
+                {providerId === "opencode-zen"
+                  ? " (ej. big-pickle o deepseek-v4-flash-free)."
+                  : " que expone tu proxy o el catálogo del proveedor."}
               </p>
+              {providerId === "opencode-zen" && (
+                <a
+                  href="https://opencode.ai/docs/es/zen"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
+                >
+                  Ver modelos de OpenCode Zen
+                  <ExternalLink className="size-3" />
+                </a>
+              )}
+              {providerId === "nvidia" && (
+                <a
+                  href="https://build.nvidia.com/models"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
+                >
+                  Ver modelos de NVIDIA NIM
+                  <ExternalLink className="size-3" />
+                </a>
+              )}
             </div>
           ) : (
             <div className="grid gap-1.5">
