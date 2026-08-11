@@ -328,7 +328,7 @@ export function RichTextField({
           id={id}
           tabIndex={-1}
           className={cn(
-            "relative min-h-[44px] overflow-auto px-3 py-2 text-sm outline-none",
+            "group relative min-h-[44px] overflow-auto px-3 py-2 text-sm outline-none",
             showPreviewToggle && "pr-9",
           )}
           aria-label="Vista previa"
@@ -338,7 +338,7 @@ export function RichTextField({
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-1 top-1 size-7 text-muted-foreground hover:text-foreground"
+              className="absolute right-1 top-1 size-7 text-muted-foreground opacity-60 transition-opacity hover:text-foreground hover:opacity-100 focus-visible:opacity-100 group-hover:opacity-100"
               title="Editar descripción"
               aria-label="Editar descripción"
               disabled={disabled}
