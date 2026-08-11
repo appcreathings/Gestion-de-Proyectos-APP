@@ -31,6 +31,8 @@ import type {
   TaskStatus,
 } from "@/domain/schemas";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { useChatStore, ASSISTANT_PANEL_WIDTH } from "@/store/useChatStore";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface Props {
   task: Task | null;
@@ -83,6 +85,11 @@ export function TaskDetailDrawer({
   const titleRef = useRef<HTMLInputElement>(null);
   const commentsEndRef = useRef<HTMLDivElement>(null);
   const isResizingRef = useRef(false);
+
+  // Spec 048 HU-02: sit drawer to the left of the assistant on desktop when both open.
+  const assistantOpen = useChatStore((s) => s.open);
+  const isDesktop = useBreakpoint("lg");
+  const sideBySide = assistantOpen && isDesktop;
 
   useEffect(() => {
     if (task) {
@@ -243,8 +250,14 @@ export function TaskDetailDrawer({
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizingRef.current) return;
-      const newWidth = window.innerWidth - e.clientX;
-      const clamped = Math.min(800, Math.max(320, newWidth));
+      const rightEdge = sideBySide
+        ? window.innerWidth - ASSISTANT_PANEL_WIDTH
+        : window.innerWidth;
+      const newWidth = rightEdge - e.clientX;
+      const maxWidth = sideBySide
+        ? Math.min(800, window.innerWidth - ASSISTANT_PANEL_WIDTH - 200)
+        : 800;
+      const clamped = Math.min(maxWidth, Math.max(320, newWidth));
       setDrawerWidth(clamped);
     };
 
@@ -265,7 +278,14 @@ export function TaskDetailDrawer({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [drawerWidth]);
+  }, [drawerWidth, sideBySide]);
+
+  // Re-clamp drawer width when the assistant opens beside it (D6).
+  useEffect(() => {
+    if (!sideBySide) return;
+    const maxWidth = Math.min(800, window.innerWidth - ASSISTANT_PANEL_WIDTH - 200);
+    setDrawerWidth((w) => Math.min(w, Math.max(320, maxWidth)));
+  }, [sideBySide]);
 
   const persist = useCallback(
     (field: string, value: string | null) => {
@@ -441,11 +461,14 @@ export function TaskDetailDrawer({
         role="dialog"
         aria-modal="false"
         aria-label={`Detalle de tarea: ${task.title}`}
-        style={{ width: drawerWidth }}
+        style={{
+          width: drawerWidth,
+          right: sideBySide ? ASSISTANT_PANEL_WIDTH : 0,
+        }}
         className={cn(
           // Solid bg-background only: full-panel red/amber tints (esp. dark:/20)
           // wash through the form and make fields hard to read.
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-[800px] flex-col border-l bg-background shadow-lg transition-transform duration-200 ease-out md:max-w-none",
+          "fixed inset-y-0 z-50 flex w-full max-w-[800px] flex-col border-l bg-background shadow-lg transition-transform duration-200 ease-out md:max-w-none",
           isBlocked && "border-l-4 border-l-red-500",
           !isBlocked && overdue && "border-l-4 border-l-red-500",
           !isBlocked && dueSoon && !overdue && "border-l-4 border-l-amber-500",

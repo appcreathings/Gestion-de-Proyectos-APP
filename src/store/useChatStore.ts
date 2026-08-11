@@ -57,6 +57,8 @@ interface ChatState {
   send: (text: string) => Promise<void>;
   stop: () => void;
   approvePendingWrite: (id: string, approved: boolean) => void;
+  /** Approve current write + auto-approve remaining writes of this turn only (spec 048 HU-03). */
+  approveAll: (id: string) => void;
   newConversation: () => Promise<void>;
   hydrateFromIdb: () => Promise<void>;
 }
@@ -65,10 +67,15 @@ interface ChatState {
 const IDB_KEY = "aiChat:last";
 const MAX_PERSISTED_MESSAGES = 50;
 
+/** Desktop assistant panel width (px). Shared so TaskDetailDrawer can sit side-by-side (spec 048 HU-02). */
+export const ASSISTANT_PANEL_WIDTH = 400;
+
 /** Neutral history for the next turn (D2). */
 let agentHistory: AiMessage[] = [];
 let abortController: AbortController | null = null;
 const pendingResolvers = new Map<string, (approved: boolean) => void>();
+/** Turn-scoped auto-approval for remaining write tool calls (spec 048 HU-03 / D7). */
+let autoApproveRestOfTurn = false;
 
 const OPEN_KEY = "assistant.open";
 
@@ -119,6 +126,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
 
     abortController = new AbortController();
+    autoApproveRestOfTurn = false;
 
     const patchAssistant = (fn: (parts: ChatPart[]) => ChatPart[]) => {
       set({
@@ -204,15 +212,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
             error: outcome.error,
           });
         },
-        onConfirmWrite: (call: ToolCallView, description: string) =>
-          new Promise<boolean>((resolve) => {
+        onConfirmWrite: (call: ToolCallView, description: string) => {
+          if (autoApproveRestOfTurn) return Promise.resolve(true);
+          return new Promise<boolean>((resolve) => {
             pendingResolvers.set(call.id, resolve);
             set({ status: "awaiting-confirmation" });
             patchAssistant((parts) => [
               ...parts,
               { kind: "pendingWrite", id: call.id, name: call.name, description },
             ]);
-          }),
+          });
+        },
         onModelSwitch: (event) => {
           const from = splitQualified(event.from).modelId;
           const to = splitQualified(event.to).modelId;
@@ -252,6 +262,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   stop() {
+    autoApproveRestOfTurn = false;
     for (const [id, resolve] of pendingResolvers) {
       resolve(false);
       pendingResolvers.delete(id);
@@ -273,8 +284,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     resolve(approved);
   },
 
+  approveAll(id) {
+    autoApproveRestOfTurn = true;
+    get().approvePendingWrite(id, true);
+  },
+
   async newConversation() {
-    get().stop();
+    get().stop(); // also resets autoApproveRestOfTurn
     agentHistory = [];
     set({ messages: [], status: "idle", error: null, errorDetail: null });
     await idbDel(IDB_KEY).catch(() => undefined);

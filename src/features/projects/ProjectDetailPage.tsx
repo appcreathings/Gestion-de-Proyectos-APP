@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
@@ -21,6 +21,12 @@ import { TasksTab } from "./components/TasksTab";
 import { ProjectAutomationsTab } from "./components/ProjectAutomationsTab";
 import { ActivityTab } from "./components/ActivityTab";
 import { ROUTES } from "@/routes/paths";
+import {
+  isValidTab,
+  readLastTab,
+  writeLastTab,
+  type ProjectTab,
+} from "./projectTabMemory";
 
 export function ProjectDetailPage() {
   const { id = "" } = useParams();
@@ -49,8 +55,14 @@ function ProjectDetailContent({ projectId }: { projectId: string }) {
   const deleteProject = useDataStore((s) => s.deleteProject);
 
   const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") ?? "overview";
+  const urlTab = searchParams.get("tab");
+  const activeTab: ProjectTab = isValidTab(urlTab) ? urlTab : readLastTab();
   const focusId = searchParams.get("focus") ?? undefined;
+
+  // Persist resolved tab as "last viewed" — covers both TabsTrigger clicks and deep links (D2).
+  useEffect(() => {
+    writeLastTab(activeTab);
+  }, [activeTab]);
 
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);

@@ -10,7 +10,7 @@ import { getProviderDef } from "@/ai/providers/catalog";
 import { cn } from "@/lib/utils";
 import { activeKey, activeProviderId } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
-import { useChatStore } from "@/store/useChatStore";
+import { useChatStore, ASSISTANT_PANEL_WIDTH } from "@/store/useChatStore";
 import { AssistantEmptyState } from "./AssistantEmptyState";
 import { ChatInput } from "./ChatInput";
 import { ChatMessageList } from "./ChatMessageList";
@@ -83,9 +83,10 @@ export function AssistantPanel() {
         className={cn(
           "relative flex flex-col overflow-hidden",
           isDesktop
-            ? "w-[400px] shrink-0 border-l bg-card z-50"
+            ? "shrink-0 border-l bg-card z-50"
             : "fixed inset-0 z-50 border-0 bg-card",
         )}
+        style={isDesktop ? { width: ASSISTANT_PANEL_WIDTH } : undefined}
       >
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">

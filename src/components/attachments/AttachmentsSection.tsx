@@ -122,6 +122,32 @@ export function AttachmentsSection({
 
   const atCap = attachments.length >= maxCount;
 
+  // Spec 048 HU-04: paste image from clipboard into attachments (D9/D10/D11).
+  useEffect(() => {
+    if (disabled) return;
+    function onPaste(e: ClipboardEvent) {
+      if (atCap) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const imageFiles: File[] = [];
+      for (const item of items) {
+        if (item.kind !== "file" || !item.type.startsWith("image/")) continue;
+        const file = item.getAsFile();
+        if (!file) continue;
+        // D9: name from MIME type — classifyFile() requires a valid extension.
+        const ext = item.type.split("/")[1]?.split("+")[0] || "png";
+        imageFiles.push(
+          new File([file], `pegado-${Date.now()}.${ext}`, { type: item.type }),
+        );
+      }
+      if (imageFiles.length === 0) return;
+      e.preventDefault();
+      void addFiles(imageFiles);
+    }
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, [disabled, atCap, addFiles]);
+
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -151,7 +177,7 @@ export function AttachmentsSection({
       {adapterKind === "download" && (
         <p className="rounded-md border border-border bg-muted/40 px-2.5 py-1.5 text-[11px] text-muted-foreground">
           Modo navegador: los archivos viven solo en este dispositivo (máx.{" "}
-          {Math.round(maxBytes / (1024 * 1024))} MB c/u). Con carpeta local se
+          {Math.round(maxBytes / (1024 * 1024))} MB c/u). Con carpeta local se
           guardan en <code className="font-mono text-[10px]">attachments/</code>.
         </p>
       )}

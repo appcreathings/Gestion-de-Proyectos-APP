@@ -1,4 +1,4 @@
-import { ShieldQuestion } from "lucide-react";
+import { CheckCheck, ShieldQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatStore, type ChatPart } from "@/store/useChatStore";
 
@@ -7,6 +7,7 @@ type PendingWritePart = Extract<ChatPart, { kind: "pendingWrite" }>;
 /** Inline approval card for a write the assistant wants to execute. */
 export function WriteConfirmCard({ part }: { part: PendingWritePart }) {
   const approve = useChatStore((s) => s.approvePendingWrite);
+  const approveAll = useChatStore((s) => s.approveAll);
 
   return (
     <div
@@ -23,9 +24,18 @@ export function WriteConfirmCard({ part }: { part: PendingWritePart }) {
           </p>
         </div>
       </div>
-      <div className="mt-2 flex justify-end gap-2">
+      <div className="mt-2 flex flex-wrap justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => approve(part.id, false)}>
           Cancelar
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          title="Aprueba esta acción y las siguientes de esta misma respuesta, sin volver a preguntar. En tu próximo mensaje se vuelve a pedir confirmación."
+          onClick={() => approveAll(part.id)}
+        >
+          <CheckCheck className="size-3.5" />
+          Aprobar todo
         </Button>
         <Button size="sm" autoFocus onClick={() => approve(part.id, true)}>
           Confirmar
