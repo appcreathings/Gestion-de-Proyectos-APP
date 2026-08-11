@@ -190,7 +190,7 @@ export function AiSettingsCard() {
             <div className="grid gap-1.5 rounded-md border border-warning/40 bg-warning/5 p-3">
               <p className="text-xs text-muted-foreground">
                 Este proveedor no permite llamadas directas desde el navegador (CORS).
-                Necesitás una URL base propia (proxy). Seguí la guía de arriba o pegá la
+                Necesitas una URL base propia (proxy). Sigue la guía de arriba o pega la
                 URL de tu Worker.
               </p>
               <Label htmlFor="ai-base-url">URL base</Label>

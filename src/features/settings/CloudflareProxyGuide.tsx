@@ -10,14 +10,14 @@ import { Button } from "@/components/ui/button";
 import type { ProviderId } from "@/ai/providers/types";
 
 const WORKER_CODE = `// Relay CORS para proveedores de IA (NVIDIA NIM, OpenCode Zen).
-// La API key la manda el cliente en cada request: este Worker NO guarda secretos.
+// La API key la envía el cliente en cada request: este Worker NO guarda secretos.
 
 const UPSTREAM = {
   nvidia: "https://integrate.api.nvidia.com/v1",
   zen: "https://opencode.ai/zen/v1",
 };
 
-// Origins que pueden usar este relay. Agregá el tuyo si servís la app en otro lado.
+// Orígenes que pueden usar este relay. Agrega el tuyo si la app corre en otro dominio.
 const ALLOWED_ORIGINS = [
   "https://hito.autos",
   "http://localhost:5173",
@@ -34,7 +34,7 @@ export default {
     }
 
     if (!allowed) {
-      return json({ error: "Origin no permitido" }, 403, cors(origin, false));
+      return json({ error: "Origen no permitido" }, 403, cors(origin, false));
     }
 
     const url = new URL(request.url);
@@ -153,15 +153,15 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
       {open && (
         <div className="space-y-4 border-t border-primary/20 px-3 py-3 text-xs leading-relaxed text-muted-foreground">
           <p>
-            {providerLabel} no envía cabeceras CORS, así que el navegador bloquea las
-            respuestas. Necesitás un Worker gratis que las agregue. La API key sigue
-            solo en este dispositivo (el Worker no la guarda).
+            {providerLabel} no manda cabeceras CORS, y por eso el navegador bloquea las
+            respuestas. Necesitas un Worker gratis que las agregue. Tu API key se queda
+            solo en este dispositivo: el Worker no la guarda.
           </p>
 
-          <Step n={1} title="Crear el Worker">
+          <Step n={1} title="Crea el Worker">
             <ol className="ml-4 list-decimal space-y-1">
               <li>
-                Entrá a{" "}
+                Entra a{" "}
                 <a
                   href="https://dash.cloudflare.com"
                   target="_blank"
@@ -171,24 +171,26 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
                   dash.cloudflare.com
                   <ExternalLink className="size-3" />
                 </a>{" "}
-                (cuenta gratis, sin tarjeta).
+                (cuenta gratis, sin tarjeta de crédito).
               </li>
               <li>
-                Menú: <strong className="text-foreground">Workers &amp; Pages</strong> →{" "}
+                En el menú ve a{" "}
+                <strong className="text-foreground">Workers &amp; Pages</strong> →{" "}
                 <strong className="text-foreground">Create</strong> →{" "}
                 <strong className="text-foreground">Start with Hello World!</strong> →{" "}
                 <strong className="text-foreground">Deploy</strong>.
               </li>
               <li>
-                Poné un nombre poco adivinable (ej.{" "}
+                Ponle un nombre que no sea fácil de adivinar (por ejemplo{" "}
                 <code className="rounded bg-muted px-1 font-mono text-[10px]">
                   hito-ai-relay-8f3a
                 </code>
                 ).
               </li>
               <li>
-                Abrí <strong className="text-foreground">Edit code</strong> y anotá la
-                URL <code className="rounded bg-muted px-1 font-mono text-[10px]">
+                Abre <strong className="text-foreground">Edit code</strong> y anota la
+                URL{" "}
+                <code className="rounded bg-muted px-1 font-mono text-[10px]">
                   https://…workers.dev
                 </code>
                 .
@@ -196,9 +198,9 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
             </ol>
           </Step>
 
-          <Step n={2} title="Pegar el código del Worker">
+          <Step n={2} title="Pega el código del Worker">
             <p className="mb-2">
-              Borrá el contenido del editor, pegá el código de abajo y tocá{" "}
+              Borra todo lo que hay en el editor, pega el código de abajo y dale en{" "}
               <strong className="text-foreground">Deploy</strong>.
             </p>
             <div className="relative">
@@ -226,33 +228,34 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
               </Button>
             </div>
             <p className="mt-2">
-              Si servís la app en otro dominio, sumalo a{" "}
+              Si tienes la app en otro dominio, agrégalo a{" "}
               <code className="rounded bg-muted px-1 font-mono text-[10px]">
                 ALLOWED_ORIGINS
               </code>{" "}
-              en el Worker y volvé a deployar.
+              en el Worker y vuelve a desplegar.
             </p>
           </Step>
 
-          <Step n={3} title="Configurar Hito">
+          <Step n={3} title="Configura Hito">
             <ol className="ml-4 list-decimal space-y-1">
               <li>
                 En el campo <strong className="text-foreground">URL base</strong> de
-                arriba, pegá:
+                arriba, pega esto:
                 <code className="mt-1 block rounded bg-muted px-1.5 py-1 font-mono text-[10px] text-foreground">
                   {baseExample}
                 </code>
-                (reemplazá el subdominio por el tuyo). El path final debe ser{" "}
+                (cambia el subdominio por el tuyo). El path al final tiene que quedar{" "}
                 <code className="rounded bg-muted px-1 font-mono text-[10px]">
                   /{path}
                 </code>
                 , sin barra al final.
               </li>
               <li>
-                Pegá tu API key y tocá <strong className="text-foreground">Guardar</strong>.
+                Pega tu API key y dale en{" "}
+                <strong className="text-foreground">Guardar</strong>.
               </li>
               <li>
-                En <strong className="text-foreground">Modelo</strong>, escribí el id
+                En <strong className="text-foreground">Modelo</strong>, escribe el id
                 exacto, por ejemplo{" "}
                 <code className="rounded bg-muted px-1 font-mono text-[10px]">
                   {modelExample}
@@ -262,11 +265,11 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
             </ol>
           </Step>
 
-          <Step n={4} title="Si algo falla">
+          <Step n={4} title="Si algo no funciona">
             <ul className="ml-4 list-disc space-y-1">
               <li>
-                Mensaje de <strong className="text-foreground">CORS</strong>: el origin
-                desde el que abrís Hito no está en{" "}
+                Error de <strong className="text-foreground">CORS</strong>: el origen
+                desde el que abres Hito no está en{" "}
                 <code className="rounded bg-muted px-1 font-mono text-[10px]">
                   ALLOWED_ORIGINS
                 </code>
@@ -281,8 +284,8 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
                 .
               </li>
               <li>
-                <strong className="text-foreground">401</strong>: key incorrecta o con
-                espacios.
+                <strong className="text-foreground">401</strong>: la key está mal o
+                quedó con espacios de más.
               </li>
               <li>
                 <strong className="text-foreground">Sin modelo</strong>: falta el id del
@@ -292,7 +295,8 @@ export function CloudflareProxyGuide({ providerId, providerLabel }: Props) {
           </Step>
 
           <p className="text-[11px]">
-            Plan gratis de Cloudflare: 100.000 requests/día. La key viaja en{" "}
+            En el plan gratis de Cloudflare tienes 100.000 requests al día. La key viaja
+            en{" "}
             <code className="rounded bg-muted px-1 font-mono text-[10px]">
               Authorization
             </code>{" "}
