@@ -4,22 +4,20 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/routes/paths";
 import { useChatStore } from "@/store/useChatStore";
-
-const SUGGESTIONS = [
-  "¿Qué proyectos están estancados o en riesgo?",
-  "Dame el resumen del día: vencidos y por vencer",
-  "¿Qué tareas tengo bloqueadas?",
-  "Crea una tarea urgente en un proyecto",
-];
+import { selectQuickActions, type QuickAction } from "@/ai/chat/quickActions";
+import type { UiContext } from "@/ai/chat/uiContext";
+import { QuickActionChips } from "./QuickActionChips";
 
 interface Props {
   hasKey: boolean;
   /** Label del proveedor activo (CA-01.6 / spec 049 F6). */
   providerLabel?: string;
-  onSuggestion: (text: string) => void;
+  /** Contexto de pantalla actual (spec 050 HU-02). */
+  ctx: UiContext;
+  onSuggestion: (action: QuickAction) => void;
 }
 
-export function AssistantEmptyState({ hasKey, providerLabel, onSuggestion }: Props) {
+export function AssistantEmptyState({ hasKey, providerLabel, ctx, onSuggestion }: Props) {
   const navigate = useNavigate();
   const toggleOpen = useChatStore((s) => s.toggleOpen);
 
@@ -50,6 +48,8 @@ export function AssistantEmptyState({ hasKey, providerLabel, onSuggestion }: Pro
     );
   }
 
+  const actions = selectQuickActions(ctx, "empty");
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6">
       <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
@@ -62,17 +62,7 @@ export function AssistantEmptyState({ hasKey, providerLabel, onSuggestion }: Pro
           cambiar estados… Las escrituras se confirman contigo.
         </p>
       </div>
-      <div className="grid w-full gap-1">
-        {SUGGESTIONS.map((s) => (
-          <button
-            key={s}
-            onClick={() => onSuggestion(s)}
-            className="rounded-lg border px-2.5 py-1.5 text-left text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      <QuickActionChips actions={actions} onPick={onSuggestion} />
     </div>
   );
 }
