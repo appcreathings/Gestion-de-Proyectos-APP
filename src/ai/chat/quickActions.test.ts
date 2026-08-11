@@ -60,17 +60,29 @@ describe("selectQuickActions — composer", () => {
 });
 
 describe("selectQuickActions — empty", () => {
-  it("vacío en dashboard trae globales marcados empty", () => {
+  it("vacío en dashboard trae globales (CA-02.5)", () => {
     const ids = selectQuickActions(globalCtx, "empty").map((a) => a.id);
     expect(ids).toContain("day-summary");
     expect(ids).toContain("stalled");
+    expect(ids).toContain("overdue");
   });
 
-  it("vacío en proyecto también muestra chips globales de empty", () => {
-    // El slot empty siempre muestra los marcados `empty` (mínimo global útil),
-    // aunque haya proyecto — el composer ya muestra los específicos.
+  it("vacío en proyecto: globales empty + chips de proyecto (CA-02.1 / CA-02.3)", () => {
+    // Sin hilo no hay composer: el empty state es el único lugar de chips.
     const ids = selectQuickActions(projectCtx, "empty").map((a) => a.id);
     expect(ids).toContain("day-summary");
+    expect(ids).toContain("project-summary");
+    expect(ids).toContain("project-risks");
+    expect(ids).toContain("create-task-here");
+  });
+
+  it("vacío con tarea: incluye chips de tarea (CA-02.1 / CA-02.4)", () => {
+    const ids = selectQuickActions(taskCtx, "empty").map((a) => a.id);
+    expect(ids).toContain("task-summary");
+    expect(ids).toContain("task-subtasks");
+    expect(ids).toContain("task-improve-desc");
+    expect(ids).toContain("project-summary");
+    expect(ids.length).toBeLessThanOrEqual(6);
   });
 });
 

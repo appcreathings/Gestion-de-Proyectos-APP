@@ -139,21 +139,35 @@ export function buildCatalog(ctx: UiContext): QuickAction[] {
 }
 
 function filterBySlot(actions: QuickAction[], slot: "empty" | "composer", ctx: UiContext): QuickAction[] {
-  if (slot === "empty") {
-    return actions.filter((a) => a.when.includes("empty"));
-  }
   const kind = ctxKind(ctx);
+  if (slot === "empty") {
+    // CA-02.1: empty state = chips del kind actual (project/task/global) + set
+    // global mínimo marcado `empty`. Sin composer visible, el empty es el único
+    // lugar donde se ven chips de "este proyecto" / "esta tarea".
+    // Prioridad: chips del foco (project/task) primero; luego globales `empty`,
+    // para que el slice(0,6) no se coma subtareas/descripción en task.
+    const focused = actions.filter((a) => a.when.includes(kind));
+    const emptyGlobals = actions.filter(
+      (a) => a.when.includes("empty") && !a.when.includes(kind),
+    );
+    const seen = new Set<string>();
+    const out: QuickAction[] = [];
+    for (const a of [...focused, ...emptyGlobals]) {
+      if (seen.has(a.id)) continue;
+      seen.add(a.id);
+      out.push(a);
+    }
+    return out;
+  }
   return actions.filter((a) => a.when.includes(kind));
 }
 
 /**
  * Selección de chips para empty state o composer (HU-02).
- * Limita a ~6 visibles en composer (CA-02.2).
+ * Limita a ~6 visibles (CA-02.2).
  */
 export function selectQuickActions(ctx: UiContext, slot: "empty" | "composer"): QuickAction[] {
-  const actions = filterBySlot(buildCatalog(ctx), slot, ctx);
-  if (slot === "empty") return actions.slice(0, 6);
-  return actions.slice(0, 6);
+  return filterBySlot(buildCatalog(ctx), slot, ctx).slice(0, 6);
 }
 
 /**

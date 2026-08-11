@@ -426,6 +426,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   async newConversation() {
     get().stop(); // also resets autoApproveRestOfTurn
     agentHistory = [];
+    lastTurnHistoryLength = 0;
+    lastTurnUserText = null;
     set({ messages: [], status: "idle", error: null, errorDetail: null });
     await idbDel(IDB_KEY).catch(() => undefined);
   },
