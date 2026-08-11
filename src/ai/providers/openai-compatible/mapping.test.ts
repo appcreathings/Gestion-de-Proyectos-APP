@@ -59,12 +59,19 @@ describe("tool_calls accumulation by index", () => {
     ]);
   });
 
-  it("descarta tool-call con JSON de args roto", () => {
+  it("marca la tool-call con argsError cuando el JSON no parsea", () => {
     const acc = createToolCallAccumulator();
     accumulateToolCallDelta(acc, [
       { index: 0, id: "x", function: { name: "foo", arguments: "{not-json" } },
     ]);
-    expect(finalizeToolCalls(acc)).toEqual([]);
+    expect(finalizeToolCalls(acc)).toEqual([
+      {
+        id: "x",
+        name: "foo",
+        args: {},
+        argsError: "el JSON de arguments no parsea",
+      },
+    ]);
   });
 
   it("soporta dos tool_calls en paralelo por index", () => {

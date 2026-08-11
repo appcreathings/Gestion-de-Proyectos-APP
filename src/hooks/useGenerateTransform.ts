@@ -23,6 +23,8 @@ const ERROR_MESSAGES: Record<AiErrorKind, string> = {
     "Tu proyecto de Google Cloud tiene la cuota en 0 en la región asignada — no es un límite temporal. " +
     "Revisa las cuotas en Google Cloud Console o crea una API key en otro proyecto desde AI Studio.",
   "all-models-exhausted": "Todos los modelos alcanzaron su límite.",
+  "no-model-selected":
+    "Todavía no elegiste un modelo. Escribí el id del modelo en Ajustes → Asistente IA.",
   offline: "Sin conexión a internet.",
   aborted: "Solicitud cancelada.",
   "cors-blocked":

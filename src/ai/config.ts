@@ -127,8 +127,7 @@ export function providerConfig(c: AiConfig, id: ProviderId): AiProviderConfig {
 /** Default model for a provider when switching active provider. */
 export function defaultModelForProvider(id: ProviderId): string {
   const models = getModelsByProvider(id).filter((m) => m.category !== "embedding");
-  if (models[0]) return models[0].id;
-  return `${id}:`;
+  return models[0]?.id ?? "";
 }
 
 export function defaultFallbackGroupForProvider(id: ProviderId): string {

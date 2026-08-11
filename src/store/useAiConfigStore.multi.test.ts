@@ -139,4 +139,37 @@ describe("useAiConfigStore multi-provider", () => {
     expect(config.providers.gemini?.apiKey).toBe("AIza-legacy");
     expect(config.model).toBe("gemini:gemini-2.5-flash");
   });
+
+  // Spec 049 — F3: rotar key no toca model/fallbackGroup
+  it("re-guardar la key del proveedor activo conserva model y fallbackGroup", async () => {
+    await useAiConfigStore.getState().saveAndValidateKey("gemini", "AIza-aaa");
+    await useAiConfigStore.getState().setModel("gemini:gemini-3-flash");
+    await useAiConfigStore.getState().setFallbackGroup("gemini:flash-extended");
+
+    const before = useAiConfigStore.getState().config;
+    expect(before.model).toBe("gemini:gemini-3-flash");
+    expect(before.fallbackGroup).toBe("gemini:flash-extended");
+
+    const ok = await useAiConfigStore.getState().saveAndValidateKey("gemini", "AIza-rotated");
+    expect(ok).toBe(true);
+
+    const after = useAiConfigStore.getState().config;
+    expect(after.providers.gemini?.apiKey).toBe("AIza-rotated");
+    expect(after.model).toBe("gemini:gemini-3-flash");
+    expect(after.fallbackGroup).toBe("gemini:flash-extended");
+    expect(after.activeProvider).toBe("gemini");
+  });
+
+  it("guardar key de otro proveedor sí ajusta model y fallbackGroup", async () => {
+    await useAiConfigStore.getState().saveAndValidateKey("gemini", "AIza-aaa");
+    await useAiConfigStore.getState().setModel("gemini:gemini-3-flash");
+    await useAiConfigStore.getState().setFallbackGroup("gemini:flash-extended");
+
+    await useAiConfigStore.getState().saveAndValidateKey("openai", "sk-bbb");
+
+    const after = useAiConfigStore.getState().config;
+    expect(after.activeProvider).toBe("openai");
+    expect(after.model).toMatch(/^openai:/);
+    expect(after.fallbackGroup).toBe("openai:general");
+  });
 });

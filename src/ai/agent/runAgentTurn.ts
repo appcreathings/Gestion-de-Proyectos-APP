@@ -2,7 +2,7 @@ import { callTool, findTool, type AiTool } from "@/ai/tools";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 import { rateLimiter } from "@/ai/rateLimiter";
 import { modelSelector, type FallbackEvent } from "@/ai/modelSelector";
-import { splitQualified } from "@/ai/models";
+import { isQualifiedModelId, splitQualified } from "@/ai/models";
 import type { AiMessage, AiProvider, AiToolCall } from "@/ai/providers/types";
 
 const MAX_ROUNDS = 8;
@@ -56,6 +56,10 @@ export interface AgentTurnResult {
 export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnResult> {
   const { callbacks, tools, signal, preferredModel, autoFallback = true, fallbackGroup, provider } =
     opts;
+
+  if (!isQualifiedModelId(preferredModel)) {
+    return { history: opts.history, roundsExceeded: false, error: "no-model-selected" };
+  }
 
   let lastFallbackEvent: FallbackEvent | undefined;
   let history: AiMessage[] = [
@@ -163,6 +167,22 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
           name: call.name,
           args: call.args,
         };
+        // Spec 049 D6: args JSON rotos no se ejecutan — se devuelve el error al modelo.
+        if (call.argsError) {
+          callbacks.onToolCallEnd(view, { status: "error", error: call.argsError });
+          history = [
+            ...history,
+            {
+              role: "tool",
+              toolCallId: call.id,
+              name: call.name,
+              result: {
+                error: `Argumentos inválidos: ${call.argsError}. Reintentá con JSON válido.`,
+              },
+            },
+          ];
+          continue;
+        }
         const response = await executeCall(view, opts);
         history = [
           ...history,

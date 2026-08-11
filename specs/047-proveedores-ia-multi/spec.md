@@ -74,6 +74,13 @@ soportados por el mismo adaptador vía **URL base personalizada** (D7): quien qu
 la URL de su propio proxy (un Worker de Cloudflare de 10 líneas, su LAN, LiteLLM, lo que sea).
 Nosotros no shipeamos ni hosteamos ese proxy.
 
+Guía operativa para armarlo: **`PROXY-CLOUDFLARE.md`** en esta misma carpeta (Cloudflare Workers,
+plan gratuito, conserva el streaming, **sin cambios en el código de la app**). Apps Script también
+sirve como proxy y ya hay precedente en el repo (`src/integrations/outbound/email-via-apps-script.ts`
+evita el preflight con `Content-Type: text/plain`), pero `UrlFetchApp` buffea la respuesta entera:
+obligaría a `stream: false` y a agregar `supportsStreaming`/`endpointStyle` al catálogo. Por eso la
+guía recomendada es Cloudflare.
+
 Dato secundario útil: el catálogo real de OpenCode Zen (`GET /zen/v1/models`, verificado)
 incluye modelos `gpt-5.x-codex`, `claude-*`, `glm-*`, `kimi-*`, `deepseek-*` y varios `*-free`.
 O sea: **"Codex" es alcanzable vía OpenCode Zen con proxy**, además de vía OpenAI directo.

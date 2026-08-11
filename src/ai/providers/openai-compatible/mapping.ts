@@ -98,8 +98,8 @@ export function accumulateToolCallDelta(
 }
 
 /**
- * Finalize accumulated tool calls. Broken JSON args are dropped (caller may
- * surface an error tool response — same path as invalid Zod args in the registry).
+ * Finalize accumulated tool calls. Broken JSON args are kept with `argsError`
+ * so the agent loop can return the error to the model (spec 049 D6 / design 047 §5.2).
  */
 export function finalizeToolCalls(acc: Map<number, ToolCallAcc>): AiToolCall[] {
   const calls: AiToolCall[] = [];
@@ -114,7 +114,12 @@ export function finalizeToolCalls(acc: Map<number, ToolCallAcc>): AiToolCall[] {
         args = parsed as Record<string, unknown>;
       }
     } catch {
-      // JSON roto: descartamos la tool-call (el modelo se auto-corrige en la ronda siguiente).
+      calls.push({
+        id: entry.id || `call_${i}`,
+        name: entry.name,
+        args: {},
+        argsError: "el JSON de arguments no parsea",
+      });
       continue;
     }
     calls.push({

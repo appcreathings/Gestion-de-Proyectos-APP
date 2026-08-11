@@ -14,14 +14,17 @@ const SUGGESTIONS = [
 
 interface Props {
   hasKey: boolean;
+  /** Label del proveedor activo (CA-01.6 / spec 049 F6). */
+  providerLabel?: string;
   onSuggestion: (text: string) => void;
 }
 
-export function AssistantEmptyState({ hasKey, onSuggestion }: Props) {
+export function AssistantEmptyState({ hasKey, providerLabel, onSuggestion }: Props) {
   const navigate = useNavigate();
   const toggleOpen = useChatStore((s) => s.toggleOpen);
 
   if (!hasKey) {
+    const providerName = providerLabel?.trim() || "el proveedor activo";
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
         <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
@@ -30,7 +33,7 @@ export function AssistantEmptyState({ hasKey, onSuggestion }: Props) {
         <div>
           <h3 className="text-sm font-semibold">Configura tu API key</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Configurá la API key del proveedor activo en Ajustes. La clave se guarda solo en
+            Configurá tu API key de {providerName} en Ajustes. La clave se guarda solo en
             este dispositivo y nunca viaja con tus datos exportados.
           </p>
         </div>

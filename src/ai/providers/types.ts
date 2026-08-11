@@ -16,6 +16,8 @@ export interface AiToolCall {
   id: string;
   name: string;
   args: Record<string, unknown>;
+  /** El modelo emitió `arguments` que no parsean: no ejecutar, devolver el error (D6). */
+  argsError?: string;
 }
 
 export interface StreamTurnOptions {
@@ -35,8 +37,6 @@ export interface StreamTurnResult {
   /** Texto acumulado del turno (para reconstruir el mensaje assistant). */
   text: string;
   toolCalls: AiToolCall[];
-  /** Tokens gastados si el proveedor los reporta; alimenta el rateLimiter. */
-  usageTokens?: number;
 }
 
 export interface AiProvider {

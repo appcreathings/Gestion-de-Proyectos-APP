@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { AI_ERROR_MESSAGES } from "@/ai/gemini/errors";
 import { rateLimiter } from "@/ai/rateLimiter";
 import { getModelDef } from "@/ai/models";
+import { getProviderDef } from "@/ai/providers/catalog";
 import { cn } from "@/lib/utils";
-import { activeKey } from "@/ai/config";
+import { activeKey, activeProviderId } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
 import { useChatStore } from "@/store/useChatStore";
 import { AssistantEmptyState } from "./AssistantEmptyState";
@@ -33,6 +34,7 @@ export function AssistantPanel() {
 
   const config = useAiConfigStore((s) => s.config);
   const hasKey = Boolean(activeKey(config));
+  const providerLabel = getProviderDef(activeProviderId(config)).label;
 
   const panelRef = useRef<HTMLElement>(null);
   const [showRateLimit, setShowRateLimit] = useState(false);
@@ -149,7 +151,11 @@ export function AssistantPanel() {
       )}
 
       {messages.length === 0 ? (
-        <AssistantEmptyState hasKey={hasKey} onSuggestion={(t) => void send(t)} />
+        <AssistantEmptyState
+          hasKey={hasKey}
+          providerLabel={providerLabel}
+          onSuggestion={(t) => void send(t)}
+        />
       ) : (
         <ChatMessageList messages={messages} />
       )}

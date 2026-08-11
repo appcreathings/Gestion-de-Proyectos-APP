@@ -48,6 +48,8 @@ interface ChatState {
   messages: ChatMessage[];
   status: ChatStatus;
   error: AiErrorKind | null;
+  /** Mensaje crudo del SDK (ApiError.message) del último error, para el detalle técnico
+   * colapsable en el AssistantPanel. Vive solo en la sesión de React (Principio I). spec 031 §6. */
   errorDetail: string | null;
   hydrated: boolean;
 
@@ -59,6 +61,7 @@ interface ChatState {
   hydrateFromIdb: () => Promise<void>;
 }
 
+/** Device-local snapshot of the last conversation (never in the workspace). */
 const IDB_KEY = "aiChat:last";
 const MAX_PERSISTED_MESSAGES = 50;
 
@@ -131,6 +134,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         ),
       );
 
+    // RAG es una mejora opcional: si falla (cuota, red, embeddings, lo que sea), el turno del
+    // agente continúa sin contexto semántico (spec 031 §4). Mismo patrón best-effort que
+    // `hydrateFromIdb`/`persistSnapshot` en este archivo.
     const gKey = geminiKey(config);
     const ragContext =
       config.ragEnabled && gKey

@@ -249,4 +249,138 @@ describe("runAgentTurn — bucle de fallback real (spec 031, provider-agnóstico
     expect(ends).toContain("cancelled");
     expect(result.error).toBeUndefined();
   });
+
+  // Spec 049 — F2: sin modelo elegido no miente con all-models-exhausted
+  it("model vacío → no-model-selected sin llamar a streamTurn", async () => {
+    const { provider, streamCalls } = makeFakeProvider([{ kind: "ok-text" }]);
+    const result = await runAgentTurn(baseOpts(provider, { preferredModel: "" }));
+    expect(result.error).toBe("no-model-selected");
+    expect(streamCalls()).toBe(0);
+  });
+
+  it("model 'nvidia:' (inválido) → no-model-selected sin llamar a streamTurn", async () => {
+    const { provider, streamCalls } = makeFakeProvider([{ kind: "ok-text" }]);
+    const result = await runAgentTurn(baseOpts(provider, { preferredModel: "nvidia:" }));
+    expect(result.error).toBe("no-model-selected");
+    expect(streamCalls()).toBe(0);
+  });
+
+  it("modelo ad-hoc calificado llega a streamTurn (CA-1)", async () => {
+    const { provider, streamCalls } = makeFakeProvider([
+      { kind: "ok-text", text: "hola nvidia" },
+    ]);
+    const result = await runAgentTurn(
+      baseOpts(provider, {
+        preferredModel: "nvidia:meta/llama-3.1-8b-instruct",
+        fallbackGroup: "nvidia:general",
+      }),
+    );
+    expect(result.error).toBeUndefined();
+    expect(streamCalls()).toBe(1);
+    expect(result.history.some((m) => m.role === "assistant")).toBe(true);
+  });
+
+  // Spec 049 — F10: MAX_ROUNDS y abort
+  it("MAX_ROUNDS excedido → roundsExceeded: true", async () => {
+    const { z } = await import("zod");
+    const { defineTool } = await import("@/ai/tools/types");
+    const tool = defineTool({
+      name: "noop",
+      description: "noop",
+      mode: "read",
+      input: z.object({}).passthrough(),
+      execute: async () => ({ ok: true }),
+    });
+    // 8 rondas con tool-calls: el loop agota MAX_ROUNDS sin respuesta final de texto.
+    const sequence: Behavior[] = Array.from({ length: 8 }, (_, i) => ({
+      kind: "ok-tools" as const,
+      text: "",
+      toolCalls: [{ id: `c${i}`, name: "noop", args: {} }],
+    }));
+    const { provider, streamCalls } = makeFakeProvider(sequence);
+    const result = await runAgentTurn(
+      baseOpts(provider, {
+        tools: [tool],
+      }),
+    );
+    expect(result.roundsExceeded).toBe(true);
+    expect(result.error).toBeUndefined();
+    expect(streamCalls()).toBe(8);
+  });
+
+  it("abort → error aborted", async () => {
+    const provider: AiProvider = {
+      id: "gemini",
+      validateKey: async () => ({ ok: true }),
+      classifyError: (e) => {
+        if (e instanceof DOMException && e.name === "AbortError") return "aborted";
+        if (e instanceof Error && e.name === "AbortError") return "aborted";
+        return "unknown";
+      },
+      streamTurn: async () => {
+        throw new DOMException("aborted", "AbortError");
+      },
+    };
+    const result = await runAgentTurn(
+      baseOpts(provider, { signal: new AbortController().signal }),
+    );
+    expect(result.error).toBe("aborted");
+  });
+
+  // Spec 049 — F4/D6: tool-call con argsError no se ejecuta
+  it("tool-call con argsError no se ejecuta y el history recibe el error", async () => {
+    const { z } = await import("zod");
+    const { defineTool } = await import("@/ai/tools/types");
+    let executed = 0;
+    const tool = defineTool({
+      name: "broken_tool",
+      description: "no debería correr",
+      mode: "read",
+      input: z.object({}).passthrough(),
+      execute: async () => {
+        executed++;
+        return { ok: true };
+      },
+    });
+    const ends: Array<{ status: string; error?: string }> = [];
+    const { provider } = makeFakeProvider([
+      {
+        kind: "ok-tools",
+        text: "",
+        toolCalls: [
+          {
+            id: "c-bad",
+            name: "broken_tool",
+            args: {},
+            argsError: "el JSON de arguments no parsea",
+          },
+        ],
+      },
+      { kind: "ok-text", text: "me auto-corregí" },
+    ]);
+    const result = await runAgentTurn(
+      baseOpts(provider, {
+        tools: [tool],
+        callbacks: {
+          onTextDelta: () => undefined,
+          onToolCallStart: () => undefined,
+          onToolCallEnd: (_c, o) => ends.push({ status: o.status, error: o.error }),
+          onConfirmWrite: () => Promise.resolve(true),
+        },
+      }),
+    );
+    expect(executed).toBe(0);
+    expect(ends).toContainEqual({
+      status: "error",
+      error: "el JSON de arguments no parsea",
+    });
+    const toolMsg = result.history.find(
+      (m) => m.role === "tool" && m.toolCallId === "c-bad",
+    );
+    expect(toolMsg).toBeDefined();
+    expect(toolMsg && toolMsg.role === "tool" ? toolMsg.result : null).toMatchObject({
+      error: expect.stringContaining("Argumentos inválidos"),
+    });
+    expect(result.error).toBeUndefined();
+  });
 });

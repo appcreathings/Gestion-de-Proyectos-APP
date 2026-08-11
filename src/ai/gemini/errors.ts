@@ -4,6 +4,7 @@ export type AiErrorKind =
   | "quota-exhausted"
   | "project-quota-zero"
   | "all-models-exhausted"
+  | "no-model-selected"
   | "offline"
   | "aborted"
   | "cors-blocked"
@@ -23,6 +24,9 @@ export const AI_ERROR_MESSAGES: Record<AiErrorKind, string> = {
     "Asistente IA).",
   "all-models-exhausted":
     "Todos los modelos disponibles alcanzaron su límite. Espera un minuto y vuelve a intentarlo, o cambia el grupo de fallback en Ajustes.",
+  "no-model-selected":
+    "Todavía no elegiste un modelo para este proveedor. Escribí el id del modelo en " +
+    "Ajustes → Asistente IA (por ejemplo `meta/llama-3.1-8b-instruct`).",
   offline: "Sin conexión a internet. El asistente necesita red para hablar con el proveedor de IA.",
   aborted: "Respuesta detenida.",
   "cors-blocked":

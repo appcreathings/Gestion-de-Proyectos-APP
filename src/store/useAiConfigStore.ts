@@ -11,6 +11,7 @@ import {
   type AiConfig,
 } from "@/ai/config";
 import type { AiErrorKind } from "@/ai/gemini/errors";
+import { splitQualified } from "@/ai/models";
 import type { ProviderId } from "@/ai/providers/types";
 import { PROVIDER_CATALOG } from "@/ai/providers/catalog";
 import { getProvider } from "@/ai/providers";
@@ -98,6 +99,11 @@ export const useAiConfigStore = create<AiConfigState>((set, get) => ({
     }
     const prev = get().config;
     const prevProv = prev.providers[providerId] ?? { apiKey: "" };
+    // Solo tocar model/fallbackGroup al cambiar de proveedor. Rotar la key del
+    // activo no debe pisar la elección del usuario (spec 049 F3 / D5).
+    const switchingProvider =
+      prev.activeProvider !== providerId ||
+      splitQualified(prev.model).provider !== providerId;
     const config: AiConfig = {
       ...prev,
       activeProvider: providerId,
@@ -105,8 +111,12 @@ export const useAiConfigStore = create<AiConfigState>((set, get) => ({
         ...prev.providers,
         [providerId]: { ...prevProv, apiKey: trimmed },
       },
-      model: prevProv.lastModel ?? defaultModelForProvider(providerId),
-      fallbackGroup: defaultFallbackGroupForProvider(providerId),
+      ...(switchingProvider
+        ? {
+            model: prevProv.lastModel ?? defaultModelForProvider(providerId),
+            fallbackGroup: defaultFallbackGroupForProvider(providerId),
+          }
+        : {}),
     };
     await saveAiConfig(config);
     set((s) => ({

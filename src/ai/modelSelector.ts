@@ -1,4 +1,11 @@
-import { getModelDef, getModelsByGroup, getChainForGroup, type ModelDefinition, type FallbackChain } from "./models";
+import {
+  getModelDef,
+  getModelsByGroup,
+  getChainForGroup,
+  isQualifiedModelId,
+  type ModelDefinition,
+  type FallbackChain,
+} from "./models";
 import { rateLimiter, type RateLimiter } from "./rateLimiter";
 
 export interface FallbackEvent {
@@ -29,6 +36,16 @@ export class ModelSelector {
   ): ModelSelection {
     const preferred = getModelDef(preferredId);
     if (!preferred) {
+      // Modelo ad-hoc (id escrito a mano para nvidia / opencode-zen vía proxy, spec 047 D7):
+      // no está en el registry pero es un id válido. Es el preferido o nada — no entra al
+      // fallback porque no pertenece a ninguna cadena (D3).
+      if (
+        isQualifiedModelId(preferredId) &&
+        !excludeIds?.has(preferredId) &&
+        this.limiter.canMakeRequest(preferredId)
+      ) {
+        return { modelId: preferredId, switched: false, reason: "preferred" };
+      }
       return { modelId: null, switched: false, reason: "none-available" };
     }
 

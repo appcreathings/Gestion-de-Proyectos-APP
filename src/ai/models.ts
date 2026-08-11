@@ -44,6 +44,13 @@ export function splitQualified(id: string): { provider: ProviderId; modelId: str
   return { provider, modelId };
 }
 
+/** `true` solo si el id tiene forma `<proveedor válido>:<modelo no vacío>`. */
+export function isQualifiedModelId(id: string): boolean {
+  const idx = id.indexOf(":");
+  if (idx <= 0) return false;
+  return isProviderId(id.slice(0, idx)) && id.slice(idx + 1).length > 0;
+}
+
 function gemini(
   modelId: string,
   label: string,

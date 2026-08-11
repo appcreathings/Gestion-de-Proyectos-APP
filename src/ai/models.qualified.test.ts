@@ -3,10 +3,34 @@ import {
   customModelDef,
   getModelsByProvider,
   isModelAvailable,
+  isQualifiedModelId,
   MODEL_REGISTRY,
   qualify,
   splitQualified,
 } from "./models";
+
+describe("isQualifiedModelId", () => {
+  it("acepta proveedor válido + modelo no vacío", () => {
+    expect(isQualifiedModelId("nvidia:meta/llama-3.1")).toBe(true);
+    expect(isQualifiedModelId("gemini:gemini-2.5-flash")).toBe(true);
+  });
+
+  it("rechaza modelo vacío tras el separador", () => {
+    expect(isQualifiedModelId("nvidia:")).toBe(false);
+  });
+
+  it("rechaza ids sin prefijo de proveedor", () => {
+    expect(isQualifiedModelId("gemini-2.5-flash")).toBe(false);
+  });
+
+  it("rechaza proveedor desconocido", () => {
+    expect(isQualifiedModelId("noexiste:x")).toBe(false);
+  });
+
+  it("rechaza string vacío", () => {
+    expect(isQualifiedModelId("")).toBe(false);
+  });
+});
 
 describe("ids calificados", () => {
   it("qualify / splitQualified round-trip", () => {

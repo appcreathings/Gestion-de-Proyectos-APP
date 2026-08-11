@@ -113,13 +113,13 @@ export async function runImprove(options: ImproveOptions): Promise<ImproveResult
   const { apiKey, model = "gemini:gemini-2.5-flash", entityType, fields, signal } = options;
   const { provider: providerId, modelId } = splitQualified(model);
   const prompt = buildImprovePrompt(entityType, fields);
+  const provider = await getProvider(providerId);
 
   if (!rateLimiter.canMakeRequest(model)) {
     return { ok: false, error: "rate-limit" };
   }
 
   try {
-    const provider = await getProvider(providerId);
     const result = await provider.streamTurn({
       apiKey,
       model: modelId,
@@ -137,10 +137,9 @@ export async function runImprove(options: ImproveOptions): Promise<ImproveResult
       return { ok: false, error: "aborted" };
     }
     rateLimiter.recordRequest(model);
-    const provider = await getProvider(providerId).catch(() => null);
     return {
       ok: false,
-      error: provider ? provider.classifyError(e) : "unknown",
+      error: provider.classifyError(e),
       rawMessage: e instanceof Error ? e.message : String(e),
     };
   }

@@ -69,12 +69,17 @@ El conteo de tests **solo puede subir**. Cada fase cierra con `npm run typecheck
   - [ ] H3.3 `nvidia` sin baseUrl → mensaje `cors-blocked` (no "sin conexión")
   - [ ] H3.4 Cambio de proveedor a mitad de conversación conserva contexto
   - [ ] H3.5 Migración desde `aiConfig` v1 sembrado a mano en DevTools
+  - **Nota (2026-08-11 / spec 049):** el bloqueante que impedía chatear con nvidia/opencode-zen
+    (modelo ad-hoc → `all-models-exhausted`) y el pisa de `model` al rotar la key se corrigieron
+    en `specs/049-proveedores-ia-correcciones/`. El smoke real de nvidia vía proxy se declara en
+    la Fase F de la 049 (S1–S5); no se marca H3 acá hasta correrlo de verdad.
 - [x] H4 `npm run typecheck` + `npm test` (> 954) + `npm run lint` + `npm run build`
   - Cierre: **1001 tests / 100 archivos**, typecheck OK, build OK.
   - Lint: mismos errores preexistentes fuera de `src/ai` (AttachmentsSection, useBreakpoint); `src/ai/**` limpio.
 - [x] H5 Anotar en este archivo qué proveedores se probaron de verdad y con qué key (sin pegar la key)
-  - **Smoke H3 no ejecutado en esta sesión** (sin keys reales de OpenAI/Z.ai ni UI interactiva en el entorno de implementación).
+  - **Smoke H3 no ejecutado en la sesión de la 047** (sin keys reales de OpenAI/Z.ai ni UI interactiva).
   - Cobertura automatizada: SSE, mapping, errores (cors-blocked), migración v1→v2, multi-key store, keys-never-exported, loop con provider fake, gate E7 Gemini.
+  - Continuación del smoke: ver `specs/049-proveedores-ia-correcciones/tasks.md` Fase F.
 - [x] H6 Spec → **IMPLEMENTADO**
 - [x] H7 `graphify update .`
 

@@ -86,4 +86,26 @@ describe("ModelSelector", () => {
     expect(events[0].to).toBe("gemini:gemini-2.5-flash-lite");
     expect(events[0].reason).toBe("saturated");
   });
+
+  // Spec 049 — modelos ad-hoc (nvidia / opencode-zen escritos a mano)
+  it("id ad-hoc calificado válido → preferred (sin estar en el registry)", () => {
+    const result = selector.select("nvidia:meta/llama-3.1-8b-instruct");
+    expect(result.modelId).toBe("nvidia:meta/llama-3.1-8b-instruct");
+    expect(result.switched).toBe(false);
+    expect(result.reason).toBe("preferred");
+  });
+
+  it("id ad-hoc en excludeIds → none-available", () => {
+    const tried = new Set<string>(["nvidia:meta/llama-3.1-8b-instruct"]);
+    const result = selector.select("nvidia:meta/llama-3.1-8b-instruct", undefined, tried);
+    expect(result.modelId).toBeNull();
+    expect(result.reason).toBe("none-available");
+  });
+
+  it("id ad-hoc saturado → none-available (no inventa fallback)", () => {
+    limiter.markSaturated("nvidia:meta/llama-3.1-8b-instruct", 60);
+    const result = selector.select("nvidia:meta/llama-3.1-8b-instruct");
+    expect(result.modelId).toBeNull();
+    expect(result.reason).toBe("none-available");
+  });
 });
