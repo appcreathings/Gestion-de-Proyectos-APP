@@ -26,6 +26,7 @@ import type { ProviderId } from "@/ai/providers/types";
 import { AI_ERROR_MESSAGES } from "@/ai/gemini/errors";
 import { useAiConfigStore, type KeyStatus } from "@/store/useAiConfigStore";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
+import { CloudflareProxyGuide } from "./CloudflareProxyGuide";
 
 function isValidBaseUrl(url: string): boolean {
   const t = url.trim();
@@ -182,29 +183,37 @@ export function AiSettingsCard() {
           </Select>
         </div>
 
-        {/* baseUrl para browserBlocked */}
+        {/* baseUrl + guía Cloudflare para browserBlocked (NVIDIA / OpenCode Zen) */}
         {def.browserBlocked && (
-          <div className="grid gap-1.5 rounded-md border border-warning/40 bg-warning/5 p-3">
-            <p className="text-xs text-muted-foreground">
-              Este proveedor no permite llamadas directas desde el navegador (CORS).
-              Necesitás una URL base propia (proxy).
-            </p>
-            <Label htmlFor="ai-base-url">URL base</Label>
-            <div className="flex gap-2">
-              <Input
-                id="ai-base-url"
-                value={baseDraft}
-                placeholder="https://mi-proxy.workers.dev/v1"
-                onChange={(e) => setBaseDraft(e.target.value)}
-                onBlur={() => void onSaveBaseUrl()}
-                {...fieldAria("baseUrl", errors)}
-              />
-            </div>
-            {errors.baseUrl && (
-              <p role="alert" className="text-xs text-destructive">
-                {errors.baseUrl}
+          <div className="grid gap-3">
+            <CloudflareProxyGuide providerId={providerId} providerLabel={def.label} />
+            <div className="grid gap-1.5 rounded-md border border-warning/40 bg-warning/5 p-3">
+              <p className="text-xs text-muted-foreground">
+                Este proveedor no permite llamadas directas desde el navegador (CORS).
+                Necesitás una URL base propia (proxy). Seguí la guía de arriba o pegá la
+                URL de tu Worker.
               </p>
-            )}
+              <Label htmlFor="ai-base-url">URL base</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="ai-base-url"
+                  value={baseDraft}
+                  placeholder={
+                    providerId === "opencode-zen"
+                      ? "https://mi-proxy.workers.dev/zen"
+                      : "https://mi-proxy.workers.dev/nvidia"
+                  }
+                  onChange={(e) => setBaseDraft(e.target.value)}
+                  onBlur={() => void onSaveBaseUrl()}
+                  {...fieldAria("baseUrl", errors)}
+                />
+              </div>
+              {errors.baseUrl && (
+                <p role="alert" className="text-xs text-destructive">
+                  {errors.baseUrl}
+                </p>
+              )}
+            </div>
           </div>
         )}
 

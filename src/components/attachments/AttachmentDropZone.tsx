@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
-import { Paperclip, Upload } from "lucide-react";
+import { ClipboardPaste, Paperclip, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatBytes } from "@/lib/formatBytes";
 
@@ -9,6 +10,9 @@ interface Props {
   maxBytes: number;
   acceptHint?: string;
   onFiles: (files: File[]) => void;
+  /** Paste image from clipboard (optional — parent wires navigator.clipboard / toast). */
+  onPasteFromClipboard?: () => void;
+  pasteBusy?: boolean;
 }
 
 export function AttachmentDropZone({
@@ -17,6 +21,8 @@ export function AttachmentDropZone({
   maxBytes,
   acceptHint = "PDF, imágenes, docs, audio, video o zip",
   onFiles,
+  onPasteFromClipboard,
+  pasteBusy,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -114,11 +120,28 @@ export function AttachmentDropZone({
         <Paperclip className="size-5 text-muted-foreground" />
       )}
       <p className="text-xs font-medium">
-        {busy ? "Guardando…" : "Arrastra archivos aquí o elige…"}
+        {busy ? "Guardando…" : "Arrastra, elige o pega una imagen"}
       </p>
       <p className="text-[10px] text-muted-foreground">
-        {acceptHint} · máx. {formatBytes(maxBytes)} c/u
+        {acceptHint} · máx. {formatBytes(maxBytes)} c/u · Ctrl+V / ⌘V
       </p>
+      {onPasteFromClipboard && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-1 h-7 gap-1.5"
+          disabled={disabled || busy || pasteBusy}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onPasteFromClipboard();
+          }}
+        >
+          <ClipboardPaste className="size-3.5" />
+          {pasteBusy ? "Pegando…" : "Pegar del portapapeles"}
+        </Button>
+      )}
     </div>
   );
 }

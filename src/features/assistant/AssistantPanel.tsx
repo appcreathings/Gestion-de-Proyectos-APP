@@ -10,7 +10,11 @@ import { getProviderDef } from "@/ai/providers/catalog";
 import { cn } from "@/lib/utils";
 import { activeKey, activeProviderId } from "@/ai/config";
 import { useAiConfigStore } from "@/store/useAiConfigStore";
-import { useChatStore, ASSISTANT_PANEL_WIDTH } from "@/store/useChatStore";
+import {
+  useChatStore,
+  ASSISTANT_PANEL_MIN_WIDTH,
+  ASSISTANT_PANEL_MAX_WIDTH,
+} from "@/store/useChatStore";
 import { AssistantEmptyState } from "./AssistantEmptyState";
 import { ChatInput } from "./ChatInput";
 import { ChatMessageList } from "./ChatMessageList";
@@ -18,10 +22,15 @@ import { RateLimitStatus } from "./RateLimitStatus";
 import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 
+/** Leave this much main content visible while dragging the chat edge. */
+const RESIZE_MAIN_GUTTER = 280;
+
 export function AssistantPanel() {
   const navigate = useNavigate();
   const open = useChatStore((s) => s.open);
   const toggleOpen = useChatStore((s) => s.toggleOpen);
+  const panelWidth = useChatStore((s) => s.panelWidth);
+  const setPanelWidth = useChatStore((s) => s.setPanelWidth);
   const messages = useChatStore((s) => s.messages);
   const status = useChatStore((s) => s.status);
   const error = useChatStore((s) => s.error);
@@ -37,6 +46,8 @@ export function AssistantPanel() {
   const providerLabel = getProviderDef(activeProviderId(config)).label;
 
   const panelRef = useRef<HTMLElement>(null);
+  const isResizingRef = useRef(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [showRateLimit, setShowRateLimit] = useState(false);
   const isDesktop = useBreakpoint("lg");
 
@@ -51,6 +62,58 @@ export function AssistantPanel() {
         ?.focus();
     }
   }, [open]);
+
+  // Horizontal resize (desktop only) — drag left edge; width lives in useChatStore.
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const clampToViewport = (raw: number) => {
+      const maxForViewport = Math.max(
+        ASSISTANT_PANEL_MIN_WIDTH,
+        window.innerWidth - RESIZE_MAIN_GUTTER,
+      );
+      const max = Math.min(ASSISTANT_PANEL_MAX_WIDTH, maxForViewport);
+      return Math.min(max, Math.max(ASSISTANT_PANEL_MIN_WIDTH, raw));
+    };
+
+    const onMove = (e: MouseEvent) => {
+      if (!isResizingRef.current) return;
+      setPanelWidth(clampToViewport(window.innerWidth - e.clientX), { persist: false });
+    };
+
+    const onUp = () => {
+      if (!isResizingRef.current) return;
+      isResizingRef.current = false;
+      setIsResizing(false);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      // Persist the final width once (avoid localStorage writes per mousemove).
+      setPanelWidth(useChatStore.getState().panelWidth);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+  }, [isDesktop, setPanelWidth]);
+
+  // Re-clamp when the window shrinks so the panel never covers everything.
+  useEffect(() => {
+    if (!isDesktop) return;
+    const onResize = () => {
+      const maxForViewport = Math.max(
+        ASSISTANT_PANEL_MIN_WIDTH,
+        window.innerWidth - RESIZE_MAIN_GUTTER,
+      );
+      const max = Math.min(ASSISTANT_PANEL_MAX_WIDTH, maxForViewport);
+      if (panelWidth > max) setPanelWidth(max);
+    };
+    window.addEventListener("resize", onResize);
+    onResize();
+    return () => window.removeEventListener("resize", onResize);
+  }, [isDesktop, panelWidth, setPanelWidth]);
 
   if (!open) return null;
 
@@ -83,11 +146,35 @@ export function AssistantPanel() {
         className={cn(
           "relative flex flex-col overflow-hidden",
           isDesktop
-            ? "shrink-0 border-l bg-card z-50"
+            ? "z-50 shrink-0 border-l bg-card"
             : "fixed inset-0 z-50 border-0 bg-card",
+          isResizing && "select-none",
         )}
-        style={isDesktop ? { width: ASSISTANT_PANEL_WIDTH } : undefined}
+        style={isDesktop ? { width: panelWidth } : undefined}
       >
+        {isDesktop && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Redimensionar panel del asistente"
+            aria-valuenow={panelWidth}
+            aria-valuemin={ASSISTANT_PANEL_MIN_WIDTH}
+            aria-valuemax={ASSISTANT_PANEL_MAX_WIDTH}
+            title="Arrastra para cambiar el ancho"
+            className={cn(
+              "absolute inset-y-0 left-0 z-10 w-1.5 -translate-x-1/2 cursor-col-resize touch-none",
+              "bg-transparent transition-colors hover:bg-primary/40",
+              isResizing && "bg-primary/50",
+            )}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              isResizingRef.current = true;
+              setIsResizing(true);
+              document.body.style.cursor = "col-resize";
+              document.body.style.userSelect = "none";
+            }}
+          />
+        )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <Sparkles className="size-4 text-primary" />

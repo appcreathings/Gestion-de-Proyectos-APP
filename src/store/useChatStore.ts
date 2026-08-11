@@ -45,6 +45,8 @@ export type ChatStatus = "idle" | "streaming" | "awaiting-confirmation" | "error
 
 interface ChatState {
   open: boolean;
+  /** Desktop panel width in px (device-local; ignored on mobile full-screen). */
+  panelWidth: number;
   messages: ChatMessage[];
   status: ChatStatus;
   error: AiErrorKind | null;
@@ -54,6 +56,11 @@ interface ChatState {
   hydrated: boolean;
 
   toggleOpen: (v?: boolean) => void;
+  /**
+   * Clamp desktop assistant width (for resize handle + TaskDetailDrawer).
+   * Pass `persist: false` while dragging; default persists to localStorage.
+   */
+  setPanelWidth: (width: number, opts?: { persist?: boolean }) => void;
   send: (text: string) => Promise<void>;
   stop: () => void;
   approvePendingWrite: (id: string, approved: boolean) => void;
@@ -67,8 +74,10 @@ interface ChatState {
 const IDB_KEY = "aiChat:last";
 const MAX_PERSISTED_MESSAGES = 50;
 
-/** Desktop assistant panel width (px). Shared so TaskDetailDrawer can sit side-by-side (spec 048 HU-02). */
+/** Default desktop assistant panel width (px). Shared with TaskDetailDrawer (spec 048 HU-02). */
 export const ASSISTANT_PANEL_WIDTH = 400;
+export const ASSISTANT_PANEL_MIN_WIDTH = 320;
+export const ASSISTANT_PANEL_MAX_WIDTH = 800;
 
 /** Neutral history for the next turn (D2). */
 let agentHistory: AiMessage[] = [];
@@ -78,9 +87,28 @@ const pendingResolvers = new Map<string, (approved: boolean) => void>();
 let autoApproveRestOfTurn = false;
 
 const OPEN_KEY = "assistant.open";
+const WIDTH_KEY = "assistant.panelWidth";
+
+function clampPanelWidth(width: number): number {
+  const n = Math.round(width);
+  if (!Number.isFinite(n)) return ASSISTANT_PANEL_WIDTH;
+  return Math.min(ASSISTANT_PANEL_MAX_WIDTH, Math.max(ASSISTANT_PANEL_MIN_WIDTH, n));
+}
+
+function readPanelWidth(): number {
+  if (typeof localStorage === "undefined") return ASSISTANT_PANEL_WIDTH;
+  try {
+    const raw = localStorage.getItem(WIDTH_KEY);
+    if (!raw) return ASSISTANT_PANEL_WIDTH;
+    return clampPanelWidth(parseInt(raw, 10));
+  } catch {
+    return ASSISTANT_PANEL_WIDTH;
+  }
+}
 
 export const useChatStore = create<ChatState>((set, get) => ({
   open: typeof localStorage !== "undefined" && localStorage.getItem(OPEN_KEY) === "1",
+  panelWidth: readPanelWidth(),
   messages: [],
   status: "idle",
   error: null,
@@ -91,6 +119,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const open = v ?? !get().open;
     localStorage.setItem(OPEN_KEY, open ? "1" : "0");
     set({ open });
+  },
+
+  setPanelWidth(width, opts) {
+    const panelWidth = clampPanelWidth(width);
+    if (opts?.persist !== false) {
+      try {
+        localStorage.setItem(WIDTH_KEY, String(panelWidth));
+      } catch {
+        // best-effort: layout prefs are disposable
+      }
+    }
+    set({ panelWidth });
   },
 
   async hydrateFromIdb() {

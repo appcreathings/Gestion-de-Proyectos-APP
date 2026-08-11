@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Attachment } from "@/domain/schemas/attachment";
 import type { AttachmentKind } from "@/domain/attachments/allowlist";
 import type { AttachmentParent } from "@/domain/attachments/paths";
@@ -6,9 +6,14 @@ import { getAttachmentsFromState } from "@/domain/attachments/ops";
 import { AttachmentDropZone } from "./AttachmentDropZone";
 import { AttachmentRow } from "./AttachmentRow";
 import { AttachmentPreviewDialog } from "./AttachmentPreviewDialog";
+import {
+  imageFilesFromClipboardRead,
+  imageFilesFromDataTransferItems,
+} from "./clipboardImages";
 import { useAttachmentActions } from "@/hooks/useAttachmentActions";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useDataStore } from "@/store/useDataStore";
+import { useToastStore } from "@/store/useToastStore";
 import { cn } from "@/lib/utils";
 
 const KIND_FILTERS: Array<{ id: "all" | AttachmentKind; label: string }> = [
@@ -121,25 +126,15 @@ export function AttachmentsSection({
   }, [imageIds, thumbUrlFor]);
 
   const atCap = attachments.length >= maxCount;
+  const toast = useToastStore((s) => s.toast);
+  const [pasteBusy, setPasteBusy] = useState(false);
 
   // Spec 048 HU-04: paste image from clipboard into attachments (D9/D10/D11).
   useEffect(() => {
     if (disabled) return;
     function onPaste(e: ClipboardEvent) {
       if (atCap) return;
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      const imageFiles: File[] = [];
-      for (const item of items) {
-        if (item.kind !== "file" || !item.type.startsWith("image/")) continue;
-        const file = item.getAsFile();
-        if (!file) continue;
-        // D9: name from MIME type — classifyFile() requires a valid extension.
-        const ext = item.type.split("/")[1]?.split("+")[0] || "png";
-        imageFiles.push(
-          new File([file], `pegado-${Date.now()}.${ext}`, { type: item.type }),
-        );
-      }
+      const imageFiles = imageFilesFromDataTransferItems(e.clipboardData?.items);
       if (imageFiles.length === 0) return;
       e.preventDefault();
       void addFiles(imageFiles);
@@ -147,6 +142,27 @@ export function AttachmentsSection({
     document.addEventListener("paste", onPaste);
     return () => document.removeEventListener("paste", onPaste);
   }, [disabled, atCap, addFiles]);
+
+  const pasteFromClipboard = useCallback(async () => {
+    if (disabled || atCap || pasteBusy) return;
+    setPasteBusy(true);
+    try {
+      const imageFiles = await imageFilesFromClipboardRead();
+      if (imageFiles.length === 0) {
+        toast.info(
+          "No hay una imagen en el portapapeles. Copiá una captura y volvé a intentar (o usá Ctrl+V).",
+        );
+        return;
+      }
+      await addFiles(imageFiles);
+    } catch {
+      toast.info(
+        "No se pudo leer el portapapeles. Copiá una imagen y usá Ctrl+V / ⌘V sobre esta sección.",
+      );
+    } finally {
+      setPasteBusy(false);
+    }
+  }, [disabled, atCap, pasteBusy, addFiles, toast]);
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -189,6 +205,8 @@ export function AttachmentsSection({
           disabled={disabled || preview !== null}
           maxBytes={maxBytes}
           onFiles={(files) => void addFiles(files)}
+          onPasteFromClipboard={() => void pasteFromClipboard()}
+          pasteBusy={pasteBusy}
         />
       )}
       {atCap && !disabled && (

@@ -10,8 +10,8 @@
     "semantic_hash": "174ba55682d9986c0083bcb73d65ed30"
   },
   "package.json": {
-    "mtime": 1786428318.798529,
-    "ast_hash": "17e06bbe52a8dc844f95dba1c6ccf246",
+    "mtime": 1786480686.270462,
+    "ast_hash": "856f1638f9b64582ce204f9eaae4041f",
     "semantic_hash": ""
   },
   "postcss.config.js": {
@@ -355,8 +355,8 @@
     "semantic_hash": "8073b1bea9b9459123916b9775e51d48"
   },
   "src/components/ConfirmDialog.tsx": {
-    "mtime": 1785823954.914457,
-    "ast_hash": "a7cbc97520778ad9e8c2dbb43cb7efc2",
+    "mtime": 1786481058.2058437,
+    "ast_hash": "06c1d12dfd4ce94467da7c64be121a74",
     "semantic_hash": ""
   },
   "src/components/EmptyState.tsx": {
@@ -390,8 +390,8 @@
     "semantic_hash": "dab3807df027a3ec066d2b6b88feda21"
   },
   "src/components/Markdown.tsx": {
-    "mtime": 1786478231.2193408,
-    "ast_hash": "1992029206700cfbf90be7da221e0a37",
+    "mtime": 1786480682.8463123,
+    "ast_hash": "791fe5c256133995af55552a65b54f3e",
     "semantic_hash": ""
   },
   "src/components/PageHeader.tsx": {
@@ -480,7 +480,7 @@
     "semantic_hash": "6fd0bb09b71758c95774507d2271fc02"
   },
   "src/components/layout/AppLayout.tsx": {
-    "mtime": 1786429418.1784258,
+    "mtime": 1786480891.6101072,
     "ast_hash": "65221fb76a045c2f00752af69127dc34",
     "semantic_hash": ""
   },
@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "src/features/assistant/AssistantPanel.tsx": {
-    "mtime": 1786478883.7646353,
-    "ast_hash": "2784669ad4ee44971d9ff8960faa17e7",
+    "mtime": 1786481199.8271613,
+    "ast_hash": "42f4c6a38354916847465f4c1217198f",
     "semantic_hash": ""
   },
   "src/features/assistant/ChatInput.tsx": {
@@ -755,8 +755,8 @@
     "semantic_hash": "d69f65e8ca3400ae94cc5c2b48dc80af"
   },
   "src/features/assistant/WriteConfirmCard.tsx": {
-    "mtime": 1786473807.7456284,
-    "ast_hash": "3cb727d49937467e8119f27a16fd4f5d",
+    "mtime": 1786480908.3003836,
+    "ast_hash": "44280ec4fbeee00757bdefae9572e023",
     "semantic_hash": ""
   },
   "src/features/automations/AutomationDialog.tsx": {
@@ -1510,8 +1510,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1786473841.3627133,
-    "ast_hash": "b536c3c6e302ac98590db029e3e77fad",
+    "mtime": 1786481149.6370804,
+    "ast_hash": "9cb1999d5ea39d0035f15f139a05832c",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -1560,8 +1560,8 @@
     "semantic_hash": ""
   },
   "src/features/settings/AiSettingsCard.tsx": {
-    "mtime": 1786428908.2052546,
-    "ast_hash": "072f5cfcb197623242c044c2bd1e73e7",
+    "mtime": 1786480729.5745044,
+    "ast_hash": "f89ac4885bead9b9ab8c06b5e9c9f0b2",
     "semantic_hash": ""
   },
   "src/features/settings/CollectionTransferCard.tsx": {
@@ -2105,8 +2105,8 @@
     "semantic_hash": ""
   },
   "src/store/useChatStore.ts": {
-    "mtime": 1786473942.0655937,
-    "ast_hash": "dee083527f1e11e702b92faea66f8cc5",
+    "mtime": 1786481199.844168,
+    "ast_hash": "5e35388091bce7c7bf6d59508f4ce317",
     "semantic_hash": ""
   },
   "src/store/useDataStore.deliveryLog.test.ts": {
@@ -2945,18 +2945,18 @@
     "semantic_hash": ""
   },
   "src/components/attachments/AttachmentDropZone.tsx": {
-    "mtime": 1785825559.9463112,
-    "ast_hash": "c7670514f00392e25a1a90adef819629",
+    "mtime": 1786480729.595705,
+    "ast_hash": "49af1e2352d1c5ad73f67c2cd742ec6b",
     "semantic_hash": ""
   },
   "src/components/attachments/AttachmentRow.tsx": {
-    "mtime": 1785823599.7521431,
-    "ast_hash": "ce04a0454174a83c583c51ffb439be43",
+    "mtime": 1786481058.2058437,
+    "ast_hash": "6a744fb88095939fcfcf681b0ef27d44",
     "semantic_hash": ""
   },
   "src/components/attachments/AttachmentsSection.tsx": {
-    "mtime": 1786473759.337898,
-    "ast_hash": "7e52fb52d1853a65b9581a9a3f9245aa",
+    "mtime": 1786481058.2058437,
+    "ast_hash": "ae251574b411268f1299fed073e09c3d",
     "semantic_hash": ""
   },
   "src/domain/attachments/allowlist.test.ts": {
@@ -3477,6 +3477,16 @@
   "src/store/useChatStore.approveAll.test.ts": {
     "mtime": 1786474011.5843482,
     "ast_hash": "939a6263dfa414a42d588fe45072215a",
+    "semantic_hash": ""
+  },
+  "src/components/attachments/clipboardImages.ts": {
+    "mtime": 1786480752.8768399,
+    "ast_hash": "f2b59d7c42d7155ae55a2196edd4f076",
+    "semantic_hash": ""
+  },
+  "src/features/settings/CloudflareProxyGuide.tsx": {
+    "mtime": 1786480758.8685136,
+    "ast_hash": "3ef14fb5802335c22fa8545c5bc9c356",
     "semantic_hash": ""
   }
 }

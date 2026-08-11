@@ -31,7 +31,7 @@ import type {
   TaskStatus,
 } from "@/domain/schemas";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
-import { useChatStore, ASSISTANT_PANEL_WIDTH } from "@/store/useChatStore";
+import { useChatStore } from "@/store/useChatStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface Props {
@@ -88,6 +88,7 @@ export function TaskDetailDrawer({
 
   // Spec 048 HU-02: sit drawer to the left of the assistant on desktop when both open.
   const assistantOpen = useChatStore((s) => s.open);
+  const assistantPanelWidth = useChatStore((s) => s.panelWidth);
   const isDesktop = useBreakpoint("lg");
   const sideBySide = assistantOpen && isDesktop;
 
@@ -251,11 +252,11 @@ export function TaskDetailDrawer({
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizingRef.current) return;
       const rightEdge = sideBySide
-        ? window.innerWidth - ASSISTANT_PANEL_WIDTH
+        ? window.innerWidth - assistantPanelWidth
         : window.innerWidth;
       const newWidth = rightEdge - e.clientX;
       const maxWidth = sideBySide
-        ? Math.min(800, window.innerWidth - ASSISTANT_PANEL_WIDTH - 200)
+        ? Math.min(800, window.innerWidth - assistantPanelWidth - 200)
         : 800;
       const clamped = Math.min(maxWidth, Math.max(320, newWidth));
       setDrawerWidth(clamped);
@@ -278,14 +279,14 @@ export function TaskDetailDrawer({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [drawerWidth, sideBySide]);
+  }, [drawerWidth, sideBySide, assistantPanelWidth]);
 
-  // Re-clamp drawer width when the assistant opens beside it (D6).
+  // Re-clamp drawer width when the assistant opens or is resized beside it (D6).
   useEffect(() => {
     if (!sideBySide) return;
-    const maxWidth = Math.min(800, window.innerWidth - ASSISTANT_PANEL_WIDTH - 200);
+    const maxWidth = Math.min(800, window.innerWidth - assistantPanelWidth - 200);
     setDrawerWidth((w) => Math.min(w, Math.max(320, maxWidth)));
-  }, [sideBySide]);
+  }, [sideBySide, assistantPanelWidth]);
 
   const persist = useCallback(
     (field: string, value: string | null) => {
@@ -463,7 +464,7 @@ export function TaskDetailDrawer({
         aria-label={`Detalle de tarea: ${task.title}`}
         style={{
           width: drawerWidth,
-          right: sideBySide ? ASSISTANT_PANEL_WIDTH : 0,
+          right: sideBySide ? assistantPanelWidth : 0,
         }}
         className={cn(
           // Solid bg-background only: full-panel red/amber tints (esp. dark:/20)

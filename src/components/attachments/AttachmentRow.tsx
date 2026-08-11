@@ -161,8 +161,13 @@ export function AttachmentRow({
             Descargar
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={onRemove}
             className="gap-2 text-destructive focus:text-destructive"
+            // Defer ConfirmDialog until after the menu's dismiss cycle.
+            // Opening in the same tick lets pointer-up/focus restore close the
+            // non-modal confirm immediately (delete UI "flashes" and vanishes).
+            onSelect={() => {
+              window.setTimeout(() => onRemove(), 0);
+            }}
           >
             <Trash2 className="size-4" />
             Eliminar

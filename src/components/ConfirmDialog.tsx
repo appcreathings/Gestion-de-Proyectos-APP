@@ -63,6 +63,24 @@ export function ConfirmDialog({
         size="sm"
         className="w-[min(100%,22rem)] max-w-sm gap-0 p-0"
         description={description}
+        // Non-modal confirms opened from a DropdownMenu can receive the same
+        // pointer event that closed the menu as "interact outside" and shut
+        // immediately. Swallow outside pointer-down while open; user still
+        // closes via Cancel, X, Escape, or confirming.
+        onPointerDownOutside={
+          modal
+            ? undefined
+            : (e) => {
+                e.preventDefault();
+              }
+        }
+        onInteractOutside={
+          modal
+            ? undefined
+            : (e) => {
+                e.preventDefault();
+              }
+        }
       >
         <div className="flex flex-col gap-3 p-4 sm:p-5">
           <div className="space-y-1.5 pr-6">
