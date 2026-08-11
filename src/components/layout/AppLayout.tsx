@@ -17,6 +17,8 @@ import {
   X,
   UserCheck,
   Webhook,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDataStore } from "@/store/useDataStore";
@@ -71,7 +73,17 @@ const NAV = [
 // detrás del botón "Más", que abre el drawer completo.
 const MOBILE_PRIMARY_NAV = NAV.slice(0, 4);
 
-function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
+const SIDEBAR_COLLAPSED_KEY = "hito:sidebar-collapsed";
+
+function SidebarContent({
+  onNavClick,
+  collapsed = false,
+  onToggleCollapse,
+}: {
+  onNavClick?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
   const unread = useDataStore((s) => s.notifications.filter((n) => !n.read).length);
   const assistantOpen = useChatStore((s) => s.open);
   const toggleAssistant = useChatStore((s) => s.toggleOpen);
@@ -81,16 +93,41 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
       <Link
         to={ROUTES.landing}
         onClick={onNavClick}
-        className="flex h-14 items-center gap-2 px-5"
+        title={collapsed ? "Hito" : undefined}
+        className={cn(
+          "flex h-14 items-center gap-2",
+          collapsed ? "justify-center px-2" : "px-5",
+        )}
       >
-        <div className="flex size-7 items-center justify-center rounded-md bg-foreground text-background">
+        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-foreground text-background">
           <FolderKanban className="size-3.5" />
         </div>
-        <span className="text-sm font-semibold tracking-tight">Hito</span>
-        <span className="ml-auto font-mono text-[10px] text-muted-foreground">
-          v0.1
-        </span>
+        {!collapsed && <span className="text-sm font-semibold tracking-tight">Hito</span>}
+        {!collapsed && (
+          <span className="ml-auto font-mono text-[10px] text-muted-foreground">v0.1</span>
+        )}
       </Link>
+      {/* Collapse/expand toggle — desktop only (onToggleCollapse not passed on mobile) */}
+      {onToggleCollapse && (
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          aria-label={collapsed ? "Expandir barra lateral" : "Minimizar barra lateral"}
+          aria-pressed={collapsed}
+          title={collapsed ? "Expandir barra lateral" : "Minimizar barra lateral"}
+          className={cn(
+            "mx-3 mb-2 flex items-center gap-2 rounded-md border border-border/70 bg-background px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground",
+            collapsed && "mx-auto w-8 justify-center px-0",
+          )}
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="size-3.5" />
+          ) : (
+            <PanelLeftClose className="size-3.5" />
+          )}
+          {!collapsed && <span>Minimizar</span>}
+        </button>
+      )}
       {/* Command palette trigger */}
       <button
         onClick={() => {
@@ -98,66 +135,88 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
             new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }),
           );
         }}
-        className="mx-3 mb-2 flex items-center gap-2 rounded-md border border-border/70 bg-background px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+        title={collapsed ? "Buscar… (⌘K)" : undefined}
+        aria-label="Buscar"
+        className={cn(
+          "mx-3 mb-2 flex items-center gap-2 rounded-md border border-border/70 bg-background px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground",
+          collapsed && "mx-auto w-8 justify-center px-0",
+        )}
       >
         <Search className="size-3.5" />
-        <span className="flex-1 text-left">Buscar…</span>
-        <kbd className="rounded border border-border/70 bg-muted px-1.5 text-[10px] font-mono">
-          ⌘K
-        </kbd>
+        {!collapsed && (
+          <>
+            <span className="flex-1 text-left">Buscar…</span>
+            <kbd className="rounded border border-border/70 bg-muted px-1.5 text-[10px] font-mono">
+              ⌘K
+            </kbd>
+          </>
+        )}
       </button>
-      <nav className="flex-1 space-y-0.5 px-3 py-2">
+      <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
         {NAV.map(({ to, label, icon: Icon, end }) => (
           <div key={to}>
             <NavLink
               to={to}
               end={end}
               onClick={onNavClick}
+              title={collapsed ? label : undefined}
               className={({ isActive }) =>
                 cn(
                   "flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                  collapsed && "justify-center px-0",
                   isActive
                     ? "bg-foreground/5 text-foreground"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )
               }
             >
-              <Icon className="size-4" />
-              <span className="flex-1">{label}</span>
-              {to === ROUTES.notifications && unread > 0 && (
+              <span className="relative shrink-0">
+                <Icon className="size-4" />
+                {collapsed && to === ROUTES.notifications && unread > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-foreground" />
+                )}
+              </span>
+              {!collapsed && <span className="flex-1">{label}</span>}
+              {!collapsed && to === ROUTES.notifications && unread > 0 && (
                 <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1.5 text-[10px] font-semibold text-background">
                   {unread}
                 </span>
               )}
             </NavLink>
-            {/* Lightweight Producto → Proyecto tree for quick jumps (spec 008). */}
-            {to === ROUTES.projects && <ProjectTree onNavigate={onNavClick} className="mt-0.5" />}
+            {/* Lightweight Producto → Proyecto tree for quick jumps (spec 008). Hidden when collapsed. */}
+            {to === ROUTES.projects && !collapsed && (
+              <ProjectTree onNavigate={onNavClick} className="mt-0.5" />
+            )}
           </div>
         ))}
       </nav>
       {/* Assistant toggle (treated as a nav row) */}
-      <div className="px-3 pb-3">
+      <div className={cn("px-3 pb-3", collapsed && "px-2")}>
         <button
           onClick={() => {
             toggleAssistant();
             onNavClick?.();
           }}
           aria-pressed={assistantOpen}
+          title={collapsed ? "Asistente (⌘J)" : undefined}
           className={cn(
             "flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+            collapsed && "justify-center px-0",
             assistantOpen
               ? "bg-foreground/5 text-foreground"
               : "text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
         >
-          <Sparkles className="size-4" />
-          <span className="flex-1 text-left">Asistente</span>
-          <kbd className="rounded border border-border/70 bg-muted px-1.5 text-[10px] font-mono">
-            ⌘J
-          </kbd>
+          <Sparkles className="size-4 shrink-0" />
+          {!collapsed && <span className="flex-1 text-left">Asistente</span>}
+          {!collapsed && (
+            <kbd className="rounded border border-border/70 bg-muted px-1.5 text-[10px] font-mono">
+              ⌘J
+            </kbd>
+          )}
         </button>
       </div>
-      <WorkspaceStatus />
+      <WorkspaceStatus collapsed={collapsed} />
     </>
   );
 }
@@ -224,6 +283,25 @@ export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  function toggleSidebarCollapsed() {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? "1" : "0");
+      } catch {
+        // Ignore localStorage errors
+      }
+      return next;
+    });
+  }
 
   // Close sidebar on Escape
   useEffect(() => {
@@ -279,7 +357,7 @@ export function AppLayout() {
   }, [sidebarOpen, assistantOpen, isDesktop]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-dvh">
       <a
         href="#main-content"
         className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
@@ -288,8 +366,17 @@ export function AppLayout() {
       </a>
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border/70 bg-background lg:flex">
-        <SidebarContent />
+      <aside
+        className={cn(
+          "hidden shrink-0 flex-col border-r border-border/70 bg-background lg:flex",
+          "transition-[width] duration-200 ease-in-out",
+          sidebarCollapsed ? "w-16" : "w-56",
+        )}
+      >
+        <SidebarContent
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={toggleSidebarCollapsed}
+        />
       </aside>
 
       {/* Mobile drawer overlay */}

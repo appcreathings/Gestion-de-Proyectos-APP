@@ -11,8 +11,9 @@ import { ConnectFolderDialog } from "./ConnectFolderDialog";
  * browser mode: "Conectar carpeta" where the File System Access API exists,
  * "Exportar copia" (download) on Firefox/Safari.
  * Also shows write status (spec 040): synced/writing/error with retry.
+ * Collapsed rail mode (spec 046): icon + color + title only; expand to act.
  */
-export function WorkspaceStatus() {
+export function WorkspaceStatus({ collapsed = false }: { collapsed?: boolean }) {
   const mode = useAppStore((s) => s.mode);
   const adapter = useAppStore((s) => s.adapter);
   const connectFolderFromBrowser = useAppStore((s) => s.connectFolderFromBrowser);
@@ -31,6 +32,20 @@ export function WorkspaceStatus() {
   // gate has passed (connection === "ready"), so filesystem === synced.
   if (mode === "filesystem") {
     if (writeStatus === "error") {
+      if (collapsed) {
+        return (
+          <div
+            className="border-t border-border/70 px-2 py-3"
+            title="Error de escritura — expandí el sidebar para reintentar"
+            aria-label="Error de escritura — expandí el sidebar para reintentar"
+            tabIndex={0}
+          >
+            <div className="mx-auto flex size-8 items-center justify-center rounded-md text-destructive">
+              <AlertCircle className="size-4" />
+            </div>
+          </div>
+        );
+      }
       return (
         <div className="border-t border-border/70 px-5 py-3 font-mono text-[10px] text-destructive">
           <div className="flex items-start gap-2">
@@ -71,6 +86,20 @@ export function WorkspaceStatus() {
     }
 
     if (writeStatus === "writing") {
+      if (collapsed) {
+        return (
+          <div
+            className="border-t border-border/70 px-2 py-3"
+            title="Escribiendo..."
+            aria-label="Escribiendo..."
+            tabIndex={0}
+          >
+            <div className="mx-auto flex size-8 items-center justify-center rounded-md text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+            </div>
+          </div>
+        );
+      }
       return (
         <div className="border-t border-border/70 px-5 py-3 font-mono text-[10px] text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -81,6 +110,20 @@ export function WorkspaceStatus() {
       );
     }
 
+    if (collapsed) {
+      return (
+        <div
+          className="border-t border-border/70 px-2 py-3"
+          title="Sincronizado · carpeta local"
+          aria-label="Sincronizado · carpeta local"
+          tabIndex={0}
+        >
+          <div className="mx-auto flex size-8 items-center justify-center rounded-md text-success">
+            <CheckCircle2 className="size-4" />
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="border-t border-border/70 px-5 py-3 font-mono text-[10px] text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -120,6 +163,22 @@ export function WorkspaceStatus() {
     a.download = `hito-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  if (collapsed) {
+    const label = "Sin sincronizar · en este navegador — expandí el sidebar para conectar una carpeta";
+    return (
+      <div
+        className="border-t border-border/70 px-2 py-3"
+        title={label}
+        aria-label={label}
+        tabIndex={0}
+      >
+        <div className="mx-auto flex size-8 items-center justify-center rounded-md text-warning">
+          <HardDriveDownload className="size-4" />
+        </div>
+      </div>
+    );
   }
 
   return (
