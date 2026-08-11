@@ -93,7 +93,7 @@ export function ReleasesPage() {
             Releases
           </p>
           <h1 className="max-w-2xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-            Construido en público, con fechas y sin humo.
+            Construido en público, con fechas claras y sin carreta.
           </h1>
           <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
             Un mapa honesto del producto: lo que ya está en producción (anclado
@@ -125,6 +125,24 @@ export function ReleasesPage() {
               </Button>
             </Link>
           </div>
+          <a
+            href={`#${RELEASES[0]?.id ?? "historial"}`}
+            className="mt-10 block max-w-2xl rounded-2xl border border-brand-accent/30 bg-brand-accent/5 p-5 transition-colors hover:border-brand-accent/60 hover:bg-brand-accent/10"
+          >
+            <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-brand-accent">
+              <span className="size-1.5 rounded-full bg-brand-accent" aria-hidden />
+              Última actualización · {formatReleaseDate(RELEASES[0]?.date ?? "")}
+            </div>
+            <p className="mt-2 text-base font-semibold tracking-tight">
+              {RELEASES[0]?.title}
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {RELEASES[0]?.summary}
+            </p>
+            <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand-accent">
+              Ver qué cambió <ArrowRight className="size-3.5" />
+            </span>
+          </a>
         </div>
       </div>
 
@@ -136,7 +154,7 @@ export function ReleasesPage() {
               Producto
             </p>
             <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-              Lo que ya podés hacer
+            Lo que ya puedes hacer
             </h2>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
               Snapshot del producto real — no un wishlist. Cada bloque existe
@@ -172,7 +190,7 @@ export function ReleasesPage() {
               Roadmap
             </p>
             <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-              Hacia dónde va Hito
+              Para dónde va Hito
             </h2>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
               Tres horizontes anclados a backlog real (spec 033 de flujos, blog
@@ -188,9 +206,14 @@ export function ReleasesPage() {
               return (
                 <div key={horizon.key} className="flex flex-col">
                   <div className="mb-4 border-b border-border/60 pb-4">
-                    <h3 className="text-lg font-semibold tracking-tight">
-                      {horizon.label}
-                    </h3>
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-lg font-semibold tracking-tight">
+                        {horizon.label}
+                      </h3>
+                      <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                        {items.length}
+                      </span>
+                    </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {horizon.description}
                     </p>
