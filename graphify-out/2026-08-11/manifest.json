@@ -355,8 +355,8 @@
     "semantic_hash": "8073b1bea9b9459123916b9775e51d48"
   },
   "src/components/ConfirmDialog.tsx": {
-    "mtime": 1785823954.914457,
-    "ast_hash": "a7cbc97520778ad9e8c2dbb43cb7efc2",
+    "mtime": 1786481058.2058437,
+    "ast_hash": "06c1d12dfd4ce94467da7c64be121a74",
     "semantic_hash": ""
   },
   "src/components/EmptyState.tsx": {
@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "src/features/assistant/AssistantPanel.tsx": {
-    "mtime": 1786479039.1245265,
-    "ast_hash": "8dd497e16158d49ffee072597fe549cd",
+    "mtime": 1786481199.8271613,
+    "ast_hash": "42f4c6a38354916847465f4c1217198f",
     "semantic_hash": ""
   },
   "src/features/assistant/ChatInput.tsx": {
@@ -1510,8 +1510,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1786473841.3627133,
-    "ast_hash": "b536c3c6e302ac98590db029e3e77fad",
+    "mtime": 1786481149.6370804,
+    "ast_hash": "9cb1999d5ea39d0035f15f139a05832c",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -2105,8 +2105,8 @@
     "semantic_hash": ""
   },
   "src/store/useChatStore.ts": {
-    "mtime": 1786473942.0655937,
-    "ast_hash": "dee083527f1e11e702b92faea66f8cc5",
+    "mtime": 1786481199.844168,
+    "ast_hash": "5e35388091bce7c7bf6d59508f4ce317",
     "semantic_hash": ""
   },
   "src/store/useDataStore.deliveryLog.test.ts": {
@@ -2950,12 +2950,12 @@
     "semantic_hash": ""
   },
   "src/components/attachments/AttachmentRow.tsx": {
-    "mtime": 1785823599.7521431,
-    "ast_hash": "ce04a0454174a83c583c51ffb439be43",
+    "mtime": 1786481058.2058437,
+    "ast_hash": "6a744fb88095939fcfcf681b0ef27d44",
     "semantic_hash": ""
   },
   "src/components/attachments/AttachmentsSection.tsx": {
-    "mtime": 1786480752.901358,
+    "mtime": 1786481058.2058437,
     "ast_hash": "ae251574b411268f1299fed073e09c3d",
     "semantic_hash": ""
   },
