@@ -302,24 +302,7 @@ export function RichTextField({
             </div>
           )}
         </div>
-      ) : (
-        showPreviewToggle && (
-          <div className="flex items-center justify-end border-b border-border/60 bg-muted/30 px-1 py-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              title="Editar descripción"
-              aria-label="Editar descripción"
-              disabled={disabled}
-              onClick={() => switchMode("edit")}
-            >
-              <Pencil className="size-4" />
-            </Button>
-          </div>
-        )
-      )}
+      ) : null}
 
       {effectiveMode === "edit" ? (
         <Textarea
@@ -345,12 +328,25 @@ export function RichTextField({
           id={id}
           tabIndex={-1}
           className={cn(
-            "overflow-auto px-3 py-2 text-sm outline-none",
-            minH,
-            textareaClassName,
+            "relative min-h-[44px] overflow-auto px-3 py-2 text-sm outline-none",
+            showPreviewToggle && "pr-9",
           )}
           aria-label="Vista previa"
         >
+          {showPreviewToggle && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1 size-7 text-muted-foreground hover:text-foreground"
+              title="Editar descripción"
+              aria-label="Editar descripción"
+              disabled={disabled}
+              onClick={() => switchMode("edit")}
+            >
+              <Pencil className="size-3.5" />
+            </Button>
+          )}
           <Markdown>{value}</Markdown>
         </div>
       )}
