@@ -116,7 +116,7 @@ export const ROADMAP: RoadmapItem[] = [
     description:
       "Más grounding del chat con el proyecto, sprint, anexos y tarea en foco — menos «¿a qué te referís?» y más acciones que calzan a la primera.",
     horizon: "next",
-    status: "planned",
+    status: "shipped",
     area: "IA",
   },
 
