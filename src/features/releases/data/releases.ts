@@ -12,6 +12,32 @@ import type { ReleaseEntry } from "../types";
  * No inventar features que no esten en el codigo.
  */
 export const RELEASES: ReleaseEntry[] = [
+  {
+    id: "2026-08-chat-context",
+    version: "2026.08",
+    date: "2026-08-11",
+    title: "El asistente entiende dónde estás",
+    summary: "Specs 050 y 048: contexto de proyecto y tarea desde la URL, acciones rápidas y un chat más eficiente para continuar trabajando sin repetir contexto.",
+    changes: [
+      { kind: "feature", text: "Contexto de pantalla en el asistente: proyecto, tarea, estado y prioridad disponibles en el prompt." },
+      { kind: "feature", text: "Chips contextuales, follow-ups y comandos slash (/resumen, /vencidos, /salud, /crear-tarea)." },
+      { kind: "improvement", text: "Copiar respuestas, regenerar o reintentar turnos fallidos y continuar desde acciones sugeridas." },
+      { kind: "improvement", text: "Menos llamados innecesarios: skip-RAG para atajos y continuaciones, con historial acotado a 12 entradas." },
+    ],
+  },
+  {
+    id: "2026-08-ai-providers-hardening",
+    version: "2026.08",
+    date: "2026-08-11",
+    title: "Proveedores de IA más confiables",
+    summary: "Spec 049: correcciones post-review para que los modelos compatibles, la rotación de claves y los errores del loop de tools se comporten de forma predecible.",
+    changes: [
+      { kind: "feature", text: "Modelos custom de proveedores OpenAI-compatible llegan correctamente al proveedor seleccionado." },
+      { kind: "improvement", text: "Rotar la clave activa conserva el modelo y el grupo de fallback configurados." },
+      { kind: "fix", text: "Error explícito cuando no hay modelo elegido y protección para no ejecutar tools con argumentos inválidos." },
+      { kind: "fix", text: "Mejor manejo de aborts, rondas excedidas y llamadas de tools incompletas en streaming." },
+    ],
+  },
   // ── 2026.08 ──────────────────────────────────────────────────────────
   {
     id: "2026-08-attachments",
