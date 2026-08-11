@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AlertTriangle, BarChart3, MessageSquarePlus, Settings, Sparkles, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AlertTriangle, BarChart3, MessageSquarePlus, RefreshCw, Settings, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AI_ERROR_MESSAGES } from "@/ai/gemini/errors";
@@ -15,12 +15,16 @@ import {
   ASSISTANT_PANEL_MIN_WIDTH,
   ASSISTANT_PANEL_MAX_WIDTH,
 } from "@/store/useChatStore";
+import { selectQuickActions, type QuickAction } from "@/ai/chat/quickActions";
+import { summarizeUiContext } from "@/ai/chat/uiContext";
 import { AssistantEmptyState } from "./AssistantEmptyState";
 import { ChatInput } from "./ChatInput";
 import { ChatMessageList } from "./ChatMessageList";
+import { QuickActionChips } from "./QuickActionChips";
 import { RateLimitStatus } from "./RateLimitStatus";
 import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useChatUiContext } from "./useChatUiContext";
 
 /** Leave this much main content visible while dragging the chat edge. */
 const RESIZE_MAIN_GUTTER = 280;
@@ -44,6 +48,25 @@ export function AssistantPanel() {
   const config = useAiConfigStore((s) => s.config);
   const hasKey = Boolean(activeKey(config));
   const providerLabel = getProviderDef(activeProviderId(config)).label;
+
+  // Contexto de pantalla (spec 050 HU-01): se resuelve en runtime desde la URL
+  // + stores; además sincronizamos el snapshot en el chatStore para que send()
+  // pueda reproducirlo aunque el usuario ya no esté mirando este componente.
+  const ctx = useChatUiContext();
+  const location = useLocation();
+  const setChatRouteSnapshot = useChatStore((s) => s.setChatRouteSnapshot);
+  const regenerateLast = useChatStore((s) => s.regenerateLast);
+  useEffect(() => {
+    setChatRouteSnapshot({ pathname: location.pathname, search: location.search });
+  }, [location.pathname, location.search, setChatRouteSnapshot]);
+
+  const headerCtx = useMemo(() => summarizeUiContext(ctx), [ctx]);
+  const composerActions = useMemo(
+    () => selectQuickActions(ctx, "composer"),
+    [ctx],
+  );
+
+  const pickAction = (a: QuickAction) => void send(a.prompt, { skipRag: a.skipRag });
 
   const panelRef = useRef<HTMLElement>(null);
   const isResizingRef = useRef(false);
@@ -179,13 +202,31 @@ export function AssistantPanel() {
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <Sparkles className="size-4 text-primary" />
         <h2 className="text-sm font-semibold">Asistente</h2>
+        {(headerCtx.primary || headerCtx.secondary) && (
+          <div className="flex min-w-0 items-center gap-1">
+            {headerCtx.primary && (
+              <Badge variant="outline" className="text-[10px] gap-1 shrink-0">
+                {headerCtx.primary}
+              </Badge>
+            )}
+            {headerCtx.secondary && (
+              <Badge
+                variant="outline"
+                className="max-w-[140px] truncate text-[10px] font-normal text-muted-foreground"
+                title={headerCtx.secondary}
+              >
+                {headerCtx.secondary}
+              </Badge>
+            )}
+          </div>
+        )}
         {hasKey && (
-          <Badge variant={modelBadgeVariant} className="font-mono text-[10px] gap-1">
+          <Badge variant={modelBadgeVariant} className="ml-auto font-mono text-[10px] gap-1">
             {config.model.includes(":") ? config.model.split(":").slice(1).join(":") : config.model}
             {isOnFallback && <AlertTriangle className="size-3" />}
           </Badge>
         )}
-        <div className="ml-auto flex items-center gap-0.5">
+        <div className={cn("flex items-center gap-0.5", hasKey ? "" : "ml-auto")}>
           {hasKey && (
             <Button
               variant="ghost"
@@ -242,10 +283,17 @@ export function AssistantPanel() {
         <AssistantEmptyState
           hasKey={hasKey}
           providerLabel={providerLabel}
-          onSuggestion={(t) => void send(t)}
+          ctx={ctx}
+          onSuggestion={pickAction}
         />
       ) : (
-        <ChatMessageList messages={messages} />
+        <ChatMessageList
+          messages={messages}
+          status={status}
+          ctx={ctx}
+          onPickFollowUp={pickAction}
+          onRegenerate={() => void regenerateLast()}
+        />
       )}
 
       {error && (
@@ -278,7 +326,26 @@ export function AssistantPanel() {
                 </pre>
               </details>
             )}
+            <button
+              type="button"
+              onClick={() => void regenerateLast()}
+              className="mt-1 inline-flex w-fit items-center gap-1 rounded-md border border-destructive/40 bg-background/60 px-2 py-1 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/10"
+            >
+              <RefreshCw className="size-3" />
+              Reintentar
+            </button>
           </div>
+        </div>
+      )}
+
+      {messages.length > 0 && hasKey && composerActions.length > 0 && (
+        <div className="border-t px-3 pt-2">
+          <QuickActionChips
+            actions={composerActions}
+            disabled={streaming}
+            onPick={pickAction}
+            dense
+          />
         </div>
       )}
 
