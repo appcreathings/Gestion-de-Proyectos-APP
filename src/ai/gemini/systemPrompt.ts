@@ -39,11 +39,15 @@ ${entries}
  * Pure system-prompt builder. Injects the lightweight workspace index (already
  * maintained by useDataStore.reindex) so the model knows every project/product
  * id without expensive tool round-trips.
+ *
+ * `screenContextBlock` (spec 050 HU-01/D2) se inserta después del índice del
+ * workspace para que el modelo vea primero el catálogo y luego el foco actual.
  */
 export function buildSystemPrompt(
   workspace: Workspace | null,
   ragContext: string = "",
   today: Date = new Date(),
+  screenContextBlock: string = "",
 ): string {
   const org = workspace?.org.name ?? "Mi Empresa";
   const settings: Settings = workspace?.settings ?? {
@@ -102,6 +106,7 @@ ${templates || "(ninguna)"}
 
 Plantillas de proceso:
 ${processTemplates || "(ninguna)"}
+${screenContextBlock}
 ${ragContext}
 ## Estilo
 - Sé conciso; usa listas y negritas con moderación.

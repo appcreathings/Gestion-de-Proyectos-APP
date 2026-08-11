@@ -21,6 +21,12 @@ import {
 import { splitQualified } from "@/ai/models";
 import { useAppStore } from "./useAppStore";
 import { useAiConfigStore } from "./useAiConfigStore";
+import { useDataStore } from "./useDataStore";
+import { resolveUiContext, formatUiContextBlock } from "@/ai/chat/uiContext";
+import { expandSlash } from "@/ai/chat/slashCommands";
+import { shouldSkipRag } from "@/ai/chat/skipRag";
+import { trimAgentHistory } from "@/ai/chat/historyWindow";
+import type { Project } from "@/domain/schemas";
 
 export type ChatPart =
   | { kind: "text"; text: string }
@@ -61,7 +67,15 @@ interface ChatState {
    * Pass `persist: false` while dragging; default persists to localStorage.
    */
   setPanelWidth: (width: number, opts?: { persist?: boolean }) => void;
-  send: (text: string) => Promise<void>;
+  /**
+   * Snapshot de la ruta actual de la app (spec 050 D1/B2). La actualiza
+   * `AssistantPanel`/`AppLayout` desde `useLocation` — el store no puede usar
+   * hooks de React Router directamente.
+   */
+  setChatRouteSnapshot: (route: { pathname: string; search: string }) => void;
+  send: (text: string, opts?: { skipRag?: boolean; regenerate?: boolean }) => Promise<void>;
+  /** Re-envía el último mensaje del usuario (limpia la respuesta previa). spec 050 HU-05. */
+  regenerateLast: () => Promise<void>;
   stop: () => void;
   approvePendingWrite: (id: string, approved: boolean) => void;
   /** Approve current write + auto-approve remaining writes of this turn only (spec 048 HU-03). */
@@ -85,6 +99,20 @@ let abortController: AbortController | null = null;
 const pendingResolvers = new Map<string, (approved: boolean) => void>();
 /** Turn-scoped auto-approval for remaining write tool calls (spec 048 HU-03 / D7). */
 let autoApproveRestOfTurn = false;
+
+/**
+ * Snapshot de la ruta actual para resolver el contexto de pantalla en `send`
+ * (spec 050 D1, design §1.3). Variables de módulo — no requieren re-render.
+ */
+let chatRoute: { pathname: string; search: string } = { pathname: "/", search: "" };
+
+/**
+ * Para `regenerateLast` (spec 050 HU-05 / design §4.2). Longitud de
+ * `agentHistory` justo antes de que `runAgentTurn` devuelva el nuevo history,
+ * y texto del último user message — permiten recortar atómicamente al regenerar.
+ */
+let lastTurnHistoryLength = 0;
+let lastTurnUserText: string | null = null;
 
 const OPEN_KEY = "assistant.open";
 const WIDTH_KEY = "assistant.panelWidth";
@@ -133,6 +161,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ panelWidth });
   },
 
+  setChatRouteSnapshot(route) {
+    chatRoute = route;
+  },
+
   async hydrateFromIdb() {
     try {
       const snap = await idbGet<{ messages: ChatMessage[]; history: unknown }>(IDB_KEY);
@@ -146,27 +178,67 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ hydrated: true });
   },
 
-  async send(text) {
-    const trimmed = text.trim();
-    if (!trimmed || get().status === "streaming") return;
+  async send(text, opts) {
+    const rawTrimmed = text.trim();
+    if (!rawTrimmed || get().status === "streaming") return;
     const { config } = useAiConfigStore.getState();
     const apiKey = activeKey(config);
     if (!apiKey) return;
 
+    // Contexto de pantalla (D1) y bloque para el system prompt (D2).
+    const uiCtx = resolveUiContext({
+      pathname: chatRoute.pathname,
+      search: chatRoute.search,
+      getProject: (id) => {
+        const p = useAppStore
+          .getState()
+          .workspace?.index?.projects.find((x) => x.id === id);
+        return p ? { id: p.id, name: p.name, status: p.status, health: p.health } : null;
+      },
+      getTask: (projectId, taskId) => {
+        const project = findProject(projectId);
+        if (!project) return null;
+        const t = project.tasks.find((x) => x.id === taskId);
+        return t
+          ? { id: t.id, title: t.title, status: t.status, priority: t.priority }
+          : null;
+      },
+    });
+
+    // Slash expand (CA-03.4) + skip RAG (D7). El hilo muestra el texto expandido.
+    const expanded = expandSlash(rawTrimmed, uiCtx);
+    const trimmed = expanded.text;
+    const skip = shouldSkipRag(trimmed, expanded.skipRag || opts?.skipRag);
+
+    const isRegenerate = opts?.regenerate === true;
+
     const assistantId = uuid();
+    const prevMessages = get().messages;
+    // Para regenerate: reemplazar la última burbuja assistant por una nueva vacía.
+    const lastAssistantId = [...prevMessages].reverse().find((m) => m.role === "assistant")?.id;
     set({
       status: "streaming",
       error: null,
       errorDetail: null,
-      messages: [
-        ...get().messages,
-        { id: uuid(), role: "user", parts: [{ kind: "text", text: trimmed }] },
-        { id: assistantId, role: "assistant", parts: [] },
-      ],
+      messages: isRegenerate
+        ? prevMessages.map((m) =>
+            m.id === lastAssistantId
+              ? { id: assistantId, role: "assistant" as const, parts: [] }
+              : m,
+          )
+        : [
+            ...prevMessages,
+            { id: uuid(), role: "user", parts: [{ kind: "text", text: trimmed }] },
+            { id: assistantId, role: "assistant", parts: [] },
+          ],
     });
 
     abortController = new AbortController();
     autoApproveRestOfTurn = false;
+
+    // Para regenerateLast (design §4.2): snapshot antes del turno.
+    lastTurnHistoryLength = agentHistory.length;
+    lastTurnUserText = trimmed;
 
     const patchAssistant = (fn: (parts: ChatPart[]) => ChatPart[]) => {
       set({
@@ -185,11 +257,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // RAG es una mejora opcional: si falla (cuota, red, embeddings, lo que sea), el turno del
     // agente continúa sin contexto semántico (spec 031 §4). Mismo patrón best-effort que
     // `hydrateFromIdb`/`persistSnapshot` en este archivo.
+    // Spec 050 D7/HU-06: turnos marcados skipRag (slash, chips cerrados, continuaciones)
+    // NO pagan embeddings.
     const gKey = geminiKey(config);
     const ragContext =
-      config.ragEnabled && gKey
+      !skip && config.ragEnabled && gKey
         ? await buildRagContext(trimmed, gKey).catch(() => "")
         : "";
+
+    const screenContextBlock = formatUiContextBlock(uiCtx);
 
     const providerId = activeProviderId(config);
     const provider = await getProvider(providerId);
@@ -203,8 +279,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
       fallbackGroup: config.autoFallback ? config.fallbackGroup : undefined,
       confirmWrites: config.confirmWrites,
       tools: createBoundTools(),
-      systemInstruction: buildSystemPrompt(useAppStore.getState().workspace, ragContext),
-      history: agentHistory,
+      systemInstruction: buildSystemPrompt(
+        useAppStore.getState().workspace,
+        ragContext,
+        new Date(),
+        screenContextBlock,
+      ),
+      history: trimAgentHistory(agentHistory),
       userMessage: trimmed,
       signal: abortController.signal,
       callbacks: {
@@ -310,6 +391,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
     abortController?.abort();
   },
 
+  async regenerateLast() {
+    // D14: no regenerar a mitad de streaming o con escrituras pendientes.
+    const status = get().status;
+    if (status === "streaming" || status === "awaiting-confirmation") return;
+
+    // Reapuntar el agentHistory al estado previo al último turno (design §4.2).
+    agentHistory = agentHistory.slice(0, lastTurnHistoryLength);
+
+    const userText = lastTurnUserText;
+    if (!userText) return;
+    await get().send(userText, { regenerate: true });
+  },
+
   approvePendingWrite(id, approved) {
     const resolve = pendingResolvers.get(id);
     if (!resolve) return;
@@ -345,6 +439,11 @@ function normalizeHistory(raw: unknown): AiMessage[] {
     // corrupt snapshot → discard
   }
   return [];
+}
+
+/** Lookup de un proyecto desde el store de datos (para resolver la tarea en foco). */
+function findProject(id: string): Project | undefined {
+  return useDataStore.getState().projects.find((p) => p.id === id);
 }
 
 async function persistSnapshot(messages: ChatMessage[]): Promise<void> {

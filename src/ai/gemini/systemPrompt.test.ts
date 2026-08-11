@@ -71,6 +71,30 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("Proyecto de prueba");
     expect(prompt).toContain("similitud: 95%");
   });
+
+  it("inyecta el bloque de contexto de pantalla despues del indice (spec 050)", () => {
+    const screenBlock = "## Contexto de pantalla actual\n- Vista: detalle de proyecto\n- Proyecto: X (id: `p1`)\n";
+    const prompt = buildSystemPrompt(
+      null,
+      "",
+      new Date("2026-07-02T10:00:00Z"),
+      screenBlock,
+    );
+    expect(prompt).toContain("Contexto de pantalla actual");
+    expect(prompt).toContain("`p1`");
+    // Aparece después del índice (Plantillas de proceso) y antes del bloque de estilo.
+    const idx = prompt.indexOf("Plantillas de proceso");
+    const ctxIdx = prompt.indexOf("Contexto de pantalla actual");
+    const styleIdx = prompt.indexOf("## Estilo");
+    expect(idx).toBeLessThan(ctxIdx);
+    expect(ctxIdx).toBeLessThan(styleIdx);
+  });
+
+  it("sin bloque de contexto el prompt queda igual que antes", () => {
+    const withBlock = buildSystemPrompt(null, "", new Date("2026-07-02T10:00:00Z"), "");
+    const without = buildSystemPrompt(null, "", new Date("2026-07-02T10:00:00Z"));
+    expect(withBlock).toBe(without);
+  });
 });
 
 describe("buildRagContext", () => {
