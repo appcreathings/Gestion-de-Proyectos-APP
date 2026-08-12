@@ -46,6 +46,7 @@ export async function saveGitHubLink(link: GitHubLink): Promise<void> {
   const normalized: GitHubLink = {
     ...link,
     scope: link.scope ?? "project",
+    syncMode: link.syncMode ?? "medium",
     updatedAt: link.updatedAt || new Date().toISOString(),
   };
   await integrationDb.githubLinks.put(normalized);
@@ -67,6 +68,7 @@ export function buildGitHubLink(input: {
   remoteProjectDescription?: string | null;
   remoteRepositoryDescription?: string | null;
   direction?: GitHubLink["direction"];
+  syncMode?: GitHubLink["syncMode"];
 }): GitHubLink {
   const now = new Date().toISOString();
   return {
@@ -82,6 +84,7 @@ export function buildGitHubLink(input: {
     remoteProjectDescription: input.remoteProjectDescription ?? null,
     remoteRepositoryDescription: input.remoteRepositoryDescription ?? null,
     scope: "project",
+    syncMode: input.syncMode ?? "medium",
     direction: input.direction ?? "two-way",
     schedule: "manual",
     status: "active",
@@ -89,6 +92,7 @@ export function buildGitHubLink(input: {
     lastSyncAt: null,
     lastSuccessAt: null,
     nextSyncAt: null,
+    lastSyncedProjectUpdatedAt: null,
     updatedAt: now,
   };
 }

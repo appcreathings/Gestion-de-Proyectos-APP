@@ -19,6 +19,7 @@ import {
 import type { Health, Project } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
+import { GitHubProjectSyncButton } from "@/features/integrations/GitHubProjectSyncButton";
 
 interface Props {
   project: Project;
@@ -70,6 +71,7 @@ export function OverviewTab({ project, productName, productId, onChangeHealth }:
         </div>
       </Panel>
 
+      <div className="space-y-4">
       <Panel label="Detalles" title="Metadatos">
         <dl className="space-y-3 text-sm">
           <Row
@@ -122,6 +124,8 @@ export function OverviewTab({ project, productName, productId, onChangeHealth }:
           </div>
         </dl>
       </Panel>
+      <GitHubProjectSyncButton project={project} />
+      </div>
     </div>
   );
 }

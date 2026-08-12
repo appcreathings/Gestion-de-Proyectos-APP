@@ -23,16 +23,16 @@ import { Select } from "@/components/ui/select";
 import { newProject } from "@/domain/factories";
 import {
   createGitHubRepository,
-  getGitHubProjects,
   getGitHubRepositories,
   isGitHubBffConfigured,
   revokeGitHubConnection,
-  type GitHubProjectSummary,
 } from "@/integrations/github-bff";
 import {
   pullProjectFromRepo,
   pushAllLinkedProjects,
   pushProjectToRepo,
+  SYNC_MODE_HINTS,
+  SYNC_MODE_LABELS,
 } from "@/integrations/github-repo-sync";
 import {
   buildGitHubLink,
@@ -45,6 +45,8 @@ import {
   type GitHubLink,
 } from "@/integrations/github-sync";
 import type { GitHubRepository } from "@/integrations/github-types";
+import type { GitHubSyncMode } from "@/storage/integration-db";
+import type { Project } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
 import { useDataStore } from "@/store/useDataStore";
 import { useToastStore } from "@/store/useToastStore";
@@ -81,20 +83,25 @@ export function GitHubAppPanel() {
   const [mode, setMode] = useState<WizardMode>("idle");
   const [activeConnectionId, setActiveConnectionId] = useState<string | null>(null);
   const [repos, setRepos] = useState<GitHubRepository[]>([]);
-  const [ghProjects, setGhProjects] = useState<GitHubProjectSummary[]>([]);
   const [repoMode, setRepoMode] = useState<RepoMode>("existing");
   const [repoKey, setRepoKey] = useState("");
   const [newRepoName, setNewRepoName] = useState("");
   const [newRepoDescription, setNewRepoDescription] = useState("");
   const [newRepoPrivate, setNewRepoPrivate] = useState(true);
-  const [ghProjectId, setGhProjectId] = useState("");
   const [localMode, setLocalMode] = useState<LocalMode>("new");
   const [existingProjectId, setExistingProjectId] = useState("");
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [productId, setProductId] = useState("");
-  const [projectsWarning, setProjectsWarning] = useState<string | null>(null);
+  /** Nivel de sync al vincular y al sincronizar (default: media). */
+  const [syncMode, setSyncMode] = useState<GitHubSyncMode>("medium");
+  const [conflict, setConflict] = useState<{
+    link: GitHubLink;
+    remote: Project;
+    localUpdatedAt: string;
+    remoteUpdatedAt: string;
+  } | null>(null);
 
   const refresh = useCallback(async () => {
     const [c, l] = await Promise.all([getGitHubConnections(), getGitHubLinks()]);
@@ -113,11 +120,6 @@ export function GitHubAppPanel() {
   const selectedRepo = useMemo(
     () => repos.find((r) => `${r.owner}/${r.name}` === repoKey) ?? null,
     [repos, repoKey],
-  );
-
-  const selectedGhProject = useMemo(
-    () => ghProjects.find((p) => p.id === ghProjectId) ?? null,
-    [ghProjects, ghProjectId],
   );
 
   const activeConnection = useMemo(
@@ -146,20 +148,6 @@ export function GitHubAppPanel() {
     return sorted;
   }
 
-  async function loadProjectsForOwner(backendConnectionId: string, owner: string) {
-    const result = await getGitHubProjects(backendConnectionId, owner);
-    if (!result.ok) {
-      setGhProjects([]);
-      setProjectsWarning(
-        result.message ||
-          "No se pudieron listar GitHub Projects. ¿La App tiene permiso Projects (read/write)?",
-      );
-      return;
-    }
-    setProjectsWarning(null);
-    setGhProjects(result.data);
-  }
-
   async function startLinkWizard(connection: GitHubConnection) {
     setError(null);
     setBusy(true);
@@ -170,14 +158,13 @@ export function GitHubAppPanel() {
     setNewRepoName("");
     setNewRepoDescription("");
     setNewRepoPrivate(true);
-    setGhProjectId("");
     setLocalMode(projects.length > 1 ? "multi" : "new");
     setExistingProjectId(projects[0]?.id ?? "");
     setSelectedProjectIds(projects.map((p) => p.id));
     setNewProjectName("");
     setNewProjectDescription("");
     setProductId(products[0]?.id ?? "");
-    setProjectsWarning(null);
+    setSyncMode("medium");
     try {
       const sorted = await loadRepos(connection);
       if (sorted[0]) {
@@ -186,7 +173,6 @@ export function GitHubAppPanel() {
         setNewProjectName(first.name);
         setNewProjectDescription(first.description?.trim() || "");
         setNewRepoName(slugifyRepoName(first.name) || "hito-project");
-        await loadProjectsForOwner(connection.backendConnectionId, first.owner);
       } else {
         setRepoMode("create");
         setNewRepoName("hito-project");
@@ -199,16 +185,9 @@ export function GitHubAppPanel() {
   async function onRepoChange(value: string) {
     setRepoKey(value);
     const repo = repos.find((r) => `${r.owner}/${r.name}` === value);
-    if (!repo || !activeConnection) return;
+    if (!repo) return;
     setNewProjectName(repo.name);
     setNewProjectDescription(repo.description?.trim() || "");
-    setGhProjectId("");
-    setBusy(true);
-    try {
-      await loadProjectsForOwner(activeConnection.backendConnectionId, repo.owner);
-    } finally {
-      setBusy(false);
-    }
   }
 
   async function createRepo(): Promise<GitHubRepository | null> {
@@ -242,7 +221,6 @@ export function GitHubAppPanel() {
     setRepoMode("existing");
     setNewProjectName(created.name);
     setNewProjectDescription(created.description?.trim() || "");
-    await loadProjectsForOwner(activeConnection.backendConnectionId, created.owner);
     toast.success(
       `Repositorio ${created.private ? "privado" : "público"} creado: ${created.fullName}`,
     );
@@ -265,27 +243,24 @@ export function GitHubAppPanel() {
     connection: GitHubConnection,
     repo: GitHubRepository,
     project: { id: string; name: string; description: string },
-    opts: {
-      projectNodeId?: string;
-      projectNumber?: number;
+    opts?: {
       remoteTitle?: string | null;
       remoteDesc?: string | null;
     },
-  ): Promise<{ ok: true }> {
+  ): Promise<{ ok: true; link: GitHubLink }> {
     const baseLink = buildGitHubLink({
       projectId: project.id,
       connectionId: connection.id,
       owner: repo.owner,
       repository: repo.name,
       repositoryId: repo.id,
-      projectNodeId: opts.projectNodeId,
-      projectNumber: opts.projectNumber,
-      remoteProjectTitle: opts.remoteTitle ?? project.name,
-      remoteProjectDescription: opts.remoteDesc ?? project.description,
+      remoteProjectTitle: opts?.remoteTitle ?? project.name,
+      remoteProjectDescription: opts?.remoteDesc ?? project.description,
       remoteRepositoryDescription: repo.description ?? null,
+      syncMode,
     });
     await saveGitHubLink(baseLink);
-    return { ok: true };
+    return { ok: true, link: baseLink };
   }
 
   async function saveLink() {
@@ -312,13 +287,7 @@ export function GitHubAppPanel() {
         const chosen = projects.filter((p) => selectedProjectIds.includes(p.id));
         let linked = 0;
         for (const project of chosen) {
-          const useShared = Boolean(selectedGhProject);
-          await linkOneProject(activeConnection, repo, project, {
-            projectNodeId: useShared ? selectedGhProject?.id : undefined,
-            projectNumber: useShared ? selectedGhProject?.number : undefined,
-            remoteTitle: useShared ? selectedGhProject?.title : null,
-            remoteDesc: useShared ? selectedGhProject?.shortDescription : null,
-          });
+          await linkOneProject(activeConnection, repo, project);
           linked += 1;
         }
         await refresh();
@@ -327,6 +296,9 @@ export function GitHubAppPanel() {
         toast.success(
           `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} a ${repo.fullName}`,
         );
+        if (linked > 0 && window.confirm(`¿Sincronizar ahora los ${linked} proyectos al repositorio?`)) {
+          await handleSyncAll();
+        }
         return;
       }
 
@@ -364,12 +336,7 @@ export function GitHubAppPanel() {
         return;
       }
 
-      await linkOneProject(activeConnection, repo, project, {
-        projectNodeId: selectedGhProject?.id,
-        projectNumber: selectedGhProject?.number,
-        remoteTitle: selectedGhProject?.title ?? null,
-        remoteDesc: selectedGhProject?.shortDescription ?? null,
-      });
+      await linkOneProject(activeConnection, repo, project);
 
       await refresh();
       setMode("idle");
@@ -377,6 +344,9 @@ export function GitHubAppPanel() {
       toast.success(
         `Proyecto vinculado${repo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${repo.fullName}`,
       );
+      if (window.confirm("¿Sincronizar este proyecto al repositorio ahora?")) {
+        await handleSyncAll();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar el vínculo.");
     } finally {
@@ -398,6 +368,7 @@ export function GitHubAppPanel() {
         backendConnectionId: connection.backendConnectionId,
         link,
         project,
+        syncMode: link.syncMode ?? syncMode,
       });
       if (!result.ok) {
         setError(result.message);
@@ -412,21 +383,44 @@ export function GitHubAppPanel() {
     }
   }
 
-  async function handlePull(link: GitHubLink) {
+  async function handlePull(link: GitHubLink, resolve?: "remote" | "local") {
     const connection = connections.find((c) => c.id === link.connectionId);
     const project = projects.find((p) => p.id === link.projectId);
     if (!connection) {
       setError("Falta la conexión de GitHub.");
       return;
     }
+    if (
+      !resolve &&
+      project &&
+      link.lastSyncedProjectUpdatedAt &&
+      project.updatedAt !== link.lastSyncedProjectUpdatedAt
+    ) {
+      const ok = window.confirm(
+        `«${project.name}» tiene cambios locales desde la última sync. ¿Continuar y comparar con el repo?`,
+      );
+      if (!ok) return;
+    }
     setBusy(true);
     setError(null);
+    setConflict(null);
     try {
       const result = await pullProjectFromRepo({
         backendConnectionId: connection.backendConnectionId,
         link,
         localProject: project ?? null,
+        resolve,
       });
+      if (!result.ok && "kind" in result && result.kind === "conflict") {
+        setConflict({
+          link,
+          remote: result.remoteProject,
+          localUpdatedAt: result.localUpdatedAt,
+          remoteUpdatedAt: result.remoteUpdatedAt,
+        });
+        setError(result.message);
+        return;
+      }
       if (!result.ok) {
         setError(result.message);
         return;
@@ -473,6 +467,7 @@ export function GitHubAppPanel() {
           backendConnectionId: backendId,
           links: group,
           projectsById,
+          syncMode,
         });
         totalOk += result.ok;
         for (const f of result.failed) {
@@ -585,6 +580,36 @@ export function GitHubAppPanel() {
         <div className="mt-4 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
           <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
           <p className="text-muted-foreground">{error}</p>
+        </div>
+      )}
+
+      {conflict && (
+        <div className="mt-4 space-y-2 rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm">
+          <p className="font-medium">Conflicto al recibir del repositorio</p>
+          <p className="text-xs text-muted-foreground">
+            Local: {new Date(conflict.localUpdatedAt).toLocaleString()} · Repo:{" "}
+            {new Date(conflict.remoteUpdatedAt).toLocaleString()}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy}
+              onClick={() => void handlePull(conflict.link, "local")}
+            >
+              Mantener local
+            </Button>
+            <Button
+              size="sm"
+              disabled={busy}
+              onClick={() => void handlePull(conflict.link, "remote")}
+            >
+              Usar versión del repo
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setConflict(null)}>
+              Cancelar
+            </Button>
+          </div>
         </div>
       )}
 
@@ -782,35 +807,25 @@ export function GitHubAppPanel() {
             </div>
           )}
 
-          {/* —— GitHub Project (solo adjuntar existente; no se crea por API) —— */}
+          {/* —— Nivel de sincronización —— */}
           <div className="space-y-2">
-            <Label htmlFor="gh-project">GitHub Project (opcional)</Label>
+            <Label htmlFor="sync-mode">Nivel de sincronización</Label>
             <Select
-              id="gh-project"
-              value={ghProjectId}
-              onChange={(e) => {
-                setGhProjectId(e.target.value);
-                const p = ghProjects.find((x) => x.id === e.target.value);
-                if (p && localMode === "new") {
-                  setNewProjectName(p.title);
-                  setNewProjectDescription(p.shortDescription?.trim() || "");
-                }
-              }}
-              disabled={busy || (repoMode === "existing" && !selectedRepo)}
+              id="sync-mode"
+              value={syncMode}
+              disabled={busy}
+              onChange={(e) => setSyncMode(e.target.value as GitHubSyncMode)}
             >
-              <option value="">Ninguno (solo repositorio — recomendado)</option>
-              {ghProjects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  #{p.number} {p.title}
-                  {p.public === false ? " · privado" : p.public ? " · público" : ""}
+              {(Object.keys(SYNC_MODE_LABELS) as GitHubSyncMode[]).map((m) => (
+                <option key={m} value={m}>
+                  {SYNC_MODE_LABELS[m]} — {SYNC_MODE_HINTS[m]}
                 </option>
               ))}
             </Select>
-            {projectsWarning && <p className="text-xs text-warning">{projectsWarning}</p>}
             <p className="text-xs text-muted-foreground">
-              Se guarda el vínculo <strong>proyecto Hito ↔ repositorio</strong> en este dispositivo.
-              No se crean GitHub Projects por API (la App no puede en cuentas personales). Si ya
-              tienes un Project, elígelo arriba solo para anotarlo.
+              <strong>Media</strong> (recomendado): estructura y tareas sin comentarios ni adjuntos.
+              Los datos van a <code className="font-mono">.hito/projects/*.json</code> en el
+              repositorio (no se usan GitHub Projects ni issues).
             </p>
           </div>
 

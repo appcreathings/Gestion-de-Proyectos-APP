@@ -65,18 +65,14 @@ Tras cambiar **Administration** a write:
 3. En Hito vuelve a **Conectar GitHub** (renueva el token de usuario).
 4. Si la App está en “Only select repositories”, el repo nuevo hay que añadirlo a la instalación (Hito lo intenta solo; si no, edita la instalación a mano).
 
-### Additional permissions (Projects)
+### Permissions no usados en esta versión
 
-| Permiso | Nivel | Motivo |
-|---|---|---|
-| **Organization permissions → Projects** | **Read and write** | Crear/listar Projects de una **organización** con installation token |
-| Account / user Projects | vía **user access token** | Los Projects **personales** no se crean bien solo con installation token: Hito usa el token de usuario (hay que **Conectar GitHub** de nuevo tras deploy) |
+| Permiso | Nivel |
+|---|---|
+| Issues | No access |
+| Projects (org / account) | No access — **no se sincronizan GitHub Projects** |
 
-Si ves `GitHub no devolvió el Project creado`:
-
-1. Confirma Organization → Projects = Read and write (si usas org).
-2. En Hito: **Conectar GitHub** otra vez (renueva el user token sellado).
-3. Reintenta vincular. El vínculo al repo local se guarda aunque el Project falle.
+La sincronización escribe archivos en el repositorio (Contents), no Issues ni Projects.
 
 ### Organization permissions
 

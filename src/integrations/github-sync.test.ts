@@ -14,7 +14,7 @@ describe("github sync scheduling", () => {
 });
 
 describe("buildGitHubLink", () => {
-  it("defaults to project-only scope without issue mappings", () => {
+  it("defaults to project-only scope with medium sync mode", () => {
     const link = buildGitHubLink({
       projectId: "p1",
       connectionId: "c1",
@@ -23,6 +23,7 @@ describe("buildGitHubLink", () => {
       repositoryId: 42,
     });
     expect(link.scope).toBe("project");
+    expect(link.syncMode).toBe("medium");
     expect(link.schedule).toBe("manual");
     expect(link.status).toBe("active");
     expect(link.direction).toBe("two-way");

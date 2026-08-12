@@ -36,8 +36,16 @@ export interface GitHubConnection {
 
 export type GitHubSyncSchedule = "manual" | "5m" | "15m" | "30m" | "1h" | "6h" | "24h";
 
-/** Qué se sincroniza en el vínculo. v1: solo metadatos del proyecto (sin issues). */
+/** Qué se sincroniza: archivos de proyecto en el repo (sin issues). */
 export type GitHubLinkScope = "project";
+
+/**
+ * Nivel de detalle al escribir/leer `.hito/projects/*.json`.
+ * - light: metadatos del proyecto
+ * - medium: + tareas/áreas/sprints (sin comentarios ni adjuntos)
+ * - full: todo lo serializable (adjuntos solo metadatos)
+ */
+export type GitHubSyncMode = "light" | "medium" | "full";
 
 export interface GitHubLink {
   id: string;
@@ -46,14 +54,16 @@ export interface GitHubLink {
   owner: string;
   repository: string;
   repositoryId: number;
+  /** @deprecated No se usan GitHub Projects en esta versión. */
   projectNumber?: number;
+  /** @deprecated No se usan GitHub Projects en esta versión. */
   projectNodeId?: string;
-  /** Título del GitHub Project vinculado (si hay). */
   remoteProjectTitle?: string | null;
   remoteProjectDescription?: string | null;
   remoteRepositoryDescription?: string | null;
-  /** Solo proyecto; no se sincronizan issues en este flujo. */
   scope: GitHubLinkScope;
+  /** Nivel de sync (ligera / media / completa). Default medium. */
+  syncMode: GitHubSyncMode;
   direction: "local-to-github" | "two-way";
   schedule: GitHubSyncSchedule;
   status: "active" | "paused" | "error" | "disconnected";
@@ -61,6 +71,8 @@ export interface GitHubLink {
   lastSyncAt: string | null;
   lastSuccessAt: string | null;
   nextSyncAt: string | null;
+  /** updatedAt del proyecto en el último push/pull exitoso (detección de conflicto). */
+  lastSyncedProjectUpdatedAt?: string | null;
   updatedAt: string;
 }
 
