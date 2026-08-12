@@ -21,6 +21,7 @@ import { Panel } from "@/components/ui/Panel";
 import { Select } from "@/components/ui/select";
 import { newProject } from "@/domain/factories";
 import {
+  createGitHubRepository,
   getGitHubProjects,
   getGitHubRepositories,
   isGitHubBffConfigured,
@@ -47,6 +48,19 @@ import { useDataStore } from "@/store/useDataStore";
 import { useToastStore } from "@/store/useToastStore";
 
 type WizardMode = "idle" | "link";
+type RepoMode = "existing" | "create";
+type LocalMode = "new" | "existing" | "multi";
+
+function slugifyRepoName(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_.-]/g, "")
+    .replace(/\.+/g, ".")
+    .replace(/-+/g, "-")
+    .slice(0, 100);
+}
 
 export function GitHubAppPanel() {
   const navigate = useNavigate();
@@ -62,20 +76,23 @@ export function GitHubAppPanel() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Wizard state
   const [mode, setMode] = useState<WizardMode>("idle");
   const [activeConnectionId, setActiveConnectionId] = useState<string | null>(null);
   const [repos, setRepos] = useState<GitHubRepository[]>([]);
   const [ghProjects, setGhProjects] = useState<GitHubProjectSummary[]>([]);
+  const [repoMode, setRepoMode] = useState<RepoMode>("existing");
   const [repoKey, setRepoKey] = useState("");
+  const [newRepoName, setNewRepoName] = useState("");
+  const [newRepoDescription, setNewRepoDescription] = useState("");
+  const [newRepoPrivate, setNewRepoPrivate] = useState(true);
   const [ghProjectId, setGhProjectId] = useState("");
-  const [localMode, setLocalMode] = useState<"existing" | "new">("new");
+  const [localMode, setLocalMode] = useState<LocalMode>("new");
   const [existingProjectId, setExistingProjectId] = useState("");
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [productId, setProductId] = useState("");
   const [createRemoteProject, setCreateRemoteProject] = useState(true);
-  /** Projects en GitHub se crean privados por defecto (repos privados incluidos). */
   const [makeRemotePrivate, setMakeRemotePrivate] = useState(true);
   const [projectsWarning, setProjectsWarning] = useState<string | null>(null);
 
@@ -108,42 +125,25 @@ export function GitHubAppPanel() {
     [connections, activeConnectionId],
   );
 
-  async function startLinkWizard(connection: GitHubConnection) {
-    setError(null);
-    setBusy(true);
-    setActiveConnectionId(connection.id);
-    setMode("link");
-    setRepoKey("");
-    setGhProjectId("");
-    setLocalMode("new");
-    setExistingProjectId(projects[0]?.id ?? "");
-    setNewProjectName("");
-    setNewProjectDescription("");
-    setProductId(products[0]?.id ?? "");
-    setCreateRemoteProject(true);
-    setMakeRemotePrivate(true);
-    setProjectsWarning(null);
-    try {
-      const result = await getGitHubRepositories(connection.backendConnectionId);
-      if (!result.ok) {
-        setError(result.message);
-        setRepos([]);
-        return;
-      }
-      // Privados primero: suele ser lo que se quiere vincular.
-      const sorted = [...result.data].sort((a, b) => Number(b.private) - Number(a.private));
-      setRepos(sorted);
-      if (sorted[0]) {
-        const first = sorted[0];
-        setRepoKey(`${first.owner}/${first.name}`);
-        setNewProjectName(first.name);
-        setNewProjectDescription(first.description?.trim() || "");
-        setMakeRemotePrivate(true);
-        await loadProjectsForOwner(connection.backendConnectionId, first.owner);
-      }
-    } finally {
-      setBusy(false);
+  const projectNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of projects) map.set(p.id, p.name);
+    return map;
+  }, [projects]);
+
+  const allSelected =
+    projects.length > 0 && selectedProjectIds.length === projects.length;
+
+  async function loadRepos(connection: GitHubConnection): Promise<GitHubRepository[]> {
+    const result = await getGitHubRepositories(connection.backendConnectionId);
+    if (!result.ok) {
+      setError(result.message);
+      setRepos([]);
+      return [];
     }
+    const sorted = [...result.data].sort((a, b) => Number(b.private) - Number(a.private));
+    setRepos(sorted);
+    return sorted;
   }
 
   async function loadProjectsForOwner(backendConnectionId: string, owner: string) {
@@ -160,11 +160,48 @@ export function GitHubAppPanel() {
     setGhProjects(result.data);
   }
 
+  async function startLinkWizard(connection: GitHubConnection) {
+    setError(null);
+    setBusy(true);
+    setActiveConnectionId(connection.id);
+    setMode("link");
+    setRepoMode("existing");
+    setRepoKey("");
+    setNewRepoName("");
+    setNewRepoDescription("");
+    setNewRepoPrivate(true);
+    setGhProjectId("");
+    setLocalMode(projects.length > 1 ? "multi" : "new");
+    setExistingProjectId(projects[0]?.id ?? "");
+    setSelectedProjectIds(projects.map((p) => p.id));
+    setNewProjectName("");
+    setNewProjectDescription("");
+    setProductId(products[0]?.id ?? "");
+    setCreateRemoteProject(true);
+    setMakeRemotePrivate(true);
+    setProjectsWarning(null);
+    try {
+      const sorted = await loadRepos(connection);
+      if (sorted[0]) {
+        const first = sorted[0];
+        setRepoKey(`${first.owner}/${first.name}`);
+        setNewProjectName(first.name);
+        setNewProjectDescription(first.description?.trim() || "");
+        setNewRepoName(slugifyRepoName(first.name) || "hito-project");
+        await loadProjectsForOwner(connection.backendConnectionId, first.owner);
+      } else {
+        setRepoMode("create");
+        setNewRepoName("hito-project");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onRepoChange(value: string) {
     setRepoKey(value);
     const repo = repos.find((r) => `${r.owner}/${r.name}` === value);
     if (!repo || !activeConnection) return;
-    // Al cambiar de repo, prellenar nombre/desc del repo (usuario puede editar).
     setNewProjectName(repo.name);
     setNewProjectDescription(repo.description?.trim() || "");
     setMakeRemotePrivate(true);
@@ -177,27 +214,179 @@ export function GitHubAppPanel() {
     }
   }
 
+  async function createRepo(): Promise<GitHubRepository | null> {
+    if (!activeConnection) return null;
+    const name = slugifyRepoName(newRepoName);
+    if (!name) {
+      setError("Escribe un nombre válido para el repositorio.");
+      return null;
+    }
+    const result = await createGitHubRepository(activeConnection.backendConnectionId, {
+      name,
+      description: newRepoDescription.trim() || undefined,
+      private: newRepoPrivate,
+      autoInit: true,
+      owner: activeConnection.githubLogin,
+    });
+    if (!result.ok) {
+      setError(result.message);
+      return null;
+    }
+    const sorted = await loadRepos(activeConnection);
+    const created =
+      sorted.find((r) => r.id === result.data.id) ??
+      sorted.find((r) => r.fullName === result.data.fullName) ??
+      result.data;
+    setRepos((prev) => {
+      if (prev.some((r) => r.id === created.id)) return prev;
+      return [created, ...prev];
+    });
+    setRepoKey(`${created.owner}/${created.name}`);
+    setRepoMode("existing");
+    setNewProjectName(created.name);
+    setNewProjectDescription(created.description?.trim() || "");
+    await loadProjectsForOwner(activeConnection.backendConnectionId, created.owner);
+    toast.success(
+      `Repositorio ${created.private ? "privado" : "público"} creado: ${created.fullName}`,
+    );
+    return created;
+  }
+
+  async function ensureRepo(): Promise<GitHubRepository | null> {
+    if (repoMode === "create") {
+      return createRepo();
+    }
+    return selectedRepo;
+  }
+
+  async function linkOneProject(
+    connection: GitHubConnection,
+    repo: GitHubRepository,
+    project: { id: string; name: string; description: string },
+    opts: {
+      projectNodeId?: string;
+      projectNumber?: number;
+      remoteTitle?: string | null;
+      remoteDesc?: string | null;
+      createRemote: boolean;
+    },
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    const baseLink = buildGitHubLink({
+      projectId: project.id,
+      connectionId: connection.id,
+      owner: repo.owner,
+      repository: repo.name,
+      repositoryId: repo.id,
+      projectNodeId: opts.projectNodeId,
+      projectNumber: opts.projectNumber,
+      remoteProjectTitle: opts.remoteTitle ?? null,
+      remoteProjectDescription: opts.remoteDesc ?? null,
+      remoteRepositoryDescription: repo.description ?? null,
+    });
+
+    if (opts.createRemote && !opts.projectNodeId) {
+      const pushed = await pushProjectMetaToGitHub({
+        backendConnectionId: connection.backendConnectionId,
+        link: baseLink,
+        local: { name: project.name, description: project.description },
+        repositoryNodeId: repo.nodeId || null,
+        makePrivate: makeRemotePrivate,
+      });
+      if (!pushed.ok) {
+        await saveGitHubLink(baseLink);
+        return { ok: false, message: pushed.message };
+      }
+      return { ok: true };
+    }
+
+    if (opts.projectNodeId && makeRemotePrivate) {
+      const pushed = await pushProjectMetaToGitHub({
+        backendConnectionId: connection.backendConnectionId,
+        link: baseLink,
+        local: { name: project.name, description: project.description },
+        repositoryNodeId: repo.nodeId || null,
+        makePrivate: true,
+      });
+      if (!pushed.ok) {
+        await saveGitHubLink(baseLink);
+        return { ok: false, message: pushed.message };
+      }
+      return { ok: true };
+    }
+
+    await saveGitHubLink(baseLink);
+    return { ok: true };
+  }
+
   async function saveLink() {
-    if (!activeConnection || !selectedRepo) {
-      setError("Elige un repositorio de GitHub.");
+    if (!activeConnection) {
+      setError("No hay conexión de GitHub activa.");
       return;
     }
 
     setBusy(true);
     setError(null);
     try {
+      const repo = await ensureRepo();
+      if (!repo) {
+        if (repoMode !== "create") setError("Elige o crea un repositorio de GitHub.");
+        return;
+      }
+
+      // --- Varios proyectos existentes ---
+      if (localMode === "multi") {
+        if (selectedProjectIds.length === 0) {
+          setError("Selecciona al menos un proyecto de Hito (o «Seleccionar todos»).");
+          return;
+        }
+        const chosen = projects.filter((p) => selectedProjectIds.includes(p.id));
+        let linked = 0;
+        const errors: string[] = [];
+        for (const project of chosen) {
+          // Un solo GitHub Project compartido si eligieron uno; si no, crear uno por proyecto solo si está marcado.
+          const useShared = Boolean(selectedGhProject);
+          const result = await linkOneProject(
+            activeConnection,
+            repo,
+            project,
+            {
+              projectNodeId: useShared ? selectedGhProject?.id : undefined,
+              projectNumber: useShared ? selectedGhProject?.number : undefined,
+              remoteTitle: useShared ? selectedGhProject?.title : null,
+              remoteDesc: useShared ? selectedGhProject?.shortDescription : null,
+              createRemote: createRemoteProject && !useShared,
+            },
+          );
+          if (result.ok) linked += 1;
+          else errors.push(`${project.name}: ${result.message}`);
+        }
+        await refresh();
+        setMode("idle");
+        if (errors.length) {
+          setError(
+            `Vinculados ${linked}/${chosen.length}. Algunos fallaron: ${errors.slice(0, 2).join(" · ")}`,
+          );
+          toast.error("Algunos vínculos fallaron (ver detalle arriba).");
+        } else {
+          toast.success(
+            `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} a ${repo.fullName}`,
+          );
+        }
+        return;
+      }
+
+      // --- Uno: nuevo o existente ---
       let projectId = existingProjectId;
       let project = projects.find((p) => p.id === projectId) ?? null;
 
       if (localMode === "new") {
-        const name = newProjectName.trim() || selectedRepo.name;
+        const name = newProjectName.trim() || repo.name;
         if (!name) {
           setError("Escribe un nombre para el proyecto nuevo.");
           return;
         }
         const created = newProject(name, productId || null);
         created.description = newProjectDescription.trim();
-        // Se guardan nombre/descripcion; tareas/áreas vacías en un proyecto nuevo.
         await createProject(created);
         projectId = created.id;
         project = created;
@@ -206,14 +395,9 @@ export function GitHubAppPanel() {
           setError("Elige un proyecto de Hito existente.");
           return;
         }
-        // Conservar todas las tareas/áreas; solo rellenar descripción vacía si hay texto.
         const next = { ...project };
-        let touched = false;
         if (!next.description.trim() && newProjectDescription.trim()) {
           next.description = newProjectDescription.trim();
-          touched = true;
-        }
-        if (touched) {
           next.updatedAt = new Date().toISOString();
           await saveProject(next);
           project = next;
@@ -225,80 +409,25 @@ export function GitHubAppPanel() {
         return;
       }
 
-      let projectNodeId = selectedGhProject?.id;
-      let projectNumber = selectedGhProject?.number;
-      let remoteTitle = selectedGhProject?.title ?? null;
-      let remoteDesc = selectedGhProject?.shortDescription ?? null;
-
-      const baseLink = buildGitHubLink({
-        projectId,
-        connectionId: activeConnection.id,
-        owner: selectedRepo.owner,
-        repository: selectedRepo.name,
-        repositoryId: selectedRepo.id,
-        projectNodeId,
-        projectNumber,
-        remoteProjectTitle: remoteTitle,
-        remoteProjectDescription: remoteDesc,
-        remoteRepositoryDescription: selectedRepo.description ?? null,
+      const result = await linkOneProject(activeConnection, repo, project, {
+        projectNodeId: selectedGhProject?.id,
+        projectNumber: selectedGhProject?.number,
+        remoteTitle: selectedGhProject?.title ?? null,
+        remoteDesc: selectedGhProject?.shortDescription ?? null,
+        createRemote: createRemoteProject && !selectedGhProject,
       });
 
-      // Crear Project en GitHub (privado por defecto) si se pidió y no hay uno elegido.
-      if (createRemoteProject && !projectNodeId) {
-        const pushed = await pushProjectMetaToGitHub({
-          backendConnectionId: activeConnection.backendConnectionId,
-          link: baseLink,
-          local: {
-            name: project.name,
-            description: project.description,
-          },
-          repositoryNodeId: selectedRepo.nodeId || null,
-          makePrivate: makeRemotePrivate,
-        });
-        if (!pushed.ok) {
-          // El proyecto local ya se creó: guardar vínculo local y avisar del fallo remoto.
-          await saveGitHubLink(baseLink);
-          await refresh();
-          setError(
-            `Proyecto local guardado, pero no se pudo crear el GitHub Project: ${pushed.message}`,
-          );
-          toast.error("GitHub Project no creado. Revisa permisos Projects de la App.");
-          return;
-        }
-        await refresh();
-        setMode("idle");
-        toast.success(
-          `Proyecto vinculado${selectedRepo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${selectedRepo.fullName}`,
-        );
-        return;
-      }
-
-      // Si el Project ya existe y se pidió privado, intentar forzar public:false en push.
-      if (projectNodeId && makeRemotePrivate) {
-        const pushed = await pushProjectMetaToGitHub({
-          backendConnectionId: activeConnection.backendConnectionId,
-          link: baseLink,
-          local: { name: project.name, description: project.description },
-          repositoryNodeId: selectedRepo.nodeId || null,
-          makePrivate: true,
-        });
-        if (!pushed.ok) {
-          await saveGitHubLink(baseLink);
-          await refresh();
-          setError(`Vínculo local guardado. No se pudo actualizar el Project: ${pushed.message}`);
-          return;
-        }
-        await refresh();
-        setMode("idle");
-        toast.success(`Proyecto vinculado: ${project.name} ↔ ${selectedRepo.fullName}`);
-        return;
-      }
-
-      await saveGitHubLink(baseLink);
       await refresh();
+      if (!result.ok) {
+        setError(
+          `Proyecto local listo, pero GitHub Project falló: ${result.message}`,
+        );
+        toast.error("Vínculo parcial: revisa permisos Projects de la App.");
+        return;
+      }
       setMode("idle");
       toast.success(
-        `Proyecto vinculado: ${project.name} ↔ ${selectedRepo.fullName}`,
+        `Proyecto vinculado${repo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${repo.fullName}`,
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar el vínculo.");
@@ -352,9 +481,7 @@ export function GitHubAppPanel() {
         setError(result.message);
         return;
       }
-      if (result.changed) {
-        await saveProject(result.project);
-      }
+      if (result.changed) await saveProject(result.project);
       await refresh();
       toast.success(
         result.changed
@@ -393,17 +520,25 @@ export function GitHubAppPanel() {
     }
   }
 
-  const projectNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const p of projects) map.set(p.id, p.name);
-    return map;
-  }, [projects]);
+  function toggleProjectId(id: string) {
+    setSelectedProjectIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
+
+  function selectAllProjects() {
+    setSelectedProjectIds(projects.map((p) => p.id));
+  }
+
+  function clearProjectSelection() {
+    setSelectedProjectIds([]);
+  }
 
   return (
     <Panel
       label="GitHub App"
       title="Proyectos con GitHub"
-      description="Conecta la GitHub App y vincula un proyecto de Hito con un repositorio y un GitHub Project. Se sincronizan los datos del proyecto (nombre y descripción), no issues ni tareas."
+      description="Conecta la App, crea o elige un repositorio (también privado), y vincula uno o todos tus proyectos de Hito. Se sincronizan nombre y descripción del proyecto — no issues."
       actions={
         <Button
           size="sm"
@@ -440,8 +575,8 @@ export function GitHubAppPanel() {
           <Github className="mx-auto size-8 text-muted-foreground" />
           <p className="mt-2 text-sm font-medium">GitHub aún no está conectado</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Autoriza la App, elige repositorio y crea o vincula un proyecto de Hito. Tus datos
-            locales se conservan.
+            Autoriza la App. Luego podrás crear un repo privado y guardar uno o todos tus proyectos
+            de Hito.
           </p>
         </div>
       ) : (
@@ -468,7 +603,7 @@ export function GitHubAppPanel() {
                 onClick={() => void startLinkWizard(connection)}
               >
                 <Link2 className="size-4" />
-                Vincular proyecto
+                Vincular proyectos
               </Button>
               <Button
                 size="sm"
@@ -487,40 +622,111 @@ export function GitHubAppPanel() {
       {mode === "link" && activeConnection && (
         <div className="mt-6 space-y-4 rounded-xl border border-border bg-muted/20 p-4">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold">Vincular proyecto (sin issues)</h3>
+            <h3 className="text-sm font-semibold">Vincular a GitHub (sin issues)</h3>
             {busy && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
           </div>
 
+          {/* —— Repositorio —— */}
           <div className="space-y-2">
-            <Label htmlFor="gh-repo">Repositorio de GitHub</Label>
-            <Select
-              id="gh-repo"
-              value={repoKey}
-              onChange={(e) => void onRepoChange(e.target.value)}
-              disabled={busy || repos.length === 0}
-            >
-              <option value="">Selecciona un repositorio…</option>
-              {repos.map((r) => (
-                <option key={r.id} value={`${r.owner}/${r.name}`}>
-                  {r.fullName}
-                  {r.private ? " · privado" : " · público"}
-                </option>
-              ))}
-            </Select>
-            {selectedRepo?.private && (
-              <p className="text-xs text-muted-foreground">
-                Repo privado: la App debe estar instalada con acceso a este repositorio. El Project
-                se creará privado y enlazado al repo.
-              </p>
-            )}
-            {repos.length === 0 && !busy && (
-              <p className="text-xs text-warning">
-                No hay repositorios visibles. Reinstala la App y marca los repos privados que
-                quieras usar (o “All repositories”).
-              </p>
-            )}
+            <Label>Repositorio de GitHub</Label>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={repoMode === "existing" ? "default" : "outline"}
+                disabled={busy}
+                onClick={() => setRepoMode("existing")}
+              >
+                Elegir existente
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={repoMode === "create" ? "default" : "outline"}
+                disabled={busy}
+                onClick={() => {
+                  setRepoMode("create");
+                  if (!newRepoName) {
+                    setNewRepoName(
+                      slugifyRepoName(newProjectName || "hito-project") || "hito-project",
+                    );
+                  }
+                }}
+              >
+                <Plus className="size-4" />
+                Crear repositorio nuevo
+              </Button>
+            </div>
           </div>
 
+          {repoMode === "existing" ? (
+            <div className="space-y-2">
+              <Select
+                id="gh-repo"
+                value={repoKey}
+                onChange={(e) => void onRepoChange(e.target.value)}
+                disabled={busy || repos.length === 0}
+              >
+                <option value="">Selecciona un repositorio…</option>
+                {repos.map((r) => (
+                  <option key={r.id} value={`${r.owner}/${r.name}`}>
+                    {r.fullName}
+                    {r.private ? " · privado" : " · público"}
+                  </option>
+                ))}
+              </Select>
+              {repos.length === 0 && !busy && (
+                <p className="text-xs text-warning">
+                  No hay repos visibles. Crea uno nuevo o reinstala la App con acceso a tus repos
+                  privados.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-3 rounded-lg border border-border bg-background/60 p-3 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="new-repo-name">Nombre del repositorio</Label>
+                <Input
+                  id="new-repo-name"
+                  value={newRepoName}
+                  onChange={(e) => setNewRepoName(e.target.value)}
+                  placeholder="mi-proyecto-hito"
+                  disabled={busy}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Se creará como{" "}
+                  <code className="font-mono">
+                    {activeConnection.githubLogin}/{slugifyRepoName(newRepoName) || "…"}
+                  </code>
+                </p>
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="new-repo-desc">Descripción (opcional)</Label>
+                <Input
+                  id="new-repo-desc"
+                  value={newRepoDescription}
+                  onChange={(e) => setNewRepoDescription(e.target.value)}
+                  disabled={busy}
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm sm:col-span-2">
+                <input
+                  type="checkbox"
+                  className="size-3.5 rounded border-input"
+                  checked={newRepoPrivate}
+                  disabled={busy}
+                  onChange={(e) => setNewRepoPrivate(e.target.checked)}
+                />
+                Repositorio privado
+              </label>
+              <p className="text-xs text-muted-foreground sm:col-span-2">
+                Si falló la creación, vuelve a <strong>Conectar GitHub</strong> (hace falta un token
+                de usuario reciente) y reintenta.
+              </p>
+            </div>
+          )}
+
+          {/* —— GitHub Project —— */}
           <div className="space-y-2">
             <Label htmlFor="gh-project">GitHub Project (opcional)</Label>
             <Select
@@ -539,9 +745,9 @@ export function GitHubAppPanel() {
                   setCreateRemoteProject(true);
                 }
               }}
-              disabled={busy || !selectedRepo}
+              disabled={busy || (repoMode === "existing" && !selectedRepo)}
             >
-              <option value="">Ninguno — crear uno nuevo al guardar</option>
+              <option value="">Ninguno — crear al guardar si está marcado</option>
               {ghProjects.map((p) => (
                 <option key={p.id} value={p.id}>
                   #{p.number} {p.title}
@@ -549,9 +755,7 @@ export function GitHubAppPanel() {
                 </option>
               ))}
             </Select>
-            {projectsWarning && (
-              <p className="text-xs text-warning">{projectsWarning}</p>
-            )}
+            {projectsWarning && <p className="text-xs text-warning">{projectsWarning}</p>}
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input
                 type="checkbox"
@@ -560,22 +764,23 @@ export function GitHubAppPanel() {
                 disabled={Boolean(ghProjectId) || busy}
                 onChange={(e) => setCreateRemoteProject(e.target.checked)}
               />
-              Crear un GitHub Project nuevo con el nombre del proyecto de Hito
+              Crear GitHub Project (uno por proyecto Hito si vinculas varios)
             </label>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input
                 type="checkbox"
                 className="size-3.5 rounded border-input"
                 checked={makeRemotePrivate}
-                disabled={busy || (!createRemoteProject && !ghProjectId)}
+                disabled={busy}
                 onChange={(e) => setMakeRemotePrivate(e.target.checked)}
               />
-              Project privado en GitHub (recomendado con repos privados)
+              Project privado en GitHub
             </label>
           </div>
 
+          {/* —— Proyectos Hito —— */}
           <div className="space-y-2">
-            <Label>Proyecto en Hito</Label>
+            <Label>Proyectos en Hito</Label>
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -585,7 +790,7 @@ export function GitHubAppPanel() {
                 disabled={busy}
               >
                 <Plus className="size-4" />
-                Crear nuevo
+                Crear uno nuevo
               </Button>
               <Button
                 type="button"
@@ -594,12 +799,73 @@ export function GitHubAppPanel() {
                 onClick={() => setLocalMode("existing")}
                 disabled={busy || projects.length === 0}
               >
-                Usar existente
+                Uno existente
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={localMode === "multi" ? "default" : "outline"}
+                onClick={() => {
+                  setLocalMode("multi");
+                  setSelectedProjectIds(projects.map((p) => p.id));
+                }}
+                disabled={busy || projects.length === 0}
+              >
+                Varios / todos
               </Button>
             </div>
           </div>
 
-          {localMode === "existing" ? (
+          {localMode === "multi" && (
+            <div className="space-y-2 rounded-lg border border-border bg-background/60 p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={busy || allSelected}
+                  onClick={selectAllProjects}
+                >
+                  Seleccionar todos ({projects.length})
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={busy || selectedProjectIds.length === 0}
+                  onClick={clearProjectSelection}
+                >
+                  Quitar selección
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {selectedProjectIds.length} seleccionado
+                  {selectedProjectIds.length === 1 ? "" : "s"}
+                </span>
+              </div>
+              <ul className="max-h-48 space-y-1 overflow-y-auto">
+                {projects.map((p) => (
+                  <li key={p.id}>
+                    <label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/50">
+                      <input
+                        type="checkbox"
+                        className="size-3.5 rounded border-input"
+                        checked={selectedProjectIds.includes(p.id)}
+                        disabled={busy}
+                        onChange={() => toggleProjectId(p.id)}
+                      />
+                      <span className="min-w-0 truncate">{p.name}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                Cada proyecto de Hito se vincula al mismo repositorio. Se conservan todas las
+                tareas y datos locales.
+              </p>
+            </div>
+          )}
+
+          {localMode === "existing" && (
             <div className="space-y-2">
               <Label htmlFor="hito-project">Proyecto existente</Label>
               <Select
@@ -616,18 +882,20 @@ export function GitHubAppPanel() {
                 ))}
               </Select>
               <p className="text-xs text-muted-foreground">
-                Se conservan todas las tareas, áreas y datos que ya tiene el proyecto.
+                Se conservan tareas, áreas y el resto de datos del proyecto.
               </p>
             </div>
-          ) : (
+          )}
+
+          {localMode === "new" && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="new-name">Nombre del proyecto</Label>
+                <Label htmlFor="new-name">Nombre del proyecto en Hito</Label>
                 <Input
                   id="new-name"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  placeholder={selectedRepo?.name ?? "Mi proyecto"}
+                  placeholder={selectedRepo?.name ?? (newRepoName || "Mi proyecto")}
                   disabled={busy}
                 />
               </div>
@@ -637,7 +905,6 @@ export function GitHubAppPanel() {
                   id="new-desc"
                   value={newProjectDescription}
                   onChange={(e) => setNewProjectDescription(e.target.value)}
-                  placeholder="Se puede rellenar desde el repo o el Project de GitHub"
                   disabled={busy}
                 />
               </div>
@@ -663,9 +930,21 @@ export function GitHubAppPanel() {
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">
-            <Button disabled={busy || !selectedRepo} onClick={() => void saveLink()}>
+            <Button
+              disabled={
+                busy ||
+                (repoMode === "existing" && !selectedRepo) ||
+                (repoMode === "create" && !slugifyRepoName(newRepoName)) ||
+                (localMode === "multi" && selectedProjectIds.length === 0)
+              }
+              onClick={() => void saveLink()}
+            >
               {busy ? <Loader2 className="size-4 animate-spin" /> : <Link2 className="size-4" />}
-              Guardar vínculo
+              {localMode === "multi"
+                ? `Guardar ${selectedProjectIds.length || ""} vínculo${selectedProjectIds.length === 1 ? "" : "s"}`
+                : repoMode === "create"
+                  ? "Crear repo y vincular"
+                  : "Guardar vínculo"}
             </Button>
             <Button
               variant="outline"
@@ -711,7 +990,6 @@ export function GitHubAppPanel() {
                     variant="outline"
                     disabled={busy}
                     onClick={() => void handlePush(link)}
-                    title="Enviar nombre y descripción a GitHub"
                   >
                     <ArrowUpFromLine className="size-4" />
                     Enviar
@@ -721,7 +999,6 @@ export function GitHubAppPanel() {
                     variant="outline"
                     disabled={busy}
                     onClick={() => void handlePull(link)}
-                    title="Recibir nombre y descripción desde GitHub"
                   >
                     <ArrowDownToLine className="size-4" />
                     Recibir

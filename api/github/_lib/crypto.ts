@@ -1,4 +1,12 @@
-import { createHmac, createSign, randomBytes, timingSafeEqual } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  createSign,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 
 function b64url(input: string | Buffer): string {
   return Buffer.from(input)
@@ -57,18 +65,63 @@ export type ConnectionClaims = {
   githubUserId: number;
   githubLogin: string;
   exp: number;
+  /**
+   * User-to-server access token cifrado (AES-GCM). Solo el BFF puede abrirlo.
+   * Necesario para crear repos de usuario (POST /user/repos).
+   */
+  userAccessToken?: string;
 };
 
-/** Opaque connection handle for the frontend — HMAC-signed claims, no secrets. */
+function aesKey(secret: string): Buffer {
+  return createHash("sha256").update(`hito-gh-uat:${secret}`).digest();
+}
+
+/** Cifra un secreto para meterlo en el connectionId sin exponerlo en claro. */
+export function sealSecret(secret: string, plaintext: string): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", aesKey(secret), iv);
+  const enc = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `${iv.toString("base64url")}.${tag.toString("base64url")}.${enc.toString("base64url")}`;
+}
+
+export function openSecret(secret: string, sealed: string): string | null {
+  try {
+    const [ivB64, tagB64, encB64] = sealed.split(".");
+    if (!ivB64 || !tagB64 || !encB64) return null;
+    const iv = Buffer.from(ivB64, "base64url");
+    const tag = Buffer.from(tagB64, "base64url");
+    const enc = Buffer.from(encB64, "base64url");
+    const decipher = createDecipheriv("aes-256-gcm", aesKey(secret), iv);
+    decipher.setAuthTag(tag);
+    return Buffer.concat([decipher.update(enc), decipher.final()]).toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
+/** Opaque connection handle — claims firmados; el user token va cifrado. */
 export function mintConnectionId(
   secret: string,
-  claims: Omit<ConnectionClaims, "connectionId" | "exp">,
-  ttlSec = 3600,
+  claims: {
+    installationId: number;
+    githubUserId: number;
+    githubLogin: string;
+    /** Plain user OAuth token; se sella antes de firmar. */
+    userAccessToken?: string;
+  },
+  ttlSec = 8 * 3600,
 ): string {
-  const body = b64urlJson({
-    ...claims,
+  const payload: Record<string, unknown> = {
+    installationId: claims.installationId,
+    githubUserId: claims.githubUserId,
+    githubLogin: claims.githubLogin,
     exp: Math.floor(Date.now() / 1000) + ttlSec,
-  });
+  };
+  if (claims.userAccessToken) {
+    payload.uat = sealSecret(secret, claims.userAccessToken);
+  }
+  const body = b64urlJson(payload);
   const sig = createHmac("sha256", secret).update(body).digest("base64url");
   return `${body}.${sig}`;
 }
@@ -91,6 +144,7 @@ export function parseConnectionId(
       githubUserId?: number;
       githubLogin?: string;
       exp?: number;
+      uat?: string;
     };
     if (
       typeof json.installationId !== "number" ||
@@ -103,6 +157,10 @@ export function parseConnectionId(
     if (json.exp < Math.floor(Date.now() / 1000)) {
       return { ok: false, reason: "connection_expired" };
     }
+    let userAccessToken: string | undefined;
+    if (typeof json.uat === "string" && json.uat) {
+      userAccessToken = openSecret(secret, json.uat) ?? undefined;
+    }
     return {
       ok: true,
       claims: {
@@ -111,6 +169,7 @@ export function parseConnectionId(
         githubUserId: json.githubUserId,
         githubLogin: json.githubLogin,
         exp: json.exp,
+        userAccessToken,
       },
     };
   } catch {

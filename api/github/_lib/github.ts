@@ -137,6 +137,94 @@ export async function createInstallationToken(
   return { ok: true, token: result.data.token, expiresAt: result.data.expires_at };
 }
 
+/**
+ * Crea un repositorio.
+ * - Cuenta de usuario: requiere user access token (OAuth de la App).
+ * - Organización: usa installation token (permiso Administration write).
+ */
+export async function createRepository(
+  tokens: { userAccessToken?: string; installationToken: string },
+  input: {
+    name: string;
+    description?: string;
+    private?: boolean;
+    autoInit?: boolean;
+    /** Si es org login, crea bajo la org; si no, bajo el usuario autenticado. */
+    org?: string | null;
+  },
+): Promise<{ ok: true; repo: GitHubRepository } | { ok: false; message: string }> {
+  const name = input.name.trim();
+  if (!/^[A-Za-z0-9_.-]+$/.test(name)) {
+    return {
+      ok: false,
+      message:
+        "Nombre de repositorio inválido. Usa solo letras, números, guiones, puntos y guiones bajos.",
+    };
+  }
+
+  const body = {
+    name,
+    description: input.description?.trim() || undefined,
+    private: input.private !== false,
+    auto_init: input.autoInit !== false,
+  };
+
+  const org = input.org?.trim();
+  if (org) {
+    const result = await gh<GitHubRepository>(`/orgs/${encodeURIComponent(org)}/repos`, {
+      method: "POST",
+      token: tokens.installationToken,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!result.ok) {
+      return {
+        ok: false,
+        message:
+          result.message +
+          (result.status === 403
+            ? " ¿La App tiene Administration (write) en la org e instalación con acceso?"
+            : ""),
+      };
+    }
+    return {
+      ok: true,
+      repo: { ...result.data, description: result.data.description ?? null },
+    };
+  }
+
+  if (!tokens.userAccessToken) {
+    return {
+      ok: false,
+      message:
+        "No hay token de usuario para crear el repo. Vuelve a Conectar GitHub e inténtalo de nuevo.",
+    };
+  }
+
+  const result = await gh<GitHubRepository>("/user/repos", {
+    method: "POST",
+    token: tokens.userAccessToken,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!result.ok) {
+    return {
+      ok: false,
+      message:
+        result.message +
+        (result.status === 403 || result.status === 401
+          ? " Reconecta GitHub o revisa permisos de la App (Contents/Metadata)."
+          : result.status === 422
+            ? " ¿Ya existe un repo con ese nombre?"
+            : ""),
+    };
+  }
+  return {
+    ok: true,
+    repo: { ...result.data, description: result.data.description ?? null },
+  };
+}
+
 export async function listInstallationRepos(
   installationToken: string,
 ): Promise<{ ok: true; repos: GitHubRepository[] } | { ok: false; message: string }> {

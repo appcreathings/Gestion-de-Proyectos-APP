@@ -99,6 +99,30 @@ export function getGitHubRepositories(id: string): Promise<GitHubBffResult<GitHu
   return request(`/github/connection/${encodeURIComponent(id)}/repositories`);
 }
 
+export function createGitHubRepository(
+  connectionId: string,
+  input: {
+    name: string;
+    description?: string;
+    private?: boolean;
+    autoInit?: boolean;
+    /** Org login si se crea bajo organización; omitir para cuenta personal. */
+    owner?: string;
+  },
+): Promise<GitHubBffResult<GitHubRepository>> {
+  return request(`/github/connection/${encodeURIComponent(connectionId)}/repositories`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: input.name,
+      description: input.description,
+      private: input.private ?? true,
+      autoInit: input.autoInit ?? true,
+      owner: input.owner,
+    }),
+  });
+}
+
 export function getGitHubProjects(
   id: string,
   owner: string,

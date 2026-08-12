@@ -98,10 +98,13 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     }
 
     const installation = installations[0]!;
+    // El user access token se sella dentro del connectionId (solo el BFF lo abre)
+    // para poder crear repositorios de usuario (POST /user/repos).
     const connectionId = mintConnectionId(env.stateSecret, {
       installationId: installation.id,
       githubUserId: userResult.data.id,
       githubLogin: userResult.data.login,
+      userAccessToken: tokenResult.accessToken,
     });
 
     redirect(res, frontendSuccessRedirect(returnBase, connectionId));
