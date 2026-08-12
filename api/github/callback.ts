@@ -1,5 +1,8 @@
-import { loadGitHubOAuthEnv } from "./_lib/env.js";
-import { mintConnectionId, verifyState } from "./_lib/crypto.js";
+import {
+  githubAppInstallUrl,
+  loadGitHubOAuthEnv,
+} from "./_lib/env.js";
+import { mintConnectionId, randomToken, signState, verifyState } from "./_lib/crypto.js";
 import {
   exchangeOAuthCode,
   getAuthenticatedUser,
@@ -20,6 +23,9 @@ import {
 /**
  * GET /api/github/callback
  * GitHub OAuth callback. Exchanges code, picks installation, mints opaque connectionId.
+ *
+ * Also accepts `installation_id` (install + OAuth during installation, or when the
+ * SPA Setup URL forwards code here).
  */
 export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
   await withHandler(req, res, async () => {
@@ -87,17 +93,36 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
 
     const installations = installationsResult.data.installations ?? [];
     if (installations.length === 0) {
+      // OAuth succeeded but this account never installed the App. Send them
+      // straight to the install UI instead of a dead-end error (when slug is set).
+      if (env.appSlug) {
+        const priorLinkId =
+          typeof stateCheck.payload.linkId === "string" ? stateCheck.payload.linkId : undefined;
+        const installState = signState(env.stateSecret, {
+          n: randomToken(16),
+          linkId: priorLinkId,
+        });
+        redirect(res, githubAppInstallUrl(env.appSlug, installState));
+        return;
+      }
       redirect(
         res,
         frontendErrorRedirect(
           returnBase,
-          "no_installation: Autorizaste Hito pero aún no hay una instalación. Instala la App en un repositorio y vuelve a conectar.",
+          "no_installation: Autorizaste Hito pero aún no hay una instalación. " +
+            "Define GITHUB_APP_SLUG en el servidor e instala la App en un repositorio, luego vuelve a conectar.",
         ),
       );
       return;
     }
 
-    const installation = installations[0]!;
+    const preferredRaw = queryParam(req, "installation_id");
+    const preferredId = preferredRaw ? Number(preferredRaw) : NaN;
+    const installation =
+      (Number.isFinite(preferredId)
+        ? installations.find((i) => i.id === preferredId)
+        : undefined) ?? installations[0]!;
+
     // El user access token se sella dentro del connectionId (solo el BFF lo abre)
     // para poder crear repositorios de usuario (POST /user/repos).
     const connectionId = mintConnectionId(env.stateSecret, {

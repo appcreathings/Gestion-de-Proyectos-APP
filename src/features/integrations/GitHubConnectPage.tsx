@@ -14,6 +14,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/routes/paths";
 import {
+  getGitHubCallbackUrl,
   getGitHubConnectUrl,
   getGitHubConnection,
   isGitHubBffConfigured,
@@ -25,13 +26,15 @@ type PageState =
   | { kind: "saving" }
   | { kind: "saved"; login: string }
   | { kind: "error"; message: string }
-  | { kind: "setup"; installationId: string };
+  | { kind: "setup"; installationId: string }
+  | { kind: "forwarding" };
 
 /**
  * Public page at /github/connect.
- * - Default: start GitHub App connect (redirects to BFF OAuth).
+ * - Default: start GitHub App connect (BFF → install App if needed + OAuth).
  * - Return from BFF: ?status=ok&connectionId=… → persist locally and go to Integrations.
- * - GitHub Setup URL: ?installation_id=…&setup_action=… → guide user to finish OAuth.
+ * - GitHub Setup URL: ?installation_id=…&setup_action=… → finish OAuth if needed.
+ * - If GitHub returns ?code=&state= here (OAuth during install), forward to BFF callback.
  */
 export function GitHubConnectPage() {
   const [params] = useSearchParams();
@@ -45,13 +48,19 @@ export function GitHubConnectPage() {
   const errorParam = params.get("error");
   const installationId = params.get("installation_id");
   const setupAction = params.get("setup_action");
+  const oauthCode = params.get("code");
+  const oauthState = params.get("state");
 
   const returnHint = useMemo(() => {
+    // Install + "Request user authorization during installation" may land on
+    // the Setup URL with a temporary code — hand it to the BFF, never exchange
+    // secrets in the browser.
+    if (oauthCode && oauthState) return "oauth-code" as const;
     if (status === "ok" && connectionId) return "return-ok" as const;
     if (status === "error" || errorParam) return "return-error" as const;
     if (installationId) return "setup" as const;
     return "idle" as const;
-  }, [status, connectionId, errorParam, installationId]);
+  }, [oauthCode, oauthState, status, connectionId, errorParam, installationId]);
 
   useEffect(() => {
     setBffReady(isGitHubBffConfigured());
@@ -61,6 +70,25 @@ export function GitHubConnectPage() {
   }, []);
 
   useEffect(() => {
+    if (returnHint === "oauth-code" && oauthCode && oauthState) {
+      setState({ kind: "forwarding" });
+      try {
+        window.location.replace(
+          getGitHubCallbackUrl({
+            code: oauthCode,
+            state: oauthState,
+            installationId,
+          }),
+        );
+      } catch {
+        setState({
+          kind: "error",
+          message: "No se pudo reenviar el código OAuth al backend de GitHub.",
+        });
+      }
+      return;
+    }
+
     if (returnHint === "return-error") {
       setState({
         kind: "error",
@@ -120,9 +148,9 @@ export function GitHubConnectPage() {
     return () => {
       cancelled = true;
     };
-  }, [returnHint, connectionId, errorParam, installationId, navigate]);
+  }, [returnHint, connectionId, errorParam, installationId, navigate, oauthCode, oauthState]);
 
-  async function startConnect() {
+  async function startConnect(mode: "install" | "oauth" = "install") {
     try {
       // Preflight: surface 503/config errors instead of a blank Vercel crash page.
       const healthUrl = getGitHubConnectUrl().replace(/\/connect\/?$/, "/health");
@@ -147,9 +175,11 @@ export function GitHubConnectPage() {
           return;
         }
       } catch {
-        // Health may fail on cold start or older deploys — still attempt OAuth.
+        // Health may fail on cold start or older deploys — still attempt connect.
       }
-      window.location.assign(getGitHubConnectUrl());
+      // After Setup URL install, only OAuth may be left; otherwise install-first.
+      const effectiveMode = state.kind === "setup" ? "oauth" : mode;
+      window.location.assign(getGitHubConnectUrl({ mode: effectiveMode }));
     } catch {
       setBffReady(false);
       setState({
@@ -207,6 +237,14 @@ export function GitHubConnectPage() {
             />
           )}
 
+          {state.kind === "forwarding" && (
+            <StatusBlock
+              icon={<Loader2 className="size-5 animate-spin text-primary" />}
+              title="Completando autorización…"
+              body="GitHub devolvió el código de instalación. Reenviando al servidor de Hito…"
+            />
+          )}
+
           {state.kind === "saved" && (
             <StatusBlock
               icon={<CheckCircle2 className="size-5 text-success" />}
@@ -232,7 +270,7 @@ export function GitHubConnectPage() {
                   ? "Instalación actualizada"
                   : "App instalada en GitHub"
               }
-              body={`Instalación ${state.installationId}. Completa la autorización para que Hito pueda listar repositorios y sincronizar issues.`}
+              body={`Instalación ${state.installationId}. Completa la autorización para que Hito pueda listar repositorios y sincronizar.`}
             />
           )}
 
@@ -241,15 +279,15 @@ export function GitHubConnectPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+                  Si aún no tienes la App, GitHub te pedirá instalarla en un repositorio.
+                </li>
+                <li className="flex gap-2">
+                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
                   Sin cuentas nuevas: GitHub autentica; Hito guarda el vínculo en este dispositivo.
                 </li>
                 <li className="flex gap-2">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
                   La private key de la App nunca viaja al navegador.
-                </li>
-                <li className="flex gap-2">
-                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-                  Elige solo los repositorios que quieras sincronizar.
                 </li>
               </ul>
 
@@ -275,7 +313,11 @@ export function GitHubConnectPage() {
               )}
 
               <div className="flex flex-col gap-2 sm:flex-row">
-                <Button className="flex-1" onClick={startConnect} disabled={!bffReady}>
+                <Button
+                  className="flex-1"
+                  onClick={() => void startConnect(state.kind === "setup" ? "oauth" : "install")}
+                  disabled={!bffReady}
+                >
                   <Github className="size-4" />
                   {state.kind === "setup" ? "Continuar con GitHub" : "Conectar con GitHub"}
                 </Button>
@@ -292,7 +334,7 @@ export function GitHubConnectPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Callback OAuth del servidor:{" "}
+          Flujo: instalar App (si falta) → autorizar → callback del servidor{" "}
           <code className="font-mono">/api/github/callback</code>
         </p>
       </main>

@@ -14,7 +14,13 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       ok: oauth.ok,
       oauthConfigured: oauth.ok,
       appConfigured: full.ok,
+      installFlowConfigured: Boolean(oauth.ok && oauth.env.appSlug),
       missing: oauth.ok ? (full.ok ? [] : full.missing) : oauth.missing,
+      hint:
+        oauth.ok && !oauth.env.appSlug
+          ? "Define GITHUB_APP_SLUG (slug de https://github.com/apps/<slug>) para que Conectar instale la App si falta."
+          : undefined,
+      appSlug: oauth.ok ? oauth.env.appSlug : null,
       callbackUrl: oauth.ok ? oauth.env.callbackUrl : null,
       frontendReturnUrl: oauth.ok ? oauth.env.frontendReturnUrl : null,
       runtime: "node",

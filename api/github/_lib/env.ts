@@ -6,12 +6,39 @@ export type GitHubOAuthEnv = {
   callbackUrl: string;
   frontendReturnUrl: string;
   stateSecret: string;
+  /**
+   * URL slug of the GitHub App (https://github.com/apps/<slug>).
+   * Used to send "Conectar" through the install flow so users without an
+   * installation create one instead of only authorizing OAuth.
+   */
+  appSlug: string | null;
 };
 
 export type GitHubAppEnv = GitHubOAuthEnv & {
   appId: string;
   privateKey: string;
 };
+
+/** Public install URL for the GitHub App (choose account + repos). */
+export function githubAppInstallUrl(appSlug: string, state?: string): string {
+  const url = new URL(`https://github.com/apps/${encodeURIComponent(appSlug)}/installations/new`);
+  if (state) url.searchParams.set("state", state);
+  return url.toString();
+}
+
+/** Classic user OAuth authorize URL (no installation UI). */
+export function githubOAuthAuthorizeUrl(input: {
+  clientId: string;
+  callbackUrl: string;
+  state: string;
+}): string {
+  const authorize = new URL("https://github.com/login/oauth/authorize");
+  authorize.searchParams.set("client_id", input.clientId);
+  authorize.searchParams.set("redirect_uri", input.callbackUrl);
+  authorize.searchParams.set("state", input.state);
+  authorize.searchParams.set("allow_signup", "false");
+  return authorize.toString();
+}
 
 function required(name: string): string | null {
   const value = process.env[name]?.trim();
@@ -70,6 +97,12 @@ export function loadGitHubOAuthEnv():
     required("GITHUB_FRONTEND_RETURN_URL") ??
     (origin ? `${origin}/github/connect` : null);
   const stateSecret = required("GITHUB_STATE_SECRET") ?? clientSecret;
+  // Slug from the public App URL: github.com/apps/<slug>. Optional but required
+  // for install-first connect (without it we fall back to OAuth-only).
+  const appSlugRaw = required("GITHUB_APP_SLUG");
+  const appSlug = appSlugRaw
+    ? appSlugRaw.replace(/^https?:\/\/github\.com\/apps\//i, "").replace(/\/+$/, "").toLowerCase()
+    : null;
 
   const missing: string[] = [];
   if (!clientId) missing.push("GITHUB_CLIENT_ID");
@@ -90,6 +123,7 @@ export function loadGitHubOAuthEnv():
       callbackUrl,
       frontendReturnUrl,
       stateSecret,
+      appSlug,
     },
   };
 }

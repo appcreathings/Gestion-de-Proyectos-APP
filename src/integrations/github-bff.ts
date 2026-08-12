@@ -80,8 +80,29 @@ async function request<T>(path: string, init?: RequestInit): Promise<GitHubBffRe
   return { ok: true, data: body as T };
 }
 
-export function getGitHubConnectUrl(): string {
-  return url("/github/connect");
+/** BFF start URL. Default is install-first; pass mode=oauth for authorize-only. */
+export function getGitHubConnectUrl(options?: { mode?: "install" | "oauth"; linkId?: string }): string {
+  const base = url("/github/connect");
+  const params = new URLSearchParams();
+  if (options?.mode === "oauth") params.set("mode", "oauth");
+  if (options?.linkId) params.set("linkId", options.linkId);
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
+}
+
+/** Server OAuth callback — used when GitHub returns `code` to the SPA Setup URL. */
+export function getGitHubCallbackUrl(query: {
+  code: string;
+  state: string;
+  installationId?: string | null;
+}): string {
+  const base = url("/github/callback");
+  const params = new URLSearchParams({
+    code: query.code,
+    state: query.state,
+  });
+  if (query.installationId) params.set("installation_id", query.installationId);
+  return `${base}?${params.toString()}`;
 }
 
 export function getGitHubConnectPageUrl(): string {

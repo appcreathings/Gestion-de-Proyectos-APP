@@ -107,9 +107,25 @@ GITHUB_APP_ID=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 GITHUB_PRIVATE_KEY=
+# Slug de https://github.com/apps/<slug> — sin esto, "Conectar" solo hace OAuth
+# y falla si la cuenta no tiene la App instalada.
+GITHUB_APP_SLUG=
 GITHUB_CALLBACK_URL=https://hito.autos/api/github/callback
 GITHUB_SETUP_URL=https://hito.autos/github/connect
 ```
+
+Con `GITHUB_APP_SLUG`, el endpoint `GET /api/github/connect` redirige a:
+
+```text
+https://github.com/apps/<slug>/installations/new?state=…
+```
+
+Así el usuario instala la App (elige cuenta y repos) y, si en la App está activado
+**Request user authorization during installation**, también autoriza OAuth en el
+mismo flujo. Si ya estaba instalada, GitHub muestra la instalación existente.
+
+Si el callback detecta OAuth sin instalaciones y hay slug, redirige de nuevo a
+esa URL de instalación en lugar de devolver solo un error.
 
 ## 5. Configurar `VITE_GITHUB_BFF_URL`
 
