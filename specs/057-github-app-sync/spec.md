@@ -30,9 +30,9 @@ Hito se conecta a GitHub mediante una **GitHub App** (OAuth + installation). El 
 |---|---|
 | **Ligera** | Nombre, descripción, estado, prioridad, health, fechas, tags, stakeholders |
 | **Media** | Ligera + tareas (sin comentarios ni adjuntos de tarea), áreas (estructura y procesos), milestones, sprints, wipLimits |
-| **Completa** | Media + comentarios de tareas + metadatos de adjuntos (no binarios) |
+| **Completa** | Media + comentarios + metadatos de adjuntos **y binarios de recursos** (todo menos videos; máx. ~1 MB por archivo vía API) |
 
-Los blobs de adjuntos **no** se suben al repo en ningún nivel (solo metadatos de referencia).
+En **ligera** y **media** no se suben binarios. En **completa** se suben imágenes, documentos, audio y archivos (no videos) a `.hito/attachments/…`.
 
 ## Almacenamiento en el repositorio
 
@@ -41,6 +41,8 @@ Los blobs de adjuntos **no** se suben al repo en ningún nivel (solo metadatos d
   manifest.json
   projects/
     {projectId}.json
+  attachments/
+    projects/{projectId}/…
 ```
 
 Cada archivo incluye `format`, `version`, `syncMode`, `exportedAt` y el proyecto serializado.

@@ -5,8 +5,10 @@
  * Rutas:
  *   .hito/projects/{projectId}.json
  *   .hito/manifest.json
+ *   .hito/attachments/...   (modo full: recursos salvo videos)
  */
 
+import type { Attachment } from "@/domain/schemas/attachment";
 import type { Project, Task, Area } from "@/domain/schemas";
 import { ProjectSchema } from "@/domain/schemas/project";
 import { nowIso } from "@/lib/utils";
@@ -17,6 +19,12 @@ import { saveGitHubLink } from "./github-sync";
 export const HITO_REPO_ROOT = ".hito";
 export const HITO_PROJECTS_DIR = `${HITO_REPO_ROOT}/projects`;
 export const HITO_MANIFEST_PATH = `${HITO_REPO_ROOT}/manifest.json`;
+
+/**
+ * Tope del BFF (~1.5 MB de body en base64 ≈ ~1 MB binario).
+ * Videos se omiten siempre; archivos mayores se saltan con aviso.
+ */
+export const MAX_GITHUB_ATTACHMENT_BYTES = 1_000_000;
 
 export type HitoRepoManifest = {
   version: 1;
@@ -30,12 +38,22 @@ export type HitoRepoManifest = {
   }>;
 };
 
+export type AttachmentSyncStats = {
+  uploaded: number;
+  downloaded: number;
+  skippedVideo: number;
+  skippedLarge: number;
+  skippedMissing: number;
+  failed: number;
+};
+
 export type RepoSyncResult =
   | {
       ok: true;
       path: string;
       commitSha?: string;
       link: GitHubLink;
+      attachments?: AttachmentSyncStats;
     }
   | { ok: false; message: string };
 
@@ -62,12 +80,220 @@ export const SYNC_MODE_LABELS: Record<GitHubSyncMode, string> = {
 export const SYNC_MODE_HINTS: Record<GitHubSyncMode, string> = {
   light: "Nombre, descripción, estado, fechas y tags.",
   medium: "Ligera + tareas, áreas, milestones y sprints (sin comentarios ni adjuntos).",
-  full: "Todo lo serializable, con comentarios y metadatos de adjuntos (sin binarios).",
+  full: "Todo + comentarios y recursos (PDF, imágenes, docs…). No sube videos ni archivos >1 MB.",
 };
+
+/** URL pública del repositorio en github.com. */
+export function githubRepoHtmlUrl(owner: string, repository: string): string {
+  return `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(repository)}`;
+}
 
 export function projectRepoPath(projectId: string): string {
   const safe = projectId.replace(/[^a-zA-Z0-9_-]/g, "_");
   return `${HITO_PROJECTS_DIR}/${safe}.json`;
+}
+
+/** Ruta del adjunto en el repo: `.hito/attachments/...` */
+export function attachmentRepoPath(relativePath: string): string {
+  const clean = relativePath.replace(/\\/g, "/").replace(/^\/+/, "");
+  if (!clean.startsWith("attachments/")) {
+    throw new Error(`Ruta de adjunto inválida: ${relativePath}`);
+  }
+  if (clean.includes("..")) {
+    throw new Error(`Ruta de adjunto insegura: ${relativePath}`);
+  }
+  return `${HITO_REPO_ROOT}/${clean}`;
+}
+
+/** Recoge todos los adjuntos del árbol del proyecto. */
+export function collectProjectAttachments(project: Project): Attachment[] {
+  const out: Attachment[] = [];
+  for (const a of project.attachments ?? []) out.push(a);
+  for (const task of project.tasks ?? []) {
+    for (const a of task.attachments ?? []) out.push(a);
+  }
+  for (const area of project.areas ?? []) {
+    for (const a of area.attachments ?? []) out.push(a);
+    for (const proc of area.processes ?? []) {
+      for (const a of proc.attachments ?? []) out.push(a);
+    }
+  }
+  // Dedup por id
+  const seen = new Set<string>();
+  return out.filter((a) => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
+  });
+}
+
+export function emptyAttachmentStats(): AttachmentSyncStats {
+  return {
+    uploaded: 0,
+    downloaded: 0,
+    skippedVideo: 0,
+    skippedLarge: 0,
+    skippedMissing: 0,
+    failed: 0,
+  };
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== "string") {
+        reject(new Error("No se pudo leer el archivo como base64."));
+        return;
+      }
+      const comma = result.indexOf(",");
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("Error leyendo el adjunto."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function base64ToUint8Array(b64: string): Uint8Array {
+  const clean = b64.replace(/\s/g, "");
+  const bin = atob(clean);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+/**
+ * Sube adjuntos del proyecto al repo (modo full).
+ * Omite videos y archivos que superan el límite del BFF.
+ */
+export async function pushProjectAttachments(input: {
+  backendConnectionId: string;
+  link: GitHubLink;
+  project: Project;
+  readBlob: (relativePath: string) => Promise<Blob>;
+}): Promise<AttachmentSyncStats> {
+  const stats = emptyAttachmentStats();
+  const attachments = collectProjectAttachments(input.project);
+
+  for (const att of attachments) {
+    if (att.kind === "video") {
+      stats.skippedVideo += 1;
+      continue;
+    }
+    if (att.size > MAX_GITHUB_ATTACHMENT_BYTES) {
+      stats.skippedLarge += 1;
+      continue;
+    }
+
+    let blob: Blob;
+    try {
+      blob = await input.readBlob(att.relativePath);
+    } catch {
+      stats.skippedMissing += 1;
+      continue;
+    }
+
+    if (blob.size > MAX_GITHUB_ATTACHMENT_BYTES) {
+      stats.skippedLarge += 1;
+      continue;
+    }
+
+    let path: string;
+    try {
+      path = attachmentRepoPath(att.relativePath);
+    } catch {
+      stats.failed += 1;
+      continue;
+    }
+
+    let contentB64: string;
+    try {
+      contentB64 = await blobToBase64(blob);
+    } catch {
+      stats.failed += 1;
+      continue;
+    }
+
+    let sha: string | undefined;
+    const existing = await getGitHubRepoFile(input.backendConnectionId, {
+      owner: input.link.owner,
+      repo: input.link.repository,
+      path,
+      encoding: "base64",
+    });
+    if (existing.ok) sha = existing.data.sha;
+
+    const put = await putGitHubRepoFile(input.backendConnectionId, {
+      owner: input.link.owner,
+      repo: input.link.repository,
+      path,
+      content: contentB64,
+      encoding: "base64",
+      message: `chore(hito): sync attachment «${att.name}»`,
+      sha,
+    });
+    if (put.ok) stats.uploaded += 1;
+    else stats.failed += 1;
+  }
+
+  return stats;
+}
+
+/**
+ * Descarga adjuntos no-video del repo al workspace local (modo full al recibir).
+ */
+export async function pullProjectAttachments(input: {
+  backendConnectionId: string;
+  link: GitHubLink;
+  project: Project;
+  writeBlob: (relativePath: string, data: Blob | Uint8Array) => Promise<void>;
+}): Promise<AttachmentSyncStats> {
+  const stats = emptyAttachmentStats();
+  const attachments = collectProjectAttachments(input.project);
+
+  for (const att of attachments) {
+    if (att.kind === "video") {
+      stats.skippedVideo += 1;
+      continue;
+    }
+
+    let path: string;
+    try {
+      path = attachmentRepoPath(att.relativePath);
+    } catch {
+      stats.failed += 1;
+      continue;
+    }
+
+    const file = await getGitHubRepoFile(input.backendConnectionId, {
+      owner: input.link.owner,
+      repo: input.link.repository,
+      path,
+      encoding: "base64",
+    });
+    if (!file.ok) {
+      if (file.status === 404) stats.skippedMissing += 1;
+      else stats.failed += 1;
+      continue;
+    }
+
+    try {
+      const bytes = base64ToUint8Array(file.data.content);
+      // Copia a ArrayBuffer “propio” para satisfacer BlobPart en TS estricto.
+      const copy = new Uint8Array(bytes.byteLength);
+      copy.set(bytes);
+      const blob = new Blob([copy.buffer], {
+        type: att.mimeType || "application/octet-stream",
+      });
+      await input.writeBlob(att.relativePath, blob);
+      stats.downloaded += 1;
+    } catch {
+      stats.failed += 1;
+    }
+  }
+
+  return stats;
 }
 
 function stripTaskForMode(task: Task, mode: GitHubSyncMode): Task {
@@ -210,12 +436,15 @@ async function withRetry<T>(
 
 /**
  * Sube el proyecto local al repositorio vinculado.
+ * En modo `full` y con `readBlob`, también sube recursos (excepto videos).
  */
 export async function pushProjectToRepo(input: {
   backendConnectionId: string;
   link: GitHubLink;
   project: Project;
   syncMode?: GitHubSyncMode;
+  /** Necesario en modo full para subir binarios de adjuntos. */
+  readBlob?: (relativePath: string) => Promise<Blob>;
 }): Promise<RepoSyncResult> {
   const { backendConnectionId, link, project } = input;
   const mode: GitHubSyncMode = input.syncMode ?? link.syncMode ?? "medium";
@@ -274,6 +503,16 @@ export async function pushProjectToRepo(input: {
     return { ok: false, message: putResult.message };
   }
 
+  let attachments: AttachmentSyncStats | undefined;
+  if (mode === "full" && input.readBlob) {
+    attachments = await pushProjectAttachments({
+      backendConnectionId,
+      link,
+      project,
+      readBlob: input.readBlob,
+    });
+  }
+
   await upsertManifest(backendConnectionId, link, {
     id: project.id,
     name: project.name,
@@ -302,6 +541,7 @@ export async function pushProjectToRepo(input: {
     path,
     commitSha: putResult.commitSha,
     link: nextLink,
+    attachments,
   };
 }
 
@@ -315,7 +555,9 @@ export async function pullProjectFromRepo(input: {
   localProject?: Project | null;
   /** Si hay conflicto: 'remote' aplica remoto, 'local' mantiene local, omitir = reportar. */
   resolve?: "remote" | "local";
-}): Promise<PullResult> {
+  /** En modo full, descarga recursos del repo al workspace. */
+  writeBlob?: (relativePath: string, data: Blob | Uint8Array) => Promise<void>;
+}): Promise<PullResult & { attachments?: AttachmentSyncStats }> {
   const { backendConnectionId, link, localProject } = input;
   const path = projectRepoPath(link.projectId);
 
@@ -402,7 +644,18 @@ export async function pullProjectFromRepo(input: {
   };
   await saveGitHubLink(nextLink);
 
-  return { ok: true, project: remoteProject, changed, link: nextLink };
+  let attachments: AttachmentSyncStats | undefined;
+  const pullMode = link.syncMode ?? parsed.syncMode ?? "medium";
+  if (pullMode === "full" && input.writeBlob) {
+    attachments = await pullProjectAttachments({
+      backendConnectionId,
+      link,
+      project: remoteProject,
+      writeBlob: input.writeBlob,
+    });
+  }
+
+  return { ok: true, project: remoteProject, changed, link: nextLink, attachments };
 }
 
 export async function pushAllLinkedProjects(input: {
@@ -410,12 +663,15 @@ export async function pushAllLinkedProjects(input: {
   links: GitHubLink[];
   projectsById: Map<string, Project>;
   syncMode?: GitHubSyncMode;
+  readBlob?: (relativePath: string) => Promise<Blob>;
 }): Promise<{
   ok: number;
   failed: Array<{ projectId: string; name: string; message: string }>;
+  attachmentsUploaded: number;
 }> {
   const failed: Array<{ projectId: string; name: string; message: string }> = [];
   let ok = 0;
+  let attachmentsUploaded = 0;
 
   for (const link of input.links) {
     if (link.status === "disconnected") continue;
@@ -433,9 +689,12 @@ export async function pushAllLinkedProjects(input: {
       link,
       project,
       syncMode: input.syncMode ?? link.syncMode,
+      readBlob: input.readBlob,
     });
-    if (result.ok) ok += 1;
-    else {
+    if (result.ok) {
+      ok += 1;
+      attachmentsUploaded += result.attachments?.uploaded ?? 0;
+    } else {
       failed.push({
         projectId: project.id,
         name: project.name,
@@ -444,7 +703,20 @@ export async function pushAllLinkedProjects(input: {
     }
   }
 
-  return { ok, failed };
+  return { ok, failed, attachmentsUploaded };
+}
+
+/** Texto breve para toasts con stats de recursos. */
+export function formatAttachmentStats(stats?: AttachmentSyncStats | null): string {
+  if (!stats) return "";
+  const parts: string[] = [];
+  if (stats.uploaded) parts.push(`${stats.uploaded} recurso${stats.uploaded === 1 ? "" : "s"} subido${stats.uploaded === 1 ? "" : "s"}`);
+  if (stats.downloaded) parts.push(`${stats.downloaded} recurso${stats.downloaded === 1 ? "" : "s"} descargado${stats.downloaded === 1 ? "" : "s"}`);
+  if (stats.skippedVideo) parts.push(`${stats.skippedVideo} video${stats.skippedVideo === 1 ? "" : "s"} omitido${stats.skippedVideo === 1 ? "" : "s"}`);
+  if (stats.skippedLarge) parts.push(`${stats.skippedLarge} demasiado grande${stats.skippedLarge === 1 ? "" : "s"}`);
+  if (stats.skippedMissing) parts.push(`${stats.skippedMissing} no encontrado${stats.skippedMissing === 1 ? "" : "s"}`);
+  if (stats.failed) parts.push(`${stats.failed} con error`);
+  return parts.length ? ` · ${parts.join(", ")}` : "";
 }
 
 async function upsertManifest(

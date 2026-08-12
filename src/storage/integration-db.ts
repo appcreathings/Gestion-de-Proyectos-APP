@@ -43,7 +43,8 @@ export type GitHubLinkScope = "project";
  * Nivel de detalle al escribir/leer `.hito/projects/*.json`.
  * - light: metadatos del proyecto
  * - medium: + tareas/áreas/sprints (sin comentarios ni adjuntos)
- * - full: todo lo serializable (adjuntos solo metadatos)
+ * - full: todo lo serializable + binarios de recursos en `.hito/attachments/`
+ *   (excepto videos y archivos > ~1 MB)
  */
 export type GitHubSyncMode = "light" | "medium" | "full";
 

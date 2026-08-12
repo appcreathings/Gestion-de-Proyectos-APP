@@ -301,6 +301,8 @@ export type RepoFileContent = {
  * Lee un archivo del repositorio.
  * 404 → ok:false status 404 (archivo aún no existe).
  * Requiere Contents: read en la instalación.
+ *
+ * @param asBase64 si true, `file.content` es base64 (binarios); si false, UTF-8.
  */
 export async function getRepoFile(
   installationToken: string,
@@ -308,6 +310,7 @@ export async function getRepoFile(
   repo: string,
   path: string,
   ref?: string,
+  asBase64 = false,
 ): Promise<
   | { ok: true; file: RepoFileContent }
   | { ok: false; status: number; message: string }
@@ -335,22 +338,24 @@ export async function getRepoFile(
   if (!result.data.content || !result.data.sha) {
     return { ok: false, status: 400, message: "GitHub no devolvió contenido del archivo." };
   }
-  let text = "";
-  try {
-    // GitHub devuelve base64 con saltos de línea.
-    const b64 = result.data.content.replace(/\n/g, "");
-    text = Buffer.from(b64, "base64").toString("utf8");
-  } catch {
-    return { ok: false, status: 400, message: "No se pudo decodificar el contenido base64." };
+  // GitHub devuelve base64 con saltos de línea.
+  const b64 = result.data.content.replace(/\n/g, "");
+  let content = b64;
+  if (!asBase64) {
+    try {
+      content = Buffer.from(b64, "base64").toString("utf8");
+    } catch {
+      return { ok: false, status: 400, message: "No se pudo decodificar el contenido base64." };
+    }
   }
   return {
     ok: true,
     file: {
       path: result.data.path ?? path,
       sha: result.data.sha,
-      content: text,
-      encoding: result.data.encoding ?? "base64",
-      size: result.data.size ?? text.length,
+      content,
+      encoding: asBase64 ? "base64" : "utf-8",
+      size: result.data.size ?? content.length,
     },
   };
 }
@@ -358,6 +363,10 @@ export async function getRepoFile(
 /**
  * Crea o actualiza un archivo en el repositorio (commit).
  * Requiere Contents: write.
+ *
+ * `contentEncoding`:
+ * - `utf-8` (default): `content` es texto; se re-codifica a base64 para GitHub.
+ * - `base64`: `content` ya es base64 (adjuntos binarios); se reenvía tal cual.
  */
 export async function putRepoFile(
   installationToken: string,
@@ -369,14 +378,19 @@ export async function putRepoFile(
     message: string;
     sha?: string;
     branch?: string;
+    contentEncoding?: "utf-8" | "base64";
   },
 ): Promise<
   | { ok: true; sha: string; commitSha: string; htmlUrl: string | null }
   | { ok: false; status: number; message: string }
 > {
+  const encoded =
+    input.contentEncoding === "base64"
+      ? input.content.replace(/\s/g, "")
+      : Buffer.from(input.content, "utf8").toString("base64");
   const body: Record<string, unknown> = {
     message: input.message,
-    content: Buffer.from(input.content, "utf8").toString("base64"),
+    content: encoded,
   };
   if (input.sha) body.sha = input.sha;
   if (input.branch) body.branch = input.branch;

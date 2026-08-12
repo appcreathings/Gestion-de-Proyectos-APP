@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
-import { ArrowDownToLine, ArrowUpFromLine, Github, Loader2, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ExternalLink,
+  Github,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import type { Project } from "@/domain/schemas";
 import {
+  formatAttachmentStats,
+  githubRepoHtmlUrl,
   pullProjectFromRepo,
   pushProjectToRepo,
   SYNC_MODE_HINTS,
   SYNC_MODE_LABELS,
 } from "@/integrations/github-repo-sync";
+import { cn } from "@/lib/utils";
 import {
   getGitHubConnections,
   getGitHubLinks,
@@ -18,6 +28,7 @@ import {
   type GitHubLink,
 } from "@/integrations/github-sync";
 import type { GitHubSyncMode } from "@/storage/integration-db";
+import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
 import { useToastStore } from "@/store/useToastStore";
 import { Link } from "react-router-dom";
@@ -34,6 +45,7 @@ type Props = {
 export function GitHubProjectSyncButton({ project }: Props) {
   const toast = useToastStore((s) => s.toast);
   const saveProject = useDataStore((s) => s.saveProject);
+  const adapter = useAppStore((s) => s.adapter);
   const [link, setLink] = useState<GitHubLink | null>(null);
   const [connection, setConnection] = useState<GitHubConnection | null>(null);
   const [busy, setBusy] = useState(false);
@@ -89,6 +101,7 @@ export function GitHubProjectSyncButton({ project }: Props) {
         link,
         project,
         syncMode: link.syncMode,
+        readBlob: (p) => adapter.readBlob(p),
       });
       if (!result.ok) {
         setError(result.message);
@@ -96,7 +109,9 @@ export function GitHubProjectSyncButton({ project }: Props) {
         return;
       }
       setLink(result.link);
-      toast.success(`Enviado a ${link.owner}/${link.repository}`);
+      toast.success(
+        `Enviado a ${link.owner}/${link.repository}${formatAttachmentStats(result.attachments)}`,
+      );
     } finally {
       setBusy(false);
     }
@@ -113,6 +128,7 @@ export function GitHubProjectSyncButton({ project }: Props) {
         link,
         localProject: project,
         resolve,
+        writeBlob: (p, data) => adapter.writeBlob(p, data),
       });
       if (!result.ok && "kind" in result && result.kind === "conflict") {
         setConflict({
@@ -130,7 +146,11 @@ export function GitHubProjectSyncButton({ project }: Props) {
       }
       if (result.changed) await saveProject(result.project);
       setLink(result.link);
-      toast.success(result.changed ? "Proyecto actualizado desde el repo." : "Sin cambios.");
+      const att = "attachments" in result ? result.attachments : undefined;
+      toast.success(
+        (result.changed ? "Proyecto actualizado desde el repo." : "Sin cambios.") +
+          formatAttachmentStats(att),
+      );
     } finally {
       setBusy(false);
     }
@@ -214,6 +234,16 @@ export function GitHubProjectSyncButton({ project }: Props) {
           <RefreshCw className="size-4" />
           Sync
         </Button>
+        <a
+          href={githubRepoHtmlUrl(link.owner, link.repository)}
+          target="_blank"
+          rel="noreferrer"
+          title="Abrir repositorio en GitHub"
+          className={cn(buttonVariants({ size: "sm", variant: "ghost" }))}
+        >
+          <ExternalLink className="size-4" />
+          Ir al repositorio
+        </a>
       </div>
     </div>
   );

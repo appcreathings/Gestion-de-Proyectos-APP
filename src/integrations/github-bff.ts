@@ -201,6 +201,8 @@ export type GitHubRepoFile = {
   sha: string;
   content: string;
   size: number;
+  /** Presente si se pidió encoding=base64 (binarios). */
+  encoding?: "utf-8" | "base64" | string;
 };
 
 export type GitHubRepoFilePutResult = {
@@ -213,13 +215,20 @@ export type GitHubRepoFilePutResult = {
 /** Lee un archivo del repositorio (Contents API). */
 export function getGitHubRepoFile(
   connectionId: string,
-  input: { owner: string; repo: string; path: string },
+  input: {
+    owner: string;
+    repo: string;
+    path: string;
+    /** base64 = contenido binario sin decodificar a UTF-8. */
+    encoding?: "utf-8" | "base64";
+  },
 ): Promise<GitHubBffResult<GitHubRepoFile>> {
   const q = new URLSearchParams({
     owner: input.owner,
     repo: input.repo,
     path: input.path,
   });
+  if (input.encoding === "base64") q.set("encoding", "base64");
   return request(`/github/connection/${encodeURIComponent(connectionId)}/contents?${q}`);
 }
 
@@ -234,6 +243,8 @@ export function putGitHubRepoFile(
     message: string;
     sha?: string;
     branch?: string;
+    /** base64 = `content` ya está en base64 (adjuntos). Default utf-8. */
+    encoding?: "utf-8" | "base64";
   },
 ): Promise<GitHubBffResult<GitHubRepoFilePutResult>> {
   return request(`/github/connection/${encodeURIComponent(connectionId)}/contents`, {

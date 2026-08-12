@@ -79,11 +79,12 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       const owner = queryParam(req, "owner");
       const repo = queryParam(req, "repo");
       const path = queryParam(req, "path");
+      const asBase64 = queryParam(req, "encoding") === "base64";
       if (!owner || !repo || !path) {
         json(res, 400, { message: "Se requieren owner, repo y path." });
         return;
       }
-      const file = await getRepoFile(token.token, owner, repo, path);
+      const file = await getRepoFile(token.token, owner, repo, path, undefined, asBase64);
       if (!file.ok) {
         json(res, file.status === 404 ? 404 : 502, {
           message: file.message,
@@ -96,6 +97,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
         sha: file.file.sha,
         content: file.file.content,
         size: file.file.size,
+        encoding: file.file.encoding,
       });
       return;
     }
@@ -106,6 +108,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     const repo = typeof body.repo === "string" ? body.repo.trim() : "";
     const path = typeof body.path === "string" ? body.path.trim() : "";
     const content = typeof body.content === "string" ? body.content : "";
+    const contentEncoding =
+      body.encoding === "base64" || body.contentEncoding === "base64" ? "base64" : "utf-8";
     const message =
       typeof body.message === "string" && body.message.trim()
         ? body.message.trim()
@@ -118,9 +122,13 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       return;
     }
 
-    // Límite razonable para serverless (~1.5 MB de texto).
+    // Límite razonable para serverless (~1.5 MB de payload en el body).
     if (content.length > 1_500_000) {
-      json(res, 413, { message: "El contenido del archivo es demasiado grande." });
+      json(res, 413, {
+        message:
+          "El archivo es demasiado grande para la API de GitHub vía Hito (~1 MB). " +
+          "Los videos no se suben; reduce el tamaño o excluye ese adjunto.",
+      });
       return;
     }
 
@@ -132,6 +140,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       message,
       sha,
       branch,
+      contentEncoding,
     });
     if (!put.ok) {
       json(res, put.status === 409 ? 409 : 502, {

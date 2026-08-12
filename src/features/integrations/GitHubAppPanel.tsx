@@ -15,7 +15,8 @@ import {
   Unlink,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Panel } from "@/components/ui/Panel";
@@ -28,6 +29,8 @@ import {
   revokeGitHubConnection,
 } from "@/integrations/github-bff";
 import {
+  formatAttachmentStats,
+  githubRepoHtmlUrl,
   pullProjectFromRepo,
   pushAllLinkedProjects,
   pushProjectToRepo,
@@ -48,6 +51,7 @@ import type { GitHubRepository } from "@/integrations/github-types";
 import type { GitHubSyncMode } from "@/storage/integration-db";
 import type { Project } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
+import { useAppStore } from "@/store/useAppStore";
 import { useDataStore } from "@/store/useDataStore";
 import { useToastStore } from "@/store/useToastStore";
 
@@ -73,6 +77,7 @@ export function GitHubAppPanel() {
   const products = useDataStore((s) => s.products);
   const createProject = useDataStore((s) => s.createProject);
   const saveProject = useDataStore((s) => s.saveProject);
+  const adapter = useAppStore((s) => s.adapter);
 
   const [connections, setConnections] = useState<GitHubConnection[]>([]);
   const [links, setLinks] = useState<GitHubLink[]>([]);
@@ -369,6 +374,7 @@ export function GitHubAppPanel() {
         link,
         project,
         syncMode: link.syncMode ?? syncMode,
+        readBlob: (p) => adapter.readBlob(p),
       });
       if (!result.ok) {
         setError(result.message);
@@ -376,7 +382,8 @@ export function GitHubAppPanel() {
       }
       await refresh();
       toast.success(
-        `Enviado al repo ${link.owner}/${link.repository}: «${project.name}» → ${result.path}`,
+        `Enviado al repo ${link.owner}/${link.repository}: «${project.name}» → ${result.path}` +
+          formatAttachmentStats(result.attachments),
       );
     } finally {
       setBusy(false);
@@ -410,6 +417,7 @@ export function GitHubAppPanel() {
         link,
         localProject: project ?? null,
         resolve,
+        writeBlob: (p, data) => adapter.writeBlob(p, data),
       });
       if (!result.ok && "kind" in result && result.kind === "conflict") {
         setConflict({
@@ -427,10 +435,11 @@ export function GitHubAppPanel() {
       }
       if (result.changed) await saveProject(result.project);
       await refresh();
+      const att = "attachments" in result ? result.attachments : undefined;
       toast.success(
-        result.changed
+        (result.changed
           ? `Recibido del repo: se actualizó «${result.project.name}».`
-          : "Sin cambios respecto al archivo del repositorio.",
+          : "Sin cambios respecto al archivo del repositorio.") + formatAttachmentStats(att),
       );
     } finally {
       setBusy(false);
@@ -460,6 +469,7 @@ export function GitHubAppPanel() {
 
       const projectsById = new Map(projects.map((p) => [p.id, p]));
       let totalOk = 0;
+      let totalAttachments = 0;
       const allFailed: Array<{ name: string; message: string }> = [];
 
       for (const [backendId, group] of byBackend) {
@@ -468,14 +478,20 @@ export function GitHubAppPanel() {
           links: group,
           projectsById,
           syncMode,
+          readBlob: (p) => adapter.readBlob(p),
         });
         totalOk += result.ok;
+        totalAttachments += result.attachmentsUploaded;
         for (const f of result.failed) {
           allFailed.push({ name: f.name, message: f.message });
         }
       }
 
       await refresh();
+      const attNote =
+        totalAttachments > 0
+          ? ` · ${totalAttachments} recurso${totalAttachments === 1 ? "" : "s"}`
+          : "";
       if (allFailed.length && totalOk === 0) {
         setError(`No se sincronizó nada. ${allFailed[0]?.name}: ${allFailed[0]?.message}`);
         toast.error("Sincronización fallida.");
@@ -486,11 +502,11 @@ export function GitHubAppPanel() {
             .map((f) => `${f.name}: ${f.message}`)
             .join(" · ")}`,
         );
-        toast.success(`${totalOk} proyecto(s) enviados al repositorio.`);
+        toast.success(`${totalOk} proyecto(s) enviados al repositorio${attNote}.`);
       } else {
         setError(null);
         toast.success(
-          `${totalOk} proyecto${totalOk === 1 ? "" : "s"} sincronizado${totalOk === 1 ? "" : "s"} al repositorio (.hito/projects/).`,
+          `${totalOk} proyecto${totalOk === 1 ? "" : "s"} sincronizado${totalOk === 1 ? "" : "s"} al repositorio (.hito/)${attNote}.`,
         );
       }
     } finally {
@@ -823,9 +839,9 @@ export function GitHubAppPanel() {
               ))}
             </Select>
             <p className="text-xs text-muted-foreground">
-              <strong>Media</strong> (recomendado): estructura y tareas sin comentarios ni adjuntos.
-              Los datos van a <code className="font-mono">.hito/projects/*.json</code> en el
-              repositorio (no se usan GitHub Projects ni issues).
+              <strong>Completa</strong> sube también recursos (PDF, imágenes, docs…) a{" "}
+              <code className="font-mono">.hito/attachments/</code>. No sube videos ni archivos de
+              más de ~1&nbsp;MB. <strong>Media</strong>: estructura y tareas sin recursos.
             </p>
           </div>
 
@@ -1021,9 +1037,10 @@ export function GitHubAppPanel() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            La información se guarda en el repo como archivos{" "}
-            <code className="font-mono">.hito/projects/&lt;id&gt;.json</code> (nombre, descripción,
-            tareas, áreas, etc.). No se crean GitHub Projects.
+            JSON en <code className="font-mono">.hito/projects/&lt;id&gt;.json</code>
+            {"; "}
+            con sync <strong>Completa</strong>, también recursos en{" "}
+            <code className="font-mono">.hito/attachments/</code> (sin videos).
           </p>
           {links.map((link) => {
             const title = projectNameById.get(link.projectId) ?? "Proyecto eliminado";
@@ -1042,6 +1059,7 @@ export function GitHubAppPanel() {
                   </p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     <Badge variant="outline">archivo en repo</Badge>
+                    <Badge variant="outline">{SYNC_MODE_LABELS[link.syncMode ?? "medium"]}</Badge>
                     <Badge variant={link.status === "active" ? "success" : "outline"}>
                       {link.status}
                     </Badge>
@@ -1068,6 +1086,16 @@ export function GitHubAppPanel() {
                     <ArrowDownToLine className="size-4" />
                     Recibir del repo
                   </Button>
+                  <a
+                    href={githubRepoHtmlUrl(link.owner, link.repository)}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Abrir repositorio en GitHub"
+                    className={cn(buttonVariants({ size: "sm", variant: "ghost" }))}
+                  >
+                    <ExternalLink className="size-4" />
+                    Ir al repo
+                  </a>
                   <Button
                     size="sm"
                     variant="ghost"
