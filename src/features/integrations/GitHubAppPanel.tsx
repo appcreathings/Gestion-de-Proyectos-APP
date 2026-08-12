@@ -177,7 +177,9 @@ export function GitHubAppPanel() {
     setNewProjectName("");
     setNewProjectDescription("");
     setProductId(products[0]?.id ?? "");
-    setCreateRemoteProject(true);
+    // Por defecto NO crear GitHub Project: en cuentas personales el bot de la App no puede.
+    // El valor real es vincular el repositorio; el Project es opcional.
+    setCreateRemoteProject(false);
     setMakeRemotePrivate(true);
     setProjectsWarning(null);
     try {
@@ -270,7 +272,10 @@ export function GitHubAppPanel() {
       remoteDesc?: string | null;
       createRemote: boolean;
     },
-  ): Promise<{ ok: true } | { ok: false; message: string }> {
+  ): Promise<
+    | { ok: true; warning?: string }
+    | { ok: false; message: string }
+  > {
     const baseLink = buildGitHubLink({
       projectId: project.id,
       connectionId: connection.id,
@@ -284,6 +289,8 @@ export function GitHubAppPanel() {
       remoteRepositoryDescription: repo.description ?? null,
     });
 
+    // Siempre guardar el vínculo repo ↔ proyecto Hito (éxito real del flujo).
+    // El GitHub Project es opcional: si falla, el vínculo al repo sigue válido.
     if (opts.createRemote && !opts.projectNodeId) {
       const pushed = await pushProjectMetaToGitHub({
         backendConnectionId: connection.backendConnectionId,
@@ -294,22 +301,28 @@ export function GitHubAppPanel() {
       });
       if (!pushed.ok) {
         await saveGitHubLink(baseLink);
-        return { ok: false, message: pushed.message };
+        return {
+          ok: true,
+          warning: `Vinculado al repo sin GitHub Project: ${pushed.message}`,
+        };
       }
       return { ok: true };
     }
 
-    if (opts.projectNodeId && makeRemotePrivate) {
+    if (opts.projectNodeId) {
       const pushed = await pushProjectMetaToGitHub({
         backendConnectionId: connection.backendConnectionId,
         link: baseLink,
         local: { name: project.name, description: project.description },
         repositoryNodeId: repo.nodeId || null,
-        makePrivate: true,
+        makePrivate: makeRemotePrivate,
       });
       if (!pushed.ok) {
         await saveGitHubLink(baseLink);
-        return { ok: false, message: pushed.message };
+        return {
+          ok: true,
+          warning: `Vinculado al repo; no se actualizó el Project: ${pushed.message}`,
+        };
       }
       return { ok: true };
     }
@@ -342,6 +355,7 @@ export function GitHubAppPanel() {
         const chosen = projects.filter((p) => selectedProjectIds.includes(p.id));
         let linked = 0;
         const errors: string[] = [];
+        const warnings: string[] = [];
         for (const project of chosen) {
           // Un solo GitHub Project compartido si eligieron uno; si no, crear uno por proyecto solo si está marcado.
           const useShared = Boolean(selectedGhProject);
@@ -357,16 +371,31 @@ export function GitHubAppPanel() {
               createRemote: createRemoteProject && !useShared,
             },
           );
-          if (result.ok) linked += 1;
-          else errors.push(`${project.name}: ${result.message}`);
+          if (result.ok) {
+            linked += 1;
+            if (result.warning) warnings.push(`${project.name}: ${result.warning}`);
+          } else {
+            errors.push(`${project.name}: ${result.message}`);
+          }
         }
         await refresh();
         setMode("idle");
-        if (errors.length) {
+        if (errors.length && linked === 0) {
           setError(
-            `Vinculados ${linked}/${chosen.length}. Algunos fallaron: ${errors.slice(0, 2).join(" · ")}`,
+            `No se pudo vincular ninguno (0/${chosen.length}): ${errors[0]}`,
           );
-          toast.error("Algunos vínculos fallaron (ver detalle arriba).");
+          toast.error("No se vincularon proyectos.");
+        } else if (errors.length || warnings.length) {
+          const bits = [
+            `Vinculados ${linked}/${chosen.length} al repo ${repo.fullName}.`,
+            warnings[0] ? `Aviso: ${warnings[0]}` : null,
+            errors[0] ? `Error: ${errors[0]}` : null,
+          ].filter(Boolean);
+          setError(bits.join(" "));
+          toast.success(
+            `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} al repositorio` +
+              (warnings.length ? " (sin GitHub Project en algunos)" : ""),
+          );
         } else {
           toast.success(
             `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} a ${repo.fullName}`,
@@ -419,16 +448,21 @@ export function GitHubAppPanel() {
 
       await refresh();
       if (!result.ok) {
-        setError(
-          `Proyecto local listo, pero GitHub Project falló: ${result.message}`,
-        );
-        toast.error("Vínculo parcial: revisa permisos Projects de la App.");
+        setError(result.message);
+        toast.error("No se pudo guardar el vínculo.");
         return;
       }
       setMode("idle");
-      toast.success(
-        `Proyecto vinculado${repo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${repo.fullName}`,
-      );
+      if (result.warning) {
+        setError(result.warning);
+        toast.success(
+          `Vinculado al repo ${repo.fullName} (sin GitHub Project).`,
+        );
+      } else {
+        toast.success(
+          `Proyecto vinculado${repo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${repo.fullName}`,
+        );
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar el vínculo.");
     } finally {
@@ -802,18 +836,13 @@ export function GitHubAppPanel() {
                 disabled={Boolean(ghProjectId) || busy}
                 onChange={(e) => setCreateRemoteProject(e.target.checked)}
               />
-              Crear GitHub Project (uno por proyecto Hito si vinculas varios)
+              Crear GitHub Project (opcional; en cuentas personales suele fallar con la App)
             </label>
             <p className="text-xs text-muted-foreground">
-              Projects de cuenta personal usan el token de usuario: si falla la creación,{" "}
-              <button
-                type="button"
-                className="font-medium text-foreground underline"
-                onClick={() => navigate(ROUTES.githubConnect)}
-              >
-                reconecta GitHub
-              </button>{" "}
-              y reintenta. El repo y el proyecto de Hito ya quedan guardados.
+              <strong>Recomendado:</strong> déjalo desmarcado. Vincular al repositorio es lo
+              importante; el bot de la App (<code className="font-mono">hito-local-sync[bot]</code>)
+              no puede crear Projects en cuentas de usuario. Si quieres un Project, créalo en
+              GitHub y elígelo arriba, o marca la casilla tras reconectar.
             </p>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input

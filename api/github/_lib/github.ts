@@ -542,60 +542,94 @@ export async function createGitHubProject(
     }
   | { ok: false; message: string }
 > {
-  // Projects personales (user-owned) suelen exigir user access token.
-  // Org projects: installation token con Organization → Projects write.
-  const attempts = [
-    pickGraphqlToken(tokens, true),
-    pickGraphqlToken(tokens, false),
-  ].filter((a, i, arr) => arr.findIndex((x) => x.token === a.token) === i);
+  /**
+   * Crítico: NUNCA usar installation token (…[bot]) sobre owner de tipo User.
+   * GitHub responde: "bot does not have permission to create projects on ownerId U_…".
+   * - User-owned → solo user access token
+   * - Org-owned → installation token (con Organization → Projects write)
+   */
 
-  if (!tokens.userAccessToken) {
-    // Aviso temprano: sin reconectar no hay user token sellado.
-    // Aún intentamos installation (sirve en algunas orgs).
+  // Resolver kind con el mejor token disponible
+  const probeToken = tokens.userAccessToken ?? tokens.installationToken;
+  const ownerRes = await resolveOwnerNodeId(probeToken, owner);
+  if (!ownerRes.ok) {
+    // Reintentar con el otro token si existe
+    if (tokens.userAccessToken && probeToken !== tokens.installationToken) {
+      const again = await resolveOwnerNodeId(tokens.installationToken, owner);
+      if (!again.ok) return { ok: false, message: ownerRes.message };
+      return createGitHubProjectForOwner(tokens, again, owner, title, options);
+    }
+    return { ok: false, message: ownerRes.message };
   }
 
-  let lastError = "No se pudo crear el GitHub Project.";
+  return createGitHubProjectForOwner(tokens, ownerRes, owner, title, options);
+}
 
-  for (const attempt of attempts) {
-    const ownerRes = await resolveOwnerNodeId(attempt.token, owner);
-    if (!ownerRes.ok) {
-      lastError = ownerRes.message;
-      continue;
+async function createGitHubProjectForOwner(
+  tokens: { installationToken: string; userAccessToken?: string },
+  ownerRes: { ownerId: string; kind: "user" | "organization" },
+  owner: string,
+  title: string,
+  options?: { repositoryNodeId?: string | null; makePrivate?: boolean },
+): Promise<
+  | {
+      ok: true;
+      project: {
+        id: string;
+        number: number;
+        title: string;
+        shortDescription: string | null;
+        ownerLogin: string;
+        public: boolean | null;
+      };
     }
-
-    // Para user-owned, preferir user token; si solo hay installation y kind=user, avisar.
-    if (ownerRes.kind === "user" && attempt.kind === "installation" && !tokens.userAccessToken) {
-      lastError =
-        "Para crear un Project en tu cuenta personal hace falta reconectar GitHub " +
-        "(token de usuario).";
-      continue;
+  | { ok: false; message: string }
+> {
+  let accessToken: string;
+  if (ownerRes.kind === "user") {
+    if (!tokens.userAccessToken) {
+      return {
+        ok: false,
+        message:
+          "Para crear un GitHub Project en tu cuenta personal hay que usar el token de usuario. " +
+          "Pulsa «Conectar GitHub» otra vez y reintenta. " +
+          "Mientras tanto puedes vincular solo el repositorio (desmarca «Crear GitHub Project»).",
+      };
     }
+    accessToken = tokens.userAccessToken;
+  } else {
+    accessToken = tokens.installationToken;
+  }
 
-    const mutation = options?.repositoryNodeId
-      ? `
-        mutation($ownerId: ID!, $title: String!, $repositoryId: ID!) {
-          createProjectV2(input: {
-            ownerId: $ownerId
-            title: $title
-            repositoryId: $repositoryId
-          }) {
-            projectV2 { id number title shortDescription public }
+  async function runCreate(withRepo: boolean): Promise<
+    | { ok: true; project: GhProject & { public?: boolean | null } }
+    | { ok: false; message: string; warnings: string[] }
+  > {
+    const mutation =
+      withRepo && options?.repositoryNodeId
+        ? `
+          mutation($ownerId: ID!, $title: String!, $repositoryId: ID!) {
+            createProjectV2(input: {
+              ownerId: $ownerId
+              title: $title
+              repositoryId: $repositoryId
+            }) {
+              projectV2 { id number title shortDescription public }
+            }
           }
-        }
-      `
-      : `
-        mutation($ownerId: ID!, $title: String!) {
-          createProjectV2(input: { ownerId: $ownerId, title: $title }) {
-            projectV2 { id number title shortDescription public }
+        `
+        : `
+          mutation($ownerId: ID!, $title: String!) {
+            createProjectV2(input: { ownerId: $ownerId, title: $title }) {
+              projectV2 { id number title shortDescription public }
+            }
           }
-        }
-      `;
-
+        `;
     const variables: Record<string, unknown> = {
       ownerId: ownerRes.ownerId,
       title,
     };
-    if (options?.repositoryNodeId) {
+    if (withRepo && options?.repositoryNodeId) {
       variables.repositoryId = options.repositoryNodeId;
     }
 
@@ -603,93 +637,88 @@ export async function createGitHubProject(
       createProjectV2?: {
         projectV2?: (GhProject & { public?: boolean | null }) | null;
       } | null;
-    }>(attempt.token, mutation, variables);
+    }>(accessToken, mutation, variables);
 
     if (!result.ok) {
-      lastError = result.message;
-      if (/not accessible by integration|permission|INSUFFICIENT/i.test(result.message)) {
-        lastError = result.message + PROJECTS_HINT;
-      }
-      continue;
+      return { ok: false, message: result.message, warnings: [] };
     }
 
-    // GraphQL puede devolver data + errors y createProjectV2 null.
-    let project = result.data.createProjectV2?.projectV2 ?? null;
+    const project = result.data.createProjectV2?.projectV2 ?? null;
     if (!project) {
-      const warn = result.warnings[0];
-      lastError = warn
-        ? `${warn}${PROJECTS_HINT}`
-        : "GitHub no devolvió el Project creado." + PROJECTS_HINT;
-      // Si falló por repositoryId, reintentar sin vincular el repo.
-      if (options?.repositoryNodeId && /repositor/i.test(lastError + warn)) {
-        const plain = await graphql<{
-          createProjectV2?: {
-            projectV2?: (GhProject & { public?: boolean | null }) | null;
-          } | null;
-        }>(
-          attempt.token,
-          `
-            mutation($ownerId: ID!, $title: String!) {
-              createProjectV2(input: { ownerId: $ownerId, title: $title }) {
-                projectV2 { id number title shortDescription public }
-              }
-            }
-          `,
-          { ownerId: ownerRes.ownerId, title },
-        );
-        if (plain.ok && plain.data.createProjectV2?.projectV2) {
-          project = plain.data.createProjectV2.projectV2;
-        } else if (plain.ok === false) {
-          lastError = plain.message + PROJECTS_HINT;
-          continue;
-        } else if (!project) {
-          continue;
-        }
-      } else {
-        continue;
-      }
+      const warn = result.warnings[0] ?? "";
+      return {
+        ok: false,
+        message: warn || "GitHub no devolvió el Project creado.",
+        warnings: result.warnings,
+      };
     }
-
-    if (!project) continue;
-
-    // Forzar privado si se pidió.
-    if (options?.makePrivate !== false) {
-      const updated = await updateGitHubProject(attempt.token, project.id, {
-        public: false,
-      });
-      if (updated.ok) {
-        project = {
-          ...project,
-          title: updated.project.title,
-          shortDescription: updated.project.shortDescription,
-          public: updated.project.public,
-        };
-      }
-    }
-
-    return {
-      ok: true,
-      project: {
-        id: project.id,
-        number: project.number,
-        title: project.title,
-        shortDescription: project.shortDescription ?? null,
-        ownerLogin: owner,
-        public: typeof project.public === "boolean" ? project.public : false,
-      },
-    };
+    return { ok: true, project };
   }
 
-  if (!tokens.userAccessToken) {
+  // 1) con repo si hay node id  2) sin repo
+  let created = await runCreate(Boolean(options?.repositoryNodeId));
+  if (!created.ok && options?.repositoryNodeId) {
+    created = await runCreate(false);
+  }
+
+  if (!created.ok) {
+    const msg = created.message;
+    // Mensaje específico del bot (no debería ocurrir en path user, pero por si acaso)
+    if (/\[bot\].*permission to create projects|does not have permission to create projects/i.test(msg)) {
+      return {
+        ok: false,
+        message:
+          "GitHub rechazó crear el Project con la identidad de la App (bot). " +
+          "En cuentas personales desmarca «Crear GitHub Project» o crea el Project a mano en GitHub " +
+          "y elígelo en la lista. El vínculo al repositorio sí se puede guardar sin Project. " +
+          "Si usas organización: Organization permissions → Projects = Read and write.",
+      };
+    }
+    if (/not accessible by integration|INSUFFICIENT|permission/i.test(msg)) {
+      return {
+        ok: false,
+        message:
+          msg +
+          (ownerRes.kind === "organization"
+            ? " Organization permissions → Projects = Read and write, acepta permisos y reconecta."
+            : " Reconecta GitHub. Si sigue fallando, desmarca «Crear GitHub Project» y vincula solo el repo."),
+      };
+    }
     return {
       ok: false,
       message:
-        lastError +
-        " Además: no hay token de usuario en la sesión — pulsa Conectar GitHub y reintenta.",
+        msg +
+        (ownerRes.kind === "user"
+          ? " Tip: desmarca «Crear GitHub Project» para vincular solo el repositorio (recomendado)."
+          : PROJECTS_HINT),
     };
   }
 
-  return { ok: false, message: lastError };
+  let project = created.project;
+
+  if (options?.makePrivate !== false) {
+    const updated = await updateGitHubProject(accessToken, project.id, { public: false });
+    if (updated.ok) {
+      project = {
+        ...project,
+        title: updated.project.title,
+        shortDescription: updated.project.shortDescription,
+        public: updated.project.public ?? false,
+      };
+    }
+  }
+
+  return {
+    ok: true,
+    project: {
+      id: project.id,
+      number: project.number,
+      title: project.title,
+      shortDescription: project.shortDescription ?? null,
+      ownerLogin: owner,
+      public: typeof project.public === "boolean" ? project.public : false,
+    },
+  };
 }
 
 export async function updateGitHubProject(
