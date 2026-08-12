@@ -122,8 +122,33 @@ export function GitHubConnectPage() {
     };
   }, [returnHint, connectionId, errorParam, installationId, navigate]);
 
-  function startConnect() {
+  async function startConnect() {
     try {
+      // Preflight: surface 503/config errors instead of a blank Vercel crash page.
+      const healthUrl = getGitHubConnectUrl().replace(/\/connect\/?$/, "/health");
+      try {
+        const health = await fetch(healthUrl, {
+          headers: { Accept: "application/json" },
+          signal: AbortSignal.timeout(8_000),
+        });
+        if (!health.ok) {
+          const body = (await health.json().catch(() => null)) as {
+            message?: string;
+            missing?: string[];
+          } | null;
+          const missing = body?.missing?.length
+            ? ` Faltan: ${body.missing.join(", ")}.`
+            : "";
+          setState({
+            kind: "error",
+            message:
+              (body?.message ?? "El backend de GitHub no está listo.") + missing,
+          });
+          return;
+        }
+      } catch {
+        // Health may fail on cold start or older deploys — still attempt OAuth.
+      }
       window.location.assign(getGitHubConnectUrl());
     } catch {
       setBffReady(false);

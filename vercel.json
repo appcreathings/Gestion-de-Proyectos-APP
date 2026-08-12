@@ -30,9 +30,17 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ],
+  "functions": {
+    "api/github/**/*.ts": {
+      "memory": 256,
+      "maxDuration": 15
+    }
+  },
   "headers": [
     {
       "source": "/assets/(.*)",
