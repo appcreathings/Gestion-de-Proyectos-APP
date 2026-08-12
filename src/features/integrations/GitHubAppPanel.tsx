@@ -92,8 +92,6 @@ export function GitHubAppPanel() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [productId, setProductId] = useState("");
-  const [createRemoteProject, setCreateRemoteProject] = useState(true);
-  const [makeRemotePrivate, setMakeRemotePrivate] = useState(true);
   const [projectsWarning, setProjectsWarning] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -720,7 +718,7 @@ export function GitHubAppPanel() {
             </div>
           )}
 
-          {/* —— GitHub Project —— */}
+          {/* —— GitHub Project (solo adjuntar existente; no se crea por API) —— */}
           <div className="space-y-2">
             <Label htmlFor="gh-project">GitHub Project (opcional)</Label>
             <Select
@@ -729,19 +727,14 @@ export function GitHubAppPanel() {
               onChange={(e) => {
                 setGhProjectId(e.target.value);
                 const p = ghProjects.find((x) => x.id === e.target.value);
-                if (p) {
-                  if (localMode === "new") {
-                    setNewProjectName(p.title);
-                    setNewProjectDescription(p.shortDescription?.trim() || "");
-                  }
-                  setCreateRemoteProject(false);
-                } else {
-                  setCreateRemoteProject(true);
+                if (p && localMode === "new") {
+                  setNewProjectName(p.title);
+                  setNewProjectDescription(p.shortDescription?.trim() || "");
                 }
               }}
               disabled={busy || (repoMode === "existing" && !selectedRepo)}
             >
-              <option value="">Ninguno — crear al guardar si está marcado</option>
+              <option value="">Ninguno (solo repositorio — recomendado)</option>
               {ghProjects.map((p) => (
                 <option key={p.id} value={p.id}>
                   #{p.number} {p.title}
@@ -750,32 +743,11 @@ export function GitHubAppPanel() {
               ))}
             </Select>
             {projectsWarning && <p className="text-xs text-warning">{projectsWarning}</p>}
-            <label className="flex items-center gap-2 text-xs text-muted-foreground">
-              <input
-                type="checkbox"
-                className="size-3.5 rounded border-input"
-                checked={createRemoteProject && !ghProjectId}
-                disabled={Boolean(ghProjectId) || busy}
-                onChange={(e) => setCreateRemoteProject(e.target.checked)}
-              />
-              Crear GitHub Project (opcional; en cuentas personales suele fallar con la App)
-            </label>
             <p className="text-xs text-muted-foreground">
-              <strong>Recomendado:</strong> déjalo desmarcado. Vincular al repositorio es lo
-              importante; el bot de la App (<code className="font-mono">hito-local-sync[bot]</code>)
-              no puede crear Projects en cuentas de usuario. Si quieres un Project, créalo en
-              GitHub y elígelo arriba, o marca la casilla tras reconectar.
+              Se guarda el vínculo <strong>proyecto Hito ↔ repositorio</strong> en este dispositivo.
+              No se crean GitHub Projects por API (la App no puede en cuentas personales). Si ya
+              tienes un Project, elígelo arriba solo para anotarlo.
             </p>
-            <label className="flex items-center gap-2 text-xs text-muted-foreground">
-              <input
-                type="checkbox"
-                className="size-3.5 rounded border-input"
-                checked={makeRemotePrivate}
-                disabled={busy}
-                onChange={(e) => setMakeRemotePrivate(e.target.checked)}
-              />
-              Project privado en GitHub
-            </label>
           </div>
 
           {/* —— Proyectos Hito —— */}
