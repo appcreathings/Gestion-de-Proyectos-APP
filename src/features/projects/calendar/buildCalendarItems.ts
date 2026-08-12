@@ -74,6 +74,18 @@ export function taskMatchesSprintScope(
   return task.sprintId === scope;
 }
 
+/** Alcance del calendario de portafolio: todos, sin trimestre, o un trimestre. */
+export type PortfolioProjectScope = "all" | "unassigned" | (string & {});
+
+export function scopeProjectsByQuarter<T extends { quarterId: string | null }>(
+  projects: T[],
+  scope: string,
+): T[] {
+  if (scope === "all") return projects;
+  if (scope === "unassigned") return projects.filter((p) => !p.quarterId);
+  return projects.filter((p) => p.quarterId === scope);
+}
+
 export function taskMatchesSearch(
   task: {
     title: string;

@@ -26,13 +26,14 @@ import {
   monthsOverlapping,
   packRangeLanes,
   partitionDayChips,
+  scopeProjectsByQuarter,
   tasksOnDay,
   type CalendarRangeBand,
   type CalendarTaskItem,
   type PortfolioCalendarModel,
 } from "./buildCalendarItems";
 
-export type QuarterFilter = "all" | "none" | string;
+export type QuarterFilter = "all" | "unassigned" | string;
 
 type Density = "week" | "month" | "quarter";
 
@@ -61,7 +62,10 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
   const [density, setDensity] = useState<Density>("month");
   const [includeDone, setIncludeDone] = useState(false);
   const [quarterFilter, setQuarterFilter] = useState<QuarterFilter>("all");
+  const [spanQuarterId, setSpanQuarterId] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  const today = todayKey();
 
   const datedQuarters = useMemo(
     () =>
@@ -72,22 +76,33 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
     [quarters],
   );
 
-  const selectedQuarter = datedQuarters.find((q) => q.id === quarterFilter) ?? null;
+  const filterQuarter = datedQuarters.find((q) => q.id === quarterFilter) ?? null;
+
+  const viewQuarter = useMemo(() => {
+    if (filterQuarter) return filterQuarter;
+    return (
+      datedQuarters.find((q) => q.id === spanQuarterId) ??
+      datedQuarters.find(
+        (q) => q.startDate && q.endDate && q.startDate <= today && q.endDate >= today,
+      ) ??
+      datedQuarters[0] ??
+      null
+    );
+  }, [filterQuarter, datedQuarters, spanQuarterId, today]);
 
   useEffect(() => {
-    if (selectedQuarter?.startDate) setAnchor(selectedQuarter.startDate);
-  }, [selectedQuarter?.id, selectedQuarter?.startDate]);
+    if (filterQuarter?.startDate) setAnchor(filterQuarter.startDate);
+  }, [filterQuarter?.id, filterQuarter?.startDate]);
 
-  const scopedProjects = useMemo(() => {
-    if (quarterFilter === "all") return projects;
-    if (quarterFilter === "none") return projects.filter((p) => !p.quarterId);
-    return projects.filter((p) => p.quarterId === quarterFilter);
-  }, [projects, quarterFilter]);
+  const scopedProjects = useMemo(
+    () => scopeProjectsByQuarter(projects, quarterFilter),
+    [projects, quarterFilter],
+  );
 
   const quarterSpan: DayRange | null = useMemo(() => {
-    if (!selectedQuarter?.startDate || !selectedQuarter.endDate) return null;
-    return { start: selectedQuarter.startDate, end: selectedQuarter.endDate };
-  }, [selectedQuarter?.startDate, selectedQuarter?.endDate]);
+    if (!viewQuarter?.startDate || !viewQuarter.endDate) return null;
+    return { start: viewQuarter.startDate, end: viewQuarter.endDate };
+  }, [viewQuarter?.startDate, viewQuarter?.endDate]);
 
   const range: DayRange = useMemo(() => {
     if (density === "week") return weekRangeContaining(anchor);
@@ -96,19 +111,23 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
     return monthRangeContaining(anchor);
   }, [anchor, density, quarterSpan]);
 
+  const visibleQuarters = useMemo(
+    () => (quarterFilter === "all" ? quarters : filterQuarter ? [filterQuarter] : []),
+    [quarterFilter, quarters, filterQuarter],
+  );
+
   const model = useMemo(
     () =>
       buildPortfolioCalendarModel({
         projects: scopedProjects,
-        quarters: quarterFilter === "all" ? quarters : selectedQuarter ? [selectedQuarter] : [],
+        quarters: visibleQuarters,
         range,
         includeDone,
       }),
-    [scopedProjects, quarters, selectedQuarter, quarterFilter, range, includeDone],
+    [scopedProjects, visibleQuarters, range, includeDone],
   );
 
   const days = useMemo(() => eachDay(range), [range]);
-  const today = todayKey();
   const quarterMonths = useMemo(
     () => (density === "quarter" ? monthsOverlapping(range) : []),
     [density, range],
@@ -118,12 +137,26 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
     density === "week"
       ? formatRange(range.start, range.end)
       : density === "quarter"
-        ? selectedQuarter
-          ? `${selectedQuarter.name} · ${formatRange(range.start, range.end)}`
+        ? viewQuarter
+          ? `${viewQuarter.name} · ${formatRange(range.start, range.end)}`
           : formatRange(range.start, range.end)
         : new Intl.DateTimeFormat("es", { month: "long", year: "numeric" }).format(
             new Date(parseInt(range.start.slice(0, 4), 10), parseInt(range.start.slice(5, 7), 10) - 1, 1),
           );
+
+  function applyQuarterFilter(next: QuarterFilter) {
+    setQuarterFilter(next);
+    setSelectedDay(null);
+    if (next === "all") {
+      setSpanQuarterId(null);
+      setAnchor(todayKey());
+      setDensity((d) => (d === "quarter" ? "month" : d));
+      return;
+    }
+    if (next === "unassigned") {
+      setDensity((d) => (d === "quarter" ? "month" : d));
+    }
+  }
 
   function goToday() {
     setAnchor(todayKey());
@@ -133,12 +166,13 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
   function shift(delta: number) {
     setSelectedDay(null);
     if (density === "quarter") {
-      const idx = selectedQuarter
-        ? datedQuarters.findIndex((q) => q.id === selectedQuarter.id)
-        : -1;
+      const currentId = filterQuarter?.id ?? viewQuarter?.id;
+      const idx = currentId ? datedQuarters.findIndex((q) => q.id === currentId) : -1;
       const next = datedQuarters[idx + delta];
-      if (next) {
-        setQuarterFilter(next.id);
+      if (!next) return;
+      if (filterQuarter) applyQuarterFilter(next.id);
+      else {
+        setSpanQuarterId(next.id);
         if (next.startDate) setAnchor(next.startDate);
       }
       return;
@@ -147,8 +181,8 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
     setAnchor(next.start);
   }
 
-  const shiftIndex = selectedQuarter
-    ? datedQuarters.findIndex((q) => q.id === selectedQuarter.id)
+  const shiftIndex = viewQuarter
+    ? datedQuarters.findIndex((q) => q.id === viewQuarter.id)
     : -1;
   const canPrev = density !== "quarter" || shiftIndex > 0;
   const canNext = density !== "quarter" || (shiftIndex >= 0 && shiftIndex < datedQuarters.length - 1);
@@ -197,15 +231,11 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
             size="sm"
             className="w-[13rem]"
             value={quarterFilter}
-            onChange={(e) => {
-              const next = e.target.value as QuarterFilter;
-              setQuarterFilter(next);
-              if (next === "all" || next === "none") setDensity("month");
-            }}
+            onChange={(e) => applyQuarterFilter(e.currentTarget.value)}
             aria-label="Filtrar por trimestre"
           >
             <option value="all">Todos los proyectos</option>
-            <option value="none">Sin trimestre</option>
+            <option value="unassigned">Sin trimestre</option>
             {quarters.map((q) => (
               <option key={q.id} value={q.id}>
                 {q.name}
@@ -243,8 +273,16 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
                   : "Elegí un trimestre con fechas"
               }
               onClick={() => {
-                if (!selectedQuarter && datedQuarters[0]) {
-                  setQuarterFilter(datedQuarters[0].id);
+                if (quarterFilter === "all" || quarterFilter === "unassigned") {
+                  const focus =
+                    datedQuarters.find(
+                      (q) =>
+                        q.startDate &&
+                        q.endDate &&
+                        q.startDate <= today &&
+                        q.endDate >= today,
+                    ) ?? datedQuarters[0];
+                  if (focus?.startDate) setAnchor(focus.startDate);
                 }
                 setDensity("quarter");
               }}
@@ -284,7 +322,7 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
                   )}
                   title={bandTooltip(b)}
                   onClick={() => {
-                    if (b.kind === "quarter") setQuarterFilter(b.id);
+                    if (b.kind === "quarter") applyQuarterFilter(b.id);
                   }}
                 >
                   <span className="text-[9px] uppercase tracking-wide opacity-70">
@@ -302,7 +340,7 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
               model={model}
               today={today}
               onOpenTask={onOpenTask}
-              onFocusQuarter={(id) => setQuarterFilter(id)}
+              onFocusQuarter={applyQuarterFilter}
             />
           )}
 
@@ -322,7 +360,7 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
               {quarterMonths.map((month) => {
                 const monthModel = buildPortfolioCalendarModel({
                   projects: scopedProjects,
-                  quarters: quarterFilter === "all" ? quarters : selectedQuarter ? [selectedQuarter] : [],
+                  quarters: visibleQuarters,
                   range: month,
                   includeDone,
                 });
@@ -358,7 +396,7 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
                 density === "quarter"
                   ? buildPortfolioCalendarModel({
                       projects: scopedProjects,
-                      quarters: quarterFilter === "all" ? quarters : selectedQuarter ? [selectedQuarter] : [],
+                      quarters: visibleQuarters,
                       range: { start: selectedDay, end: selectedDay },
                       includeDone,
                     })
@@ -375,7 +413,7 @@ export function PortfolioCalendarView({ projects, quarters, onOpenTask }: Props)
                 ? model
                 : buildPortfolioCalendarModel({
                     projects: scopedProjects,
-                    quarters: quarterFilter === "all" ? quarters : selectedQuarter ? [selectedQuarter] : [],
+                    quarters: visibleQuarters,
                     range: timelineRangeFrom(anchor),
                     includeDone,
                   })

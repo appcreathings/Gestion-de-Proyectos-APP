@@ -6,6 +6,7 @@ import {
   monthsOverlapping,
   packSprintLanes,
   partitionDayChips,
+  scopeProjectsByQuarter,
   sprintsCoveringDay,
   taskMatchesSearch,
   taskMatchesSprintScope,
@@ -228,5 +229,17 @@ describe("buildPortfolioCalendarModel", () => {
   it("monthsOverlapping covers a quarter span", () => {
     const months = monthsOverlapping({ start: "2026-07-01", end: "2026-09-30" });
     expect(months.map((m) => m.start)).toEqual(["2026-07-01", "2026-08-01", "2026-09-01"]);
+  });
+
+  it("scopeProjectsByQuarter returns all after unassigned (round-trip)", () => {
+    const assigned = newProject("Con Q");
+    assigned.quarterId = "q1";
+    const loose = newProject("Sin Q");
+    loose.quarterId = null;
+    const all = [assigned, loose];
+
+    expect(scopeProjectsByQuarter(all, "unassigned").map((p) => p.name)).toEqual(["Sin Q"]);
+    expect(scopeProjectsByQuarter(all, "all").map((p) => p.name)).toEqual(["Con Q", "Sin Q"]);
+    expect(scopeProjectsByQuarter(all, "q1").map((p) => p.name)).toEqual(["Con Q"]);
   });
 });
