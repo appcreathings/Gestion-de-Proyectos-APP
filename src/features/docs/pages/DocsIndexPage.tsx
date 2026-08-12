@@ -7,7 +7,7 @@ export function DocsIndexPage() {
   return (
     <SeoPage
       title="Documentación — Hito"
-      description="Guías para sacarle provecho a cada módulo de Hito: proyectos, procesos, Kanban, Flujos e integraciones, asistente IA y más."
+      description="Guías para sacarle provecho a cada módulo de Hito: proyectos, procesos, Kanban, Flujos, GitHub, asistente IA y más."
       path="/docs"
       breadcrumb={[
         { label: "Inicio", path: "/" },

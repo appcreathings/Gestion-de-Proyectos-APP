@@ -19,6 +19,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
       { label: "Cómo funciona", to: "/#como-funciona" },
       { label: "Características", to: "/#caracteristicas" },
       { label: "Flujos e integraciones", to: "/#flujos" },
+      { label: "Sync con GitHub", to: "/#github" },
       { label: "Casos de uso", to: "/#uso" },
       { label: "FAQ", to: "/#faq" },
     ],
@@ -27,7 +28,8 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     title: "Recursos",
     links: [
       { label: "Blog", to: "/blogs" },
-      { label: "Documentación", href: DOCS_URL, external: true },
+      { label: "Documentación", to: "/docs" },
+      { label: "Guía GitHub", to: "/docs/github-sync" },
       { label: "Releases y roadmap", to: "/releases" },
       { label: "Código fuente", href: GITHUB_URL, external: true },
       { label: "Reportar issue", href: `${GITHUB_URL}/issues/new`, external: true },

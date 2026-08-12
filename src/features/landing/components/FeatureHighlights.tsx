@@ -1,14 +1,22 @@
 /**
- * FeatureHighlights — Grid con las 7 características principales.
+ * FeatureHighlights — Grid con las características principales.
  *
  * Cada tarjeta muestra: icono (lucide-react), título y descripción corta.
  * La primera tarjeta (Kanban) ocupa 2 columnas en desktop para dar énfasis.
  *
- * Notas de resumen: "Flujos e Integraciones" y "Asistente IA" son tarjetas
- * resumen — su detalle técnico se desarrolla en FlowsIntegrationsSection y
- * AiAssistantSection respectivamente.
+ * Notas de resumen: "Flujos e Integraciones", "Sync con GitHub" y "Asistente IA"
+ * se desarrollan en FlowsIntegrationsSection, GitHubSyncSection y AiAssistantSection.
  */
-import { KanbanSquare, Workflow, Sparkles, HardDriveDownload, ClipboardCheck, LayoutDashboard, Plug } from "lucide-react";
+import {
+  KanbanSquare,
+  Workflow,
+  Sparkles,
+  HardDriveDownload,
+  ClipboardCheck,
+  LayoutDashboard,
+  Plug,
+  Github,
+} from "lucide-react";
 
 const FEATURES = [
   {
@@ -30,6 +38,11 @@ const FEATURES = [
     icon: Plug,
     title: "Flujos e Integraciones",
     body: "Builder visual para conectar HubSpot, Google Sheets, Email y webhooks (entrantes y salientes, con firma HMAC). La alternativa local-first a Zapier o Make.",
+  },
+  {
+    icon: Github,
+    title: "Sync con GitHub",
+    body: "Vinculá proyectos a un repositorio, elegí sync ligera/media/completa y subí JSON más recursos (sin videos) a .hito/. Abrí el repo en un clic.",
   },
   {
     icon: LayoutDashboard,

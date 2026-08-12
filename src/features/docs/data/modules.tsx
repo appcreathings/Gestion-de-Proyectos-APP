@@ -450,7 +450,9 @@ export const DOC_MODULES: DocModule[] = [
               <strong>webhooks salientes</strong> — estos últimos firman el payload con HMAC para que
               el sistema receptor pueda verificar que el webhook realmente viene de tu flujo. Cada
               conexión guarda sus credenciales cifradas (ver{" "}
-              <Link to="/docs/ajustes-y-datos">Ajustes y datos</Link>).
+              <Link to="/docs/ajustes-y-datos">Ajustes y datos</Link>). Además, podés{" "}
+              <Link to="/docs/github-sync">sincronizar proyectos con un repositorio de GitHub</Link>{" "}
+              (archivos en <code>.hito/</code>, sin issues).
             </p>
           ),
         },
@@ -622,6 +624,147 @@ export const DOC_MODULES: DocModule[] = [
     },
   },
   {
+    slug: "github-sync",
+    title: "Sincronizar con GitHub",
+    excerpt:
+      "Conecta la GitHub App, vincula proyectos a un repositorio y sube JSON y recursos (sin videos) a .hito/.",
+    group: "plantillas-ia",
+    seo: {
+      title: "Sincronizar proyectos con GitHub en Hito — Documentación",
+      description:
+        "Cómo conectar Hito a GitHub: instalar la App, vincular repositorios, niveles de sync ligera/media/completa y subir recursos sin videos.",
+      ogImageAlt: "Sincronización de proyectos Hito con GitHub.",
+    },
+    content: {
+      eyebrow: "Plantillas, automatización e IA",
+      intro: (
+        <>
+          Hito puede guardar tus proyectos en un <strong>repositorio de GitHub</strong> como
+          archivos bajo <code>.hito/</code>. No crea Issues ni GitHub Projects: es un respaldo y
+          sincronización de la información del proyecto (y, en modo completa, de tus recursos)
+          hacia un repo que controlás vos.
+        </>
+      ),
+      sections: [
+        {
+          heading: "Qué hace (y qué no hace)",
+          body: (
+            <>
+              <p>
+                <strong>Sí:</strong> autorizar la GitHub App, crear o elegir un repositorio,
+                vincular uno o varios proyectos locales, enviar/recibir el JSON del proyecto y —en
+                sync <strong>Completa</strong>— subir recursos (PDF, imágenes, documentos, audio,
+                etc.) a <code>.hito/attachments/</code>. Desde la UI podés abrir el repo en
+                github.com con <strong>Ir al repositorio</strong>.
+              </p>
+              <p>
+                <strong>No:</strong> no crea issues, pull requests ni tableros de GitHub Projects.
+                Tampoco sube <strong>videos</strong> ni archivos de más de ~1&nbsp;MB por el canal
+                de la API (límite del servidor). Hito sigue siendo local-first: el “origen” de
+                verdad es tu workspace; GitHub es un espejo exportable.
+              </p>
+            </>
+          ),
+        },
+        {
+          heading: "1. Conectar la GitHub App",
+          body: (
+            <>
+              <p>
+                En <strong>Integraciones → GitHub</strong> (o la ruta de conectar), pulsá{" "}
+                <strong>Conectar con GitHub</strong>. Si la cuenta aún no tiene la App instalada,
+                GitHub te pedirá <strong>instalarla</strong> en una cuenta u organización y elegir
+                repositorios. Si solo autorizás OAuth sin instalación, la conexión no podrá listar
+                repos.
+              </p>
+              <p>
+                La private key y los secretos de la App viven en el backend (BFF); el navegador solo
+                guarda un vínculo opaco de conexión en este dispositivo. Podés desconectar cuando
+                quieras.
+              </p>
+            </>
+          ),
+        },
+        {
+          heading: "2. Crear o elegir repositorio y vincular proyectos",
+          body: (
+            <p>
+              Con la conexión activa, usá <strong>Vincular proyectos</strong>: elegí un repo
+              existente o creá uno nuevo (privado o público, si la App tiene permiso{" "}
+              <em>Administration: write</em>). Luego seleccioná uno o varios proyectos de Hito para
+              vincularlos al mismo repositorio. Cada vínculo se guarda en el dispositivo y apunta a{" "}
+              <code>owner/repo</code>.
+            </p>
+          ),
+        },
+        {
+          heading: "3. Niveles de sincronización",
+          body: (
+            <>
+              <p>Al vincular o desde la ficha del proyecto elegís cuánto se envía al repo:</p>
+              <ul>
+                <li>
+                  <strong>Ligera:</strong> nombre, descripción, estado, fechas, tags y stakeholders.
+                </li>
+                <li>
+                  <strong>Media</strong> (por defecto): ligera + tareas, áreas, milestones y sprints
+                  (sin comentarios ni adjuntos).
+                </li>
+                <li>
+                  <strong>Completa:</strong> todo lo serializable, comentarios y{" "}
+                  <strong>recursos binarios</strong> (excepto videos y archivos demasiado grandes).
+                </li>
+              </ul>
+              <p>
+                Los datos del proyecto van a{" "}
+                <code className="font-mono">.hito/projects/&lt;id&gt;.json</code> y un manifiesto en{" "}
+                <code className="font-mono">.hito/manifest.json</code>. Los recursos, en completa, a{" "}
+                <code className="font-mono">.hito/attachments/…</code> (misma estructura que en tu
+                carpeta local).
+              </p>
+            </>
+          ),
+        },
+        {
+          heading: "4. Enviar, recibir y sincronizar todo",
+          body: (
+            <p>
+              En Integraciones: <strong>Enviar al repo</strong>, <strong>Recibir del repo</strong> o{" "}
+              <strong>Sincronizar todo</strong> (sube todos los vínculos activos). En la ficha del
+              proyecto hay el mismo control si ya está vinculado. Si local y remoto cambiaron desde
+              la última sync, Hito avisa un <strong>conflicto</strong> y podés mantener la versión
+              local o la del repositorio.
+            </p>
+          ),
+        },
+        {
+          heading: "5. Abrir el repositorio en GitHub",
+          body: (
+            <p>
+              En la lista de proyectos vinculados y en el panel de la ficha del proyecto, el botón{" "}
+              <strong>Ir al repositorio</strong> abre{" "}
+              <code className="font-mono">https://github.com/&lt;owner&gt;/&lt;repo&gt;</code> en
+              una pestaña nueva para revisar commits, archivos <code>.hito/</code> o compartir el
+              enlace.
+            </p>
+          ),
+        },
+        {
+          heading: "Privacidad y límites",
+          body: (
+            <p>
+              El contenido que subís queda en <strong>tu</strong> repositorio de GitHub (con los
+              permisos de esa cuenta). Hito no usa GitHub como multiplayer en tiempo real: la sync
+              ocurre cuando la app está abierta y vos (o un intervalo configurado) la dispara. Para
+              más sobre conexiones y datos locales, ver{" "}
+              <Link to="/docs/ajustes-y-datos">Ajustes y datos</Link>.
+            </p>
+          ),
+        },
+      ],
+    },
+  },
+  {
     slug: "dashboard-y-portafolio",
     title: "Dashboard y portafolio",
     excerpt:
@@ -760,9 +903,11 @@ export const DOC_MODULES: DocModule[] = [
           heading: "Privacidad",
           body: (
             <p>
-              Hito no envía tus datos a ningún servidor propio. La única comunicación externa
-              opcional es hacia Gemini, y solo cuando usás el asistente IA con tu propia API key. No
-              hay analytics de terceros.
+              Hito no envía tus datos a un “backend de Hito” como base de verdad. Las comunicaciones
+              externas opcionales son: Gemini (asistente IA, con tu API key), los proxies que vos
+              configures (HubSpot/Sheets/Email/inbox) y, si conectás GitHub, el repositorio y la App
+              que autorizás (ver <Link to="/docs/github-sync">Sincronizar con GitHub</Link>). No hay
+              analytics de terceros.
             </p>
           ),
         },

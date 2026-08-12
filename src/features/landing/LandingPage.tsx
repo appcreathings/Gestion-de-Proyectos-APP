@@ -18,6 +18,7 @@ import { TrustBadges } from "./components/TrustBadges";
 import { Reveal } from "./components/Reveal";
 import { AiAssistantSection } from "./components/AiAssistantSection";
 import { FlowsIntegrationsSection } from "./components/FlowsIntegrationsSection";
+import { GitHubSyncSection } from "./components/GitHubSyncSection";
 import { BlogTeaser } from "./components/BlogTeaser";
 
 /**
@@ -33,12 +34,13 @@ import { BlogTeaser } from "./components/BlogTeaser";
  * │ ProductMockup       → Mockup visual del producto         │
  * │ ValueProps          → 4 pilares: privacidad, JSON, etc.  │
  * │ HowItWorks          → 4 pasos + jerarquía de entidades   │
- * │ FeatureHighlights   → 7 features (Kanban, IA, SOPs…)    │
+ * │ FeatureHighlights   → features (Kanban, GitHub, IA, SOPs…)│
  * │ FlowsIntegrationsSection → Detalle Flujos: builder, HubSpot/Sheets/Email/Webhooks │
+ * │ GitHubSyncSection   → Sync a repo: .hito/, recursos, install App │
  * │ AiAssistantSection  → Detalle IA: MCP, RAG, embeddings   │
  * │ Comparison          → Tabla vs Trello/Notion/ClickUp     │
  * │ UseCases            → 4 casos de uso por industria       │
- * │ Faq                 → Acordeón con 8 preguntas           │
+ * │ Faq                 → Acordeón FAQ (incl. GitHub)        │
  * │ BlogTeaser          → CTA a /blogs con 3 artículos       │
  * │ FinalCta            → CTA final con métricas             │
  * │ LandingFooter       → Footer con links y legal           │
@@ -169,6 +171,7 @@ export function LandingPage() {
         <Reveal delay={100}><HowItWorks /></Reveal>
         <Reveal delay={150}><FeatureHighlights /></Reveal>
         <Reveal delay={175}><FlowsIntegrationsSection /></Reveal>
+        <Reveal delay={185}><GitHubSyncSection /></Reveal>
         <Reveal delay={200}><AiAssistantSection /></Reveal>
         <Reveal delay={250}><Comparison /></Reveal>
         <Reveal delay={300}><UseCases /></Reveal>

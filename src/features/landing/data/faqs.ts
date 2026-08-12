@@ -45,4 +45,8 @@ export const FAQS = [
     q: "¿Necesito crear una cuenta o registrarme?",
     a: "No. Hito no tiene sistema de cuentas. Abres la app, eliges una carpeta en tu equipo, y empiezas a trabajar. No pedimos email, nombre ni ningún dato personal. Tu identidad es la carpeta que eliges.",
   },
+  {
+    q: "¿Puedo sincronizar mis proyectos con GitHub?",
+    a: "Sí. Desde Integraciones conectás la GitHub App, vinculás proyectos a un repositorio y elegís el nivel de sync: ligera, media o completa. En completa se suben también recursos (PDF, imágenes, documentos…), excepto videos y archivos muy grandes. Los datos van a .hito/ en tu repo; no se crean Issues. Podés abrir el repositorio desde Hito con un botón.",
+  },
 ];

@@ -13,7 +13,8 @@ export const DOC_GROUPS: Record<DocGroup, { label: string; description: string; 
   },
   "plantillas-ia": {
     label: "Plantillas, automatización e IA",
-    description: "Tipos y plantillas reutilizables, Flujos e integraciones, asistente IA.",
+    description:
+      "Tipos y plantillas, Flujos, Make/Zapier, sincronización con GitHub y asistente IA.",
     order: 3,
   },
   seguimiento: {

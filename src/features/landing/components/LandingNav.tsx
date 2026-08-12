@@ -9,6 +9,7 @@ const NAV_LINKS: { label: string; to: string }[] = [
   { to: "/#como-funciona", label: "Cómo funciona" },
   { to: "/#caracteristicas", label: "Características" },
   { to: "/#flujos", label: "Flujos" },
+  { to: "/#github", label: "GitHub" },
   { to: "/#uso", label: "Casos de uso" },
   { to: "/#faq", label: "FAQ" },
   { to: "/blogs", label: "Blog" },

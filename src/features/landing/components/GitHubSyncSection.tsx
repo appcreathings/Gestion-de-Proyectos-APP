@@ -1,76 +1,83 @@
 /**
- * FlowsIntegrationsSection — Detalle del módulo de Flujos e Integraciones.
+ * GitHubSyncSection — Sincronización de proyectos Hito con un repositorio GitHub.
  *
- * Alternativa local-first a Zapier/Make/n8n: builder visual (React Flow),
- * triggers por webhook/sondeo/evento interno, acciones hacia HubSpot,
- * Google Sheets, Email y webhooks salientes con firma HMAC verificable,
- * plantillas curadas y reintentos automáticos ante fallas transitorias.
- *
- * Mismo patrón visual que AiAssistantSection: 3 pilares + flujo de pasos.
+ * Local-first: el workspace sigue en tu carpeta; GitHub es espejo exportable
+ * (.hito/projects + .hito/attachments en modo completa, sin videos).
  */
-import { Waypoints, Plug, ShieldCheck, Webhook, GitBranch, Send, RefreshCw, ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  FileJson,
+  FolderGit2,
+  Github,
+  Link2,
+  Paperclip,
+  RefreshCw,
+  ShieldCheck,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 const PILLARS = [
   {
-    icon: Waypoints,
-    tag: "Builder visual",
-    title: "Arma flujos arrastrando nodos",
-    body: "Diseña triggers → condiciones → acciones en un lienzo visual (React Flow), con vista previa del pipeline y traza de cada ejecución para depurar sin adivinar qué pasó.",
-    detail: "Trigger → Condición → Acción → Traza",
+    icon: FolderGit2,
+    tag: "Repositorio",
+    title: "Un repo tuyo, no una cuenta en la nube de Hito",
+    body: "Creá o elegí un repositorio (público o privado), vinculá uno o varios proyectos y abrí github.com cuando quieras con «Ir al repositorio».",
+    detail: "Crear repo · Elegir existente · Abrir en GitHub",
   },
   {
-    icon: Plug,
-    tag: "Integraciones",
-    title: "Conecta HubSpot, Sheets, Email, webhooks y GitHub",
-    body: "Trae datos con un webhook entrante o sondeo periódico, y dispara acciones hacia HubSpot, Google Sheets, Email o un webhook saliente propio. Además podés sincronizar proyectos a un repositorio GitHub (archivos .hito/). Credenciales cifradas en tu equipo; secretos de la App en el BFF.",
-    detail: "HubSpot · Sheets · Email · Webhooks · GitHub",
+    icon: FileJson,
+    tag: "Archivos .hito/",
+    title: "Proyectos como JSON versionable",
+    body: "Cada proyecto se guarda en .hito/projects/<id>.json con el nivel que elijas: ligera, media o completa. Ideal para backup y revisión en Git.",
+    detail: "Ligera · Media · Completa",
   },
   {
-    icon: ShieldCheck,
-    tag: "Confiabilidad",
-    title: "Plantillas listas y reintentos automáticos",
-    body: "Empieza desde plantillas curadas en vez de una tela en blanco. Ante fallas transitorias (red, HTTP 5xx) los reintentos son automáticos, y cada webhook saliente incluye firma HMAC verificable del lado receptor.",
-    detail: "Plantillas → Reintentos → Firma HMAC",
+    icon: Paperclip,
+    tag: "Recursos",
+    title: "Subí adjuntos (todo menos videos)",
+    body: "En sync completa, Hito sube PDF, imágenes, documentos y audio a .hito/attachments/. Omite videos y archivos demasiado grandes para la API.",
+    detail: "Imágenes · Docs · Audio · Sin videos",
   },
 ];
 
 const FLOW_STEPS = [
   {
-    icon: Webhook,
-    label: "Trigger",
-    desc: "Un webhook entrante, un sondeo periódico o un evento interno de Hito.",
+    icon: Github,
+    label: "Conectar",
+    desc: "Autorizá la GitHub App e instalala en la cuenta o repos que quieras usar.",
   },
   {
-    icon: GitBranch,
-    label: "Condición",
-    desc: "Filtra con reglas simples antes de disparar cualquier acción.",
-  },
-  {
-    icon: Send,
-    label: "Acción",
-    desc: "Crea un registro en HubSpot, escribe en Sheets, envía un email o un webhook.",
+    icon: Link2,
+    label: "Vincular",
+    desc: "Elegí o creá un repositorio y asociá tus proyectos de Hito.",
   },
   {
     icon: RefreshCw,
-    label: "Reintentos",
-    desc: "Si falla por una razón transitoria, se reintenta solo, con traza visible.",
+    label: "Sincronizar",
+    desc: "Enviá al repo, recibí cambios o sincronizá todo; resolvé conflictos si ambos lados cambiaron.",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Control",
+    desc: "Los secretos de la App no van al navegador; el contenido vive en tu repo.",
   },
 ];
 
-export function FlowsIntegrationsSection() {
+export function GitHubSyncSection() {
   return (
-    <section id="flujos" className="border-b border-border/60 bg-muted/30">
+    <section id="github" className="border-b border-border/60 bg-background">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
         <div className="mx-auto mb-16 max-w-2xl text-center sm:mb-20">
           <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            Flujos e integraciones
+            GitHub
           </p>
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            La alternativa local-first a Zapier o Make.
+            Respaldá y versioná proyectos en tu repositorio.
           </h2>
           <p className="mt-4 text-pretty text-muted-foreground">
-            Conecta Hito con las herramientas que ya usas, sin mandar tus datos a un
-            intermediario en la nube que no controlas.
+            Conectá la GitHub App, vinculá proyectos y sincronizá a{" "}
+            <code className="font-mono text-xs text-foreground/80">.hito/</code> — sin Issues ni
+            tableros ajenos. Local-first: GitHub es el espejo, no el dueño de tus datos.
           </p>
         </div>
 
@@ -80,7 +87,7 @@ export function FlowsIntegrationsSection() {
             return (
               <div
                 key={p.tag}
-                className="group relative flex flex-col gap-4 rounded-2xl border border-border/60 bg-background p-7 transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.02]"
+                className="group relative flex flex-col gap-4 rounded-2xl border border-border/60 bg-muted/20 p-7 transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.02]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-background transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary/[0.06]">
@@ -91,9 +98,7 @@ export function FlowsIntegrationsSection() {
                   </span>
                 </div>
                 <h3 className="text-lg font-semibold tracking-tight">{p.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {p.body}
-                </p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{p.body}</p>
                 <p className="mt-auto border-t border-border/60 pt-4 font-mono text-xs text-foreground/70">
                   {p.detail}
                 </p>
@@ -105,10 +110,10 @@ export function FlowsIntegrationsSection() {
         <div className="mt-20">
           <div className="mx-auto mb-10 max-w-xl text-center">
             <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-              Anatomía de un flujo
+              Cómo se usa
             </p>
             <h3 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-              De un evento externo a una acción, sin código.
+              Cuatro pasos, del connect al commit.
             </h3>
           </div>
 
@@ -118,7 +123,7 @@ export function FlowsIntegrationsSection() {
               return (
                 <div
                   key={step.label}
-                  className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-background p-5 transition-all duration-300 hover:border-primary/30"
+                  className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/20 p-5 transition-all duration-300 hover:border-primary/30"
                 >
                   <div className="flex items-center gap-3">
                     <span className="flex size-7 items-center justify-center rounded-full border border-primary/30 bg-primary/[0.06] font-mono text-xs font-bold text-primary">
@@ -136,6 +141,17 @@ export function FlowsIntegrationsSection() {
             })}
           </div>
         </div>
+
+        <p className="mt-12 text-center text-sm text-muted-foreground">
+          Guía paso a paso en la{" "}
+          <Link
+            to="/docs/github-sync"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            documentación de GitHub
+          </Link>
+          .
+        </p>
       </div>
     </section>
   );
