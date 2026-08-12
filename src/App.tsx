@@ -76,9 +76,21 @@ const DailyStandupPage = lazy(() =>
     default: m.DailyStandupPage,
   })),
 );
+const GitHubConnectPage = lazy(() =>
+  import("@/features/integrations/GitHubConnectPage").then((m) => ({
+    default: m.GitHubConnectPage,
+  })),
+);
 
 const router = createBrowserRouter([
   ...marketingRoutes,
+  // GitHub App setup / OAuth return landing (public; no secrets in the browser).
+  { path: "/github/connect", element: page(<GitHubConnectPage />) },
+  // Alias used in github-app-setup.md Setup URL examples.
+  {
+    path: "/settings/integrations/github",
+    element: <Navigate to="/github/connect" replace />,
+  },
   {
     path: "/app",
     element: <AppGate />,

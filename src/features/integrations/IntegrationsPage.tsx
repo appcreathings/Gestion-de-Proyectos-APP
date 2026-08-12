@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Webhook,
   RefreshCw,
@@ -44,8 +44,25 @@ import type { WebhookSubscription, IntegrationConnection } from "@/storage/integ
 
 type GuideProvider = ConnectionProvider;
 
+const INTEGRATION_TABS = [
+  "hubspot",
+  "sheets",
+  "webhooks",
+  "inbox",
+  "email",
+  "github",
+  "security",
+] as const;
+
+type IntegrationTab = (typeof INTEGRATION_TABS)[number];
+
+function isIntegrationTab(value: string | null): value is IntegrationTab {
+  return value !== null && (INTEGRATION_TABS as readonly string[]).includes(value);
+}
+
 export function IntegrationsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [guideProvider, setGuideProvider] = useState<GuideProvider | null>(null);
   const [vaultDialogOpen, setVaultDialogOpen] = useState(false);
   const [webhookDialogOpen, setWebhookDialogOpen] = useState(false);
@@ -55,6 +72,11 @@ export function IntegrationsPage() {
   const isUnlocked = useVaultStore((s) => s.isUnlocked);
   const hasMasterPassword = useVaultStore((s) => s.hasMasterPassword);
   const lock = useVaultStore((s) => s.lock);
+
+  const activeTab = useMemo<IntegrationTab>(() => {
+    const tab = searchParams.get("tab");
+    return isIntegrationTab(tab) ? tab : "hubspot";
+  }, [searchParams]);
 
   useEffect(() => {
     loadSubscriptions();
@@ -112,7 +134,17 @@ export function IntegrationsPage() {
           }
         />
 
-        <Tabs defaultValue="hubspot" className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            if (!isIntegrationTab(value)) return;
+            const next = new URLSearchParams(searchParams);
+            if (value === "hubspot") next.delete("tab");
+            else next.set("tab", value);
+            setSearchParams(next, { replace: true });
+          }}
+          className="space-y-6"
+        >
           <TabsList>
             <TabsTrigger value="hubspot">HubSpot</TabsTrigger>
             <TabsTrigger value="sheets">Google Sheets</TabsTrigger>

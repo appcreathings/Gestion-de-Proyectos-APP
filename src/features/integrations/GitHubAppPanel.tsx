@@ -1,22 +1,21 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle2, Github, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/Panel";
-import { getGitHubConnectUrl } from "@/integrations/github-bff";
+import { isGitHubBffConfigured } from "@/integrations/github-bff";
 import { getGitHubConnections, type GitHubConnection } from "@/integrations/github-sync";
+import { ROUTES } from "@/routes/paths";
 
 export function GitHubAppPanel() {
+  const navigate = useNavigate();
   const [connections, setConnections] = useState<GitHubConnection[]>([]);
   const [configured, setConfigured] = useState(true);
 
   useEffect(() => {
     getGitHubConnections().then(setConnections).catch(() => setConnections([]));
-    try {
-      getGitHubConnectUrl();
-    } catch {
-      setConfigured(false);
-    }
+    setConfigured(isGitHubBffConfigured());
   }, []);
 
   return (
@@ -25,7 +24,11 @@ export function GitHubAppPanel() {
       title="Conecta GitHub con Hito"
       description="Autoriza repositorios concretos y publica cambios locales desde Hito. No se crea una cuenta de usuario adicional."
       actions={
-        <Button size="sm" onClick={() => window.location.assign(getGitHubConnectUrl())} disabled={!configured}>
+        <Button
+          size="sm"
+          disabled={!configured}
+          onClick={() => navigate(ROUTES.githubConnect)}
+        >
           <Github className="size-4" />
           Conectar GitHub
         </Button>
@@ -37,7 +40,9 @@ export function GitHubAppPanel() {
           <div>
             <p className="font-medium">Falta configurar el backend de GitHub</p>
             <p className="mt-1 text-muted-foreground">
-              Define <code className="font-mono">VITE_GITHUB_BFF_URL</code> para activar OAuth.
+              El cliente usa <code className="font-mono">/api</code> por defecto. Opcionalmente
+              define <code className="font-mono">VITE_GITHUB_BFF_URL</code> y los secretos del
+              servidor en Vercel.
             </p>
           </div>
         </div>

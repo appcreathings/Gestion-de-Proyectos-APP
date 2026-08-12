@@ -4,6 +4,11 @@ dist-ssr
 *.local
 *.tsbuildinfo
 
+# Secretos y entorno local — NUNCA versionar
+.env
+.env.*
+!.env.example
+
 # Datos reales del usuario (workspace local-first) — NUNCA versionar
 local-data-app/
 

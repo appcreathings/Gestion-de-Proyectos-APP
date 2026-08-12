@@ -11,9 +11,9 @@ En **Settings → Developer settings → GitHub Apps → New GitHub App**, utili
 |---|---|
 | GitHub App name | `Hito Local Sync` |
 | Description | `Sincroniza proyectos locales de Hito con GitHub Issues y GitHub Projects.` |
-| Homepage URL | `https://tu-dominio.com` |
-| Callback URL | `https://api.tu-dominio.com/github/callback` |
-| Setup URL | `https://tu-dominio.com/settings/integrations/github` |
+| Homepage URL | `https://hito.autos` |
+| Callback URL | `https://hito.autos/api/github/callback` |
+| Setup URL | `https://hito.autos/github/connect` |
 | Redirect on update | Desactivado inicialmente |
 | Installation scope | `Only on this account` durante desarrollo |
 | Visibility | Private durante desarrollo |
@@ -28,8 +28,8 @@ Para desarrollo local usa una App separada y URLs HTTPS de un túnel:
 
 ```text
 Homepage URL: https://dev.tu-dominio.com
-Callback URL: https://api-dev.tu-dominio.com/github/callback
-Setup URL: https://dev.tu-dominio.com/settings/integrations/github
+Callback URL: https://dev.tu-dominio.com/api/github/callback
+Setup URL: https://dev.tu-dominio.com/github/connect
 ```
 
 GitHub permite hasta diez callback URLs. Consulta la [documentación oficial de registro de GitHub Apps](https://docs.github.com/en/apps/creating-github-apps/registering-github-app).
@@ -91,8 +91,8 @@ GITHUB_APP_ID=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 GITHUB_PRIVATE_KEY=
-GITHUB_CALLBACK_URL=https://api.tu-dominio.com/github/callback
-GITHUB_SETUP_URL=https://tu-dominio.com/settings/integrations/github
+GITHUB_CALLBACK_URL=https://hito.autos/api/github/callback
+GITHUB_SETUP_URL=https://hito.autos/github/connect
 ```
 
 ## 5. Configurar `VITE_GITHUB_BFF_URL`
@@ -103,7 +103,7 @@ URL de GitHub, no es la Callback URL y no debe contener `/github/connect` ni otr
 El frontend construye las rutas a partir de esa base:
 
 ```text
-VITE_GITHUB_BFF_URL
+VITE_GITHUB_BFF_URL   (por defecto: /api)
   + /github/connect
   + /github/callback
   + /github/connection/:id
@@ -112,37 +112,49 @@ VITE_GITHUB_BFF_URL
   + /github/connection/:id/revoke
 ```
 
-### Producción
+La página pública de la SPA (Setup URL y retorno OAuth) es distinta:
 
-Si el backend está desplegado en `api.tu-dominio.com`:
+```text
+https://hito.autos/github/connect   ← React (sin secretos)
+https://hito.autos/api/github/*     ← BFF Vercel (secretos de servidor)
+```
+
+### Producción (mismo dominio, recomendado)
+
+Con las funciones en `api/github/*` de este repo:
 
 ```env
-VITE_GITHUB_BFF_URL=https://api.tu-dominio.com
+VITE_GITHUB_BFF_URL=https://hito.autos/api
+# o déjalo vacío: el cliente usa /api por defecto
 ```
 
 Y las URLs de la GitHub App deben coincidir:
 
 ```text
 Callback URL:
-https://api.tu-dominio.com/github/callback
+https://hito.autos/api/github/callback
+
+Setup URL:
+https://hito.autos/github/connect
 
 Webhook URL, solo cuando se active en una fase posterior:
-https://api.tu-dominio.com/github/webhook
+https://hito.autos/api/github/webhook
 ```
 
-### Desarrollo local con túnel HTTPS
+No pongas `VITE_GITHUB_BFF_URL=https://hito.autos` sin `/api`: el botón de conectar
+abriría la SPA en `/github/connect` como si fuera el BFF y el OAuth no arrancaría en el servidor.
 
-Si el backend local se publica temporalmente como `https://api-dev.tu-dominio.com`:
+### BFF en otro host
 
 ```env
-VITE_GITHUB_BFF_URL=https://api-dev.tu-dominio.com
+VITE_GITHUB_BFF_URL=https://api.tu-dominio.com
 ```
 
-La GitHub App de desarrollo debe utilizar:
+La GitHub App de ese entorno debe usar:
 
 ```text
 Callback URL:
-https://api-dev.tu-dominio.com/github/callback
+https://api.tu-dominio.com/github/callback
 ```
 
 No uses `http://localhost` como URL de producción. Para desarrollo, utiliza un túnel HTTPS como
@@ -153,7 +165,7 @@ Cloudflare Tunnel, ngrok o una URL HTTPS equivalente.
 En desarrollo crea un archivo `.env.local` en la raíz del proyecto:
 
 ```env
-VITE_GITHUB_BFF_URL=https://api-dev.tu-dominio.com
+VITE_GITHUB_BFF_URL=/api
 ```
 
 Después de modificarlo, reinicia `npm run dev`; Vite solo carga las variables de entorno al

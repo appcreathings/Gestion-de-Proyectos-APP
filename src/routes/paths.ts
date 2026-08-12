@@ -18,6 +18,7 @@ export const ROUTES = {
   flowHistory: "/app/flows/history",
   flowServices: "/app/flows/services",
   integrations: "/app/integrations",
+  githubConnect: "/github/connect",
   notifications: "/app/notifications",
   settings: (hash?: string) => (hash ? `/app/settings#${hash}` : "/app/settings"),
 } as const;
