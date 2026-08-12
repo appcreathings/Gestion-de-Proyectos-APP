@@ -5,6 +5,7 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   CheckCircle2,
+  RefreshCw,
   Github,
   ExternalLink,
   Link2,
@@ -29,9 +30,10 @@ import {
   type GitHubProjectSummary,
 } from "@/integrations/github-bff";
 import {
-  pullProjectMetaFromGitHub,
-  pushProjectMetaToGitHub,
-} from "@/integrations/github-project-sync";
+  pullProjectFromRepo,
+  pushAllLinkedProjects,
+  pushProjectToRepo,
+} from "@/integrations/github-repo-sync";
 import {
   buildGitHubLink,
   deleteGitHubConnection,
@@ -392,25 +394,19 @@ export function GitHubAppPanel() {
     setBusy(true);
     setError(null);
     try {
-      // Solo actualiza un Project ya existente; no crea uno nuevo (allowCreateProject: false).
-      const result = await pushProjectMetaToGitHub({
+      const result = await pushProjectToRepo({
         backendConnectionId: connection.backendConnectionId,
         link,
-        local: { name: project.name, description: project.description },
-        allowCreateProject: false,
+        project,
       });
       if (!result.ok) {
         setError(result.message);
         return;
       }
       await refresh();
-      if (link.projectNodeId) {
-        toast.success(`Enviado a GitHub Project: «${project.name}».`);
-      } else {
-        toast.success(
-          `Metadatos guardados en el vínculo local de «${project.name}» (sin GitHub Project).`,
-        );
-      }
+      toast.success(
+        `Enviado al repo ${link.owner}/${link.repository}: «${project.name}» → ${result.path}`,
+      );
     } finally {
       setBusy(false);
     }
@@ -419,17 +415,17 @@ export function GitHubAppPanel() {
   async function handlePull(link: GitHubLink) {
     const connection = connections.find((c) => c.id === link.connectionId);
     const project = projects.find((p) => p.id === link.projectId);
-    if (!connection || !project) {
-      setError("Falta la conexión o el proyecto local.");
+    if (!connection) {
+      setError("Falta la conexión de GitHub.");
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      const result = await pullProjectMetaFromGitHub({
+      const result = await pullProjectFromRepo({
         backendConnectionId: connection.backendConnectionId,
         link,
-        project,
+        localProject: project ?? null,
       });
       if (!result.ok) {
         setError(result.message);
@@ -439,9 +435,69 @@ export function GitHubAppPanel() {
       await refresh();
       toast.success(
         result.changed
-          ? `Recibido de GitHub: se actualizó «${result.project.name}».`
-          : "Sin cambios: el proyecto local ya coincidía con GitHub.",
+          ? `Recibido del repo: se actualizó «${result.project.name}».`
+          : "Sin cambios respecto al archivo del repositorio.",
       );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Sube todos los proyectos vinculados a sus repositorios (archivos .hito/). */
+  async function handleSyncAll() {
+    if (links.length === 0) {
+      setError("No hay proyectos vinculados para sincronizar.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      // Agrupar por connection (backendConnectionId)
+      const byBackend = new Map<string, GitHubLink[]>();
+      for (const link of links) {
+        if (link.status === "disconnected") continue;
+        const conn = connections.find((c) => c.id === link.connectionId);
+        if (!conn) continue;
+        const key = conn.backendConnectionId;
+        const list = byBackend.get(key) ?? [];
+        list.push(link);
+        byBackend.set(key, list);
+      }
+
+      const projectsById = new Map(projects.map((p) => [p.id, p]));
+      let totalOk = 0;
+      const allFailed: Array<{ name: string; message: string }> = [];
+
+      for (const [backendId, group] of byBackend) {
+        const result = await pushAllLinkedProjects({
+          backendConnectionId: backendId,
+          links: group,
+          projectsById,
+        });
+        totalOk += result.ok;
+        for (const f of result.failed) {
+          allFailed.push({ name: f.name, message: f.message });
+        }
+      }
+
+      await refresh();
+      if (allFailed.length && totalOk === 0) {
+        setError(`No se sincronizó nada. ${allFailed[0]?.name}: ${allFailed[0]?.message}`);
+        toast.error("Sincronización fallida.");
+      } else if (allFailed.length) {
+        setError(
+          `Sincronizados ${totalOk}. Fallos: ${allFailed
+            .slice(0, 2)
+            .map((f) => `${f.name}: ${f.message}`)
+            .join(" · ")}`,
+        );
+        toast.success(`${totalOk} proyecto(s) enviados al repositorio.`);
+      } else {
+        setError(null);
+        toast.success(
+          `${totalOk} proyecto${totalOk === 1 ? "" : "s"} sincronizado${totalOk === 1 ? "" : "s"} al repositorio (.hito/projects/).`,
+        );
+      }
     } finally {
       setBusy(false);
     }
@@ -492,16 +548,24 @@ export function GitHubAppPanel() {
     <Panel
       label="GitHub App"
       title="Proyectos con GitHub"
-      description="Conecta la App, crea o elige un repositorio (también privado), y vincula uno o todos tus proyectos de Hito. Se sincronizan nombre y descripción del proyecto — no issues."
+      description="Crea o elige un repositorio, vincula tus proyectos de Hito y sincroniza su información completa como archivos en el repo (.hito/projects/). No se usan GitHub Projects ni issues."
       actions={
-        <Button
-          size="sm"
-          disabled={!configured || busy}
-          onClick={() => navigate(ROUTES.githubConnect)}
-        >
-          <Github className="size-4" />
-          {connections.length ? "Reconectar" : "Conectar GitHub"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {links.length > 0 && (
+            <Button size="sm" variant="secondary" disabled={!configured || busy} onClick={() => void handleSyncAll()}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+              Sincronizar todo
+            </Button>
+          )}
+          <Button
+            size="sm"
+            disabled={!configured || busy}
+            onClick={() => navigate(ROUTES.githubConnect)}
+          >
+            <Github className="size-4" />
+            {connections.length ? "Reconectar" : "Conectar GitHub"}
+          </Button>
+        </div>
       }
     >
       {!configured && (
@@ -934,7 +998,18 @@ export function GitHubAppPanel() {
 
       {links.length > 0 && (
         <div className="mt-6 space-y-2">
-          <h3 className="text-sm font-semibold">Proyectos vinculados</h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold">Proyectos vinculados al repositorio</h3>
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => void handleSyncAll()}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+              Sincronizar todo
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            La información se guarda en el repo como archivos{" "}
+            <code className="font-mono">.hito/projects/&lt;id&gt;.json</code> (nombre, descripción,
+            tareas, áreas, etc.). No se crean GitHub Projects.
+          </p>
           {links.map((link) => {
             const title = projectNameById.get(link.projectId) ?? "Proyecto eliminado";
             return (
@@ -946,11 +1021,12 @@ export function GitHubAppPanel() {
                   <p className="text-sm font-medium">{title}</p>
                   <p className="truncate text-xs text-muted-foreground">
                     {link.owner}/{link.repository}
-                    {link.projectNumber != null ? ` · Project #${link.projectNumber}` : ""}
-                    {link.remoteProjectTitle ? ` · ${link.remoteProjectTitle}` : ""}
+                    {link.lastSyncAt
+                      ? ` · sync ${new Date(link.lastSyncAt).toLocaleString()}`
+                      : " · aún no sincronizado"}
                   </p>
                   <div className="mt-1 flex flex-wrap gap-1">
-                    <Badge variant="outline">solo proyecto</Badge>
+                    <Badge variant="outline">archivo en repo</Badge>
                     <Badge variant={link.status === "active" ? "success" : "outline"}>
                       {link.status}
                     </Badge>
@@ -962,18 +1038,20 @@ export function GitHubAppPanel() {
                     variant="outline"
                     disabled={busy}
                     onClick={() => void handlePush(link)}
+                    title="Subir el proyecto al repositorio"
                   >
                     <ArrowUpFromLine className="size-4" />
-                    Enviar
+                    Enviar al repo
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={busy}
                     onClick={() => void handlePull(link)}
+                    title="Bajar el proyecto desde el repositorio"
                   >
                     <ArrowDownToLine className="size-4" />
-                    Recibir
+                    Recibir del repo
                   </Button>
                   <Button
                     size="sm"

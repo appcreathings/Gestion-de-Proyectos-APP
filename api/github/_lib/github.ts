@@ -288,6 +288,134 @@ export async function addRepoToUserInstallation(
   return { ok: true };
 }
 
+/** Contenido de un archivo en el repo (Contents API). */
+export type RepoFileContent = {
+  path: string;
+  sha: string;
+  content: string; // texto UTF-8 ya decodificado
+  encoding: string;
+  size: number;
+};
+
+/**
+ * Lee un archivo del repositorio.
+ * 404 → ok:false status 404 (archivo aún no existe).
+ * Requiere Contents: read en la instalación.
+ */
+export async function getRepoFile(
+  installationToken: string,
+  owner: string,
+  repo: string,
+  path: string,
+  ref?: string,
+): Promise<
+  | { ok: true; file: RepoFileContent }
+  | { ok: false; status: number; message: string }
+> {
+  const q = ref ? `?ref=${encodeURIComponent(ref)}` : "";
+  const result = await gh<{
+    path?: string;
+    sha?: string;
+    content?: string;
+    encoding?: string;
+    size?: number;
+    type?: string;
+    message?: string;
+  }>(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/")}${q}`,
+    { token: installationToken },
+  );
+  if (!result.ok) return result;
+  if (result.data.type && result.data.type !== "file") {
+    return { ok: false, status: 400, message: "La ruta no es un archivo." };
+  }
+  if (!result.data.content || !result.data.sha) {
+    return { ok: false, status: 400, message: "GitHub no devolvió contenido del archivo." };
+  }
+  let text = "";
+  try {
+    // GitHub devuelve base64 con saltos de línea.
+    const b64 = result.data.content.replace(/\n/g, "");
+    text = Buffer.from(b64, "base64").toString("utf8");
+  } catch {
+    return { ok: false, status: 400, message: "No se pudo decodificar el contenido base64." };
+  }
+  return {
+    ok: true,
+    file: {
+      path: result.data.path ?? path,
+      sha: result.data.sha,
+      content: text,
+      encoding: result.data.encoding ?? "base64",
+      size: result.data.size ?? text.length,
+    },
+  };
+}
+
+/**
+ * Crea o actualiza un archivo en el repositorio (commit).
+ * Requiere Contents: write.
+ */
+export async function putRepoFile(
+  installationToken: string,
+  input: {
+    owner: string;
+    repo: string;
+    path: string;
+    content: string;
+    message: string;
+    sha?: string;
+    branch?: string;
+  },
+): Promise<
+  | { ok: true; sha: string; commitSha: string; htmlUrl: string | null }
+  | { ok: false; status: number; message: string }
+> {
+  const body: Record<string, unknown> = {
+    message: input.message,
+    content: Buffer.from(input.content, "utf8").toString("base64"),
+  };
+  if (input.sha) body.sha = input.sha;
+  if (input.branch) body.branch = input.branch;
+
+  const result = await gh<{
+    content?: { sha?: string; html_url?: string };
+    commit?: { sha?: string };
+    message?: string;
+  }>(
+    `/repos/${encodeURIComponent(input.owner)}/${encodeURIComponent(input.repo)}/contents/${input.path
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/")}`,
+    {
+      method: "PUT",
+      token: installationToken,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!result.ok) {
+    const hint =
+      result.status === 403 || /not accessible by integration/i.test(result.message)
+        ? " En la GitHub App: Repository permissions → Contents = Read and write, acepta el permiso y reintenta."
+        : result.status === 404
+          ? " ¿La App tiene acceso a este repositorio en la instalación?"
+          : "";
+    return { ok: false, status: result.status, message: result.message + hint };
+  }
+
+  return {
+    ok: true,
+    sha: result.data.content?.sha ?? "",
+    commitSha: result.data.commit?.sha ?? "",
+    htmlUrl: result.data.content?.html_url ?? null,
+  };
+}
+
 export async function listInstallationRepos(
   installationToken: string,
 ): Promise<{ ok: true; repos: GitHubRepository[] } | { ok: false; message: string }> {

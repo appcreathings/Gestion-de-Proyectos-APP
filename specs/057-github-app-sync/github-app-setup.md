@@ -50,10 +50,10 @@ GitHub permite hasta diez callback URLs. Consulta la [documentación oficial de 
 | Permiso | Nivel | Motivo |
 |---|---|---|
 | **Administration** | **Read and write** | **Obligatorio para crear repositorios** (`POST /user/repos`). Sin esto GitHub responde `Resource not accessible by integration`. |
+| **Contents** | **Read and write** | **Obligatorio para sincronizar** datos de Hito al repo (archivos `.hito/projects/*.json`). |
 | Metadata | Read-only | Listar repos instalados |
 | Issues | No access (v1: solo proyecto, sin issues) | — |
 | Pull requests | No access | — |
-| Contents | Read-only (opcional) | Solo si usas `auto_init` / README al crear |
 | Actions | No access | — |
 | Commit statuses | No access | — |
 | Workflows | No access | — |

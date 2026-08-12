@@ -174,3 +174,50 @@ export function updateGitHubProjectRemote(
 export function revokeGitHubConnection(id: string): Promise<GitHubBffResult<{ revoked: true }>> {
   return request(`/github/connection/${encodeURIComponent(id)}/revoke`, { method: "POST" });
 }
+
+export type GitHubRepoFile = {
+  path: string;
+  sha: string;
+  content: string;
+  size: number;
+};
+
+export type GitHubRepoFilePutResult = {
+  path: string;
+  sha: string;
+  commitSha: string;
+  htmlUrl: string | null;
+};
+
+/** Lee un archivo del repositorio (Contents API). */
+export function getGitHubRepoFile(
+  connectionId: string,
+  input: { owner: string; repo: string; path: string },
+): Promise<GitHubBffResult<GitHubRepoFile>> {
+  const q = new URLSearchParams({
+    owner: input.owner,
+    repo: input.repo,
+    path: input.path,
+  });
+  return request(`/github/connection/${encodeURIComponent(connectionId)}/contents?${q}`);
+}
+
+/** Crea o actualiza un archivo en el repositorio (commit). */
+export function putGitHubRepoFile(
+  connectionId: string,
+  input: {
+    owner: string;
+    repo: string;
+    path: string;
+    content: string;
+    message: string;
+    sha?: string;
+    branch?: string;
+  },
+): Promise<GitHubBffResult<GitHubRepoFilePutResult>> {
+  return request(`/github/connection/${encodeURIComponent(connectionId)}/contents`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
