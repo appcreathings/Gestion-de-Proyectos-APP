@@ -20,6 +20,7 @@ export type GitHubRepository = {
   full_name: string;
   private: boolean;
   default_branch: string;
+  description: string | null;
   owner: { login: string };
 };
 
@@ -158,23 +159,13 @@ export async function listInstallationRepos(
   return { ok: true, repos };
 }
 
-export async function listOrgProjects(
+type GhProject = { id: string; number: number; title: string; shortDescription?: string | null };
+
+async function graphql<T>(
   installationToken: string,
-  owner: string,
-): Promise<
-  | { ok: true; projects: Array<{ id: string; number: number; title: string; ownerLogin: string }> }
-  | { ok: false; message: string }
-> {
-  const query = `
-    query($login: String!) {
-      user(login: $login) {
-        projectsV2(first: 20) { nodes { id number title } }
-      }
-      organization(login: $login) {
-        projectsV2(first: 20) { nodes { id number title } }
-      }
-    }
-  `;
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<{ ok: true; data: T } | { ok: false; message: string }> {
   try {
     const res = await fetch(`${GITHUB_API}/graphql`, {
       method: "POST",
@@ -185,15 +176,10 @@ export async function listOrgProjects(
         "X-GitHub-Api-Version": API_VERSION,
         "User-Agent": "Hito-GitHub-BFF",
       },
-      body: JSON.stringify({ query, variables: { login: owner } }),
+      body: JSON.stringify({ query, variables }),
     });
     const json = (await res.json()) as {
-      data?: {
-        user?: { projectsV2?: { nodes?: Array<{ id: string; number: number; title: string } | null> } };
-        organization?: {
-          projectsV2?: { nodes?: Array<{ id: string; number: number; title: string } | null> };
-        };
-      };
+      data?: T;
       errors?: Array<{ message: string }>;
     };
     if (!res.ok || json.errors?.length) {
@@ -202,23 +188,197 @@ export async function listOrgProjects(
         message: json.errors?.[0]?.message ?? `GraphQL HTTP ${res.status}`,
       };
     }
-    const nodes = [
-      ...(json.data?.user?.projectsV2?.nodes ?? []),
-      ...(json.data?.organization?.projectsV2?.nodes ?? []),
-    ].filter((n): n is { id: string; number: number; title: string } => Boolean(n));
-    return {
-      ok: true,
-      projects: nodes.map((n) => ({
-        id: n.id,
-        number: n.number,
-        title: n.title,
-        ownerLogin: owner,
-      })),
-    };
+    if (!json.data) return { ok: false, message: "Respuesta GraphQL vacía." };
+    return { ok: true, data: json.data };
   } catch (error) {
     return {
       ok: false,
-      message: error instanceof Error ? error.message : "Error GraphQL con GitHub Projects.",
+      message: error instanceof Error ? error.message : "Error GraphQL con GitHub.",
     };
   }
+}
+
+export async function listOrgProjects(
+  installationToken: string,
+  owner: string,
+): Promise<
+  | {
+      ok: true;
+      projects: Array<{
+        id: string;
+        number: number;
+        title: string;
+        shortDescription: string | null;
+        ownerLogin: string;
+      }>;
+    }
+  | { ok: false; message: string }
+> {
+  const query = `
+    query($login: String!) {
+      user(login: $login) {
+        projectsV2(first: 40) { nodes { id number title shortDescription } }
+      }
+      organization(login: $login) {
+        projectsV2(first: 40) { nodes { id number title shortDescription } }
+      }
+    }
+  `;
+  const result = await graphql<{
+    user?: { projectsV2?: { nodes?: Array<GhProject | null> } };
+    organization?: { projectsV2?: { nodes?: Array<GhProject | null> } };
+  }>(installationToken, query, { login: owner });
+  if (!result.ok) return result;
+
+  const nodes = [
+    ...(result.data.user?.projectsV2?.nodes ?? []),
+    ...(result.data.organization?.projectsV2?.nodes ?? []),
+  ].filter((n): n is GhProject => Boolean(n));
+
+  return {
+    ok: true,
+    projects: nodes.map((n) => ({
+      id: n.id,
+      number: n.number,
+      title: n.title,
+      shortDescription: n.shortDescription ?? null,
+      ownerLogin: owner,
+    })),
+  };
+}
+
+export async function resolveOwnerNodeId(
+  installationToken: string,
+  owner: string,
+): Promise<{ ok: true; ownerId: string; kind: "user" | "organization" } | { ok: false; message: string }> {
+  const query = `
+    query($login: String!) {
+      user(login: $login) { id }
+      organization(login: $login) { id }
+    }
+  `;
+  const result = await graphql<{
+    user?: { id: string } | null;
+    organization?: { id: string } | null;
+  }>(installationToken, query, { login: owner });
+  if (!result.ok) return result;
+  if (result.data.user?.id) return { ok: true, ownerId: result.data.user.id, kind: "user" };
+  if (result.data.organization?.id) {
+    return { ok: true, ownerId: result.data.organization.id, kind: "organization" };
+  }
+  return { ok: false, message: `No se encontró el owner "${owner}" en GitHub.` };
+}
+
+export async function createGitHubProject(
+  installationToken: string,
+  owner: string,
+  title: string,
+): Promise<
+  | { ok: true; project: { id: string; number: number; title: string; shortDescription: string | null; ownerLogin: string } }
+  | { ok: false; message: string }
+> {
+  const ownerRes = await resolveOwnerNodeId(installationToken, owner);
+  if (!ownerRes.ok) return ownerRes;
+
+  const mutation = `
+    mutation($ownerId: ID!, $title: String!) {
+      createProjectV2(input: { ownerId: $ownerId, title: $title }) {
+        projectV2 { id number title shortDescription }
+      }
+    }
+  `;
+  const result = await graphql<{
+    createProjectV2?: { projectV2?: GhProject | null };
+  }>(installationToken, mutation, { ownerId: ownerRes.ownerId, title });
+  if (!result.ok) return result;
+  const project = result.data.createProjectV2?.projectV2;
+  if (!project) return { ok: false, message: "GitHub no devolvió el Project creado." };
+  return {
+    ok: true,
+    project: {
+      id: project.id,
+      number: project.number,
+      title: project.title,
+      shortDescription: project.shortDescription ?? null,
+      ownerLogin: owner,
+    },
+  };
+}
+
+export async function updateGitHubProject(
+  installationToken: string,
+  projectId: string,
+  input: { title?: string; shortDescription?: string | null },
+): Promise<
+  | { ok: true; project: { id: string; number: number; title: string; shortDescription: string | null } }
+  | { ok: false; message: string }
+> {
+  const mutation = `
+    mutation($projectId: ID!, $title: String, $shortDescription: String) {
+      updateProjectV2(input: {
+        projectId: $projectId
+        title: $title
+        shortDescription: $shortDescription
+      }) {
+        projectV2 { id number title shortDescription }
+      }
+    }
+  `;
+  const result = await graphql<{
+    updateProjectV2?: { projectV2?: GhProject | null };
+  }>(installationToken, mutation, {
+    projectId,
+    title: input.title ?? null,
+    shortDescription: input.shortDescription ?? null,
+  });
+  if (!result.ok) return result;
+  const project = result.data.updateProjectV2?.projectV2;
+  if (!project) return { ok: false, message: "GitHub no devolvió el Project actualizado." };
+  return {
+    ok: true,
+    project: {
+      id: project.id,
+      number: project.number,
+      title: project.title,
+      shortDescription: project.shortDescription ?? null,
+    },
+  };
+}
+
+export async function getRepository(
+  installationToken: string,
+  owner: string,
+  repo: string,
+): Promise<{ ok: true; repo: GitHubRepository } | { ok: false; message: string }> {
+  const result = await gh<GitHubRepository>(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+    { token: installationToken },
+  );
+  if (!result.ok) return { ok: false, message: result.message };
+  return {
+    ok: true,
+    repo: {
+      ...result.data,
+      description: result.data.description ?? null,
+    },
+  };
+}
+
+export async function updateRepositoryDescription(
+  installationToken: string,
+  owner: string,
+  repo: string,
+  description: string,
+): Promise<{ ok: true; description: string | null } | { ok: false; message: string }> {
+  const result = await gh<GitHubRepository>(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+    {
+      method: "PATCH",
+      token: installationToken,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description }),
+    },
+  );
+  if (!result.ok) return { ok: false, message: result.message };
+  return { ok: true, description: result.data.description ?? null };
 }

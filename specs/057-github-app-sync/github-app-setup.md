@@ -50,13 +50,19 @@ GitHub permite hasta diez callback URLs. Consulta la [documentación oficial de 
 | Permiso | Nivel |
 |---|---|
 | Metadata | Read-only |
-| Issues | Read and write |
+| Issues | No access (v1 actual: solo proyecto, sin issues) |
 | Pull requests | No access |
 | Contents | No access |
 | Actions | No access |
 | Commit statuses | No access |
 | Workflows | No access |
 | Administration | No access |
+
+### Additional permissions (Projects)
+
+| Permiso | Nivel | Motivo |
+|---|---|---|
+| Projects (account / organization) | Read and write | Listar, crear y actualizar GitHub Projects (metadatos del proyecto Hito) |
 
 ### Organization permissions
 

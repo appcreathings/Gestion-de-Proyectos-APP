@@ -62,6 +62,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
         fullName: r.full_name,
         private: r.private,
         defaultBranch: r.default_branch,
+        description: r.description ?? null,
       })),
     );
   });

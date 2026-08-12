@@ -16,14 +16,14 @@ export interface GitHubProjectSummary {
   id: string;
   number: number;
   title: string;
+  shortDescription?: string | null;
   ownerLogin: string;
 }
 
 /**
  * Public base of the GitHub BFF.
  * - If `VITE_GITHUB_BFF_URL` is set (e.g. https://hito.autos/api), use it.
- * - Otherwise default to same-origin `/api` so production on hito.autos works
- *   without pointing the SPA at itself (`https://hito.autos` alone caused 404).
+ * - Otherwise default to same-origin `/api`.
  */
 function resolveBffBase(): string {
   const raw = (import.meta.env.VITE_GITHUB_BFF_URL as string | undefined)?.trim();
@@ -34,8 +34,6 @@ function resolveBffBase(): string {
 const BFF_BASE_URL = resolveBffBase();
 
 export function isGitHubBffConfigured(): boolean {
-  // Relative /api always counts as configured for the client; the server may
-  // still return 503 if secrets are missing — the connect page handles that.
   return Boolean(BFF_BASE_URL);
 }
 
@@ -50,10 +48,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<GitHubBffRe
     response = await fetch(url(path), {
       ...init,
       headers: { Accept: "application/json", ...init?.headers },
-      signal: init?.signal ?? AbortSignal.timeout(15_000),
+      signal: init?.signal ?? AbortSignal.timeout(20_000),
     });
   } catch (error) {
-    return { ok: false, kind: "network", message: error instanceof Error ? error.message : "Error de red." };
+    return {
+      ok: false,
+      kind: "network",
+      message: error instanceof Error ? error.message : "Error de red.",
+    };
   }
 
   let body: unknown;
@@ -77,12 +79,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<GitHubBffRe
   return { ok: true, data: body as T };
 }
 
-/** Full URL (or path) that starts the server-side OAuth redirect. */
 export function getGitHubConnectUrl(): string {
   return url("/github/connect");
 }
 
-/** Public SPA page (Setup URL / return landing). Never holds secrets. */
 export function getGitHubConnectPageUrl(): string {
   if (typeof window !== "undefined") {
     return `${window.location.origin}/github/connect`;
@@ -105,6 +105,28 @@ export function getGitHubProjects(
   return request(
     `/github/connection/${encodeURIComponent(id)}/projects?owner=${encodeURIComponent(owner)}`,
   );
+}
+
+export function createGitHubProjectRemote(
+  connectionId: string,
+  input: { owner: string; title: string },
+): Promise<GitHubBffResult<GitHubProjectSummary>> {
+  return request(`/github/connection/${encodeURIComponent(connectionId)}/projects`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateGitHubProjectRemote(
+  connectionId: string,
+  input: { projectId: string; title?: string; shortDescription?: string | null },
+): Promise<GitHubBffResult<GitHubProjectSummary>> {
+  return request(`/github/connection/${encodeURIComponent(connectionId)}/projects`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }
 
 export function revokeGitHubConnection(id: string): Promise<GitHubBffResult<{ revoked: true }>> {

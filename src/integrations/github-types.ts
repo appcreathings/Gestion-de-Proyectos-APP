@@ -5,4 +5,5 @@ export interface GitHubRepository {
   fullName: string;
   private: boolean;
   defaultBranch: string;
+  description?: string | null;
 }

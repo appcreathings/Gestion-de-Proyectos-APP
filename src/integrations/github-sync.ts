@@ -14,7 +14,7 @@ export async function getGitHubConnections(): Promise<GitHubConnection[]> {
 }
 
 export async function saveGitHubConnection(
-  input: Omit<GitHubConnection, "createdAt" | "updatedAt">
+  input: Omit<GitHubConnection, "createdAt" | "updatedAt">,
 ): Promise<GitHubConnection> {
   const now = new Date().toISOString();
   const connection: GitHubConnection = { ...input, createdAt: now, updatedAt: now };
@@ -23,10 +23,17 @@ export async function saveGitHubConnection(
 }
 
 export async function deleteGitHubConnection(id: string): Promise<void> {
-  await integrationDb.transaction("rw", [integrationDb.githubConnections, integrationDb.githubLinks], async () => {
-    await integrationDb.githubConnections.delete(id);
-    await integrationDb.githubLinks.where("connectionId").equals(id).modify({ status: "disconnected" });
-  });
+  await integrationDb.transaction(
+    "rw",
+    [integrationDb.githubConnections, integrationDb.githubLinks],
+    async () => {
+      await integrationDb.githubConnections.delete(id);
+      await integrationDb.githubLinks
+        .where("connectionId")
+        .equals(id)
+        .modify({ status: "disconnected" });
+    },
+  );
 }
 
 export async function getGitHubLinks(projectId?: string): Promise<GitHubLink[]> {
@@ -36,7 +43,54 @@ export async function getGitHubLinks(projectId?: string): Promise<GitHubLink[]> 
 }
 
 export async function saveGitHubLink(link: GitHubLink): Promise<void> {
-  await integrationDb.githubLinks.put(link);
+  const normalized: GitHubLink = {
+    ...link,
+    scope: link.scope ?? "project",
+    updatedAt: link.updatedAt || new Date().toISOString(),
+  };
+  await integrationDb.githubLinks.put(normalized);
+}
+
+export async function deleteGitHubLink(id: string): Promise<void> {
+  await integrationDb.githubLinks.delete(id);
+}
+
+export function buildGitHubLink(input: {
+  projectId: string;
+  connectionId: string;
+  owner: string;
+  repository: string;
+  repositoryId: number;
+  projectNumber?: number;
+  projectNodeId?: string;
+  remoteProjectTitle?: string | null;
+  remoteProjectDescription?: string | null;
+  remoteRepositoryDescription?: string | null;
+  direction?: GitHubLink["direction"];
+}): GitHubLink {
+  const now = new Date().toISOString();
+  return {
+    id: crypto.randomUUID(),
+    projectId: input.projectId,
+    connectionId: input.connectionId,
+    owner: input.owner,
+    repository: input.repository,
+    repositoryId: input.repositoryId,
+    projectNumber: input.projectNumber,
+    projectNodeId: input.projectNodeId,
+    remoteProjectTitle: input.remoteProjectTitle ?? null,
+    remoteProjectDescription: input.remoteProjectDescription ?? null,
+    remoteRepositoryDescription: input.remoteRepositoryDescription ?? null,
+    scope: "project",
+    direction: input.direction ?? "two-way",
+    schedule: "manual",
+    status: "active",
+    consecutiveFailures: 0,
+    lastSyncAt: null,
+    lastSuccessAt: null,
+    nextSyncAt: null,
+    updatedAt: now,
+  };
 }
 
 export async function getGitHubMappings(linkId: string): Promise<GitHubMapping[]> {
@@ -66,9 +120,12 @@ export async function createGitHubSyncRun(linkId: string): Promise<GitHubSyncRun
 
 export async function finishGitHubSyncRun(
   id: string,
-  result: Omit<GitHubSyncRun, "id" | "startedAt" | "linkId">
+  result: Omit<GitHubSyncRun, "id" | "startedAt" | "linkId">,
 ): Promise<void> {
-  await integrationDb.githubSyncRuns.update(id, { ...result, finishedAt: result.finishedAt ?? new Date().toISOString() });
+  await integrationDb.githubSyncRuns.update(id, {
+    ...result,
+    finishedAt: result.finishedAt ?? new Date().toISOString(),
+  });
 }
 
 export const GITHUB_SCHEDULE_MS: Record<GitHubSyncSchedule, number | null> = {

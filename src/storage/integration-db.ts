@@ -36,6 +36,9 @@ export interface GitHubConnection {
 
 export type GitHubSyncSchedule = "manual" | "5m" | "15m" | "30m" | "1h" | "6h" | "24h";
 
+/** Qué se sincroniza en el vínculo. v1: solo metadatos del proyecto (sin issues). */
+export type GitHubLinkScope = "project";
+
 export interface GitHubLink {
   id: string;
   projectId: string;
@@ -45,6 +48,12 @@ export interface GitHubLink {
   repositoryId: number;
   projectNumber?: number;
   projectNodeId?: string;
+  /** Título del GitHub Project vinculado (si hay). */
+  remoteProjectTitle?: string | null;
+  remoteProjectDescription?: string | null;
+  remoteRepositoryDescription?: string | null;
+  /** Solo proyecto; no se sincronizan issues en este flujo. */
+  scope: GitHubLinkScope;
   direction: "local-to-github" | "two-way";
   schedule: GitHubSyncSchedule;
   status: "active" | "paused" | "error" | "disconnected";
