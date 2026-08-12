@@ -166,7 +166,7 @@ export const ROADMAP: RoadmapItem[] = [
     description:
       "Ver vencimientos y sprints en un eje temporal, no solo columnas Kanban. Ideal para el PM que planifica la semana de un vistazo — spec 053.",
     horizon: "later",
-    status: "planned",
+    status: "shipped",
     area: "Proyectos",
   },
   {

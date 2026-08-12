@@ -1,6 +1,6 @@
 # Spec 053 — Vista línea de tiempo / calendario
 
-> Estado: **SOLO DOCUMENTADO** (planning). No se toca `src/`. Ejecutable en otra conversación.
+> Estado: **IMPLEMENTADO** (MVP 2026-08-11).
 > Feature dir: `specs/053-timeline-calendar/` · Fecha: 2026-08-11
 > Roadmap: `timeline-calendar` en `src/features/releases/data/roadmap.ts`
 >   («Ver vencimientos y sprints en un eje temporal, no solo columnas Kanban»).
@@ -214,6 +214,9 @@ vencimiento.
 
 ## 10. Progreso
 
-- **Estado general: 📝 Solo documentado (2026-08-11).** Spec + design + tasks listos.
-- Código de producto no implementado en esta pasada (solo enlace de roadmap a 053 si se
-  actualiza).
+- **Estado general: ✅ MVP implementado (2026-08-11).**
+- **Vista Calendario** en `TasksTab` (3er modo: kanban | list | calendar).
+- Semana / mes, bandas de sprint, chips de due, panel «Sin fecha», línea de tiempo ~4 semanas.
+- Helpers de rango en `lib/dates.ts`; `buildCalendarModel` + tests.
+- Drag reprogramar (HU-06) aplazado.
+- Suite: **1138** tests en verde.

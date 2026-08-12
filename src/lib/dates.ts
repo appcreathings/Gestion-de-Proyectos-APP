@@ -7,7 +7,7 @@ function pad(n: number): string {
 }
 
 /** Local calendar day key, `YYYY-MM-DD`. */
-export function todayKey(now: Date): string {
+export function todayKey(now: Date = new Date()): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
@@ -96,9 +96,63 @@ const RANGE_DAY_FORMATTER = new Intl.DateTimeFormat("es", {
 });
 
 /** Parse a `YYYY-MM-DD` day key as a local calendar date (no time-zone shift). */
-function parseDayKey(key: string): Date {
+export function parseDayKey(key: string): Date {
   const [y, m, d] = key.split("-").map(Number);
   return new Date(y, m - 1, d);
+}
+
+export function dayKeyFromDate(d: Date): string {
+  return todayKey(d);
+}
+
+export interface DayRange {
+  start: string;
+  end: string;
+}
+
+/** Semana ISO (lunes–domingo) que contiene `dayKey` (spec 053). */
+export function weekRangeContaining(dayKey: string): DayRange {
+  const d = parseDayKey(dayKey);
+  const day = d.getDay(); // 0=Sun
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + mondayOffset);
+  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+  return { start: dayKeyFromDate(monday), end: dayKeyFromDate(sunday) };
+}
+
+/** Primer y último día del mes de `dayKey` (spec 053). */
+export function monthRangeContaining(dayKey: string): DayRange {
+  const d = parseDayKey(dayKey);
+  const start = new Date(d.getFullYear(), d.getMonth(), 1);
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return { start: dayKeyFromDate(start), end: dayKeyFromDate(end) };
+}
+
+export function shiftRange(range: DayRange, unit: "week" | "month", delta: number): DayRange {
+  if (unit === "week") {
+    const start = parseDayKey(range.start);
+    start.setDate(start.getDate() + delta * 7);
+    return weekRangeContaining(dayKeyFromDate(start));
+  }
+  const start = parseDayKey(range.start);
+  start.setMonth(start.getMonth() + delta);
+  return monthRangeContaining(dayKeyFromDate(start));
+}
+
+/** Lista inclusiva de day keys entre range.start y range.end. */
+export function eachDay(range: DayRange): string[] {
+  const out: string[] = [];
+  const cur = parseDayKey(range.start);
+  const end = parseDayKey(range.end);
+  while (cur.getTime() <= end.getTime()) {
+    out.push(dayKeyFromDate(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return out;
+}
+
+export function rangesIntersect(a: DayRange, b: DayRange): boolean {
+  return a.start <= b.end && a.end >= b.start;
 }
 
 /** Whole-day difference `b - a` (positive when `b` is later), ignoring time-of-day. */

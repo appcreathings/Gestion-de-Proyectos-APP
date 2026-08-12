@@ -17,7 +17,8 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Archive, CheckSquare, Filter, LayoutGrid, List, Plus, Search, Settings, Trash2, X } from "lucide-react";
+import { Archive, CalendarDays, CheckSquare, Filter, LayoutGrid, List, Plus, Search, Settings, Trash2, X } from "lucide-react";
+import { TaskCalendarView } from "../calendar/TaskCalendarView";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -92,21 +93,23 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 300);
 
-  // View mode state (spec 017)
-  const [viewMode, setViewMode] = useState<"kanban" | "list">(() => {
+  // View mode (spec 017 + 053 calendar)
+  type TasksViewMode = "kanban" | "list" | "calendar";
+  const [viewMode, setViewMode] = useState<TasksViewMode>(() => {
     try {
-      const saved = localStorage.getItem("kanban-view-mode");
-      return (saved as "kanban" | "list") || "kanban";
+      const saved =
+        localStorage.getItem("tasks-view-mode") ?? localStorage.getItem("kanban-view-mode");
+      if (saved === "list" || saved === "calendar" || saved === "kanban") return saved;
+      return "kanban";
     } catch {
       return "kanban";
     }
   });
 
-  function toggleViewMode() {
-    const next = viewMode === "kanban" ? "list" : "kanban";
+  function setTasksViewMode(next: TasksViewMode) {
     setViewMode(next);
     try {
-      localStorage.setItem("kanban-view-mode", next);
+      localStorage.setItem("tasks-view-mode", next);
     } catch {
       // Ignore localStorage errors
     }
@@ -673,9 +676,10 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             <Button
               variant={viewMode === "kanban" ? "secondary" : "ghost"}
               size="sm"
-              onClick={toggleViewMode}
+              onClick={() => setTasksViewMode("kanban")}
               className="rounded-r-none"
               title="Vista Kanban"
+              aria-pressed={viewMode === "kanban"}
             >
               <LayoutGrid className="size-3.5 mr-1.5" />
               Kanban
@@ -683,12 +687,24 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             <Button
               variant={viewMode === "list" ? "secondary" : "ghost"}
               size="sm"
-              onClick={toggleViewMode}
-              className="rounded-l-none border-l border-border/70"
+              onClick={() => setTasksViewMode("list")}
+              className="rounded-none border-l border-border/70"
               title="Vista Lista"
+              aria-pressed={viewMode === "list"}
             >
               <List className="size-3.5 mr-1.5" />
               Lista
+            </Button>
+            <Button
+              variant={viewMode === "calendar" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setTasksViewMode("calendar")}
+              className="rounded-l-none border-l border-border/70"
+              title="Vista Calendario"
+              aria-pressed={viewMode === "calendar"}
+            >
+              <CalendarDays className="size-3.5 mr-1.5" />
+              Calendario
             </Button>
           </div>
           <Button
@@ -784,6 +800,14 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
           areas={project.areas}
           people={people}
           onOpenDetail={openDetail}
+        />
+      ) : viewMode === "calendar" ? (
+        <TaskCalendarView
+          project={project}
+          tasksInScope={tasksInScope}
+          sprintScope={sprintScope}
+          onOpenTask={openDetail}
+          onFocusSprint={(id) => setSprintScope(id)}
         />
       ) : (
         <DndContext
