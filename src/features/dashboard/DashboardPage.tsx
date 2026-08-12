@@ -27,6 +27,7 @@ import { projectStatusLabel } from "@/domain/labels";
 import { computePortfolio, type DueRow, type ProductRollup } from "./portfolio";
 import type { Health, Project, ProjectStatus } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
+import { ExportReportMenu } from "@/features/reports/ExportReportMenu";
 
 const HEALTH_ORDER: Health[] = ["red", "amber", "green"];
 
@@ -99,6 +100,7 @@ export function DashboardPage() {
             ? "Salud RAG automática, derivada de fechas y actividad."
             : "Vista global de productos, proyectos y salud."
         }
+        actions={<ExportReportMenu scope="portfolio" />}
       />
 
       <div className="grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-border sm:grid-cols-2 lg:grid-cols-4">
