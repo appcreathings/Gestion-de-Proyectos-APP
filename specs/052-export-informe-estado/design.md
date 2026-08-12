@@ -267,8 +267,11 @@ persistir el report (query no puede llevar todo el body). Mejor:
 - **Dialog fullscreen** dentro de la app con `window.print()` y `@media print` que oculte
   `#root` chrome… frágil con el layout actual.
 
-**Decisión preferida:** `window.open` + `document.write` de HTML autocontenido (CSS inline en
-`<style>`). Sin React en la ventana de print → menos bugs de layout.
+**Decisión preferida:** Blob URL (`URL.createObjectURL`) + `window.open(url)` de HTML
+autocontenido (CSS inline en `<style>`). **No** usar `noopener` en el tercer argumento de
+`window.open` — en Chromium suele devolver `null` y el PDF queda muerto. El HTML dispara
+`print()` al cargar y además muestra un botón “Imprimir / Guardar como PDF” por si el
+diálogo automático se bloquea. Sin React en la ventana de print.
 
 ### 4.2 CSS mínimo del HTML
 

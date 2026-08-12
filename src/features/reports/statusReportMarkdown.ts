@@ -60,39 +60,28 @@ function projectMarkdown(r: ProjectStatusReport): string {
   }
   lines.push("");
 
+  const dueHeaders = r.includePeople
+    ? ["Ítem", "Vence", "Días", "Área", "Responsable"]
+    : ["Ítem", "Vence", "Días", "Área"];
+  const dueRow = (d: (typeof r.overdue)[number]) => {
+    const cells = [d.label, d.dueDate, String(d.daysUntil), d.areaName ?? "—"];
+    if (r.includePeople) cells.push(d.assigneeName ?? "—");
+    return cells;
+  };
+
   lines.push("## Vencidos");
   if (r.overdue.length === 0) {
     lines.push("_Sin tareas vencidas._");
   } else {
-    lines.push(
-      table(
-        ["Ítem", "Vence", "Días", "Área"],
-        r.overdue.map((d) => [
-          d.label,
-          d.dueDate,
-          String(d.daysUntil),
-          d.areaName ?? "—",
-        ]),
-      ) + omittedNote(r.overdueOmitted),
-    );
+    lines.push(table(dueHeaders, r.overdue.map(dueRow)) + omittedNote(r.overdueOmitted));
   }
   lines.push("");
 
-  lines.push("## Por vencer");
+  lines.push(`## Por vencer (≤ ${r.dueSoonDays} días)`);
   if (r.dueSoon.length === 0) {
     lines.push("_Nada por vencer en el umbral configurado._");
   } else {
-    lines.push(
-      table(
-        ["Ítem", "Vence", "Días", "Área"],
-        r.dueSoon.map((d) => [
-          d.label,
-          d.dueDate,
-          String(d.daysUntil),
-          d.areaName ?? "—",
-        ]),
-      ) + omittedNote(r.dueSoonOmitted),
-    );
+    lines.push(table(dueHeaders, r.dueSoon.map(dueRow)) + omittedNote(r.dueSoonOmitted));
   }
   lines.push("");
 
@@ -100,16 +89,23 @@ function projectMarkdown(r: ProjectStatusReport): string {
   if (r.focusTasks.length === 0) {
     lines.push("_Sin tareas en foco._");
   } else {
+    const focusHeaders = r.includePeople
+      ? ["Tarea", "Estado", "Prioridad", "Vence", "Área", "Responsable"]
+      : ["Tarea", "Estado", "Prioridad", "Vence", "Área"];
     lines.push(
       table(
-        ["Tarea", "Estado", "Prioridad", "Vence", "Área"],
-        r.focusTasks.map((t) => [
-          t.title,
-          taskStatusLabel[t.status],
-          t.priorityLabel,
-          t.dueDate ?? "—",
-          t.areaName ?? "—",
-        ]),
+        focusHeaders,
+        r.focusTasks.map((t) => {
+          const cells = [
+            t.title,
+            taskStatusLabel[t.status],
+            t.priorityLabel,
+            t.dueDate ?? "—",
+            t.areaName ?? "—",
+          ];
+          if (r.includePeople) cells.push(t.assigneeName ?? "—");
+          return cells;
+        }),
       ) + omittedNote(r.focusTasksOmitted),
     );
   }
@@ -171,39 +167,28 @@ function portfolioMarkdown(r: PortfolioStatusReport): string {
   }
   lines.push("");
 
+  const dueHeaders = r.includePeople
+    ? ["Proyecto", "Ítem", "Vence", "Días", "Responsable"]
+    : ["Proyecto", "Ítem", "Vence", "Días"];
+  const dueRow = (d: (typeof r.overdue)[number]) => {
+    const cells = [d.projectName ?? "—", d.label, d.dueDate, String(d.daysUntil)];
+    if (r.includePeople) cells.push(d.assigneeName ?? "—");
+    return cells;
+  };
+
   lines.push("## Vencidos");
   if (r.overdue.length === 0) {
     lines.push("_Sin vencidos._");
   } else {
-    lines.push(
-      table(
-        ["Proyecto", "Ítem", "Vence", "Días"],
-        r.overdue.map((d) => [
-          d.projectName ?? "—",
-          d.label,
-          d.dueDate,
-          String(d.daysUntil),
-        ]),
-      ) + omittedNote(r.overdueOmitted),
-    );
+    lines.push(table(dueHeaders, r.overdue.map(dueRow)) + omittedNote(r.overdueOmitted));
   }
   lines.push("");
 
-  lines.push("## Por vencer");
+  lines.push(`## Por vencer (≤ ${r.dueSoonDays} días)`);
   if (r.dueSoon.length === 0) {
     lines.push("_Nada por vencer._");
   } else {
-    lines.push(
-      table(
-        ["Proyecto", "Ítem", "Vence", "Días"],
-        r.dueSoon.map((d) => [
-          d.projectName ?? "—",
-          d.label,
-          d.dueDate,
-          String(d.daysUntil),
-        ]),
-      ) + omittedNote(r.dueSoonOmitted),
-    );
+    lines.push(table(dueHeaders, r.dueSoon.map(dueRow)) + omittedNote(r.dueSoonOmitted));
   }
   lines.push("");
 
@@ -224,18 +209,25 @@ function portfolioMarkdown(r: PortfolioStatusReport): string {
   if (r.openProjects.length === 0) {
     lines.push("_Sin proyectos abiertos._");
   } else {
+    const openHeaders = r.includePeople
+      ? ["Proyecto", "Estado", "Salud", "Checklists", "Tareas", "Vence", "Responsable"]
+      : ["Proyecto", "Estado", "Salud", "Checklists", "Tareas", "Vence"];
     lines.push(
       table(
-        ["Proyecto", "Estado", "Salud", "Checklists", "Tareas", "Vence"],
-        r.openProjects.map((p) => [
-          p.name,
-          p.statusLabel,
-          p.healthLabel,
-          `${p.checklistPct}%`,
-          `${p.taskPct}%`,
-          p.dueDate ?? "—",
-        ]),
-      ),
+        openHeaders,
+        r.openProjects.map((p) => {
+          const cells = [
+            p.name,
+            p.statusLabel,
+            p.healthLabel,
+            `${p.checklistPct}%`,
+            `${p.taskPct}%`,
+            p.dueDate ?? "—",
+          ];
+          if (r.includePeople) cells.push(p.ownerName ?? "—");
+          return cells;
+        }),
+      ) + omittedNote(r.openProjectsOmitted),
     );
   }
   lines.push("");

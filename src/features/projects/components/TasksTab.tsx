@@ -19,6 +19,7 @@ import {
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { Archive, CalendarDays, CheckSquare, Filter, LayoutGrid, List, MoreHorizontal, Plus, Search, Settings, Trash2, X } from "lucide-react";
 import { TaskCalendarView } from "../calendar/TaskCalendarView";
+import { taskMatchesSearch, taskMatchesSprintScope } from "../calendar/buildCalendarItems";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -295,18 +296,10 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
 
   // Tasks visible in the board: area filter combined with the sprint scope, search query and enriched filters (spec 017).
   const tasksInScope = useMemo(() => {
-    let result = sprintScope === "all" ? areaScoped : sprintScope === "backlog"
-      ? areaScoped.filter((t) => t.sprintId === null)
-      : areaScoped.filter((t) => t.sprintId === sprintScope);
+    let result = areaScoped.filter((t) => taskMatchesSprintScope(t, sprintScope));
 
-    // Apply search filter
     if (debouncedQuery) {
-      const query = debouncedQuery.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.title.toLowerCase().includes(query) ||
-          t.description.toLowerCase().includes(query),
-      );
+      result = result.filter((t) => taskMatchesSearch(t, debouncedQuery));
     }
 
     // Apply priority filter
@@ -715,6 +708,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
               onClick={() => setTasksViewMode("kanban")}
               className="min-h-11 rounded-r-none px-2.5 sm:min-h-9 sm:px-3"
               title="Vista Kanban"
+              aria-label="Vista Kanban"
               aria-pressed={viewMode === "kanban"}
             >
               <LayoutGrid className="size-3.5 sm:mr-1.5" />
@@ -726,6 +720,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
               onClick={() => setTasksViewMode("list")}
               className="min-h-11 rounded-none border-l border-border/70 px-2.5 sm:min-h-9 sm:px-3"
               title="Vista Lista"
+              aria-label="Vista Lista"
               aria-pressed={viewMode === "list"}
             >
               <List className="size-3.5 sm:mr-1.5" />
@@ -737,6 +732,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
               onClick={() => setTasksViewMode("calendar")}
               className="min-h-11 rounded-l-none border-l border-border/70 px-2.5 sm:min-h-9 sm:px-3"
               title="Vista Calendario"
+              aria-label="Vista Calendario"
               aria-pressed={viewMode === "calendar"}
             >
               <CalendarDays className="size-3.5 sm:mr-1.5" />

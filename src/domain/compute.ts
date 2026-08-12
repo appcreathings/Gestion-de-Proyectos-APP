@@ -1,3 +1,4 @@
+import { daysBetween, todayKey } from "@/lib/dates";
 import type { Area, Checklist, Project, Quarter } from "./schemas";
 
 export interface ProgressStat {
@@ -41,17 +42,23 @@ export function projectTaskProgress(p: Project): ProgressStat {
   return stat(done, p.tasks.length);
 }
 
-export function isStalled(p: Project, stalledAfterDays: number): boolean {
+export function isStalled(
+  p: Project,
+  stalledAfterDays: number,
+  now: Date = new Date(),
+): boolean {
   if (p.status === "done" || p.status === "archived") return false;
-  const ageMs = Date.now() - new Date(p.updatedAt).getTime();
+  const ageMs = now.getTime() - new Date(p.updatedAt).getTime();
   return ageMs > stalledAfterDays * 24 * 60 * 60 * 1000;
 }
 
-/** Days until a YYYY-MM-DD date; negative = overdue. null if no date. */
-export function daysUntil(date: string | null): number | null {
+/**
+ * Whole-day difference from the local calendar day of `now` to a YYYY-MM-DD key.
+ * Negative = overdue, 0 = today. `now` is injectable so reports stay deterministic.
+ */
+export function daysUntil(date: string | null, now: Date = new Date()): number | null {
   if (!date) return null;
-  const target = new Date(date + "T23:59:59");
-  return Math.ceil((target.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  return daysBetween(todayKey(now), date);
 }
 
 /** Aggregate checklist progress across a set of projects (roll-up building block). */

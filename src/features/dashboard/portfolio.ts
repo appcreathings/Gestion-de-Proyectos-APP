@@ -67,7 +67,7 @@ export function computePortfolio(
 
   const rows: DueRow[] = open.flatMap((p) =>
     collectDatedEntities(p)
-      .map((de) => ({ ...de, projectId: p.id, d: daysUntil(de.dueDate) }))
+      .map((de) => ({ ...de, projectId: p.id, d: daysUntil(de.dueDate, now) }))
       .filter((r): r is DueRow => r.d !== null),
   );
 
@@ -110,7 +110,7 @@ export function computePortfolio(
     avgProgress,
     overdue: rows.filter((r) => r.d < 0).sort((a, b) => a.d - b.d),
     dueSoon: rows.filter((r) => r.d >= 0 && r.d <= settings.dueSoonDays).sort((a, b) => a.d - b.d),
-    stalled: projects.filter((p) => isStalled(p, settings.stalledAfterDays)),
+    stalled: projects.filter((p) => isStalled(p, settings.stalledAfterDays, now)),
     byStatus,
     byHealth,
     byProduct: rollupByProduct(open, products, settings, now),

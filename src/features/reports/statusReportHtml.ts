@@ -135,12 +135,23 @@ export function reportToPrintableHtml(report: StatusReport): string {
     blockquote { margin: 0.5rem 0; padding: 0.5rem 0.75rem; background: #f8f8f8; border-left: 3px solid #999; color: #444; }
     ul { margin: 0.35rem 0 0.75rem; padding-left: 1.25rem; }
     footer { margin-top: 2rem; font-size: 11px; color: #888; }
+    .no-print { margin: 0 0 1rem; }
+    .no-print button {
+      font: inherit;
+      padding: 0.45rem 0.8rem;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      border-radius: 6px;
+    }
     @media print {
       body { padding: 0; }
+      .no-print { display: none; }
     }
   </style>
 </head>
 <body>
+<p class="no-print"><button type="button" onclick="window.print()">Imprimir / Guardar como PDF</button></p>
 ${body}
 <footer>Generado con Hito — local-first</footer>
 <script>window.addEventListener("load", function () { window.focus(); setTimeout(function(){ window.print(); }, 200); });</script>

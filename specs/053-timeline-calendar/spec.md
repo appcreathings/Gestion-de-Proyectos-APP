@@ -1,6 +1,6 @@
 # Spec 053 — Vista línea de tiempo / calendario
 
-> Estado: **IMPLEMENTADO** (MVP 2026-08-11).
+> Estado: **IMPLEMENTADO** (corregido 2026-08-12).
 > Feature dir: `specs/053-timeline-calendar/` · Fecha: 2026-08-11
 > Roadmap: `timeline-calendar` en `src/features/releases/data/roadmap.ts`
 >   («Ver vencimientos y sprints en un eje temporal, no solo columnas Kanban»).
@@ -50,8 +50,8 @@ semanal con una fracción del costo de un Gantt.
 
 - Gantt con dependencias, holgura, ruta crítica, resource leveling.
 - Drag de *duración* de tarea (las tareas **no** tienen `startDate`; solo `dueDate`).
-- Vista de portafolio multi-proyecto en un solo calendario (follow-up; Mis tareas / dashboard
-  cubren parte del dolor).
+- ~~Vista de portafolio multi-proyecto en un solo calendario~~ → **en Trimestres**
+  (lista | calendario de todos los proyectos; filtro por trimestre).
 - UI de milestones (el schema existe; activarlos es otra feature).
 - Sincronización con Google Calendar / ICS (local-first; export ICS podría ser follow-up).
 
@@ -190,7 +190,7 @@ vencimiento.
 
 - Dependencias entre tareas / Gantt clásico (001, 017).
 - `Task.startDate` y barras de duración de tarea.
-- Calendario multi-proyecto en `/app`.
+- Calendario multi-proyecto en el rail de `/app` (vive en **Trimestres**, no en Dashboard).
 - Export ICS / sync Google.
 - CRUD de milestones en esta vista.
 - Timezone por proyecto (día local del dispositivo, igual que el resto de Hito).
@@ -214,9 +214,21 @@ vencimiento.
 
 ## 10. Progreso
 
-- **Estado general: ✅ MVP implementado (2026-08-11).**
-- **Vista Calendario** en `TasksTab` (3er modo: kanban | list | calendar).
-- Semana / mes, bandas de sprint, chips de due, panel «Sin fecha», línea de tiempo ~4 semanas.
-- Helpers de rango en `lib/dates.ts`; `buildCalendarModel` + tests.
-- Drag reprogramar (HU-06) aplazado.
-- Suite: **1138** tests en verde.
+- **Estado general: ✅ Cerrado y corregido (2026-08-12).** El MVP del 11/08 montaba la
+  vista pero **no** cumplía el contrato visual/a11y: bandas de sprint se superponían
+  en la misma fila, el mes no marcaba el rango de sprint en las celdas, chips del mes
+  no eran botones con `aria-label` de vencimiento, la nav decía “Anterior” genérico,
+  el empty state miraba tareas fuera de scope, la timeline tenía navegación
+  desacoplada (dos ejes) y los puntos del mismo día se apilaban en el mismo pixel.
+  El predicado de búsqueda/scope del Kanban no era el del builder (CA-03).
+- **Corrección 2026-08-12:** `packSprintLanes` (lanes sin overlap) + click en banda
+  enfoca el sprint; borde de sprint en celdas de mes; chips como `button` con
+  `aria-label` `{título}, vence {día}, {estado}` y estilo overdue; nav “Semana/Mes
+  anterior|siguiente”; timeline anclada a la semana visible; `taskMatchesSearch` /
+  `taskMatchesSprintScope` compartidos con `TasksTab` (título, descripción, summary,
+  tags).
+- Helpers de rango en `lib/dates.ts`; `buildCalendarModel` + pack/search tests.
+- **HU-06 (drag reprogramar) aplazado** — no bloquea el cierre de HU-01–05.
+- **Calendario de portafolio en Trimestres (2026-08-12):** vista Lista | Calendario
+  con todos los proyectos (barras de trimestre/proyecto, vencimientos, Semana/Mes/
+  Trimestre). `buildPortfolioCalendarModel` + `PortfolioCalendarView`.

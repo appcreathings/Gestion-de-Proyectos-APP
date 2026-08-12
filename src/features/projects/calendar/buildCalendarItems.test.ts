@@ -1,8 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { newProject, newTask, newArea } from "@/domain/factories";
+import { newProject, newTask, newArea, newQuarter } from "@/domain/factories";
 import {
   buildCalendarModel,
+  buildPortfolioCalendarModel,
+  monthsOverlapping,
+  packSprintLanes,
   partitionDayChips,
+  sprintsCoveringDay,
+  taskMatchesSearch,
   taskMatchesSprintScope,
 } from "./buildCalendarItems";
 import { weekRangeContaining, monthRangeContaining, eachDay } from "@/lib/dates";
@@ -112,5 +117,116 @@ describe("buildCalendarModel", () => {
 
   it("partitionDayChips", () => {
     expect(partitionDayChips([1, 2, 3, 4], 3)).toEqual({ visible: [1, 2, 3], more: 1 });
+  });
+
+  it("taskMatchesSearch looks at title, summary and tags", () => {
+    const task = {
+      title: "Landing",
+      description: "",
+      summary: "hero CTA",
+      tags: ["seo", "web"],
+    };
+    expect(taskMatchesSearch(task, "cta")).toBe(true);
+    expect(taskMatchesSearch(task, "SEO")).toBe(true);
+    expect(taskMatchesSearch(task, "pago")).toBe(false);
+  });
+
+  it("packs overlapping sprints into separate lanes", () => {
+    const range = weekRangeContaining("2026-08-12");
+    const packed = packSprintLanes(
+      [
+        {
+          kind: "sprint",
+          id: "s1",
+          name: "A",
+          start: "2026-08-10",
+          end: "2026-08-16",
+          status: "active",
+          goal: "",
+        },
+        {
+          kind: "sprint",
+          id: "s2",
+          name: "B",
+          start: "2026-08-12",
+          end: "2026-08-20",
+          status: "planned",
+          goal: "",
+        },
+      ],
+      range,
+    );
+    expect(packed.laneCount).toBe(2);
+    expect(new Set(packed.bands.map((b) => b.lane)).size).toBe(2);
+    expect(sprintsCoveringDay(packed.bands.map((b) => ({
+      kind: "sprint" as const,
+      id: b.id,
+      name: b.name,
+      start: b.start,
+      end: b.end,
+      status: b.status,
+      goal: b.goal,
+    })), "2026-08-12")).toHaveLength(2);
+  });
+});
+
+describe("buildPortfolioCalendarModel", () => {
+  it("merges tasks and project dues from every open project", () => {
+    const a = newProject("Alpha");
+    a.id = "pa";
+    a.dueDate = "2026-08-14";
+    const t = newTask("Ship");
+    t.id = "ta";
+    t.dueDate = "2026-08-12";
+    a.tasks = [t];
+
+    const b = newProject("Beta");
+    b.id = "pb";
+    b.status = "done";
+    const tb = newTask("Cerrada");
+    tb.id = "tb";
+    tb.dueDate = "2026-08-12";
+    b.tasks = [tb];
+
+    const archived = newProject("Viejo");
+    archived.status = "archived";
+
+    const q = newQuarter("Q3 2026");
+    q.id = "q3";
+    q.startDate = "2026-07-01";
+    q.endDate = "2026-09-30";
+
+    const model = buildPortfolioCalendarModel({
+      projects: [a, b, archived],
+      quarters: [q],
+      range: weekRangeContaining("2026-08-12"),
+      includeDone: false,
+    });
+
+    expect(model.tasks.map((x) => x.id)).toEqual(["ta"]);
+    expect(model.tasks[0].projectName).toBe("Alpha");
+    expect(model.projectDues.map((d) => d.name)).toEqual(["Alpha"]);
+    expect(model.bands.some((band) => band.kind === "quarter" && band.name === "Q3 2026")).toBe(true);
+  });
+
+  it("adds a project range band when start and due intersect the range", () => {
+    const p = newProject("Rollout");
+    p.id = "pr";
+    p.startDate = "2026-08-01";
+    p.dueDate = "2026-08-31";
+    const model = buildPortfolioCalendarModel({
+      projects: [p],
+      quarters: [],
+      range: weekRangeContaining("2026-08-12"),
+      includeDone: false,
+    });
+    expect(model.bands).toEqual([
+      expect.objectContaining({ kind: "project", name: "Rollout", start: "2026-08-01" }),
+    ]);
+  });
+
+  it("monthsOverlapping covers a quarter span", () => {
+    const months = monthsOverlapping({ start: "2026-07-01", end: "2026-09-30" });
+    expect(months.map((m) => m.start)).toEqual(["2026-07-01", "2026-08-01", "2026-09-01"]);
   });
 });

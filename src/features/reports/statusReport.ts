@@ -58,6 +58,8 @@ export interface ProjectStatusReport {
   scope: "project";
   generatedAt: string;
   title: string;
+  includePeople: boolean;
+  dueSoonDays: number;
   statusLabel: string;
   healthLabel: string;
   priorityLabel: string;
@@ -81,6 +83,8 @@ export interface PortfolioStatusReport {
   scope: "portfolio";
   generatedAt: string;
   title: string;
+  includePeople: boolean;
+  dueSoonDays: number;
   totals: { projects: number; open: number; avgProgress: number };
   byStatus: { label: string; count: number }[];
   byHealth: { label: string; count: number }[];
@@ -107,7 +111,9 @@ export interface PortfolioStatusReport {
     checklistPct: number;
     taskPct: number;
     dueDate: string | null;
+    ownerName?: string | null;
   }[];
+  openProjectsOmitted: number;
 }
 
 export type StatusReport = ProjectStatusReport | PortfolioStatusReport;
@@ -164,7 +170,7 @@ export function buildProjectReport(
 
   const dated: ReportDueItem[] = [];
   for (const de of collectDatedEntities(project)) {
-    const d = daysUntil(de.dueDate);
+    const d = daysUntil(de.dueDate, options.now);
     if (d === null) continue;
     if (de.ref.kind === "task" && de.ref.taskId) {
       const task = project.tasks.find((t) => t.id === de.ref.taskId);
@@ -186,7 +192,9 @@ export function buildProjectReport(
             project.tasks.find((t) => t.id === de.ref.taskId)?.assigneeId ?? null,
             options.includePeople,
           )
-        : null;
+        : de.ref.kind === "project"
+          ? personName(deps.people, project.ownerId, options.includePeople)
+          : null;
     dated.push({
       kind: dueKind(de.ref),
       label: de.label,
@@ -239,6 +247,8 @@ export function buildProjectReport(
     scope: "project",
     generatedAt: formatGeneratedAt(options.now),
     title: project.name,
+    includePeople: options.includePeople,
+    dueSoonDays: options.dueSoonDays,
     statusLabel: projectStatusLabel[project.status],
     healthLabel: healthLabel[health],
     priorityLabel: priorityLabel[project.priority],
@@ -290,22 +300,46 @@ export function buildPortfolioReport(
   ): ReportDueItem[] =>
     rows.map((r) => {
       const proj = projects.find((p) => p.id === r.projectId);
+      let assigneeName: string | null = null;
+      if (options.includePeople && proj) {
+        if (r.ref.kind === "task" && r.ref.taskId) {
+          const task = proj.tasks.find((t) => t.id === r.ref.taskId);
+          assigneeName = personName(people, task?.assigneeId, true);
+        } else if (r.ref.kind === "project") {
+          assigneeName = personName(people, proj.ownerId, true);
+        }
+      }
       return {
         kind: dueKind(r.ref),
         label: r.label,
         dueDate: r.dueDate,
         daysUntil: r.d,
         projectName: proj?.name,
+        assigneeName,
       };
     });
 
   const overdueCapped = capList(mapDue(stats.overdue), cap);
   const dueSoonCapped = capList(mapDue(stats.dueSoon), cap);
+  const openCapped = capList(
+    open.map((p) => ({
+      name: p.name,
+      statusLabel: projectStatusLabel[p.status],
+      healthLabel: healthLabel[effectiveHealth(p, settings, options.now)],
+      checklistPct: projectChecklistProgress(p).pct,
+      taskPct: projectTaskProgress(p).pct,
+      dueDate: p.dueDate,
+      ownerName: personName(people, p.ownerId, options.includePeople),
+    })),
+    cap,
+  );
 
   return {
     scope: "portfolio",
     generatedAt: formatGeneratedAt(options.now),
     title: orgName ? `Informe de portafolio — ${orgName}` : "Informe de portafolio",
+    includePeople: options.includePeople,
+    dueSoonDays: options.dueSoonDays,
     totals: {
       projects: stats.total,
       open: stats.active,
@@ -333,14 +367,8 @@ export function buildPortfolioReport(
       healthLabel: healthLabel[effectiveHealth(p, settings, options.now)],
       updatedAt: p.updatedAt,
     })),
-    openProjects: open.map((p) => ({
-      name: p.name,
-      statusLabel: projectStatusLabel[p.status],
-      healthLabel: healthLabel[effectiveHealth(p, settings, options.now)],
-      checklistPct: projectChecklistProgress(p).pct,
-      taskPct: projectTaskProgress(p).pct,
-      dueDate: p.dueDate,
-    })),
+    openProjects: openCapped.items,
+    openProjectsOmitted: openCapped.omitted,
   };
 }
 

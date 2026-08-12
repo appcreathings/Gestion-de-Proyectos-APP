@@ -10,14 +10,14 @@ import type { Health, Project, Settings } from "./schemas";
  *   green → en otro caso
  * Done/archived projects are always green (out of scope for risk).
  */
-export function deriveHealth(project: Project, settings: Settings, _now: Date): Health {
+export function deriveHealth(project: Project, settings: Settings, now: Date): Health {
   if (project.status === "done" || project.status === "archived") return "green";
 
-  if (isStalled(project, settings.stalledAfterDays)) return "red";
+  if (isStalled(project, settings.stalledAfterDays, now)) return "red";
 
   let amber = false;
   for (const de of collectDatedEntities(project)) {
-    const d = daysUntil(de.dueDate);
+    const d = daysUntil(de.dueDate, now);
     if (d === null) continue;
     if (d < 0) return "red";
     if (d <= settings.dueSoonDays) amber = true;

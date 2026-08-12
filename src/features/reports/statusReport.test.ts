@@ -110,5 +110,67 @@ describe("status reports (spec 052)", () => {
     expect(html).toContain("&lt;script&gt;");
     expect(html).not.toContain("<script>alert");
     expect(html).toContain("@media print");
+    expect(html).toContain("Imprimir / Guardar como PDF");
+  });
+
+  it("uses injected now for overdue vs due-soon and lists people when enabled", () => {
+    const person = newPerson("Diego");
+    person.id = "person-1";
+    const project = newProject("Acme");
+    project.ownerId = person.id;
+    const overdue = newTask("Pago vencido");
+    overdue.id = "t-over";
+    overdue.dueDate = "2026-08-10";
+    overdue.status = "todo";
+    overdue.assigneeId = person.id;
+    const soon = newTask("Cierre");
+    soon.id = "t-soon";
+    soon.dueDate = "2026-08-14";
+    soon.status = "doing";
+    soon.assigneeId = person.id;
+    project.tasks = [overdue, soon];
+
+    const now = new Date(2026, 7, 12, 15, 0, 0);
+    const withPeople = buildProjectReport(
+      project,
+      { people: [person], settings },
+      { includePeople: true, now, dueSoonDays: 7 },
+    );
+    expect(withPeople.overdue.map((d) => d.label)).toEqual(["Pago vencido"]);
+    expect(withPeople.overdue[0].daysUntil).toBe(-2);
+    expect(withPeople.dueSoon.map((d) => d.label)).toEqual(["Cierre"]);
+    expect(withPeople.dueSoon[0].daysUntil).toBe(2);
+    expect(withPeople.ownerName).toBe("Diego");
+
+    const md = reportToMarkdown(withPeople);
+    expect(md).toContain("Diego");
+    expect(md).toContain("## Por vencer (≤ 7 días)");
+
+    const hidden = buildProjectReport(
+      project,
+      { people: [person], settings },
+      { includePeople: false, now, dueSoonDays: 7 },
+    );
+    expect(hidden.ownerName).toBeNull();
+    expect(reportToMarkdown(hidden)).not.toContain("Diego");
+  });
+
+  it("caps long lists with an omitted note", () => {
+    const project = newProject("Cap");
+    project.tasks = Array.from({ length: 4 }, (_, i) => {
+      const t = newTask(`Tarea ${i + 1}`);
+      t.id = `t-${i}`;
+      t.dueDate = "2020-01-01";
+      t.status = "todo";
+      return t;
+    });
+    const report = buildProjectReport(
+      project,
+      { people: [], settings },
+      { includePeople: true, now: new Date("2026-08-12T12:00:00"), dueSoonDays: 7, listCap: 2 },
+    );
+    expect(report.overdue).toHaveLength(2);
+    expect(report.overdueOmitted).toBe(2);
+    expect(reportToMarkdown(report)).toContain("…y 2 más");
   });
 });

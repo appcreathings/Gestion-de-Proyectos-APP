@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Download, FileText, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,44 +90,52 @@ export function ExportReportMenu(props: Props) {
       return;
     }
     const html = reportToPrintableHtml(report);
-    const w = window.open("", "_blank", "noopener,noreferrer");
+    // Blob URL avoids `window.open(..., "noopener")` returning null and
+    // document.write being blocked. The HTML itself triggers print on load.
+    const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+    const w = window.open(url, "_blank");
     if (!w) {
+      URL.revokeObjectURL(url);
       toast.error(
         "No se pudo abrir la vista de impresión. Permití ventanas emergentes o usá Descargar Markdown.",
       );
       return;
     }
-    w.document.write(html);
-    w.document.close();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
   const scopeLabel =
     props.scope === "project" ? "Este proyecto" : "Portafolio completo";
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <Download className="size-4" />
-          Exportar informe
+          {props.scope === "portfolio" ? (
+            <>
+              <span className="sm:hidden">Exportar informe</span>
+              <span className="hidden sm:inline">Exportar informe de portafolio</span>
+            </>
+          ) : (
+            "Exportar informe"
+          )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-72">
         <p className="px-2 py-1.5 text-xs text-muted-foreground">
           {scopeLabel} · descargá y enviá al cliente o al CEO — no sube nada a la nube.
         </p>
         <DropdownMenuSeparator />
-        <div className="flex items-center gap-2 px-2 py-1.5 text-sm">
-          <input
-            id="export-include-people"
-            type="checkbox"
-            className="size-4"
+        <div
+          className="flex items-center gap-2 px-2 py-1.5 text-sm"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <Checkbox
             checked={includePeople}
-            onChange={(e) => setIncludePeople(e.target.checked)}
+            onCheckedChange={setIncludePeople}
+            aria-label="Incluir nombres de personas"
           />
-          <label htmlFor="export-include-people" className="cursor-pointer">
-            Incluir nombres de personas
-          </label>
+          <span>Incluir nombres de personas</span>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={downloadMarkdown}>

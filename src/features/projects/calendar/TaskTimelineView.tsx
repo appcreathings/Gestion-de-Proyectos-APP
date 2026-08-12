@@ -1,22 +1,22 @@
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo } from "react";
 import {
   dayKeyFromDate,
   daysBetween,
   eachDay,
-  shiftRange,
+  formatDay,
   todayKey,
   weekRangeContaining,
   type DayRange,
 } from "@/lib/dates";
 import type { Project } from "@/domain/schemas";
-import { buildCalendarModel } from "./buildCalendarItems";
+import { buildCalendarModel, type CalendarTaskItem } from "./buildCalendarItems";
 import { cn } from "@/lib/utils";
 
 interface Props {
   project: Project;
   includeDone: boolean;
+  /** Day inside the calendar's visible range — timeline starts on that week's Monday. */
+  anchorDay: string;
   onOpenTask: (taskId: string) => void;
 }
 
@@ -24,20 +24,19 @@ interface Props {
 export function TaskTimelineView({
   project,
   includeDone,
+  anchorDay,
   onOpenTask,
 }: Props) {
-  const [anchor, setAnchor] = useState(() => todayKey());
-
   const range: DayRange = useMemo(() => {
-    const week = weekRangeContaining(anchor);
+    const week = weekRangeContaining(anchorDay);
     const start = week.start;
     const endDate = new Date(
-      parseInt(start.slice(0, 4)),
-      parseInt(start.slice(5, 7)) - 1,
-      parseInt(start.slice(8, 10)) + 27,
+      parseInt(start.slice(0, 4), 10),
+      parseInt(start.slice(5, 7), 10) - 1,
+      parseInt(start.slice(8, 10), 10) + 27,
     );
     return { start, end: dayKeyFromDate(endDate) };
-  }, [anchor]);
+  }, [anchorDay]);
 
   const days = useMemo(() => eachDay(range), [range]);
   const totalDays = days.length;
@@ -59,31 +58,24 @@ export function TaskTimelineView({
   const todayOffset =
     today >= range.start && today <= range.end ? daysBetween(range.start, today) : null;
 
-  function shift(delta: number) {
-    const w = weekRangeContaining(anchor);
-    const next = shiftRange(w, "week", delta);
-    setAnchor(next.start);
-  }
+  const markersByDay = useMemo(() => {
+    const map = new Map<string, CalendarTaskItem[]>();
+    for (const t of model.tasks) {
+      const list = map.get(t.day) ?? [];
+      list.push(t);
+      map.set(t.day, list);
+    }
+    return map;
+  }, [model.tasks]);
 
   if (model.sprints.length === 0 && model.tasks.length === 0) return null;
 
   return (
     <div className="space-y-2 rounded-xl border border-border p-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-medium">Línea de tiempo</p>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => shift(-1)} aria-label="Semanas anteriores">
-            <ChevronLeft className="size-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => shift(1)} aria-label="Semanas siguientes">
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
-      </div>
+      <p className="text-sm font-medium">Línea de tiempo</p>
 
       <div className="overflow-x-auto">
-        <div className="relative min-w-[640px]" style={{ height: 28 + model.sprints.length * 28 + 36 }}>
-          {/* Day ticks every 7 days */}
+        <div className="relative min-w-[640px]" style={{ height: 28 + model.sprints.length * 28 + 40 }}>
           <div className="absolute inset-x-0 top-0 flex h-5 text-[9px] text-muted-foreground">
             {days.map((d, i) =>
               i % 7 === 0 ? (
@@ -106,7 +98,6 @@ export function TaskTimelineView({
             />
           )}
 
-          {/* Sprint bars */}
           {model.sprints.map((s, i) => {
             const startOff = Math.max(0, daysBetween(range.start, s.start));
             const endOff = Math.min(totalDays - 1, daysBetween(range.start, s.end));
@@ -126,26 +117,25 @@ export function TaskTimelineView({
                   left: `${left}%`,
                   width: `${Math.max(width, 2)}%`,
                 }}
-                title={`${s.name}: ${s.start} – ${s.end}`}
+                title={`${s.name}: ${s.start} – ${s.end}${s.goal ? ` — ${s.goal}` : ""}`}
               >
                 {s.name}
               </div>
             );
           })}
 
-          {/* Task markers */}
           <div
             className="absolute inset-x-0"
-            style={{ top: 22 + model.sprints.length * 26 + 4, height: 24 }}
+            style={{ top: 22 + model.sprints.length * 26 + 4, height: 28 }}
           >
-            {model.tasks.map((t) => {
-              const off = daysBetween(range.start, t.day);
-              if (off < 0 || off >= totalDays) return null;
-              return (
+            {[...markersByDay.entries()].flatMap(([day, tasks]) => {
+              const off = daysBetween(range.start, day);
+              if (off < 0 || off >= totalDays) return [];
+              return tasks.map((t, i) => (
                 <button
                   key={t.id}
                   type="button"
-                  title={t.title}
+                  title={`${t.title} · ${formatDay(t.day)}`}
                   onClick={() => onOpenTask(t.id)}
                   className={cn(
                     "absolute size-2.5 -translate-x-1/2 rounded-full border border-background",
@@ -155,16 +145,19 @@ export function TaskTimelineView({
                         ? "bg-blue-500"
                         : "bg-foreground/70",
                   )}
-                  style={{ left: `${((off + 0.5) / totalDays) * 100}%`, top: 6 }}
-                  aria-label={t.title}
+                  style={{
+                    left: `${((off + 0.5) / totalDays) * 100}%`,
+                    top: 4 + Math.min(i, 3) * 6,
+                  }}
+                  aria-label={`${t.title}, vence ${formatDay(t.day)}`}
                 />
-              );
+              ));
             })}
           </div>
         </div>
       </div>
       <p className="text-[10px] text-muted-foreground">
-        Barras = sprints · puntos = vencimientos de tareas (sin duración: las tareas solo tienen fecha de vencimiento).
+        4 semanas desde la semana visible. Barras = sprints · puntos = vencimientos (las tareas no tienen duración).
       </p>
     </div>
   );

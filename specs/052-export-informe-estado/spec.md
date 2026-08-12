@@ -1,6 +1,6 @@
 # Spec 052 — Export de informe de estado (proyecto / portafolio)
 
-> Estado: **IMPLEMENTADO** (2026-08-11).
+> Estado: **IMPLEMENTADO** (corregido 2026-08-12).
 > Feature dir: `specs/052-export-informe-estado/` · Fecha: 2026-08-11
 > Roadmap: `export-status-pack` en `src/features/releases/data/roadmap.ts` («Sacar un informe sin abrir Hito»).
 > Antecede: dashboard M5 (`computePortfolio`), Overview de proyecto, tools IA
@@ -217,8 +217,19 @@ Detalle de campos y caps en [`design.md`](./design.md).
 
 ## 10. Progreso
 
-- **Estado general: ✅ Implementado (2026-08-11).**
-- **Código:** `src/features/reports/` — `statusReport`, markdown, HTML print, `ExportReportMenu`.
-  Botones en `ProjectDetailPage` y `DashboardPage`. `src/lib/download.ts`.
+- **Estado general: ✅ Cerrado y corregido (2026-08-12).** El MVP del 11/08 cumplía el
+  esqueleto (menú + MD + HTML) pero **no** los CA de producto: el PDF usaba
+  `window.open(..., "noopener")` (a menudo `null` / sin `document.write`), el print no
+  tenía fallback visible, los nombres de personas no salían en las tablas aunque el
+  toggle estuviera on, `openProjects` no respetaba `listCap`, “Por vencer” no mostraba
+  el umbral N, y `daysUntil` ignoraba el `now` inyectado (informe no determinista).
+- **Corrección 2026-08-12:** blob URL para la vista imprimible + botón “Imprimir /
+  Guardar como PDF”; columnas Responsable cuando `includePeople`; cap + nota “y N más”
+  también en proyectos abiertos; heading `Por vencer (≤ N días)`; `daysUntil` /
+  `computePortfolio` / `deriveHealth` anclados al `now` del corte; label de portafolio
+  en el dashboard.
+- **Código:** `src/features/reports/` — `statusReport`, markdown, HTML print,
+  `ExportReportMenu`. Botones en `ProjectDetailPage` y `DashboardPage`.
+  `src/lib/download.ts`.
 - **Sin schema bump.** Markdown canónico; PDF vía print del navegador.
-- **Tests:** 6 unitarios del builder/MD/HTML (+ suite completa en verde).
+- **HU-06 (drag) no aplica.** Follow-ups (PDF binario, envío por flujo) siguen fuera.
