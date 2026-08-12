@@ -63,9 +63,24 @@ export const PollTriggerSchema = z.object({
 });
 export type PollTrigger = z.infer<typeof PollTriggerSchema>;
 
+/** Trigger por horario (spec 051 / 033 §B1). Cadencias nombradas, no cron libre.
+ * `atHour`/`weekday` se validan en producto (`validateFlow`) para permitir
+ * borradores a medias en el editor. */
+export const ScheduleTriggerSchema = z.object({
+  type: z.literal("schedule"),
+  cadence: z.enum(["hourly", "daily", "weekly"]),
+  atMinute: z.number().int().min(0).max(59).default(0),
+  /** 0–23, requerido en la práctica para daily/weekly. */
+  atHour: z.number().int().min(0).max(23).optional(),
+  /** 0 = domingo … 6 = sábado (`Date.getDay()`). Solo weekly. */
+  weekday: z.number().int().min(0).max(6).optional(),
+});
+export type ScheduleTrigger = z.infer<typeof ScheduleTriggerSchema>;
+
 export const TriggerSchema = z.discriminatedUnion("type", [
   EventTriggerSchema,
   PollTriggerSchema,
+  ScheduleTriggerSchema,
 ]);
 export type Trigger = z.infer<typeof TriggerSchema>;
 
@@ -79,6 +94,16 @@ export const FlowConditionSchema = z.object({
   value: z.unknown(),
 });
 export type FlowCondition = z.infer<typeof FlowConditionSchema>;
+
+/** Guarda opcional por output (spec 055 / 033 §B2): si no se cumple, el
+ * output se omite (`skipped`) y el resto del flujo sigue. Ausente o
+ * `conditions: []` = siempre ejecutar (retrocompat). */
+export const OutputWhenSchema = z.object({
+  conditions: z.array(FlowConditionSchema).default([]),
+  /** Ausente = "all" (mismo criterio que `logic.conditionMode`, 027 §F). */
+  conditionMode: z.enum(["all", "any"]).optional(),
+});
+export type OutputWhen = z.infer<typeof OutputWhenSchema>;
 
 export const FieldMappingSchema = z.object({
   source: z.string(),
@@ -143,6 +168,7 @@ export const CreateTaskOutputSchema = z.object({
    * destino, se omite la creación en vez de duplicar (spec 023 §E). Vacío/
    * ausente: sin deduplicación, comportamiento previo (crea siempre). */
   dedupeKey: z.string().optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type CreateTaskOutput = z.infer<typeof CreateTaskOutputSchema>;
 
@@ -160,6 +186,7 @@ export const CreateProjectOutputSchema = z.object({
   /** Igual que en `CreateTaskOutputSchema`: si ya existe un proyecto con este
    * `dedupeKey` (interpolado), se omite la creación (spec 023 §E). */
   dedupeKey: z.string().optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type CreateProjectOutput = z.infer<typeof CreateProjectOutputSchema>;
 
@@ -174,6 +201,7 @@ export const CreatePersonOutputSchema = z.object({
    * (spec 026 §B4). Si se omite, el match sigue resolviendo `matchField`
    * directamente contra el registro (comportamiento previo). */
   matchSource: z.string().optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type CreatePersonOutput = z.infer<typeof CreatePersonOutputSchema>;
 
@@ -182,6 +210,7 @@ export const SetProjectStatusOutputSchema = z.object({
   status: z.string(),
   /** Proyecto explícito a modificar. Si se omite, se usa el proyecto del evento disparador. */
   projectId: z.string().optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type SetProjectStatusOutput = z.infer<typeof SetProjectStatusOutputSchema>;
 
@@ -191,6 +220,7 @@ export const SetFieldOutputSchema = z.object({
   value: z.unknown(),
   /** Proyecto explícito a modificar. Si se omite, se usa el proyecto del evento disparador. */
   projectId: z.string().optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type SetFieldOutput = z.infer<typeof SetFieldOutputSchema>;
 
@@ -198,6 +228,7 @@ export const CreateNotificationOutputSchema = z.object({
   type: z.literal("createNotification"),
   severity: Severity,
   message: z.string(),
+  when: OutputWhenSchema.optional(),
 });
 export type CreateNotificationOutput = z.infer<typeof CreateNotificationOutputSchema>;
 
@@ -206,6 +237,7 @@ export const MarkAreaCompleteOutputSchema = z.object({
   /** Proyecto/área explícitos. Si se omiten, se usan los del evento disparador. */
   projectId: z.string().optional(),
   areaId: z.string().optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type MarkAreaCompleteOutput = z.infer<typeof MarkAreaCompleteOutputSchema>;
 
@@ -238,6 +270,13 @@ export const WebhookOutputSchema = z.object({
    * el body plano en su escenario de Make); la UI de creación default
    * "envelope". */
   payloadShape: z.enum(["envelope", "bare"]).optional(),
+  /** Método HTTP (spec 056 / 033 §B3). Ausente = POST (retrocompat). */
+  method: z.enum(["POST", "PUT", "PATCH"]).optional(),
+  /** Headers custom interpolables (spec 056). No pueden pisar Content-Type
+   * ni X-Hito-*. Para auth de terceros (Bearer, API key) va aquí, no en
+   * `secret` (ese es solo la firma HMAC de Hito). */
+  headers: z.record(z.string()).optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type WebhookOutput = z.infer<typeof WebhookOutputSchema>;
 
@@ -253,6 +292,7 @@ export const EmailOutputSchema = z.object({
   subject: z.string(),
   body: z.string(),
   retry: RetryPolicySchema.optional(),
+  when: OutputWhenSchema.optional(),
 });
 export type EmailOutput = z.infer<typeof EmailOutputSchema>;
 

@@ -149,6 +149,14 @@ export function deriveAvailableVariables(
     return Array.from(seen.entries()).map(([field, example]) => ({ field, example }));
   }
 
+  // Spec 051: record sintético de schedule.
+  if (trigger.type === "schedule") {
+    seen.set("firedAt", new Date().toISOString());
+    seen.set("cadence", trigger.cadence);
+    if (trigger.weekday !== undefined) seen.set("weekday", String(trigger.weekday));
+    return Array.from(seen.entries()).map(([field, example]) => ({ field, example }));
+  }
+
   return [];
 }
 

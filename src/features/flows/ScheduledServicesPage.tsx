@@ -35,6 +35,9 @@ function formatMs(ms: number): string {
  * Ninguno era antes inspeccionable desde la UI. */
 export function ScheduledServicesPage() {
   const [pollingRows, setPollingRows] = useState<PollingStatusRow[]>([]);
+  const [scheduleRows, setScheduleRows] = useState<
+    { flowId: string; flowName: string; summary: string; lastFiredAt: string | null }[]
+  >([]);
   const [outboundRunning, setOutboundRunning] = useState<boolean | null>(null);
   const [outboundPending, setOutboundPending] = useState<number | null>(null);
   const [healthRows, setHealthRows] = useState<ConnectionHealth[]>([]);
@@ -57,6 +60,22 @@ export function ScheduledServicesPage() {
       setPollingRows(Object.entries(statuses).map(([key, s]) => ({ key, ...s })));
       setOutboundRunning(isOutboundProcessorRunning());
       setOutboundPending(await integrationDb.outboundQueue.count());
+
+      // Spec 051: flujos con trigger schedule activos.
+      try {
+        const { scheduleManager } = await import("@/integrations/scheduling/schedule-manager");
+        const sch = scheduleManager.getAllStatuses();
+        setScheduleRows(
+          Object.entries(sch).map(([flowId, s]) => ({
+            flowId,
+            flowName: s.flowName,
+            summary: s.summary,
+            lastFiredAt: s.lastFiredAt,
+          })),
+        );
+      } catch {
+        setScheduleRows([]);
+      }
 
       // Spec 033 A2: semáforo de salud por conexión — deriva de syncLogs +
       // métricas de polling. El inbox reporta backlog; el resto queda en null.
@@ -143,12 +162,49 @@ export function ScheduledServicesPage() {
           <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm">
             <Radio className="mt-0.5 size-4 shrink-0 text-warning" />
             <p className="text-muted-foreground">
-              El sondeo de conexiones y la recepción vía <strong>inbox</strong> (Make/Zapier) funcionan{" "}
-              <strong>solo mientras Hito está abierto</strong> en una pestaña. Al reabrir, Hito recupera
-              lo pendiente (catch-up), hasta el límite de retención del proxy — Hito no es un consumidor
-              24/7, es la contraparte honesta del modelo local-first.
+              El sondeo de conexiones, la recepción vía <strong>inbox</strong> (Make/Zapier) y los{" "}
+              <strong>flujos programados</strong> funcionan <strong>solo mientras Hito está abierto</strong>{" "}
+              en una pestaña. Al reabrir, Hito recupera lo pendiente (catch-up) — como máximo un disparo
+              por flujo horario si se perdió la hora. Hito no es un consumidor 24/7, es la contraparte
+              honesta del modelo local-first.
             </p>
           </div>
+
+          <Panel
+            label="Horarios"
+            title="Flujos programados"
+            description="Flujos con trigger «En un horario» activos en esta pestaña (spec 051)."
+          >
+            {scheduleRows.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Sin flujos programados activos. Creá un flujo con trigger «En un horario» y activarlo.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {scheduleRows.map((row) => (
+                  <div
+                    key={row.flowId}
+                    className="flex items-center gap-3 rounded-lg border border-border p-3"
+                  >
+                    <Radio className="size-4 text-success" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{row.flowName}</p>
+                      <p className="text-xs text-muted-foreground">{row.summary}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Último disparo:{" "}
+                        {row.lastFiredAt
+                          ? new Date(row.lastFiredAt).toLocaleString("es")
+                          : "nunca"}
+                      </p>
+                    </div>
+                    <Badge variant="success" className="text-[10px]">
+                      Activo
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Panel>
 
           <Panel label="Entrada" title="Polling de conexiones" description="Registros activos que sondean HubSpot/Sheets/inbox periódicamente.">
             {pollingRows.length === 0 ? (

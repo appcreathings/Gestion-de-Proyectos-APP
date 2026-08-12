@@ -114,6 +114,25 @@ export function validateFlow(flow: FlowRule, deps: ValidateFlowDeps): FlowIssue[
     });
   }
 
+  // Spec 051: horario diario/semanal necesita hora; semanal necesita día.
+  if (flow.trigger.type === "schedule") {
+    const t = flow.trigger;
+    if ((t.cadence === "daily" || t.cadence === "weekly") && t.atHour === undefined) {
+      issues.push({
+        severity: "error",
+        nodeKind: "trigger",
+        message: "El horario diario/semanal necesita una hora.",
+      });
+    }
+    if (t.cadence === "weekly" && t.weekday === undefined) {
+      issues.push({
+        severity: "error",
+        nodeKind: "trigger",
+        message: "El horario semanal necesita un día de la semana.",
+      });
+    }
+  }
+
   // ── Flujo sin acciones ─────────────────────────────────────────────────
   if (flow.outputs.length === 0) {
     issues.push({

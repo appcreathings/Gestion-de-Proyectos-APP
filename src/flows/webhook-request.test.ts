@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildWebhookRequest } from "./webhook-request";
+import { buildWebhookRequest, isReservedWebhookHeader } from "./webhook-request";
 import { verifyRaw } from "@/integrations/outbound/signing";
 import type { WebhookOutput } from "@/domain/schemas/flow";
 
@@ -154,6 +154,78 @@ describe("buildWebhookRequest", () => {
       eventType: "flow.execution",
       workspace: { org: "Hito" },
       data: { taskId: "t1" },
+    });
+  });
+
+  // Spec 056 / 033 §B3 — method + headers custom.
+  describe("method and custom headers (spec 056)", () => {
+    it("uses PUT when method is set", async () => {
+      const output: WebhookOutput = {
+        type: "webhook",
+        url: "https://x.co/h",
+        secret: "",
+        method: "PUT",
+      };
+      const request = await buildWebhookRequest(output, {});
+      expect(request.init.method).toBe("PUT");
+    });
+
+    it("defaults to POST when method is absent (retrocompat)", async () => {
+      const output: WebhookOutput = { type: "webhook", url: "https://x.co/h", secret: "" };
+      const request = await buildWebhookRequest(output, {});
+      expect(request.init.method).toBe("POST");
+    });
+
+    it("includes interpolated custom headers", async () => {
+      const output: WebhookOutput = {
+        type: "webhook",
+        url: "https://x.co/h",
+        secret: "",
+        headers: { Authorization: "Bearer {{token}}", "X-Client": "hito" },
+      };
+      const request = await buildWebhookRequest(output, { token: "abc123" });
+      const headers = request.init.headers as Record<string, string>;
+      expect(headers.Authorization).toBe("Bearer abc123");
+      expect(headers["X-Client"]).toBe("hito");
+      expect(headers["Content-Type"]).toBe("application/json");
+    });
+
+    it("does not let custom headers override Content-Type or X-Hito-*", async () => {
+      const output: WebhookOutput = {
+        type: "webhook",
+        url: "https://x.co/h",
+        secret: "s",
+        headers: {
+          "Content-Type": "text/plain",
+          "X-Hito-Signature": "evil",
+          "X-Hito-Delivery": "fake",
+          Authorization: "Bearer ok",
+        },
+      };
+      const request = await buildWebhookRequest(output, {});
+      const headers = request.init.headers as Record<string, string>;
+      expect(headers["Content-Type"]).toBe("application/json");
+      expect(headers["X-Hito-Signature"]).toBe(request.signature);
+      expect(headers["X-Hito-Signature"]).not.toBe("evil");
+      expect(headers["X-Hito-Delivery"]).toBe(request.deliveryId);
+      expect(headers.Authorization).toBe("Bearer ok");
+    });
+
+    it("reports unresolved tokens from custom headers", async () => {
+      const output: WebhookOutput = {
+        type: "webhook",
+        url: "https://x.co/h",
+        secret: "",
+        headers: { Authorization: "Bearer {{missingToken}}" },
+      };
+      const request = await buildWebhookRequest(output, {});
+      expect(request.unresolved).toContain("missingToken");
+    });
+
+    it("isReservedWebhookHeader marks system headers", () => {
+      expect(isReservedWebhookHeader("Content-Type")).toBe(true);
+      expect(isReservedWebhookHeader("x-hito-signature")).toBe(true);
+      expect(isReservedWebhookHeader("Authorization")).toBe(false);
     });
   });
 });

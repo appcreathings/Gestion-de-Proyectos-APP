@@ -121,7 +121,11 @@ Reusa `postToProxy` (032). El `sampleBody` es un JSON fijo `{ demo: true, titulo
 
 ### B1 · Trigger programado (schedule)
 
-**Schema** (`src/domain/schemas/flow.ts`, bump 15→16 identidad):
+> **Extraído a [spec 051](../051-flows-trigger-programado/design.md)** (2026-08-11). El diseño de
+> abajo es el esbozo original; la fuente de verdad para implementar es 051 (bump real **19→20**,
+> tick compartido, watermark antes de `onFire`, re-registro al hydrate).
+
+**Schema** (`src/domain/schemas/flow.ts`, bump 15→16 identidad — *histórico; al implementar usar 19→20*):
 
 ```ts
 export const ScheduleTriggerSchema = z.object({

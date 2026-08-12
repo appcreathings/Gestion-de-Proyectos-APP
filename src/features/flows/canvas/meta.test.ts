@@ -4,10 +4,11 @@ import {
   triggerSummary,
   conditionSummary,
   formatConditionValue,
+  actionSummary,
 } from "./meta";
 import { providerLabel } from "@/domain/labels";
 import type { PollTrigger } from "@/domain/schemas/flow";
-import type { TriggerNodeData } from "@/flows/graph";
+import type { ActionNodeData, TriggerNodeData } from "@/flows/graph";
 
 describe("defaultOutputForType — webhook (spec 034 §A)", () => {
   it("nace en modo Simple: payload plano, sin secreto (revierte el default envelope de 032)", () => {
@@ -64,6 +65,29 @@ describe("triggerSummary — proveedores del poll (CA-06.1)", () => {
     expect(
       triggerSummary({ kind: "trigger", trigger: { type: "event", event: "task.statusChanged" } }),
     ).toBe("Al cambiar el estado de una tarea");
+  });
+});
+
+describe("actionSummary — guarda por output (spec 055)", () => {
+  it("añade «con guarda» cuando el output tiene condiciones when", () => {
+    const data: ActionNodeData = {
+      kind: "action",
+      output: {
+        type: "createNotification",
+        severity: "info",
+        message: "Aviso",
+        when: { conditions: [{ field: "amount", op: ">", value: 10 }] },
+      },
+    };
+    expect(actionSummary(data)).toBe("Aviso · con guarda");
+  });
+
+  it("no añade sufijo si no hay guarda", () => {
+    const data: ActionNodeData = {
+      kind: "action",
+      output: { type: "createNotification", severity: "info", message: "Aviso" },
+    };
+    expect(actionSummary(data)).toBe("Aviso");
   });
 });
 

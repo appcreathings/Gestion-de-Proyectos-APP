@@ -58,6 +58,8 @@ interface DataState {
     flowId: string,
     options?: { syntheticEvent?: DomainEvent },
   ) => Promise<import("@/flows/manual-run").ManualRunOutcome>;
+  /** Disparo automático de un Flujo con trigger schedule (spec 051). */
+  runScheduledFlow: (flowId: string, firedAtIso: string) => Promise<void>;
 
   createProduct: (p: Product) => Promise<void>;
   updateProduct: (p: Product) => Promise<void>;
@@ -205,6 +207,10 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   async runFlowNow(flowId, options) {
     return runFlowNowImpl(flowId, options);
+  },
+
+  async runScheduledFlow(flowId, firedAtIso) {
+    await runScheduledFlowImpl(flowId, firedAtIso);
   },
 
   async createProduct(p) {
@@ -1144,6 +1150,17 @@ async function runFlowNowImpl(
       });
     }
     events = [options.syntheticEvent];
+  } else if (flow.trigger.type === "schedule") {
+    // Spec 051 CA-05.2: Ejecutar ahora NO avanza el watermark de cadencia.
+    const { scheduleTriggerKey } = await import("@/flows/engine");
+    const { syntheticScheduleRecord, scheduleSpecFromTrigger } = await import(
+      "@/integrations/scheduling/schedule-cadence"
+    );
+    const record = syntheticScheduleRecord(
+      scheduleSpecFromTrigger(flow.trigger),
+      nowIso(),
+    );
+    externalData = new Map([[scheduleTriggerKey(flow.id), [record]]]);
   }
 
   const transientFlow = { ...flow, enabled: true };
@@ -1191,6 +1208,40 @@ async function runFlowNowImpl(
         ? "El flujo corrió pero no tiene ninguna acción configurada."
         : "El flujo corrió pero ningún registro cumplió las condiciones configuradas.",
   });
+}
+
+/** Spec 051: ejecución automática de un Flujo programado (catch-up o tick). */
+async function runScheduledFlowImpl(flowId: string, firedAtIso: string) {
+  const s = useDataStore.getState();
+  try {
+    const { useFlowStore } = await import("./useFlowStore");
+    const { runFlowEngine, scheduleTriggerKey } = await import("@/flows/engine");
+    const { syntheticScheduleRecord, scheduleSpecFromTrigger } = await import(
+      "@/integrations/scheduling/schedule-cadence"
+    );
+
+    const flowStore = useFlowStore.getState();
+    const flow = flowStore.flows.find((f) => f.id === flowId);
+    if (!flow || flow.trigger.type !== "schedule" || !flow.enabled) return;
+
+    const record = syntheticScheduleRecord(scheduleSpecFromTrigger(flow.trigger), firedAtIso);
+    const externalData = new Map([[scheduleTriggerKey(flow.id), [record]]]);
+
+    const flowResult = await runFlowEngine({
+      flows: [flow],
+      events: [],
+      projects: s.projects,
+      people: s.people,
+      checklistTemplates: s.checklistTemplates,
+      projectTypes: s.projectTypes,
+      processTemplates: s.processTemplates,
+      externalData,
+      trace: true,
+    });
+    await applyFlowResult(flowResult, flowStore, { isAutomatic: true });
+  } catch (error) {
+    console.error("Error running scheduled flow:", error);
+  }
 }
 
 /** Rebuild the lightweight index in workspace.json from the loaded entities. */

@@ -64,8 +64,11 @@ function getSampleDataForTrigger(trigger: Trigger): Record<string, unknown> {
   if (trigger.type === "event") {
     return { type: trigger.event, projectId: "sample-project", taskId: "sample-task", from: "todo", to: "done" };
   }
-  if (trigger.provider === "hubspot") {
+  if (trigger.type === "poll" && trigger.provider === "hubspot") {
     return { email: "test@example.com", firstname: "John", lastname: "Doe", company: "Acme Corp", phone: "+1234567890" };
+  }
+  if (trigger.type === "schedule") {
+    return { firedAt: new Date().toISOString(), cadence: trigger.cadence };
   }
   return {};
 }

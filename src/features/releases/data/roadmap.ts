@@ -4,7 +4,10 @@ import type { RoadmapHorizon, RoadmapItem } from "../types";
  * Roadmap público de producto.
  *
  * Anclado a backlog real:
- * - Spec 033 fases 2–3 (expresividad y madurez de flujos)
+ * - Spec 033 fases 2–3 → 051 schedule, 055 guardas, 056 webhook method/headers
+ * - Spec 052 export informe estado (export-status-pack)
+ * - Spec 053 timeline/calendario (timeline-calendar)
+ * - Spec 054 kanban móvil táctil (mobile-kanban)
  * - ROADMAP_BLOG.md (clusters 2–5 pendientes)
  * - Spec 017 HU-15 (tendencias de dashboard — no está en código)
  * - Follow-ups naturales de 042 (anexos) y del producto local-first
@@ -31,18 +34,18 @@ export const ROADMAP: RoadmapItem[] = [
     id: "flows-schedule-trigger",
     title: "Flujos que corren solos a la hora que elegís",
     description:
-      "Trigger programado (cada día / cada semana a las 9:00) con catch-up al reabrir Hito. Hoy solo hay evento de dominio y polling de integraciones — spec 033 · B1.",
+      "Trigger programado (cada día / cada semana a las 9:00) con catch-up al reabrir Hito — spec 051 (extrae 033 · B1).",
     horizon: "now",
-    status: "planned",
+    status: "shipped",
     area: "Flujos",
   },
   {
     id: "flows-output-guards",
     title: "Si el deal es grande… (ramas sin duplicar el flujo)",
     description:
-      "Guarda por salida: un output solo corre si su condición pasa. «Deal > 10k → crear proyecto y avisar; si no, solo tarea» sin clonar el flujo entero — spec 033 · B2.",
+      "Guarda por salida: un output solo corre si su condición pasa. «Deal > 10k → crear proyecto y avisar; si no, solo tarea» sin clonar el flujo entero — spec 055 (extrae 033 · B2).",
     horizon: "now",
-    status: "planned",
+    status: "shipped",
     area: "Flujos",
   },
   {
@@ -60,9 +63,9 @@ export const ROADMAP: RoadmapItem[] = [
     id: "webhook-http-power",
     title: "Webhooks que hablan el idioma de cualquier API",
     description:
-      "Método PUT/PATCH y headers custom interpolables (`Authorization: Bearer {{token}}`) en el output webhook — para ir más allá de los catch-hooks de Make — spec 033 · B3.",
+      "Método PUT/PATCH y headers custom interpolables (`Authorization: Bearer {{token}}`) en el output webhook — para ir más allá de los catch-hooks de Make — spec 056 (extrae 033 · B3).",
     horizon: "next",
-    status: "planned",
+    status: "shipped",
     area: "Integraciones",
   },
   {
@@ -96,9 +99,9 @@ export const ROADMAP: RoadmapItem[] = [
     id: "export-status-pack",
     title: "Sacar un informe sin abrir Hito",
     description:
-      "Export de resumen de proyecto o portfolio a Markdown/PDF: estado, tareas vencidas, avance por área. Para el cliente o el CEO que no va a instalar la app.",
+      "Export de resumen de proyecto o portfolio a Markdown/PDF: estado, tareas vencidas, avance por área. Para el cliente o el CEO que no va a instalar la app — spec 052.",
     horizon: "next",
-    status: "planned",
+    status: "shipped",
     area: "Proyectos",
   },
   {
@@ -161,7 +164,7 @@ export const ROADMAP: RoadmapItem[] = [
     id: "timeline-calendar",
     title: "Vista línea de tiempo / calendario",
     description:
-      "Ver vencimientos y sprints en un eje temporal, no solo columnas Kanban. Ideal para el PM que planifica la semana de un vistazo.",
+      "Ver vencimientos y sprints en un eje temporal, no solo columnas Kanban. Ideal para el PM que planifica la semana de un vistazo — spec 053.",
     horizon: "later",
     status: "planned",
     area: "Proyectos",
@@ -170,7 +173,7 @@ export const ROADMAP: RoadmapItem[] = [
     id: "mobile-kanban",
     title: "Kanban usable en el teléfono",
     description:
-      "Flujo táctil para revisar, comentar y mover tareas desde el móvil — sin pretender ser una app nativa completa.",
+      "Flujo táctil para revisar, comentar y mover tareas desde el móvil — sin pretender ser una app nativa completa — spec 054 (sobre 010/011).",
     horizon: "later",
     status: "planned",
     area: "Kanban",

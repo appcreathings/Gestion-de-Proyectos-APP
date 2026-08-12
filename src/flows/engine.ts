@@ -13,7 +13,6 @@ import type {
 } from "@/domain/schemas";
 import type {
   FlowRule,
-  Trigger,
   PollTrigger,
   Output,
   FlowCondition,
@@ -269,11 +268,11 @@ export async function runFlowEngine(input: FlowEngineInput): Promise<FlowEngineR
 
   for (const flow of enabled) {
     // 1. ¿Este flow debe ejecutarse ahora?
-    if (!matchesTrigger(flow.trigger, input.events, input.externalData)) continue;
+    if (!matchesTrigger(flow, input.events, input.externalData)) continue;
 
     // 2. Obtener datos de entrada (junto con su procedencia, para targeting)
     const { records, sources } = resolveTriggerData(
-      flow.trigger,
+      flow,
       input.events,
       input.externalData,
       recordDeps
@@ -351,6 +350,28 @@ export async function runFlowEngine(input: FlowEngineInput): Promise<FlowEngineR
       const runContext: RunContext = { lastCreatedProjectId: null };
       for (let outputIndex = 0; outputIndex < flow.outputs.length; outputIndex++) {
         const output = flow.outputs[outputIndex];
+        // Spec 055 / 033 §B2: guarda por output. Si no se cumple, se omite
+        // esta acción (skipped) y se sigue con las demás — no es error ni
+        // activa onErrorPolicy "stop". Evalúa sobre el registro ya mapeado/
+        // transformado (mismos campos que ven las acciones).
+        const when = output.when;
+        if (when && when.conditions.length > 0) {
+          const guardMode = when.conditionMode ?? "all";
+          const { passed: guardPassed } = evaluateConditionsDetailed(
+            when.conditions,
+            transformed,
+            guardMode,
+          );
+          if (!guardPassed) {
+            recordTrace?.outputs.push({
+              type: output.type,
+              outcome: "skipped",
+              reason: "Omitido — guarda del paso no cumplida",
+              mutatedProjectIds: [],
+            });
+            continue;
+          }
+        }
         // Reintentos (spec 027 §E): SOLO webhook/email con `retry`
         // configurado, SOLO ante fallos transitorios (`TransientOutputError`
         // — red o HTTP ≥ 500), nunca en dry-run. Los outputs internos no se
@@ -508,25 +529,34 @@ export function pollTriggerKey(trigger: PollTrigger): string {
   return `hubspot:${trigger.config.connectionId}:${objectType}`;
 }
 
+/** Key de `externalData` para un disparo programado (spec 051). */
+export function scheduleTriggerKey(flowId: string): string {
+  return `schedule:${flowId}`;
+}
+
 function matchesTrigger(
-  trigger: Trigger,
+  flow: FlowRule,
   events: DomainEvent[],
   externalData?: Map<string, Record<string, unknown>[]>
 ): boolean {
+  const trigger = flow.trigger;
   switch (trigger.type) {
     case "event":
       return events.some((e) => e.type === trigger.event);
     case "poll":
       return externalData?.has(pollTriggerKey(trigger)) ?? false;
+    case "schedule":
+      return externalData?.has(scheduleTriggerKey(flow.id)) ?? false;
   }
 }
 
 function resolveTriggerData(
-  trigger: Trigger,
+  flow: FlowRule,
   events: DomainEvent[],
   externalData?: Map<string, Record<string, unknown>[]>,
   recordDeps?: EventRecordDeps
 ): { records: Record<string, unknown>[]; sources: RecordSource[] } {
+  const trigger = flow.trigger;
   switch (trigger.type) {
     case "event": {
       const matching = events.filter((e) => e.type === trigger.event);
@@ -546,6 +576,11 @@ function resolveTriggerData(
       const records = externalData?.get(pollTriggerKey(trigger)) ?? [];
       // Los registros externos (HubSpot, etc.) no tienen proyecto/área propios:
       // cualquier output que mute un proyecto debe targetearlo explícitamente.
+      return { records, sources: records.map(() => ({})) };
+    }
+    case "schedule": {
+      // Spec 051: record sintético { firedAt, cadence } — sin proyecto de origen.
+      const records = externalData?.get(scheduleTriggerKey(flow.id)) ?? [];
       return { records, sources: records.map(() => ({})) };
     }
   }

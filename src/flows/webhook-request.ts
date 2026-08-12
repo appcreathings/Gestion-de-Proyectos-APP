@@ -1,7 +1,13 @@
 import { nowIso, uuid } from "@/lib/utils";
 import type { WebhookOutput } from "@/domain/schemas/flow";
 import { signRaw } from "@/integrations/outbound/signing";
-import { interpolateObject } from "./interpolation";
+import { interpolateObject, interpolateString } from "./interpolation";
+
+/** Headers que el sistema define y el usuario no puede sobrescribir (spec 056). */
+export function isReservedWebhookHeader(name: string): boolean {
+  const n = name.trim().toLowerCase();
+  return n === "content-type" || n.startsWith("x-hito-");
+}
 
 export interface WebhookRequest {
   url: string;
@@ -74,16 +80,37 @@ export async function buildWebhookRequest(
   // verificar `HMAC(rawBody, secret) === X-Hito-Signature`.
   const rawBody = JSON.stringify(bodyObject);
 
+  // Spec 056: headers custom interpolables (merge debajo de los del sistema).
+  const customHeaders: Record<string, string> = {};
+  const headerUnresolved: string[] = [];
+  if (output.headers) {
+    for (const [rawName, rawValue] of Object.entries(output.headers)) {
+      const name = rawName.trim();
+      if (!name || isReservedWebhookHeader(name)) continue;
+      const { value, unresolved: u } = interpolateString(rawValue, data);
+      customHeaders[name] = value;
+      for (const token of u) {
+        if (!headerUnresolved.includes(token)) headerUnresolved.push(token);
+      }
+    }
+  }
+
   // Secreto vacío ⇒ webhook limpio (spec 034 §A): sin firma, sin headers
   // `X-Hito-*`. Con secreto ⇒ firma verificable de spec 032 (no se rompe).
   const shouldSign = output.secret.trim().length > 0;
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  // Sistema gana siempre: Content-Type + X-Hito-* pisan cualquier custom.
+  const systemHeaders: Record<string, string> = { "Content-Type": "application/json" };
   const signature = shouldSign ? await signRaw(rawBody, output.secret) : "";
   if (shouldSign) {
-    headers["X-Hito-Signature"] = signature;
-    headers["X-Hito-Event"] = "flow.execution";
-    headers["X-Hito-Delivery"] = deliveryId;
-    headers["X-Hito-Timestamp"] = timestamp;
+    systemHeaders["X-Hito-Signature"] = signature;
+    systemHeaders["X-Hito-Event"] = "flow.execution";
+    systemHeaders["X-Hito-Delivery"] = deliveryId;
+    systemHeaders["X-Hito-Timestamp"] = timestamp;
+  }
+  const headers = { ...customHeaders, ...systemHeaders };
+  const allUnresolved = [...unresolved];
+  for (const token of headerUnresolved) {
+    if (!allUnresolved.includes(token)) allUnresolved.push(token);
   }
 
   return {
@@ -93,9 +120,9 @@ export async function buildWebhookRequest(
     signature,
     deliveryId,
     timestamp,
-    unresolved,
+    unresolved: allUnresolved,
     init: {
-      method: "POST",
+      method: output.method ?? "POST",
       headers,
       body: rawBody,
     },

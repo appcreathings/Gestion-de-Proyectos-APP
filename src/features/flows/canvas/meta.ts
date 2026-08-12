@@ -13,6 +13,10 @@ import {
 } from "lucide-react";
 import type { Output } from "@/domain/schemas/flow";
 import { triggerLabel, providerLabel } from "@/domain/labels";
+import {
+  formatScheduleSummary,
+  scheduleSpecFromTrigger,
+} from "@/integrations/scheduling/schedule-cadence";
 import type {
   TriggerNodeData,
   ConditionNodeData,
@@ -80,6 +84,9 @@ export function defaultOutputForType(type: Output["type"]): Output {
 export function triggerSummary(data: TriggerNodeData): string {
   const t = data.trigger;
   if (t.type === "event") return triggerLabel[t.event] ?? t.event;
+  if (t.type === "schedule") {
+    return formatScheduleSummary(scheduleSpecFromTrigger(t));
+  }
   const objectType = t.config.objectType ? ` · ${t.config.objectType}` : "";
   return `Polling ${providerLabel[t.provider]}${objectType}`;
 }
@@ -115,22 +122,35 @@ export function transformSummary(data: TransformNodeData): string {
 
 export function actionSummary(data: ActionNodeData): string {
   const meta = outputMeta(data.output.type);
+  let base: string;
   switch (data.output.type) {
     case "createTask":
-      return data.output.title || "Sin título";
+      base = data.output.title || "Sin título";
+      break;
     case "createProject":
-      return data.output.name || "Sin nombre";
+      base = data.output.name || "Sin nombre";
+      break;
     case "createNotification":
-      return data.output.message || "Sin mensaje";
+      base = data.output.message || "Sin mensaje";
+      break;
     case "setProjectStatus":
-      return `Estado → ${data.output.status}`;
+      base = `Estado → ${data.output.status}`;
+      break;
     case "webhook":
-      return data.output.url || "Sin URL";
+      base = data.output.url || "Sin URL";
+      break;
     case "email":
-      return data.output.to || "Sin destinatario";
+      base = data.output.to || "Sin destinatario";
+      break;
     default:
-      return meta.label;
+      base = meta.label;
   }
+  // Spec 055: indicar en el canvas que el paso tiene guarda sin abrir el drawer.
+  const guardCount = data.output.when?.conditions?.length ?? 0;
+  if (guardCount > 0) {
+    return `${base} · con guarda`;
+  }
+  return base;
 }
 
 export { Zap as TriggerIcon };

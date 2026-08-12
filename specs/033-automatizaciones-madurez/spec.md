@@ -5,6 +5,11 @@
 - **Estado general: 🟨 Fase 1 implementada (A1, C1, A2, A3) — 2026-07-22.** Pendiente de verificación
   manual E2E (proxy real de Apps Script + Make/curl para el round-trip del inbox, T3332). Fases 2 y 3
   siguen en backlog.
+- **B1 · Trigger programado — ✅ implementado vía [spec 051](../051-flows-trigger-programado/spec.md)
+  (2026-08-11).** Cadencias daily/weekly/hourly, catch-up, `SCHEMA_VERSION` 21.
+- **B2 · Guardas por salida — ✅ implementado vía [spec 055](../055-flows-output-guards/spec.md) (2026-08-11).**
+  `Output.when`, motor skip, UI “Solo ejecutar si…”. `SCHEMA_VERSION` 20.
+- **B3 · Webhook method/headers — ✅ implementado vía [spec 056](../056-webhook-method-headers/spec.md) (2026-08-11).**
 - **Baseline de tests:** 588 → **629** (+41), todas en verde. `SCHEMA_VERSION` 15 → **16** (paso identidad
   en `migrations.ts`, introducido por C1). `tsc --noEmit` limpio; `eslint` con los 3 errores preexistentes
   (`ai/gemini/agent.ts`, `ai/modelSelector.test.ts`, `hooks/useBreakpoint.ts`) sin nuevos; `vite build` OK.
@@ -180,9 +185,10 @@ un check "he pegado la URL en Make/Zapier" para completar la lista.
 
 ### B1 · Trigger programado (schedule / cron ligero)
 
-**Estado:** ❌ Gap — el schema de triggers solo conoce `event` y `poll`
-([flow.ts:62-66](src/domain/schemas/flow.ts#L62-L66)); la superficie muerta de `schedule` se **retiró**
-en spec 019 §0.3 en vez de construirse.
+**Estado:** 📦 **Extraído a [spec 051](../051-flows-trigger-programado/spec.md)** (solo documentado,
+2026-08-11) — el schema de triggers solo conoce `event` y `poll`
+([flow.ts:66-69](src/domain/schemas/flow.ts#L66-L69)); la superficie muerta de `schedule` se **retiró**
+en spec 019 §0.3 en vez de construirse. Implementar vía 051 (no reabrir T3340–T3345 aquí).
 
 **Problema actual:** no se puede automatizar por tiempo ("cada día a las 9:00 revisar tareas vencidas y
 avisar", "cada lunes crear la tarea semanal de reporte", "cada hora drenar el inbox aunque no haya
@@ -214,7 +220,8 @@ correcto es lo delicado). **Riesgo:** doble disparo si el catch-up no marca bien
 
 ### B2 · Branching por salida (guardas por output)
 
-**Estado:** ❌ Gap — `evaluateConditionsDetailed` decide un único veredicto global y **todas** las
+**Estado:** 📦 **Extraído a [spec 055](../055-flows-output-guards/spec.md)** (solo documentado,
+2026-08-11). Gap de producto: `evaluateConditionsDetailed` decide un único veredicto global y **todas** las
 acciones corren si pasa (024 §F6 v2 lo dejó documentado, no construido; 027 §F solo agregó all/any
 plano a las condiciones globales).
 
@@ -239,7 +246,8 @@ por output cubre el caso más pedido con una fracción del esfuerzo.
 
 ### B3 · Webhook saliente: método HTTP y headers personalizados
 
-**Estado:** ❌ Gap — `buildWebhookRequest` ([webhook-request.ts](src/flows/webhook-request.ts)) fija
+**Estado:** 📦 **Extraído a [spec 056](../056-webhook-method-headers/spec.md)** (solo documentado,
+2026-08-11). Gap: `buildWebhookRequest` ([webhook-request.ts](src/flows/webhook-request.ts)) fija
 `method: "POST"` y un set fijo de headers (`Content-Type` + firma `X-Hito-*`); 026/027 lo dejaron
 explícitamente fuera de alcance.
 

@@ -23,6 +23,7 @@ import { interpolateObject } from "@/flows/interpolation";
 import { testWebhook, type WebhookTestResult } from "@/flows/webhook-test";
 import { INTERNAL_TARGET_FIELDS, type VariableRow } from "./variables";
 import { InterpolableField } from "./InterpolableField";
+import { OutputWhenEditor } from "./OutputWhenEditor";
 import { WebhookSignatureGuide } from "./WebhookSignatureGuide";
 
 /** Secreto HMAC estilo `whsec_…` para el modo Firmado (spec 034 §A) — mismo
@@ -184,11 +185,22 @@ export function ActionConfigFields({
       ? Object.entries(output.payload).map(([k, v]) => [k, typeof v === "string" ? v : JSON.stringify(v)] as [string, string])
       : []
   );
+  // Spec 056: filas de headers custom (mismo patrón que payload — clave vacía
+  // en estado local hasta que el usuario la complete).
+  const [headerRows, setHeaderRows] = useState<[string, string][]>(() =>
+    output.type === "webhook" && output.headers
+      ? Object.entries(output.headers)
+      : []
+  );
 
   useEffect(() => {
     getConnections("email").then(setEmailConnections);
   }, []);
 
+  // Spec 055: el cuerpo por tipo + la guarda común "Solo ejecutar si…" (mismo
+  // editor de condiciones del trigger). Envolvemos el switch para no repetir
+  // el bloque de guarda en cada case.
+  const body = (() => {
   switch (output.type) {
     case "createTask": {
       const projectRef = output.projectRef ?? "explicit";
@@ -708,6 +720,13 @@ export function ActionConfigFields({
       const previewSourceObj = payloadMode === "custom" ? (output.payload ?? {}) : (previewRecord ?? {});
       const preview = previewRecord ? interpolateObject(previewSourceObj, previewRecord) : undefined;
 
+      const updateHeaderRows = (entries: [string, string][]) => {
+        setHeaderRows(entries);
+        const headers: Record<string, string> = {};
+        for (const [k, v] of entries) if (k.trim()) headers[k.trim()] = v;
+        onChange({ headers: Object.keys(headers).length > 0 ? headers : undefined });
+      };
+
       return (
         <div className="space-y-3">
           <div className="grid gap-2">
@@ -723,6 +742,23 @@ export function ActionConfigFields({
                 La URL debería empezar con https:// — verificar antes de guardar.
               </p>
             )}
+          </div>
+          {/* Spec 056: método HTTP (default POST). */}
+          <div className="grid gap-2">
+            <Label htmlFor="webhook-method">Método HTTP</Label>
+            <Select
+              id="webhook-method"
+              value={output.method ?? "POST"}
+              onChange={(e) =>
+                onChange({
+                  method: e.target.value === "POST" ? undefined : (e.target.value as "PUT" | "PATCH"),
+                })
+              }
+            >
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="PATCH">PATCH</option>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label>Formato del envío</Label>
@@ -789,6 +825,76 @@ export function ActionConfigFields({
           )}
 
           <RetryFields retry={output.retry} onChange={(retry) => onChange({ retry })} />
+
+          {/* Spec 056: headers custom interpolables (auth de terceros, etc.). */}
+          <div className="grid gap-2">
+            <Label>Headers adicionales</Label>
+            <p className="text-xs text-muted-foreground">
+              Valores con {"{{campo}}"}. No podés sobrescribir Content-Type ni X-Hito-*. Para auth
+              de terceros usá un header (ej. Authorization: Bearer {"{{token}}"}), no el secreto de
+              firma de Hito.
+            </p>
+            {headerRows.length === 0 ? (
+              <p className="text-sm italic text-muted-foreground">Sin headers extra.</p>
+            ) : (
+              headerRows.map(([key, value], i) => {
+                const reserved = key.trim() !== "" && /^(content-type|x-hito-)/i.test(key.trim());
+                return (
+                  <div key={i} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={key}
+                        onChange={(e) => {
+                          const next = [...headerRows] as [string, string][];
+                          next[i] = [e.target.value, value];
+                          updateHeaderRows(next);
+                        }}
+                        placeholder="Authorization"
+                        className="w-40 shrink-0 font-mono text-xs"
+                      />
+                      <InterpolableField
+                        value={value}
+                        onChange={(v) => {
+                          const next = [...headerRows] as [string, string][];
+                          next[i] = [key, v];
+                          updateHeaderRows(next);
+                        }}
+                        placeholder="Bearer {{token}}"
+                        variables={availableVariables}
+                        sample={sample}
+                        previewRecordIndex={previewRecordIndex}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 shrink-0"
+                        aria-label="Quitar header"
+                        onClick={() => updateHeaderRows(headerRows.filter((_, j) => j !== i))}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </div>
+                    {reserved && (
+                      <p className="flex items-center gap-1.5 text-xs text-warning">
+                        <AlertCircle className="size-3.5 shrink-0" />
+                        Este nombre está reservado — se ignorará al enviar.
+                      </p>
+                    )}
+                  </div>
+                );
+              })
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => updateHeaderRows([...headerRows, ["", ""]])}
+            >
+              <Plus className="size-4" />
+              Añadir header
+            </Button>
+          </div>
 
           <div className="grid gap-2">
             <Label>Payload</Label>
@@ -1013,4 +1119,18 @@ export function ActionConfigFields({
     default:
       return null;
   }
+  })();
+
+  return (
+    <div className="space-y-4">
+      {body}
+      <OutputWhenEditor
+        when={output.when}
+        variables={availableVariables}
+        sample={sample}
+        previewRecordIndex={previewRecordIndex}
+        onChange={(when) => onChange({ when })}
+      />
+    </div>
+  );
 }

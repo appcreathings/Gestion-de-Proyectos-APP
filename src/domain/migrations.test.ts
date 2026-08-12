@@ -45,11 +45,32 @@ describe("migrateRecord", () => {
     expect(value).toMatchObject({ schemaVersion: 2, priority: "medium" });
   });
 
-  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v19)", () => {
+  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v21)", () => {
     const v1 = { id: "p1", schemaVersion: 1, name: "Demo" };
     const { value, migrated } = migrateRecord("projects", v1);
     expect(migrated).toBe(true);
-    expect(value.schemaVersion).toBe(19);
+    expect(value.schemaVersion).toBe(21);
+  });
+});
+
+describe("flows v19 -> v20 (spec 055: Output.when identity)", () => {
+  it("converges a v19 flows doc to v20 without touching outputs", () => {
+    const doc = {
+      schemaVersion: 19,
+      flows: [
+        {
+          id: "flow-a",
+          name: "Demo",
+          trigger: { type: "event", event: "task.added" },
+          outputs: [{ type: "createNotification", severity: "info", message: "hi" }],
+        },
+      ],
+    };
+    const { value, migrated } = migrateRecord("flows", doc, 20, MIGRATIONS);
+    expect(migrated).toBe(true);
+    expect(value.schemaVersion).toBe(20);
+    const flow = (value as { flows: Record<string, unknown>[] }).flows[0];
+    expect(flow.outputs).toEqual([{ type: "createNotification", severity: "info", message: "hi" }]);
   });
 });
 

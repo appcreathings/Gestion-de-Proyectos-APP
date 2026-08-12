@@ -338,7 +338,9 @@ export function FlowsPage() {
                     onToggle={() => void handleToggle(flow)}
                     onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
                     onRun={
-                      flow.trigger.type === "poll" ? () => setToRun(flow) : () => setToRunEvent(flow)
+                      flow.trigger.type === "event"
+                        ? () => setToRunEvent(flow)
+                        : () => setToRun(flow)
                     }
                     isRunning={runningId === flow.id}
                     historyOpen={openHistoryIds.has(flow.id)}

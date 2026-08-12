@@ -529,6 +529,257 @@ describe("FlowEngine", () => {
     });
   });
 
+  // Spec 051 — trigger schedule con record sintético vía externalData.
+  describe("Schedule trigger (spec 051)", () => {
+    it("runs when externalData has schedule:flowId key", async () => {
+      const { scheduleTriggerKey } = await import("./engine");
+      const flow: FlowRule = {
+        id: "flow-sched",
+        schemaVersion: 21,
+        name: "Daily",
+        enabled: true,
+        notifyOnFailure: true,
+        trigger: { type: "schedule", cadence: "daily", atHour: 9, atMinute: 0 },
+        logic: { conditions: [], mapping: [] },
+        outputs: [
+          {
+            type: "createNotification",
+            severity: "info",
+            message: "Disparo {{firedAt}}",
+          },
+        ],
+        lastRunAt: null,
+        runCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const externalData = new Map<string, Record<string, unknown>[]>();
+      externalData.set(scheduleTriggerKey(flow.id), [
+        { firedAt: "2026-08-12T12:00:00.000Z", cadence: "daily" },
+      ]);
+
+      const result = await runFlowEngine({
+        flows: [flow],
+        events: [],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+        externalData,
+        trace: true,
+      });
+
+      expect(result.notifications).toHaveLength(1);
+      expect(result.executedFlowIds).toContain(flow.id);
+    });
+
+    it("does not run schedule without externalData key", async () => {
+      const flow: FlowRule = {
+        id: "flow-sched-2",
+        schemaVersion: 21,
+        name: "Daily",
+        enabled: true,
+        notifyOnFailure: true,
+        trigger: { type: "schedule", cadence: "daily", atHour: 9, atMinute: 0 },
+        logic: { conditions: [], mapping: [] },
+        outputs: [{ type: "createNotification", severity: "info", message: "x" }],
+        lastRunAt: null,
+        runCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const result = await runFlowEngine({
+        flows: [flow],
+        events: [],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+      });
+
+      expect(result.notifications).toHaveLength(0);
+    });
+  });
+
+  // Spec 055 / 033 §B2 — guarda por output: un output se omite si `when` no pasa.
+  describe("Output guards (spec 055)", () => {
+    function baseFlow(outputs: FlowRule["outputs"], extra?: Partial<FlowRule>): FlowRule {
+      return {
+        id: "flow-guard",
+        schemaVersion: 20,
+        name: "Guard flow",
+        enabled: true,
+        notifyOnFailure: true,
+        trigger: { type: "event", event: "task.added" },
+        logic: { conditions: [], mapping: [] },
+        outputs,
+        lastRunAt: null,
+        runCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...extra,
+      };
+    }
+
+    const event: DomainEvent = {
+      type: "task.added",
+      projectId: "project-1",
+      taskId: "task-1",
+    };
+
+    it("skips an output when its when-guard fails; runs outputs without guard", async () => {
+      const flow = baseFlow([
+        {
+          type: "createNotification",
+          severity: "info",
+          message: "solo si amount > 10000",
+          when: {
+            conditions: [{ field: "amount", op: ">", value: 10000 }],
+            conditionMode: "all",
+          },
+        },
+        {
+          type: "createNotification",
+          severity: "info",
+          message: "siempre",
+        },
+      ]);
+
+      // Event records don't have amount — guard fails; second output always runs.
+      const result = await runFlowEngine({
+        flows: [flow],
+        events: [event],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+        trace: true,
+      });
+
+      expect(result.notifications).toHaveLength(1);
+      expect(result.notifications[0].message).toBe("siempre");
+      const outs = result.traces["flow-guard"].records[0].outputs;
+      expect(outs[0]).toMatchObject({
+        type: "createNotification",
+        outcome: "skipped",
+        reason: "Omitido — guarda del paso no cumplida",
+      });
+      expect(outs[1].outcome).toBe("executed");
+    });
+
+    it("executes an output when its when-guard passes", async () => {
+      const flow = baseFlow(
+        [
+          {
+            type: "createNotification",
+            severity: "info",
+            message: "deal grande",
+            when: {
+              conditions: [{ field: "amount", op: ">", value: 10000 }],
+            },
+          },
+        ],
+        {
+          // Map injects amount onto the record so the guard can see it.
+          logic: {
+            conditions: [],
+            mapping: [{ source: "type", target: "eventType" }],
+          },
+        },
+      );
+
+      // Use poll-style external data path instead: put amount on a synthetic
+      // path via transform. Simpler: poll trigger with external record.
+      const pollFlow: FlowRule = {
+        ...flow,
+        trigger: {
+          type: "poll",
+          provider: "hubspot",
+          config: {
+            connectionId: "c1",
+            objectType: "deals",
+            fields: [],
+            filters: [],
+            intervalMs: 300_000,
+          },
+        },
+        logic: { conditions: [], mapping: [] },
+      };
+
+      const externalData = new Map<string, Record<string, unknown>[]>();
+      externalData.set(pollTriggerKey(pollFlow.trigger as PollTrigger), [{ amount: 50_000 }]);
+
+      const result = await runFlowEngine({
+        flows: [pollFlow],
+        events: [],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+        externalData,
+        trace: true,
+      });
+
+      expect(result.notifications).toHaveLength(1);
+      expect(result.notifications[0].message).toBe("deal grande");
+    });
+
+    it("treats missing when as always-run (retrocompat)", async () => {
+      const flow = baseFlow([
+        { type: "createNotification", severity: "info", message: "ok" },
+      ]);
+      const result = await runFlowEngine({
+        flows: [flow],
+        events: [event],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+      });
+      expect(result.notifications).toHaveLength(1);
+    });
+
+    it("does not trigger onErrorPolicy stop when a guard skips", async () => {
+      const flow = baseFlow(
+        [
+          {
+            type: "createNotification",
+            severity: "info",
+            message: "guarded",
+            when: { conditions: [{ field: "nope", op: "==", value: "x" }] },
+          },
+          {
+            type: "createNotification",
+            severity: "info",
+            message: "after skip",
+          },
+        ],
+        { onErrorPolicy: "stop" },
+      );
+
+      const result = await runFlowEngine({
+        flows: [flow],
+        events: [event],
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+        trace: true,
+      });
+
+      expect(result.notifications.map((n) => n.message)).toEqual(["after skip"]);
+      expect(result.errors).toHaveLength(0);
+    });
+  });
+
   // Spec 039 §B (HU-03, R1). El registro de un evento interno se enriquece en
   // UN solo punto —`resolveTriggerData`—, así que los datos legibles llegan
   // igual a condiciones, mapeo, webhook, email y crear-tarea. Estos tests

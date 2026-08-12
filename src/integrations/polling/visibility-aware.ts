@@ -1,4 +1,5 @@
 import { pollingManager } from "./polling-manager";
+import { scheduleManager } from "@/integrations/scheduling/schedule-manager";
 
 let initialized = false;
 // Referencia guardada para poder desuscribirla en `stopVisibilityAwarePolling`
@@ -16,8 +17,11 @@ export function initVisibilityAwarePolling(): void {
   handleVisibilityChange = () => {
     if (document.visibilityState === "visible") {
       pollingManager.resumeAll();
+      // Spec 051: reanudar schedules y catch-up de foco.
+      scheduleManager.resume();
     } else {
       pollingManager.pauseAll();
+      scheduleManager.pause();
     }
   };
   document.addEventListener("visibilitychange", handleVisibilityChange);

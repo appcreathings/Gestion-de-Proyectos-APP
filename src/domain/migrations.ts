@@ -141,6 +141,12 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     { to: 16, up: (data) => data },
     { to: 17, up: (data) => data },
     { to: 18, up: (data) => data },
+    // v19 -> v20 (spec 055 output guards / identity): `Output.when` opcional.
+    // Flujos existentes no lo usan; paso identidad.
+    { to: 20, up: (data) => data },
+    // v20 -> v21 (spec 051 schedule trigger / identity): `TriggerSchema` gana
+    // el miembro `schedule`. Flujos existentes son event|poll; paso identidad.
+    { to: 21, up: (data) => data },
   ],
   "process-templates": [
     // v1/v17 -> v18: identity (attachments ya en 17; bump compartido).

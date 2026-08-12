@@ -69,6 +69,19 @@ export async function dryRunFlow(flow: FlowRule, deps: DryRunDeps): Promise<DryR
     }
     externalData = new Map();
     externalData.set(pollTriggerKey(flow.trigger), fetchResult.records);
+  } else if (flow.trigger.type === "schedule") {
+    // Spec 051: record sintético { firedAt, cadence } para dry-run.
+    const { scheduleTriggerKey } = await import("./engine");
+    const { syntheticScheduleRecord, scheduleSpecFromTrigger } = await import(
+      "@/integrations/scheduling/schedule-cadence"
+    );
+    const { nowIso } = await import("@/lib/utils");
+    externalData = new Map([
+      [
+        scheduleTriggerKey(flow.id),
+        [syntheticScheduleRecord(scheduleSpecFromTrigger(flow.trigger), nowIso())],
+      ],
+    ]);
   } else {
     // event: sembrar desde una entidad REAL cuando la haya (spec 039 §B5,
     // CA-03.6). Desde que el motor enriquece el registro, un evento sintético

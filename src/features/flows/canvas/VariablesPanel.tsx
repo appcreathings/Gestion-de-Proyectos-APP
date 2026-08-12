@@ -60,6 +60,9 @@ export function VariablesPanel({ trigger, sample, stages, collapsed, onToggle, o
     if (trigger.type === "event") {
       return `Campos del evento · ${triggerLabel[trigger.event] ?? trigger.event}`;
     }
+    if (trigger.type === "schedule") {
+      return "Campos del disparo programado · firedAt, cadence";
+    }
     const base =
       trigger.config.fields.length > 0 ? "Campos elegidos en el poll" : "Campos por defecto del poll";
     return `${base}${provider}`;

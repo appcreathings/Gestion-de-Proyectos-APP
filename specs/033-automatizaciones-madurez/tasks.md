@@ -71,44 +71,34 @@ suman campos.
 
 ## Fase 2 — Expresividad
 
-### B1 · Trigger programado (schedule)
+### B1 · Trigger programado (schedule) → **✅ spec 051 (2026-08-11)**
 
-- [ ] **T3340** — `src/domain/schemas/flow.ts`: `ScheduleTriggerSchema` (`cadence hourly|daily|weekly`,
-  `atMinute`/`atHour`/`weekday`); `TriggerSchema` pasa a `event|poll|schedule`. Bump 15→16 identidad si
-  no lo introdujo C1.
-- [ ] **T3341** — `src/integrations/scheduling/schedule-manager.ts` (NUEVO): timer por Flujo programado;
-  en cada tick evalúa `now ≥ próximoDisparo(lastFiredAt, cadence)` y corre el motor una vez; avanza el
-  watermark. Watermark por `flowId` (patrón `poll-sync-state.ts`).
-- [ ] **T3342** — Catch-up al hidratar Flows (`App.tsx`/`useFlowStore`): barrido inicial que dispara una
-  vez los schedules vencidos mientras Hito estuvo cerrado (a lo sumo un disparo por cadencia).
-- [ ] **T3343** — `src/flows/engine.ts`: `matchesTrigger`/`resolveTriggerData` reconocen `schedule`
-  (record sintético `{ firedAt, cadence }`, sin proyecto de origen).
-- [ ] **T3344** — `useFlowStore.add/update/deleteFlow`: registrar/desregistrar el schedule.
-  `TriggerStep`: opción "En un horario" con selectores de cadencia/hora/día.
-- [ ] **T3345** — Tests: cadencia dispara una vez por ventana; catch-up no duplica; watermark persiste;
-  `matchesTrigger` schedule.
+> [`specs/051-flows-trigger-programado/`](../051-flows-trigger-programado/) · implementado.
 
-### B2 · Branching por salida (guardas por output)
+- [x] **T3340** — schema schedule → 051
+- [x] **T3341** — schedule-manager → 051
+- [x] **T3342** — catch-up hydrate → 051
+- [x] **T3343** — engine matches → 051
+- [x] **T3344** — store + TriggerStep → 051
+- [x] **T3345** — tests → 051
 
-- [ ] **T3350** — `src/domain/schemas/flow.ts`: cada `Output` gana `when?: { conditions, conditionMode }`
-  (reusa `FlowConditionSchema`/`conditionMode`). Ausente = siempre. Mismo bump 16.
-- [ ] **T3351** — `src/flows/engine.ts` (loop de outputs): antes de ejecutar, si `when`, evaluar con
-  `evaluateConditionsDetailed`; si no pasa → `skipped` + reason "guarda del paso no cumplida".
-- [ ] **T3352** — `ActionConfigFields`: disclosure "Solo ejecutar si…" por nodo, editor de condiciones
-  igual al del trigger. `FlowRunTraceView`: mostrar el motivo de guarda.
-- [ ] **T3353** — Tests: guarda que no pasa → skipped; sin guarda → siempre; retrocompat.
+### B2 · Branching por salida (guardas por output) → **✅ spec 055 (2026-08-11)**
 
-### B3 · Webhook: método HTTP y headers custom
+> [`specs/055-flows-output-guards/`](../055-flows-output-guards/) · implementado (T5500–T5531).
 
-- [ ] **T3360** — `src/domain/schemas/flow.ts`: `WebhookOutput` gana `method` (POST|PUT|PATCH, default
-  POST) y `headers` (record, interpolable). Mismo bump 16.
-- [ ] **T3361** — `src/flows/webhook-request.ts`: usar `method`; mergear `headers` interpolados **debajo**
-  de los `X-Hito-*` + `Content-Type` (la firma siempre gana, no sobrescribible). La firma sigue sobre
-  `rawBody`.
-- [ ] **T3362** — `ActionConfigFields` (webhook): selector de método + editor de headers
-  clave→`InterpolableField`; validación de nombres de header.
-- [ ] **T3363** — Tests: método aplicado; headers presentes junto a la firma; colisión con `X-Hito-*` no
-  la sobrescribe; retrocompat POST idéntico.
+- [x] **T3350** — schema `when` → 055
+- [x] **T3351** — engine guarda → 055
+- [x] **T3352** — UI + traza → 055
+- [x] **T3353** — tests → 055
+
+### B3 · Webhook: método HTTP y headers custom → **✅ spec 056 (2026-08-11)**
+
+> [`specs/056-webhook-method-headers/`](../056-webhook-method-headers/) · implementado.
+
+- [x] **T3360** — schema method/headers → 056
+- [x] **T3361** — webhook-request → 056
+- [x] **T3362** — UI → 056
+- [x] **T3363** — tests → 056
 
 ---
 

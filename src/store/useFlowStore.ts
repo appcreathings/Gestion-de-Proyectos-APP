@@ -65,41 +65,67 @@ function adapter() {
   return useAppStore.getState().adapter;
 }
 
-/** Registra el polling de un trigger, despachando al manager del proveedor
- * correcto. No-op silencioso para triggers de tipo "event". */
-async function registerPollTrigger(trigger: FlowRule["trigger"]): Promise<void> {
-  if (trigger.type !== "poll") return;
-  try {
-    if (trigger.provider === "hubspot") {
-      const { registerHubSpotPolling } = await import("@/integrations/inbound/hubspot-polling-manager");
-      await registerHubSpotPolling(trigger);
-    } else if (trigger.provider === "inbox") {
-      const { registerInboxPolling } = await import("@/integrations/inbound/inbox-polling-manager");
-      await registerInboxPolling(trigger);
-    } else {
-      const { registerSheetsPolling } = await import("@/integrations/inbound/sheets-polling-manager");
-      await registerSheetsPolling(trigger);
+/** Registra poll o schedule según el trigger. No-op para "event". */
+async function registerTrigger(flow: FlowRule): Promise<void> {
+  if (!flow.enabled) return;
+  if (flow.trigger.type === "poll") {
+    try {
+      if (flow.trigger.provider === "hubspot") {
+        const { registerHubSpotPolling } = await import("@/integrations/inbound/hubspot-polling-manager");
+        await registerHubSpotPolling(flow.trigger);
+      } else if (flow.trigger.provider === "inbox") {
+        const { registerInboxPolling } = await import("@/integrations/inbound/inbox-polling-manager");
+        await registerInboxPolling(flow.trigger);
+      } else {
+        const { registerSheetsPolling } = await import("@/integrations/inbound/sheets-polling-manager");
+        await registerSheetsPolling(flow.trigger);
+      }
+    } catch (error) {
+      console.error(`Error registering ${flow.trigger.provider} polling:`, error);
     }
-  } catch (error) {
-    console.error(`Error registering ${trigger.provider} polling:`, error);
+    return;
+  }
+  if (flow.trigger.type === "schedule") {
+    try {
+      const { registerScheduleFlow } = await import("@/integrations/scheduling/schedule-manager");
+      registerScheduleFlow(flow, async (firedAtIso) => {
+        const { useDataStore } = await import("./useDataStore");
+        await useDataStore.getState().runScheduledFlow(flow.id, firedAtIso);
+      });
+    } catch (error) {
+      console.error(`Error registering schedule for flow ${flow.id}:`, error);
+    }
   }
 }
 
-async function unregisterPollTrigger(trigger: FlowRule["trigger"]): Promise<void> {
-  if (trigger.type !== "poll") return;
-  try {
-    if (trigger.provider === "hubspot") {
-      const { unregisterHubSpotPolling } = await import("@/integrations/inbound/hubspot-polling-manager");
-      unregisterHubSpotPolling(trigger);
-    } else if (trigger.provider === "inbox") {
-      const { unregisterInboxPolling } = await import("@/integrations/inbound/inbox-polling-manager");
-      unregisterInboxPolling(trigger);
-    } else {
-      const { unregisterSheetsPolling } = await import("@/integrations/inbound/sheets-polling-manager");
-      unregisterSheetsPolling(trigger);
+async function unregisterTrigger(flow: FlowRule): Promise<void> {
+  if (flow.trigger.type === "poll") {
+    try {
+      if (flow.trigger.provider === "hubspot") {
+        const { unregisterHubSpotPolling } = await import("@/integrations/inbound/hubspot-polling-manager");
+        unregisterHubSpotPolling(flow.trigger);
+      } else if (flow.trigger.provider === "inbox") {
+        const { unregisterInboxPolling } = await import("@/integrations/inbound/inbox-polling-manager");
+        unregisterInboxPolling(flow.trigger);
+      } else {
+        const { unregisterSheetsPolling } = await import("@/integrations/inbound/sheets-polling-manager");
+        unregisterSheetsPolling(flow.trigger);
+      }
+    } catch (error) {
+      console.error(`Error unregistering ${flow.trigger.provider} polling:`, error);
     }
-  } catch (error) {
-    console.error(`Error unregistering ${trigger.provider} polling:`, error);
+    return;
+  }
+  if (flow.trigger.type === "schedule") {
+    try {
+      const { unregisterScheduleFlow, scheduleManager } = await import(
+        "@/integrations/scheduling/schedule-manager"
+      );
+      unregisterScheduleFlow(flow.id);
+      scheduleManager.clearWatermark(flow.id);
+    } catch (error) {
+      console.error(`Error unregistering schedule for flow ${flow.id}:`, error);
+    }
   }
 }
 
@@ -122,9 +148,11 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   hydrated: false,
 
   async hydrate() {
+    let flows: FlowRule[] = [];
     try {
       const doc = await adapter().readDoc<{ flows: FlowRule[] }>("flows");
-      set({ flows: doc.flows || [], hydrated: true });
+      flows = doc.flows || [];
+      set({ flows, hydrated: true });
     } catch {
       // Si no existe el archivo, empezar con array vacío
       set({ flows: [], hydrated: true });
@@ -135,6 +163,18 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     } catch {
       set({ runs: [] });
     }
+    // Spec 051: re-registrar poll + schedule al abrir (antes solo add/update
+    // registraban — tras reload los timers no arrancaban). Catch-up de
+    // schedules vencidos en el primer evaluateAll.
+    for (const flow of flows) {
+      if (flow.enabled) await registerTrigger(flow);
+    }
+    try {
+      const { scheduleManager } = await import("@/integrations/scheduling/schedule-manager");
+      await scheduleManager.evaluateAll();
+    } catch (err) {
+      console.error("[useFlowStore] schedule catch-up failed:", err);
+    }
   },
 
   async addFlow(flow) {
@@ -142,7 +182,7 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     set({ flows });
     await persistFlows(flows);
 
-    if (flow.enabled) await registerPollTrigger(flow.trigger);
+    if (flow.enabled) await registerTrigger(flow);
   },
 
   async updateFlow(flow) {
@@ -151,12 +191,10 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     set({ flows });
     await persistFlows(flows);
 
-    // Siempre desregistrar el polling previo primero: si el trigger cambió de
-    // provider/objectType, o el flow se deshabilitó, el timer anterior debe
-    // pararse. Antes solo `deleteFlow` desregistraba, así que deshabilitar un
-    // flow de poll dejaba el timer corriendo indefinidamente (fuga de polling).
-    if (previous) await unregisterPollTrigger(previous.trigger);
-    if (flow.enabled) await registerPollTrigger(flow.trigger);
+    // Siempre desregistrar el trigger previo primero: si cambió de tipo o se
+    // deshabilitó, el timer anterior debe pararse (fuga de polling/schedule).
+    if (previous) await unregisterTrigger(previous);
+    if (flow.enabled) await registerTrigger(flow);
   },
 
   async deleteFlow(id) {
@@ -165,7 +203,7 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     set({ flows });
     await persistFlows(flows);
 
-    if (flow) await unregisterPollTrigger(flow.trigger);
+    if (flow) await unregisterTrigger(flow);
   },
 
   async incrementRunCount(id) {

@@ -7,7 +7,14 @@ import { Input as UIInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import type { FlowRule, Trigger, PollFilter, PollTrigger, EventTrigger } from "@/domain/schemas/flow";
+import type {
+  FlowRule,
+  Trigger,
+  PollFilter,
+  PollTrigger,
+  EventTrigger,
+  ScheduleTrigger,
+} from "@/domain/schemas/flow";
 import { AppsScriptGuide } from "@/features/integrations/guides/AppsScriptGuide";
 import {
   getConnections,
@@ -65,6 +72,22 @@ const TRIGGER_TYPES = [
     icon: "🔁",
     description: "Recibir por un inbox (webhook entrante)",
   },
+  {
+    value: "schedule",
+    label: "En un horario",
+    icon: "⏰",
+    description: "Cada día, semana o hora en el minuto que elijas",
+  },
+];
+
+const WEEKDAY_OPTIONS = [
+  { value: "1", label: "Lunes" },
+  { value: "2", label: "Martes" },
+  { value: "3", label: "Miércoles" },
+  { value: "4", label: "Jueves" },
+  { value: "5", label: "Viernes" },
+  { value: "6", label: "Sábado" },
+  { value: "0", label: "Domingo" },
 ];
 
 // Debe ser un subconjunto de `EventTriggerSchema.event` (domain/schemas/flow.ts),
@@ -128,7 +151,11 @@ export function TriggerStep({
   }, []);
 
   const activeTriggerValue =
-    flow.trigger.type === "poll" ? `poll-${flow.trigger.provider}` : "event";
+    flow.trigger.type === "poll"
+      ? `poll-${flow.trigger.provider}`
+      : flow.trigger.type === "schedule"
+        ? "schedule"
+        : "event";
 
   const handleTriggerTypeChange = (value: string) => {
     let newTrigger: Trigger;
@@ -161,6 +188,14 @@ export function TriggerStep({
           type: "poll",
           provider: "inbox",
           config: { connectionId: "", fields: [], filters: [], intervalMs: 300000 },
+        };
+        break;
+      case "schedule":
+        newTrigger = {
+          type: "schedule",
+          cadence: "daily",
+          atHour: 9,
+          atMinute: 0,
         };
         break;
       default:
@@ -339,6 +374,96 @@ export function TriggerStep({
               </div>
             </div>
           )}
+
+          {/* Schedule Trigger (spec 051) */}
+          {flow.trigger.type === "schedule" && (() => {
+            const st = flow.trigger as ScheduleTrigger;
+            const updateSchedule = (patch: Partial<ScheduleTrigger>) => {
+              updateFlow({ trigger: { ...st, ...patch } });
+            };
+            return (
+              <div className="space-y-4">
+                <div className="grid gap-2">
+                  <Label>Cadencia</Label>
+                  <Select
+                    value={st.cadence}
+                    onChange={(e) => {
+                      const cadence = e.target.value as ScheduleTrigger["cadence"];
+                      if (cadence === "hourly") {
+                        updateSchedule({ cadence, atHour: undefined, weekday: undefined });
+                      } else if (cadence === "daily") {
+                        updateSchedule({
+                          cadence,
+                          atHour: st.atHour ?? 9,
+                          weekday: undefined,
+                        });
+                      } else {
+                        updateSchedule({
+                          cadence,
+                          atHour: st.atHour ?? 9,
+                          weekday: st.weekday ?? 1,
+                        });
+                      }
+                    }}
+                  >
+                    <option value="hourly">Cada hora</option>
+                    <option value="daily">Cada día</option>
+                    <option value="weekly">Cada semana</option>
+                  </Select>
+                </div>
+                {(st.cadence === "daily" || st.cadence === "weekly") && (
+                  <div className="grid gap-2">
+                    <Label>Hora</Label>
+                    <Select
+                      value={String(st.atHour ?? 9)}
+                      onChange={(e) => updateSchedule({ atHour: Number(e.target.value) })}
+                    >
+                      {Array.from({ length: 24 }, (_, h) => (
+                        <option key={h} value={h}>
+                          {String(h).padStart(2, "0")}:00
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
+                <div className="grid gap-2">
+                  <Label>Minuto</Label>
+                  <Select
+                    value={String(st.atMinute)}
+                    onChange={(e) => updateSchedule({ atMinute: Number(e.target.value) })}
+                  >
+                    {[0, 15, 30, 45].map((m) => (
+                      <option key={m} value={m}>
+                        :{String(m).padStart(2, "0")}
+                      </option>
+                    ))}
+                    {!([0, 15, 30, 45] as number[]).includes(st.atMinute) && (
+                      <option value={st.atMinute}>:{String(st.atMinute).padStart(2, "0")}</option>
+                    )}
+                  </Select>
+                </div>
+                {st.cadence === "weekly" && (
+                  <div className="grid gap-2">
+                    <Label>Día de la semana</Label>
+                    <Select
+                      value={String(st.weekday ?? 1)}
+                      onChange={(e) => updateSchedule({ weekday: Number(e.target.value) })}
+                    >
+                      {WEEKDAY_OPTIONS.map((d) => (
+                        <option key={d.value} value={d.value}>
+                          {d.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Solo corre mientras Hito esté abierto. Si estaba cerrado a la hora del disparo, al
+                  reabrir se ejecuta como máximo un disparo pendiente (catch-up).
+                </p>
+              </div>
+            );
+          })()}
 
           {/* Poll Trigger Configuration */}
           {flow.trigger.type === "poll" && (() => {
