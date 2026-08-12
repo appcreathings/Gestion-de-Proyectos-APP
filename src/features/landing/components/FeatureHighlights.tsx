@@ -42,7 +42,7 @@ const FEATURES = [
   {
     icon: Github,
     title: "Sync con GitHub",
-    body: "Vinculá proyectos a un repositorio, elegí sync ligera/media/completa y subí JSON más recursos (sin videos) a .hito/. Abrí el repo en un clic.",
+    body: "Vincula proyectos a un repositorio, elige sincronización ligera, media o completa y sube el JSON más recursos (sin videos) a .hito/. Abre el repo en un clic.",
   },
   {
     icon: LayoutDashboard,

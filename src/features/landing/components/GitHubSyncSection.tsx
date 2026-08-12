@@ -21,7 +21,7 @@ const PILLARS = [
     icon: FolderGit2,
     tag: "Repositorio",
     title: "Un repo tuyo, no una cuenta en la nube de Hito",
-    body: "Creá o elegí un repositorio (público o privado), vinculá uno o varios proyectos y abrí github.com cuando quieras con «Ir al repositorio».",
+    body: "Crea o elige un repositorio (público o privado), vincula uno o varios proyectos y abre github.com cuando quieras con «Ir al repositorio».",
     detail: "Crear repo · Elegir existente · Abrir en GitHub",
   },
   {
@@ -34,8 +34,8 @@ const PILLARS = [
   {
     icon: Paperclip,
     tag: "Recursos",
-    title: "Subí adjuntos (todo menos videos)",
-    body: "En sync completa, Hito sube PDF, imágenes, documentos y audio a .hito/attachments/. Omite videos y archivos demasiado grandes para la API.",
+    title: "Sube adjuntos (todo menos videos)",
+    body: "En sincronización completa, Hito sube PDF, imágenes, documentos y audio a .hito/attachments/. Omite videos y archivos demasiado grandes para la API.",
     detail: "Imágenes · Docs · Audio · Sin videos",
   },
 ];
@@ -44,17 +44,17 @@ const FLOW_STEPS = [
   {
     icon: Github,
     label: "Conectar",
-    desc: "Autorizá la GitHub App e instalala en la cuenta o repos que quieras usar.",
+    desc: "Autoriza la GitHub App e instálala en la cuenta o repo que quieras usar.",
   },
   {
     icon: Link2,
     label: "Vincular",
-    desc: "Elegí o creá un repositorio y asociá tus proyectos de Hito.",
+    desc: "Elige o crea un repositorio y asocia tus proyectos de Hito.",
   },
   {
     icon: RefreshCw,
     label: "Sincronizar",
-    desc: "Enviá al repo, recibí cambios o sincronizá todo; resolvé conflictos si ambos lados cambiaron.",
+    desc: "Envía al repo, recibe cambios o sincroniza todo; resuelve conflictos si ambos lados cambiaron.",
   },
   {
     icon: ShieldCheck,
@@ -72,10 +72,10 @@ export function GitHubSyncSection() {
             GitHub
           </p>
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            Respaldá y versioná proyectos en tu repositorio.
+            Respaldar y versionar proyectos en tu repositorio.
           </h2>
           <p className="mt-4 text-pretty text-muted-foreground">
-            Conectá la GitHub App, vinculá proyectos y sincronizá a{" "}
+            Conecta la GitHub App, vincula proyectos y sincroniza a{" "}
             <code className="font-mono text-xs text-foreground/80">.hito/</code> — sin Issues ni
             tableros ajenos. Local-first: GitHub es el espejo, no el dueño de tus datos.
           </p>

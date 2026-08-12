@@ -22,14 +22,14 @@ const PILLARS = [
     icon: Plug,
     tag: "Integraciones",
     title: "Conecta HubSpot, Sheets, Email, webhooks y GitHub",
-    body: "Trae datos con un webhook entrante o sondeo periódico, y dispara acciones hacia HubSpot, Google Sheets, Email o un webhook saliente propio. Además podés sincronizar proyectos a un repositorio GitHub (archivos .hito/). Credenciales cifradas en tu equipo; secretos de la App en el BFF.",
+    body: "Trae datos con un webhook entrante o sondeo periódico, y dispara acciones hacia HubSpot, Google Sheets, Email o un webhook saliente propio. Además puedes sincronizar proyectos a un repositorio GitHub (archivos .hito/). Credenciales cifradas en tu equipo; secretos de la App en el BFF.",
     detail: "HubSpot · Sheets · Email · Webhooks · GitHub",
   },
   {
     icon: ShieldCheck,
     tag: "Confiabilidad",
     title: "Plantillas listas y reintentos automáticos",
-    body: "Empieza desde plantillas curadas en vez de una tela en blanco. Ante fallas transitorias (red, HTTP 5xx) los reintentos son automáticos, y cada webhook saliente incluye firma HMAC verificable del lado receptor.",
+    body: "Empieza desde plantillas curadas en vez de un lienzo en blanco. Ante fallas transitorias (red, HTTP 5xx) los reintentos son automáticos, y cada webhook saliente incluye firma HMAC verificable del lado receptor.",
     detail: "Plantillas → Reintentos → Firma HMAC",
   },
 ];

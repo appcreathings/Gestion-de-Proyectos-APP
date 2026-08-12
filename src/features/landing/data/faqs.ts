@@ -47,6 +47,6 @@ export const FAQS = [
   },
   {
     q: "¿Puedo sincronizar mis proyectos con GitHub?",
-    a: "Sí. Desde Integraciones conectás la GitHub App, vinculás proyectos a un repositorio y elegís el nivel de sync: ligera, media o completa. En completa se suben también recursos (PDF, imágenes, documentos…), excepto videos y archivos muy grandes. Los datos van a .hito/ en tu repo; no se crean Issues. Podés abrir el repositorio desde Hito con un botón.",
+    a: "Sí. Desde Integraciones conectas la GitHub App, vinculas proyectos a un repositorio y eliges el nivel de sincronización: ligera, media o completa. En completa se suben también recursos (PDF, imágenes, documentos…), excepto videos y archivos muy grandes. Los datos van a .hito/ en tu repo; no se crean Issues. Puedes abrir el repositorio desde Hito con un botón.",
   },
 ];
