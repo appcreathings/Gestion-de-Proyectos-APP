@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AppsScriptGuide } from "./guides/AppsScriptGuide";
+import { GitHubAppPanel } from "./GitHubAppPanel";
 import { VaultSetupDialog } from "./VaultSetupDialog";
 import { VaultSecuritySettings } from "./VaultSecuritySettings";
 import { WebhookSubscriptionDialog } from "./WebhookSubscriptionDialog";
@@ -118,6 +119,7 @@ export function IntegrationsPage() {
             <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
             <TabsTrigger value="inbox">Inbox</TabsTrigger>
             <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="github">GitHub</TabsTrigger>
             <TabsTrigger value="security">Seguridad</TabsTrigger>
           </TabsList>
 
@@ -277,6 +279,10 @@ export function IntegrationsPage() {
               description="Envía notificaciones por correo cuando ocurran eventos clave, vía tu proxy de Apps Script."
               onOpenGuide={() => setGuideProvider("email")}
             />
+          </TabsContent>
+
+          <TabsContent value="github">
+            <GitHubAppPanel />
           </TabsContent>
 
           <TabsContent value="security">

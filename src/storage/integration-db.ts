@@ -20,6 +20,66 @@ export interface IntegrationConfig {
  * las entregas empujadas por Make/Zapier/n8n; Hito las drena por polling. */
 export type ConnectionProvider = "hubspot" | "google-sheets" | "email" | "webhook-inbox";
 
+/** GitHub App connection metadata. Tokens/private keys are never stored here;
+ * the backend owns installation credentials. */
+export interface GitHubConnection {
+  id: string;
+  provider: "github";
+  githubUserId: number;
+  githubLogin: string;
+  installationId: number;
+  backendConnectionId: string;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type GitHubSyncSchedule = "manual" | "5m" | "15m" | "30m" | "1h" | "6h" | "24h";
+
+export interface GitHubLink {
+  id: string;
+  projectId: string;
+  connectionId: string;
+  owner: string;
+  repository: string;
+  repositoryId: number;
+  projectNumber?: number;
+  projectNodeId?: string;
+  direction: "local-to-github" | "two-way";
+  schedule: GitHubSyncSchedule;
+  status: "active" | "paused" | "error" | "disconnected";
+  consecutiveFailures: number;
+  lastSyncAt: string | null;
+  lastSuccessAt: string | null;
+  nextSyncAt: string | null;
+  updatedAt: string;
+}
+
+export interface GitHubMapping {
+  id: string;
+  linkId: string;
+  localTaskId: string;
+  remoteIssueId: number;
+  remoteIssueNodeId: string;
+  remoteIssueNumber: number;
+  lastPublishedHash: string | null;
+  lastRemoteUpdatedAt: string | null;
+  state: "linked" | "conflict" | "remote-missing" | "local-only";
+}
+
+export interface GitHubSyncRun {
+  id: string;
+  linkId: string;
+  startedAt: string;
+  finishedAt: string | null;
+  status: "running" | "success" | "partial" | "failed" | "cancelled";
+  created: number;
+  updated: number;
+  skipped: number;
+  conflicts: number;
+  errors: string[];
+}
+
 /** Una conexión configurada una sola vez y reutilizable desde cualquier Flujo
  * vía `connectionId`. Los campos no sensibles (URLs, ids) van en `config` en
  * claro; el único secreto (token/API key, si el proveedor lo requiere) se
@@ -123,6 +183,10 @@ export class IntegrationDatabase extends Dexie {
   syncLogs!: Table<SyncLog, string>;
   outboundQueue!: Table<OutboundDelivery, string>;
   integrationConnections!: Table<IntegrationConnection, string>;
+  githubConnections!: Table<GitHubConnection, string>;
+  githubLinks!: Table<GitHubLink, string>;
+  githubMappings!: Table<GitHubMapping, string>;
+  githubSyncRuns!: Table<GitHubSyncRun, string>;
 
   constructor() {
     super("hito-integrations");
@@ -150,6 +214,15 @@ export class IntegrationDatabase extends Dexie {
     // restaurar el vault.
     this.version(3).stores({
       webhookSubscriptions: "id, enabled, *events",
+    });
+
+    // v4 (spec 057): local metadata for GitHub App connections and sync state.
+    // Credentials remain in the backend and are intentionally absent here.
+    this.version(4).stores({
+      githubConnections: "id, githubUserId, installationId, enabled",
+      githubLinks: "id, projectId, connectionId, status, nextSyncAt",
+      githubMappings: "id, linkId, localTaskId, remoteIssueId, state, [linkId+localTaskId], [linkId+remoteIssueId]",
+      githubSyncRuns: "id, linkId, status, startedAt, [linkId+startedAt]",
     });
   }
 }
