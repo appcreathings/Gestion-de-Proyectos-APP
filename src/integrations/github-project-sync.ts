@@ -111,6 +111,12 @@ export async function pushProjectMetaToGitHub(input: {
   repositoryNodeId?: string | null;
   /** Crear Project como privado (default true). */
   makePrivate?: boolean;
+  /**
+   * Si true, intenta createProjectV2 cuando no hay projectNodeId.
+   * Por defecto false: las GitHub Apps no pueden crear Projects en cuentas
+   * personales (error …[bot] / Resource not accessible by integration).
+   */
+  allowCreateProject?: boolean;
 }): Promise<{ ok: true; link: GitHubLink } | { ok: false; message: string }> {
   const { backendConnectionId, link, local } = input;
   let projectNodeId = link.projectNodeId;
@@ -119,6 +125,24 @@ export async function pushProjectMetaToGitHub(input: {
   let remoteDescription = local.description.trim();
 
   if (!projectNodeId) {
+    if (!input.allowCreateProject) {
+      // Solo persistir metadatos locales del vínculo; no llamar a createProjectV2.
+      const next: GitHubLink = {
+        ...link,
+        scope: "project",
+        remoteProjectTitle: remoteTitle || link.remoteProjectTitle || null,
+        remoteProjectDescription:
+          remoteDescription || link.remoteProjectDescription || null,
+        lastSyncAt: nowIso(),
+        lastSuccessAt: nowIso(),
+        consecutiveFailures: 0,
+        status: "active",
+        updatedAt: nowIso(),
+      };
+      await saveGitHubLink(next);
+      return { ok: true, link: next };
+    }
+
     const created = await createGitHubProjectRemote(backendConnectionId, {
       owner: link.owner,
       title: remoteTitle || link.repository,
@@ -137,7 +161,24 @@ export async function pushProjectMetaToGitHub(input: {
       shortDescription: remoteDescription || null,
       public: input.makePrivate === false ? true : false,
     });
-    if (!updated.ok) return { ok: false, message: updated.message };
+    if (!updated.ok) {
+      // Actualizar Project es opcional: conservar vínculo local.
+      const next: GitHubLink = {
+        ...link,
+        scope: "project",
+        projectNodeId,
+        projectNumber,
+        remoteProjectTitle: remoteTitle || link.remoteProjectTitle || null,
+        remoteProjectDescription:
+          remoteDescription || link.remoteProjectDescription || null,
+        lastSyncAt: nowIso(),
+        status: "active",
+        consecutiveFailures: (link.consecutiveFailures ?? 0) + 1,
+        updatedAt: nowIso(),
+      };
+      await saveGitHubLink(next);
+      return { ok: false, message: updated.message };
+    }
     remoteTitle = updated.data.title;
     remoteDescription = updated.data.shortDescription?.trim() || "";
   }

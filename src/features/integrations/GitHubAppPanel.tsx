@@ -177,10 +177,6 @@ export function GitHubAppPanel() {
     setNewProjectName("");
     setNewProjectDescription("");
     setProductId(products[0]?.id ?? "");
-    // Por defecto NO crear GitHub Project: en cuentas personales el bot de la App no puede.
-    // El valor real es vincular el repositorio; el Project es opcional.
-    setCreateRemoteProject(false);
-    setMakeRemotePrivate(true);
     setProjectsWarning(null);
     try {
       const sorted = await loadRepos(connection);
@@ -206,7 +202,6 @@ export function GitHubAppPanel() {
     if (!repo || !activeConnection) return;
     setNewProjectName(repo.name);
     setNewProjectDescription(repo.description?.trim() || "");
-    setMakeRemotePrivate(true);
     setGhProjectId("");
     setBusy(true);
     try {
@@ -261,6 +256,11 @@ export function GitHubAppPanel() {
     return selectedRepo;
   }
 
+  /**
+   * Solo guarda el vínculo local proyecto Hito ↔ repositorio GitHub.
+   * No llama a createProjectV2 (las Apps no pueden crear Projects en cuentas user).
+   * Si hay un Project ya existente elegido, solo se adjunta su id al vínculo.
+   */
   async function linkOneProject(
     connection: GitHubConnection,
     repo: GitHubRepository,
@@ -270,12 +270,8 @@ export function GitHubAppPanel() {
       projectNumber?: number;
       remoteTitle?: string | null;
       remoteDesc?: string | null;
-      createRemote: boolean;
     },
-  ): Promise<
-    | { ok: true; warning?: string }
-    | { ok: false; message: string }
-  > {
+  ): Promise<{ ok: true }> {
     const baseLink = buildGitHubLink({
       projectId: project.id,
       connectionId: connection.id,
@@ -284,49 +280,10 @@ export function GitHubAppPanel() {
       repositoryId: repo.id,
       projectNodeId: opts.projectNodeId,
       projectNumber: opts.projectNumber,
-      remoteProjectTitle: opts.remoteTitle ?? null,
-      remoteProjectDescription: opts.remoteDesc ?? null,
+      remoteProjectTitle: opts.remoteTitle ?? project.name,
+      remoteProjectDescription: opts.remoteDesc ?? project.description,
       remoteRepositoryDescription: repo.description ?? null,
     });
-
-    // Siempre guardar el vínculo repo ↔ proyecto Hito (éxito real del flujo).
-    // El GitHub Project es opcional: si falla, el vínculo al repo sigue válido.
-    if (opts.createRemote && !opts.projectNodeId) {
-      const pushed = await pushProjectMetaToGitHub({
-        backendConnectionId: connection.backendConnectionId,
-        link: baseLink,
-        local: { name: project.name, description: project.description },
-        repositoryNodeId: repo.nodeId || null,
-        makePrivate: makeRemotePrivate,
-      });
-      if (!pushed.ok) {
-        await saveGitHubLink(baseLink);
-        return {
-          ok: true,
-          warning: `Vinculado al repo sin GitHub Project: ${pushed.message}`,
-        };
-      }
-      return { ok: true };
-    }
-
-    if (opts.projectNodeId) {
-      const pushed = await pushProjectMetaToGitHub({
-        backendConnectionId: connection.backendConnectionId,
-        link: baseLink,
-        local: { name: project.name, description: project.description },
-        repositoryNodeId: repo.nodeId || null,
-        makePrivate: makeRemotePrivate,
-      });
-      if (!pushed.ok) {
-        await saveGitHubLink(baseLink);
-        return {
-          ok: true,
-          warning: `Vinculado al repo; no se actualizó el Project: ${pushed.message}`,
-        };
-      }
-      return { ok: true };
-    }
-
     await saveGitHubLink(baseLink);
     return { ok: true };
   }
@@ -354,53 +311,22 @@ export function GitHubAppPanel() {
         }
         const chosen = projects.filter((p) => selectedProjectIds.includes(p.id));
         let linked = 0;
-        const errors: string[] = [];
-        const warnings: string[] = [];
         for (const project of chosen) {
-          // Un solo GitHub Project compartido si eligieron uno; si no, crear uno por proyecto solo si está marcado.
           const useShared = Boolean(selectedGhProject);
-          const result = await linkOneProject(
-            activeConnection,
-            repo,
-            project,
-            {
-              projectNodeId: useShared ? selectedGhProject?.id : undefined,
-              projectNumber: useShared ? selectedGhProject?.number : undefined,
-              remoteTitle: useShared ? selectedGhProject?.title : null,
-              remoteDesc: useShared ? selectedGhProject?.shortDescription : null,
-              createRemote: createRemoteProject && !useShared,
-            },
-          );
-          if (result.ok) {
-            linked += 1;
-            if (result.warning) warnings.push(`${project.name}: ${result.warning}`);
-          } else {
-            errors.push(`${project.name}: ${result.message}`);
-          }
+          await linkOneProject(activeConnection, repo, project, {
+            projectNodeId: useShared ? selectedGhProject?.id : undefined,
+            projectNumber: useShared ? selectedGhProject?.number : undefined,
+            remoteTitle: useShared ? selectedGhProject?.title : null,
+            remoteDesc: useShared ? selectedGhProject?.shortDescription : null,
+          });
+          linked += 1;
         }
         await refresh();
         setMode("idle");
-        if (errors.length && linked === 0) {
-          setError(
-            `No se pudo vincular ninguno (0/${chosen.length}): ${errors[0]}`,
-          );
-          toast.error("No se vincularon proyectos.");
-        } else if (errors.length || warnings.length) {
-          const bits = [
-            `Vinculados ${linked}/${chosen.length} al repo ${repo.fullName}.`,
-            warnings[0] ? `Aviso: ${warnings[0]}` : null,
-            errors[0] ? `Error: ${errors[0]}` : null,
-          ].filter(Boolean);
-          setError(bits.join(" "));
-          toast.success(
-            `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} al repositorio` +
-              (warnings.length ? " (sin GitHub Project en algunos)" : ""),
-          );
-        } else {
-          toast.success(
-            `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} a ${repo.fullName}`,
-          );
-        }
+        setError(null);
+        toast.success(
+          `${linked} proyecto${linked === 1 ? "" : "s"} vinculado${linked === 1 ? "" : "s"} a ${repo.fullName}`,
+        );
         return;
       }
 
@@ -438,31 +364,19 @@ export function GitHubAppPanel() {
         return;
       }
 
-      const result = await linkOneProject(activeConnection, repo, project, {
+      await linkOneProject(activeConnection, repo, project, {
         projectNodeId: selectedGhProject?.id,
         projectNumber: selectedGhProject?.number,
         remoteTitle: selectedGhProject?.title ?? null,
         remoteDesc: selectedGhProject?.shortDescription ?? null,
-        createRemote: createRemoteProject && !selectedGhProject,
       });
 
       await refresh();
-      if (!result.ok) {
-        setError(result.message);
-        toast.error("No se pudo guardar el vínculo.");
-        return;
-      }
       setMode("idle");
-      if (result.warning) {
-        setError(result.warning);
-        toast.success(
-          `Vinculado al repo ${repo.fullName} (sin GitHub Project).`,
-        );
-      } else {
-        toast.success(
-          `Proyecto vinculado${repo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${repo.fullName}`,
-        );
-      }
+      setError(null);
+      toast.success(
+        `Proyecto vinculado${repo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${repo.fullName}`,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar el vínculo.");
     } finally {
@@ -480,17 +394,25 @@ export function GitHubAppPanel() {
     setBusy(true);
     setError(null);
     try {
+      // Solo actualiza un Project ya existente; no crea uno nuevo (allowCreateProject: false).
       const result = await pushProjectMetaToGitHub({
         backendConnectionId: connection.backendConnectionId,
         link,
         local: { name: project.name, description: project.description },
+        allowCreateProject: false,
       });
       if (!result.ok) {
         setError(result.message);
         return;
       }
       await refresh();
-      toast.success(`Enviado a GitHub: metadatos de «${project.name}».`);
+      if (link.projectNodeId) {
+        toast.success(`Enviado a GitHub Project: «${project.name}».`);
+      } else {
+        toast.success(
+          `Metadatos guardados en el vínculo local de «${project.name}» (sin GitHub Project).`,
+        );
+      }
     } finally {
       setBusy(false);
     }
