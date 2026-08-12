@@ -719,10 +719,48 @@ export function GitHubAppPanel() {
                 />
                 Repositorio privado
               </label>
-              <p className="text-xs text-muted-foreground sm:col-span-2">
-                Si falló la creación, vuelve a <strong>Conectar GitHub</strong> (hace falta un token
-                de usuario reciente) y reintenta.
-              </p>
+              <div className="space-y-2 text-xs text-muted-foreground sm:col-span-2">
+                <p>
+                  Si ves <strong>Resource not accessible by integration</strong>, la GitHub App
+                  necesita permiso <strong>Administration → Read and write</strong> (no basta
+                  Metadata). Guarda, acepta el permiso en la instalación y{" "}
+                  <button
+                    type="button"
+                    className="font-medium text-foreground underline"
+                    onClick={() => navigate(ROUTES.githubConnect)}
+                  >
+                    reconecta GitHub
+                  </button>
+                  .
+                </p>
+                <p>
+                  Alternativa:{" "}
+                  <a
+                    className="font-medium text-foreground underline"
+                    href={`https://github.com/new?name=${encodeURIComponent(slugifyRepoName(newRepoName) || "hito-project")}${newRepoPrivate ? "" : ""}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    crear el repo en github.com/new
+                  </a>
+                  , añádelo a la instalación de la App, luego{" "}
+                  <button
+                    type="button"
+                    className="font-medium text-foreground underline"
+                    disabled={busy || !activeConnection}
+                    onClick={() => {
+                      if (!activeConnection) return;
+                      setBusy(true);
+                      void loadRepos(activeConnection)
+                        .then(() => setRepoMode("existing"))
+                        .finally(() => setBusy(false));
+                    }}
+                  >
+                    actualizar lista
+                  </button>{" "}
+                  y elígelo en “Elegir existente”.
+                </p>
+              </div>
             </div>
           )}
 

@@ -18,6 +18,12 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       callbackUrl: oauth.ok ? oauth.env.callbackUrl : null,
       frontendReturnUrl: oauth.ok ? oauth.env.frontendReturnUrl : null,
       runtime: "node",
+      createRepoRequires: {
+        permission: "Administration: Read and write",
+        note:
+          "Resource not accessible by integration = falta Administration write en la App, " +
+          "o no se aceptó el nuevo permiso / no se reconectó OAuth.",
+      },
     });
   });
 }

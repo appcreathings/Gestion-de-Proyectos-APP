@@ -47,16 +47,23 @@ GitHub permite hasta diez callback URLs. Consulta la [documentación oficial de 
 
 ### Repository permissions
 
-| Permiso | Nivel |
-|---|---|
-| Metadata | Read-only |
-| Issues | No access (v1 actual: solo proyecto, sin issues) |
-| Pull requests | No access |
-| Contents | No access |
-| Actions | No access |
-| Commit statuses | No access |
-| Workflows | No access |
-| Administration | No access |
+| Permiso | Nivel | Motivo |
+|---|---|---|
+| **Administration** | **Read and write** | **Obligatorio para crear repositorios** (`POST /user/repos`). Sin esto GitHub responde `Resource not accessible by integration`. |
+| Metadata | Read-only | Listar repos instalados |
+| Issues | No access (v1: solo proyecto, sin issues) | — |
+| Pull requests | No access | — |
+| Contents | Read-only (opcional) | Solo si usas `auto_init` / README al crear |
+| Actions | No access | — |
+| Commit statuses | No access | — |
+| Workflows | No access | — |
+
+Tras cambiar **Administration** a write:
+
+1. Guarda los permisos en la GitHub App.
+2. Acepta el nuevo permiso en **Install App** (banner de permisos pendientes).
+3. En Hito vuelve a **Conectar GitHub** (renueva el token de usuario).
+4. Si la App está en “Only select repositories”, el repo nuevo hay que añadirlo a la instalación (Hito lo intenta solo; si no, edita la instalación a mano).
 
 ### Additional permissions (Projects)
 

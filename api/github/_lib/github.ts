@@ -137,13 +137,23 @@ export async function createInstallationToken(
   return { ok: true, token: result.data.token, expiresAt: result.data.expires_at };
 }
 
+const ADMIN_HINT =
+  " En la GitHub App: Repository permissions → Administration = Read and write, " +
+  "guarda, acepta el nuevo permiso en la instalación y vuelve a Conectar GitHub en Hito. " +
+  "Metadata sola no alcanza para crear repos.";
+
 /**
  * Crea un repositorio.
- * - Cuenta de usuario: requiere user access token (OAuth de la App).
- * - Organización: usa installation token (permiso Administration write).
+ * GitHub Apps requieren permiso **Administration: write** (no solo Metadata/Contents).
+ * - Usuario: user access token + POST /user/repos
+ * - Org: installation token + POST /orgs/{org}/repos
  */
 export async function createRepository(
-  tokens: { userAccessToken?: string; installationToken: string },
+  tokens: {
+    userAccessToken?: string;
+    installationToken: string;
+    installationId?: number;
+  },
   input: {
     name: string;
     description?: string;
@@ -162,11 +172,10 @@ export async function createRepository(
     };
   }
 
-  const body = {
+  const baseBody = {
     name,
     description: input.description?.trim() || undefined,
     private: input.private !== false,
-    auto_init: input.autoInit !== false,
   };
 
   const org = input.org?.trim();
@@ -175,15 +184,18 @@ export async function createRepository(
       method: "POST",
       token: tokens.installationToken,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        ...baseBody,
+        auto_init: input.autoInit !== false,
+      }),
     });
     if (!result.ok) {
       return {
         ok: false,
         message:
           result.message +
-          (result.status === 403
-            ? " ¿La App tiene Administration (write) en la org e instalación con acceso?"
+          (result.status === 403 || /not accessible by integration/i.test(result.message)
+            ? ADMIN_HINT
             : ""),
       };
     }
@@ -197,32 +209,83 @@ export async function createRepository(
     return {
       ok: false,
       message:
-        "No hay token de usuario para crear el repo. Vuelve a Conectar GitHub e inténtalo de nuevo.",
+        "No hay token de usuario para crear el repo. Pulsa Conectar GitHub de nuevo " +
+        "(el token se renueva al conectar) y reintenta.",
     };
   }
 
-  const result = await gh<GitHubRepository>("/user/repos", {
-    method: "POST",
-    token: tokens.userAccessToken,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!result.ok) {
-    return {
-      ok: false,
-      message:
-        result.message +
-        (result.status === 403 || result.status === 401
-          ? " Reconecta GitHub o revisa permisos de la App (Contents/Metadata)."
-          : result.status === 422
-            ? " ¿Ya existe un repo con ese nombre?"
-            : ""),
-    };
+  // 1) Intento con README (auto_init). 2) Si falla por permisos, sin auto_init.
+  const attempts: Array<{ auto_init: boolean }> = [{ auto_init: true }, { auto_init: false }];
+  let lastMessage = "No se pudo crear el repositorio.";
+
+  for (const attempt of attempts) {
+    if (input.autoInit === false && attempt.auto_init) continue;
+
+    const result = await gh<GitHubRepository>("/user/repos", {
+      method: "POST",
+      token: tokens.userAccessToken,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...baseBody, auto_init: attempt.auto_init }),
+    });
+
+    if (result.ok) {
+      const repo = { ...result.data, description: result.data.description ?? null };
+      // Si la App está en modo "only select repositories", el repo nuevo no entra
+      // solo: hay que añadirlo a la instalación para que luego aparezca al listar.
+      if (tokens.installationId && tokens.userAccessToken) {
+        await addRepoToUserInstallation(
+          tokens.userAccessToken,
+          tokens.installationId,
+          repo.id,
+        );
+      }
+      return { ok: true, repo };
+    }
+
+    lastMessage = result.message;
+    const integrationBlocked =
+      result.status === 403 ||
+      result.status === 401 ||
+      /not accessible by integration/i.test(result.message);
+
+    if (integrationBlocked) {
+      return { ok: false, message: result.message + ADMIN_HINT };
+    }
+    if (result.status === 422) {
+      return {
+        ok: false,
+        message: `${result.message} ¿Ya existe un repo con ese nombre en tu cuenta?`,
+      };
+    }
+    // Otros errores: no reintentar
+    if (result.status !== 0) break;
   }
-  return {
-    ok: true,
-    repo: { ...result.data, description: result.data.description ?? null },
-  };
+
+  return { ok: false, message: lastMessage };
+}
+
+/** Añade un repo recién creado a la instalación de la App (solo repos seleccionados). */
+export async function addRepoToUserInstallation(
+  userAccessToken: string,
+  installationId: number,
+  repositoryId: number,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const result = await gh<unknown>(
+    `/user/installations/${installationId}/repositories/${repositoryId}`,
+    {
+      method: "PUT",
+      token: userAccessToken,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github+json",
+      },
+    },
+  );
+  if (!result.ok) {
+    // No es fatal: el repo existe; el usuario puede añadirlo a mano en la App.
+    return { ok: false, message: result.message };
+  }
+  return { ok: true };
 }
 
 export async function listInstallationRepos(

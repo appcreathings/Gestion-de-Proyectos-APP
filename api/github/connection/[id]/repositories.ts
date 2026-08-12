@@ -149,6 +149,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       {
         installationToken: token.token,
         userAccessToken: parsed.claims.userAccessToken,
+        installationId: parsed.claims.installationId,
       },
       {
         name,
@@ -160,7 +161,21 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     );
 
     if (!created.ok) {
-      json(res, 502, { message: created.message });
+      json(res, 502, {
+        message: created.message,
+        hasUserToken: Boolean(parsed.claims.userAccessToken),
+        code: "github_create_repo_failed",
+        help: {
+          requiredPermission: "Repository permissions → Administration → Read and write",
+          steps: [
+            "Abre la GitHub App → Permissions",
+            "Administration = Read and write",
+            "Save y acepta el nuevo permiso en la instalación",
+            "En Hito: Conectar GitHub otra vez",
+            "O crea el repo en github.com/new y elígelo en la lista",
+          ],
+        },
+      });
       return;
     }
 
