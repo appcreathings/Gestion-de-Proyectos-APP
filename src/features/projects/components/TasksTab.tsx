@@ -17,7 +17,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Archive, CalendarDays, CheckSquare, Filter, LayoutGrid, List, Plus, Search, Settings, Trash2, X } from "lucide-react";
+import { Archive, CalendarDays, CheckSquare, Filter, LayoutGrid, List, MoreHorizontal, Plus, Search, Settings, Trash2, X } from "lucide-react";
 import { TaskCalendarView } from "../calendar/TaskCalendarView";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
@@ -42,7 +43,10 @@ import { TaskDetailDrawer } from "./kanban/TaskDetailDrawer";
 import { ArchivedTasksList } from "./kanban/ArchivedTasksList";
 import { KanbanListView } from "./kanban/KanbanListView";
 import { WipLimitConfig } from "./kanban/WipLimitConfig";
+import { KanbanColumnPager } from "./kanban/KanbanColumnPager";
+import { pickActiveStatus, scrollBoardToColumn } from "./kanban/columnScroll";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface Props {
   project: Project;
@@ -85,6 +89,9 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   // touch happen via the existing move buttons instead, to avoid fighting the column snap-scroll.
   const isTouchDragRef = useRef(false);
   const focusRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const [activeKanbanCol, setActiveKanbanCol] = useState<TaskStatus>("todo");
+  const isCarousel = !useBreakpoint("sm");
   const [searchParams, setSearchParams] = useSearchParams();
   const areaFilterId = searchParams.get("area");
   const areaFilter = areaFilterId ? project.areas.find((a) => a.id === areaFilterId) : undefined;
@@ -354,6 +361,43 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     return result;
   }, [areaScoped, sprintScope, debouncedQuery, priorityFilter, assigneeFilter, dateFilter]);
 
+  // Spec 054: sync pager with carousel scroll.
+  useEffect(() => {
+    if (!isCarousel || viewMode !== "kanban" || showArchived) return;
+    const board = boardRef.current;
+    if (!board) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const ratios = entries
+          .map((e) => {
+            const status = (e.target as HTMLElement).dataset.kanbanStatus as TaskStatus | undefined;
+            if (!status) return null;
+            return { status, intersectionRatio: e.intersectionRatio };
+          })
+          .filter((x): x is { status: TaskStatus; intersectionRatio: number } => x !== null);
+        if (ratios.length === 0) return;
+        setActiveKanbanCol((prev) => pickActiveStatus(ratios, prev));
+      },
+      { root: board, threshold: [0.35, 0.55, 0.75] },
+    );
+
+    for (const col of TASK_COLUMNS) {
+      const el = document.getElementById(`kanban-col-${col}`);
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [isCarousel, viewMode, showArchived, tasksInScope.length]);
+
+  function scrollToKanbanColumn(status: TaskStatus) {
+    const board = boardRef.current;
+    const col = document.getElementById(`kanban-col-${status}`);
+    if (board && col) {
+      scrollBoardToColumn(board, col);
+      setActiveKanbanCol(status);
+    }
+  }
+
   // Archived tasks: only apply area filter, not sprint scope (spec 016)
   const archivedTasks = useMemo(() => {
     const archived = project.tasks.filter((t) => t.archived);
@@ -589,22 +633,22 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:flex-initial sm:w-64">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[8rem] flex-1 sm:flex-initial sm:w-64">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Buscar tareas..."
+              placeholder="Buscar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9"
+              className="h-11 pl-9 sm:h-9"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="relative">
-                <Filter className="size-3.5 mr-1.5" />
-                Filtros
+              <Button variant="outline" size="sm" className="relative min-h-11 sm:min-h-9">
+                <Filter className="size-3.5 sm:mr-1.5" />
+                <span className="hidden sm:inline">Filtros</span>
                 {activeFiltersCount > 0 && (
                   <Badge variant="secondary" className="ml-1.5 size-5 p-0 flex items-center justify-center text-xs">
                     {activeFiltersCount}
@@ -663,54 +707,90 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setWipConfigOpen(true)}
-            title="Configurar WIP limits"
-          >
-            <Settings className="size-3.5 mr-1.5" />
-            WIP
-          </Button>
+          {/* Vistas: iconos en móvil, texto en sm+ */}
           <div className="flex items-center rounded-md border border-border/70">
             <Button
               variant={viewMode === "kanban" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setTasksViewMode("kanban")}
-              className="rounded-r-none"
+              className="min-h-11 rounded-r-none px-2.5 sm:min-h-9 sm:px-3"
               title="Vista Kanban"
               aria-pressed={viewMode === "kanban"}
             >
-              <LayoutGrid className="size-3.5 mr-1.5" />
-              Kanban
+              <LayoutGrid className="size-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Kanban</span>
             </Button>
             <Button
               variant={viewMode === "list" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setTasksViewMode("list")}
-              className="rounded-none border-l border-border/70"
+              className="min-h-11 rounded-none border-l border-border/70 px-2.5 sm:min-h-9 sm:px-3"
               title="Vista Lista"
               aria-pressed={viewMode === "list"}
             >
-              <List className="size-3.5 mr-1.5" />
-              Lista
+              <List className="size-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Lista</span>
             </Button>
             <Button
               variant={viewMode === "calendar" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setTasksViewMode("calendar")}
-              className="rounded-l-none border-l border-border/70"
+              className="min-h-11 rounded-l-none border-l border-border/70 px-2.5 sm:min-h-9 sm:px-3"
               title="Vista Calendario"
               aria-pressed={viewMode === "calendar"}
             >
-              <CalendarDays className="size-3.5 mr-1.5" />
-              Calendario
+              <CalendarDays className="size-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Calendario</span>
             </Button>
           </div>
+
+          {/* Spec 054: acciones secundarias en menú Más en móvil */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="min-h-11 sm:hidden" aria-label="Más opciones">
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setWipConfigOpen(true)}>
+                <Settings className="mr-2 size-4" /> WIP
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleArchived}>
+                <Archive className="mr-2 size-4" />
+                {showArchived ? "Ver activas" : `Archivadas (${project.tasks.filter((t) => t.archived).length})`}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={showArchived}
+                onClick={() => {
+                  if (selectionMode) {
+                    setSelectionMode(false);
+                    clearSelection();
+                  } else {
+                    setSelectionMode(true);
+                  }
+                }}
+              >
+                <CheckSquare className="mr-2 size-4" />
+                {selectionMode ? "Cancelar selección" : "Seleccionar"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setWipConfigOpen(true)}
+            title="Configurar WIP limits"
+            className="hidden sm:inline-flex"
+          >
+            <Settings className="size-3.5 mr-1.5" />
+            WIP
+          </Button>
           <Button
             variant={showArchived ? "secondary" : "outline"}
             size="sm"
             onClick={toggleArchived}
+            className="hidden sm:inline-flex"
           >
             <Archive className="size-3.5 mr-1.5" />
             {showArchived ? "Ver activas" : `Archivadas (${project.tasks.filter((t) => t.archived).length})`}
@@ -718,6 +798,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
           <Button
             variant={selectionMode ? "secondary" : "outline"}
             size="sm"
+            className="hidden sm:inline-flex"
             onClick={() => {
               if (selectionMode) {
                 setSelectionMode(false);
@@ -732,16 +813,18 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             {selectionMode ? "Cancelar" : "Seleccionar"}
           </Button>
           <Button
+            className="min-h-11 sm:min-h-9"
             onClick={() =>
               setDialog({
                 open: true,
-                status: undefined,
+                status: isCarousel && viewMode === "kanban" ? activeKanbanCol : undefined,
               })
             }
             disabled={showArchived}
           >
             <Plus className="size-4" />
-            Nueva tarea
+            <span className="hidden sm:inline">Nueva tarea</span>
+            <span className="sm:hidden">Nueva</span>
           </Button>
         </div>
       </div>
@@ -818,7 +901,23 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
           onDragEnd={onDragEnd}
           onDragCancel={onDragCancel}
         >
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto sm:grid sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-3 sm:snap-none sm:overflow-visible">
+          {/* Spec 054: pager de columnas en carrusel móvil */}
+          {isCarousel && (
+            <div className="sticky top-0 z-10 -mx-1 mb-3 bg-background/95 px-1 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+              <KanbanColumnPager
+                columns={TASK_COLUMNS.map((status) => ({
+                  status,
+                  count: board[status].length,
+                }))}
+                active={activeKanbanCol}
+                onSelect={scrollToKanbanColumn}
+              />
+            </div>
+          )}
+          <div
+            ref={boardRef}
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto sm:grid sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-3 sm:snap-none sm:overflow-visible"
+          >
             {TASK_COLUMNS.map((col) => {
               const ids = board[col];
               const tasks = ids

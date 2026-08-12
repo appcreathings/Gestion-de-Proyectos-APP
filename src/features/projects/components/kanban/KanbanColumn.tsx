@@ -34,6 +34,8 @@ export function KanbanColumn({ status, count, wipLimit, taskIds, onAdd, selectio
   return (
     <div
       ref={setNodeRef}
+      id={`kanban-col-${status}`}
+      data-kanban-status={status}
       className={cn(
         "flex min-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors sm:min-w-0 sm:shrink sm:border-border/70",
         isOver && "border-foreground/40 bg-foreground/[0.06]",

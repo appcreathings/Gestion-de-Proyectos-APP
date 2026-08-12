@@ -11,7 +11,7 @@ import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { RichTextField } from "@/components/forms/RichTextField";
-import { priorityLabel, taskStatusLabel } from "@/domain/labels";
+import { priorityLabel, taskStatusLabel, TASK_COLUMNS } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
 import { uuid, nowIso, cn } from "@/lib/utils";
 import {
@@ -90,7 +90,20 @@ export function TaskDetailDrawer({
   const assistantOpen = useChatStore((s) => s.open);
   const assistantPanelWidth = useChatStore((s) => s.panelWidth);
   const isDesktop = useBreakpoint("lg");
+  const isMdUp = useBreakpoint("md");
+  const isMobile = !isMdUp;
   const sideBySide = assistantOpen && isDesktop;
+  const commentComposerRef = useRef<HTMLTextAreaElement>(null);
+
+  // Spec 054: lock body scroll while drawer is open on mobile.
+  useEffect(() => {
+    if (!task || !isMobile) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [task, isMobile]);
 
   useEffect(() => {
     if (task) {
@@ -450,6 +463,11 @@ export function TaskDetailDrawer({
   const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
   const isBlocked = task.status === "blocked";
 
+  function changeStatus(next: TaskStatus) {
+    setStatus(next);
+    persist("status", next);
+  }
+
   return (
     <>
       <div
@@ -460,16 +478,24 @@ export function TaskDetailDrawer({
       <div
         ref={drawerRef}
         role="dialog"
-        aria-modal="false"
+        aria-modal="true"
         aria-label={`Detalle de tarea: ${task.title}`}
-        style={{
-          width: drawerWidth,
-          right: sideBySide ? assistantPanelWidth : 0,
-        }}
+        style={
+          isMobile
+            ? undefined
+            : {
+                width: drawerWidth,
+                right: sideBySide ? assistantPanelWidth : 0,
+              }
+        }
         className={cn(
           // Solid bg-background only: full-panel red/amber tints (esp. dark:/20)
           // wash through the form and make fields hard to read.
-          "fixed inset-y-0 z-50 flex w-full max-w-[800px] flex-col border-l bg-background shadow-lg transition-transform duration-200 ease-out md:max-w-none",
+          // Spec 054: full viewport en móvil; panel lateral en md+.
+          "fixed z-50 flex flex-col bg-background shadow-lg transition-transform duration-200 ease-out",
+          isMobile
+            ? "inset-0 w-full max-w-none border-0"
+            : "inset-y-0 w-full max-w-[800px] border-l md:max-w-none",
           isBlocked && "border-l-4 border-l-red-500",
           !isBlocked && overdue && "border-l-4 border-l-red-500",
           !isBlocked && dueSoon && !overdue && "border-l-4 border-l-amber-500",
@@ -504,12 +530,19 @@ export function TaskDetailDrawer({
               </Badge>
             )}
           </div>
-          <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-11 min-h-11 min-w-11 shrink-0 sm:size-8 sm:min-h-8 sm:min-w-8"
+            onClick={onClose}
+            aria-label="Cerrar detalle"
+          >
             <X className="size-4" />
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="grid gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="d-title" className="text-xs text-muted-foreground">
@@ -721,8 +754,28 @@ export function TaskDetailDrawer({
               )}
             </div>
 
+            {/* Spec 054: estado arriba del fold en móvil + chips táctiles. */}
+            <div className="grid gap-1.5 md:hidden">
+              <Label className="text-xs text-muted-foreground">Estado</Label>
+              <div className="grid grid-cols-4 gap-1">
+                {TASK_COLUMNS.map((col) => (
+                  <Button
+                    key={col}
+                    type="button"
+                    size="sm"
+                    variant={status === col ? "default" : "outline"}
+                    className="min-h-11 px-1 text-[11px]"
+                    disabled={status === col}
+                    onClick={() => changeStatus(col)}
+                  >
+                    {taskStatusLabel[col]}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-1.5">
+              <div className="hidden gap-1.5 md:grid">
                 <Label htmlFor="d-status" className="text-xs text-muted-foreground">
                   Estado
                 </Label>
@@ -730,8 +783,7 @@ export function TaskDetailDrawer({
                   id="d-status"
                   value={status}
                   onChange={(e) => {
-                    setStatus(e.target.value as TaskStatus);
-                    persist("status", e.target.value);
+                    changeStatus(e.target.value as TaskStatus);
                   }}
                 >
                   {Object.entries(taskStatusLabel).map(([v, l]) => (
@@ -741,7 +793,7 @@ export function TaskDetailDrawer({
                   ))}
                 </Select>
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-1.5 col-span-2 md:col-span-1">
                 <Label htmlFor="d-priority" className="text-xs text-muted-foreground">
                   Prioridad
                 </Label>
@@ -995,7 +1047,7 @@ export function TaskDetailDrawer({
               </Label>
 
               {(task.comments?.length ?? 0) > 0 && (
-                <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto">
+                <div className="mb-4 max-h-[40vh] space-y-3 overflow-y-auto md:max-h-[300px]">
                   {task.comments!.map((comment) => (
                     <div key={comment.id} className="rounded-lg bg-muted/50 p-3">
                       <p className="text-sm whitespace-pre-wrap">{comment.text}</p>
@@ -1008,12 +1060,24 @@ export function TaskDetailDrawer({
                 </div>
               )}
 
+              {/* Spec 054: text-base evita zoom iOS; min-h táctil en botón. */}
               <div className="space-y-2">
                 <Textarea
+                  ref={commentComposerRef}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
+                  onFocus={() => {
+                    setTimeout(
+                      () =>
+                        commentComposerRef.current?.scrollIntoView({
+                          block: "nearest",
+                          behavior: "smooth",
+                        }),
+                      100,
+                    );
+                  }}
                   placeholder="Escribe un comentario..."
-                  className="min-h-[80px] resize-y text-sm"
+                  className="min-h-[80px] resize-y text-base"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
                       e.preventDefault();
@@ -1025,7 +1089,7 @@ export function TaskDetailDrawer({
                   onClick={addComment}
                   disabled={!newComment.trim()}
                   size="sm"
-                  className="w-full"
+                  className="min-h-11 w-full"
                 >
                   <Send className="size-3.5 mr-1.5" />
                   Comentar
@@ -1033,6 +1097,7 @@ export function TaskDetailDrawer({
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </>

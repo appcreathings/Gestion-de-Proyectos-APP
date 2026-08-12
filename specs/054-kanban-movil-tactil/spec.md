@@ -1,6 +1,6 @@
 # Spec 054 — Kanban usable en el teléfono
 
-> Estado: **SOLO DOCUMENTADO** (planning). No se toca `src/`. Ejecutable en otra conversación.
+> Estado: **IMPLEMENTADO** (2026-08-11).
 > Feature dir: `specs/054-kanban-movil-tactil/` · Fecha: 2026-08-11
 > Roadmap: `mobile-kanban` en `src/features/releases/data/roadmap.ts`
 >   («Flujo táctil para revisar, comentar y mover tareas desde el móvil»).
@@ -200,5 +200,9 @@ Como PM, quiero ver tarjetas, no cinco filas de filtros.
 
 ## 10. Progreso
 
-- **Estado general: 📝 Solo documentado (2026-08-11).** Spec + design + tasks listos.
-- Implementación de producto **no** iniciada en esta pasada.
+- **Estado general: ✅ Implementado (2026-08-11).**
+- Pager de columnas en carrusel &lt; sm + IntersectionObserver.
+- Targets ≥44px en card; chips de estado y drawer full-screen en móvil.
+- Toolbar compacta (Más + Nueva); nueva tarea en columna activa del pager.
+- Comentarios con `text-base` y scroll-into-view.
+- **1142 tests** en verde.

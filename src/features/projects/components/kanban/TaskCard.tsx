@@ -249,12 +249,14 @@ export function TaskCard({
         </div>
       )}
       {!isOverlay && !isPlaceholder && (
-        <div className="mt-auto flex items-center justify-end gap-1 border-t border-border/50 pt-2">
+        <div className="mt-auto flex items-center justify-end gap-0.5 border-t border-border/50 pt-2">
+          {/* Spec 054: targets ≥44px en móvil (max-sm:size-11). */}
           <Button
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
             title="Devolver al estado anterior"
+            aria-label="Mover al estado anterior"
             onClick={(e) => { e.stopPropagation(); onMoveBack(); }}
           >
             <ArrowLeft className="size-4" />
@@ -262,8 +264,9 @@ export function TaskCard({
           <Button
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
             title="Mover al siguiente estado"
+            aria-label="Mover al siguiente estado"
             onClick={(e) => { e.stopPropagation(); onMove(); }}
           >
             <ArrowRight className="size-4" />
@@ -271,8 +274,9 @@ export function TaskCard({
           <Button
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
             title={task.status === "blocked" ? "Desbloquear" : "Bloquear"}
+            aria-label={task.status === "blocked" ? "Desbloquear tarea" : "Bloquear tarea"}
             onClick={(e) => { e.stopPropagation(); onToggleBlock(); }}
           >
             {task.status === "blocked" ? (
@@ -286,8 +290,9 @@ export function TaskCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8"
+                className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
                 title="Más opciones"
+                aria-label="Más opciones"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="size-4" />

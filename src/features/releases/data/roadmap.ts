@@ -175,7 +175,7 @@ export const ROADMAP: RoadmapItem[] = [
     description:
       "Flujo táctil para revisar, comentar y mover tareas desde el móvil — sin pretender ser una app nativa completa — spec 054 (sobre 010/011).",
     horizon: "later",
-    status: "planned",
+    status: "shipped",
     area: "Kanban",
   },
   {
