@@ -1,5 +1,5 @@
-import { loadGitHubOAuthEnv } from "../_lib/env";
-import { parseConnectionId } from "../_lib/crypto";
+import { loadGitHubOAuthEnv } from "../_lib/env.js";
+import { parseConnectionId } from "../_lib/crypto.js";
 import {
   json,
   methodNotAllowed,
@@ -7,7 +7,7 @@ import {
   withHandler,
   type ApiRequest,
   type ApiResponse,
-} from "../_lib/http";
+} from "../_lib/http.js";
 
 /**
  * GET /api/github/connection/:id

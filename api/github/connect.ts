@@ -1,5 +1,5 @@
-import { loadGitHubOAuthEnv } from "./_lib/env";
-import { randomToken, signState } from "./_lib/crypto";
+import { loadGitHubOAuthEnv } from "./_lib/env.js";
+import { randomToken, signState } from "./_lib/crypto.js";
 import {
   getRequestUrl,
   json,
@@ -9,7 +9,7 @@ import {
   withHandler,
   type ApiRequest,
   type ApiResponse,
-} from "./_lib/http";
+} from "./_lib/http.js";
 
 /**
  * GET /api/github/connect

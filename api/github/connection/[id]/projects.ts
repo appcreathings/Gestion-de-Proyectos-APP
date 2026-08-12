@@ -1,6 +1,6 @@
-import { loadGitHubEnv } from "../../_lib/env";
-import { parseConnectionId } from "../../_lib/crypto";
-import { createInstallationToken, listOrgProjects } from "../../_lib/github";
+import { loadGitHubEnv } from "../../_lib/env.js";
+import { parseConnectionId } from "../../_lib/crypto.js";
+import { createInstallationToken, listOrgProjects } from "../../_lib/github.js";
 import {
   json,
   methodNotAllowed,
@@ -9,7 +9,7 @@ import {
   withHandler,
   type ApiRequest,
   type ApiResponse,
-} from "../../_lib/http";
+} from "../../_lib/http.js";
 
 /**
  * GET /api/github/connection/:id/projects?owner=...

@@ -1,10 +1,10 @@
-import { loadGitHubOAuthEnv } from "./_lib/env";
-import { mintConnectionId, verifyState } from "./_lib/crypto";
+import { loadGitHubOAuthEnv } from "./_lib/env.js";
+import { mintConnectionId, verifyState } from "./_lib/crypto.js";
 import {
   exchangeOAuthCode,
   getAuthenticatedUser,
   listUserInstallations,
-} from "./_lib/github";
+} from "./_lib/github.js";
 import {
   frontendErrorRedirect,
   frontendSuccessRedirect,
@@ -15,7 +15,7 @@ import {
   withHandler,
   type ApiRequest,
   type ApiResponse,
-} from "./_lib/http";
+} from "./_lib/http.js";
 
 /**
  * GET /api/github/callback

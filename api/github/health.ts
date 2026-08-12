@@ -1,5 +1,5 @@
-import { loadGitHubEnv, loadGitHubOAuthEnv } from "./_lib/env";
-import { json, withHandler, type ApiRequest, type ApiResponse } from "./_lib/http";
+import { loadGitHubEnv, loadGitHubOAuthEnv } from "./_lib/env.js";
+import { json, withHandler, type ApiRequest, type ApiResponse } from "./_lib/http.js";
 
 /**
  * GET /api/github/health

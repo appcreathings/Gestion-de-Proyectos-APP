@@ -1,4 +1,4 @@
-import { createAppJwt } from "./crypto";
+import { createAppJwt } from "./crypto.js";
 
 const GITHUB_API = "https://api.github.com";
 const ACCEPT = "application/vnd.github+json";
