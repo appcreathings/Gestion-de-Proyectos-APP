@@ -16,6 +16,7 @@ export type GitHubInstallation = {
 
 export type GitHubRepository = {
   id: number;
+  node_id: string;
   name: string;
   full_name: string;
   private: boolean;
@@ -161,11 +162,16 @@ export async function listInstallationRepos(
 
 type GhProject = { id: string; number: number; title: string; shortDescription?: string | null };
 
+/**
+ * GraphQL tolerante a errores parciales.
+ * Ej.: consultar user+organization con un login de usuario devuelve error en org
+ * pero data.user sigue siendo válido — no debemos tumbar todo el request.
+ */
 async function graphql<T>(
   installationToken: string,
   query: string,
   variables: Record<string, unknown>,
-): Promise<{ ok: true; data: T } | { ok: false; message: string }> {
+): Promise<{ ok: true; data: T; warnings: string[] } | { ok: false; message: string }> {
   try {
     const res = await fetch(`${GITHUB_API}/graphql`, {
       method: "POST",
@@ -179,23 +185,74 @@ async function graphql<T>(
       body: JSON.stringify({ query, variables }),
     });
     const json = (await res.json()) as {
-      data?: T;
-      errors?: Array<{ message: string }>;
+      data?: T | null;
+      errors?: Array<{ message: string; type?: string; path?: Array<string | number> }>;
     };
-    if (!res.ok || json.errors?.length) {
+    const warnings = (json.errors ?? []).map((e) => e.message).filter(Boolean);
+
+    if (!res.ok) {
       return {
         ok: false,
-        message: json.errors?.[0]?.message ?? `GraphQL HTTP ${res.status}`,
+        message: warnings[0] ?? `GraphQL HTTP ${res.status}`,
       };
     }
-    if (!json.data) return { ok: false, message: "Respuesta GraphQL vacía." };
-    return { ok: true, data: json.data };
+
+    // Si hay data usable, aceptar aunque existan errores en campos opcionalmente nulos.
+    if (json.data != null && typeof json.data === "object") {
+      return { ok: true, data: json.data, warnings };
+    }
+
+    return {
+      ok: false,
+      message:
+        warnings[0] ??
+        "Respuesta GraphQL vacía. ¿La GitHub App tiene permiso Projects (read/write)?",
+    };
   } catch (error) {
     return {
       ok: false,
       message: error instanceof Error ? error.message : "Error GraphQL con GitHub.",
     };
   }
+}
+
+export async function resolveOwnerNodeId(
+  installationToken: string,
+  owner: string,
+): Promise<{ ok: true; ownerId: string; kind: "user" | "organization" } | { ok: false; message: string }> {
+  // Consultas separadas: evita que un error de organization tumbe el user.
+  const userQ = `
+    query($login: String!) {
+      user(login: $login) { id }
+    }
+  `;
+  const userRes = await graphql<{ user?: { id: string } | null }>(
+    installationToken,
+    userQ,
+    { login: owner },
+  );
+  if (userRes.ok && userRes.data.user?.id) {
+    return { ok: true, ownerId: userRes.data.user.id, kind: "user" };
+  }
+
+  const orgQ = `
+    query($login: String!) {
+      organization(login: $login) { id }
+    }
+  `;
+  const orgRes = await graphql<{ organization?: { id: string } | null }>(
+    installationToken,
+    orgQ,
+    { login: owner },
+  );
+  if (orgRes.ok && orgRes.data.organization?.id) {
+    return { ok: true, ownerId: orgRes.data.organization.id, kind: "organization" };
+  }
+
+  return {
+    ok: false,
+    message: `No se encontró el owner "${owner}" en GitHub (¿instalación de la App en esa cuenta?).`,
+  };
 }
 
 export async function listOrgProjects(
@@ -210,89 +267,154 @@ export async function listOrgProjects(
         title: string;
         shortDescription: string | null;
         ownerLogin: string;
+        public: boolean | null;
       }>;
     }
   | { ok: false; message: string }
 > {
-  const query = `
-    query($login: String!) {
-      user(login: $login) {
-        projectsV2(first: 40) { nodes { id number title shortDescription } }
-      }
-      organization(login: $login) {
-        projectsV2(first: 40) { nodes { id number title shortDescription } }
-      }
-    }
-  `;
+  const ownerRes = await resolveOwnerNodeId(installationToken, owner);
+  if (!ownerRes.ok) return ownerRes;
+
+  const query =
+    ownerRes.kind === "user"
+      ? `
+        query($login: String!) {
+          user(login: $login) {
+            projectsV2(first: 50, orderBy: { field: UPDATED_AT, direction: DESC }) {
+              nodes { id number title shortDescription public }
+            }
+          }
+        }
+      `
+      : `
+        query($login: String!) {
+          organization(login: $login) {
+            projectsV2(first: 50, orderBy: { field: UPDATED_AT, direction: DESC }) {
+              nodes { id number title shortDescription public }
+            }
+          }
+        }
+      `;
+
   const result = await graphql<{
-    user?: { projectsV2?: { nodes?: Array<GhProject | null> } };
-    organization?: { projectsV2?: { nodes?: Array<GhProject | null> } };
+    user?: { projectsV2?: { nodes?: Array<(GhProject & { public?: boolean | null }) | null> } };
+    organization?: {
+      projectsV2?: { nodes?: Array<(GhProject & { public?: boolean | null }) | null> };
+    };
   }>(installationToken, query, { login: owner });
   if (!result.ok) return result;
 
-  const nodes = [
-    ...(result.data.user?.projectsV2?.nodes ?? []),
-    ...(result.data.organization?.projectsV2?.nodes ?? []),
-  ].filter((n): n is GhProject => Boolean(n));
+  const nodes = (
+    ownerRes.kind === "user"
+      ? result.data.user?.projectsV2?.nodes
+      : result.data.organization?.projectsV2?.nodes
+  ) ?? [];
 
   return {
     ok: true,
-    projects: nodes.map((n) => ({
-      id: n.id,
-      number: n.number,
-      title: n.title,
-      shortDescription: n.shortDescription ?? null,
-      ownerLogin: owner,
-    })),
+    projects: nodes
+      .filter((n): n is GhProject & { public?: boolean | null } => Boolean(n))
+      .map((n) => ({
+        id: n.id,
+        number: n.number,
+        title: n.title,
+        shortDescription: n.shortDescription ?? null,
+        ownerLogin: owner,
+        public: typeof n.public === "boolean" ? n.public : null,
+      })),
   };
-}
-
-export async function resolveOwnerNodeId(
-  installationToken: string,
-  owner: string,
-): Promise<{ ok: true; ownerId: string; kind: "user" | "organization" } | { ok: false; message: string }> {
-  const query = `
-    query($login: String!) {
-      user(login: $login) { id }
-      organization(login: $login) { id }
-    }
-  `;
-  const result = await graphql<{
-    user?: { id: string } | null;
-    organization?: { id: string } | null;
-  }>(installationToken, query, { login: owner });
-  if (!result.ok) return result;
-  if (result.data.user?.id) return { ok: true, ownerId: result.data.user.id, kind: "user" };
-  if (result.data.organization?.id) {
-    return { ok: true, ownerId: result.data.organization.id, kind: "organization" };
-  }
-  return { ok: false, message: `No se encontró el owner "${owner}" en GitHub.` };
 }
 
 export async function createGitHubProject(
   installationToken: string,
   owner: string,
   title: string,
+  options?: { repositoryNodeId?: string | null; makePrivate?: boolean },
 ): Promise<
-  | { ok: true; project: { id: string; number: number; title: string; shortDescription: string | null; ownerLogin: string } }
+  | {
+      ok: true;
+      project: {
+        id: string;
+        number: number;
+        title: string;
+        shortDescription: string | null;
+        ownerLogin: string;
+        public: boolean | null;
+      };
+    }
   | { ok: false; message: string }
 > {
   const ownerRes = await resolveOwnerNodeId(installationToken, owner);
   if (!ownerRes.ok) return ownerRes;
 
-  const mutation = `
-    mutation($ownerId: ID!, $title: String!) {
-      createProjectV2(input: { ownerId: $ownerId, title: $title }) {
-        projectV2 { id number title shortDescription }
+  // Vincular al repo (útil con repos privados) si tenemos el node id.
+  const mutation = options?.repositoryNodeId
+    ? `
+      mutation($ownerId: ID!, $title: String!, $repositoryId: ID!) {
+        createProjectV2(input: {
+          ownerId: $ownerId
+          title: $title
+          repositoryId: $repositoryId
+        }) {
+          projectV2 { id number title shortDescription public }
+        }
       }
-    }
-  `;
+    `
+    : `
+      mutation($ownerId: ID!, $title: String!) {
+        createProjectV2(input: { ownerId: $ownerId, title: $title }) {
+          projectV2 { id number title shortDescription public }
+        }
+      }
+    `;
+
+  const variables: Record<string, unknown> = {
+    ownerId: ownerRes.ownerId,
+    title,
+  };
+  if (options?.repositoryNodeId) {
+    variables.repositoryId = options.repositoryNodeId;
+  }
+
   const result = await graphql<{
-    createProjectV2?: { projectV2?: GhProject | null };
-  }>(installationToken, mutation, { ownerId: ownerRes.ownerId, title });
-  if (!result.ok) return result;
-  const project = result.data.createProjectV2?.projectV2;
-  if (!project) return { ok: false, message: "GitHub no devolvió el Project creado." };
+    createProjectV2?: {
+      projectV2?: (GhProject & { public?: boolean | null }) | null;
+    };
+  }>(installationToken, mutation, variables);
+
+  if (!result.ok) {
+    const msg = result.message;
+    const hint =
+      /resource not accessible|insufficient|permission|Projects/i.test(msg)
+        ? " Revisa que la GitHub App tenga permiso Projects (Read and write) e instalación en esa cuenta/org."
+        : "";
+    return { ok: false, message: msg + hint };
+  }
+
+  let project = result.data.createProjectV2?.projectV2;
+  if (!project) {
+    return {
+      ok: false,
+      message:
+        "GitHub no devolvió el Project creado. ¿Permiso Projects write y App instalada en la cuenta?",
+    };
+  }
+
+  // Forzar privado si se pidió (createProjectV2 no siempre acepta public en create).
+  if (options?.makePrivate !== false) {
+    const updated = await updateGitHubProject(installationToken, project.id, {
+      public: false,
+    });
+    if (updated.ok) {
+      project = {
+        ...project,
+        title: updated.project.title,
+        shortDescription: updated.project.shortDescription,
+        public: updated.project.public,
+      };
+    }
+  }
+
   return {
     ok: true,
     project: {
@@ -301,6 +423,7 @@ export async function createGitHubProject(
       title: project.title,
       shortDescription: project.shortDescription ?? null,
       ownerLogin: owner,
+      public: typeof project.public === "boolean" ? project.public : false,
     },
   };
 }
@@ -308,29 +431,57 @@ export async function createGitHubProject(
 export async function updateGitHubProject(
   installationToken: string,
   projectId: string,
-  input: { title?: string; shortDescription?: string | null },
+  input: {
+    title?: string;
+    shortDescription?: string | null;
+    public?: boolean;
+  },
 ): Promise<
-  | { ok: true; project: { id: string; number: number; title: string; shortDescription: string | null } }
+  | {
+      ok: true;
+      project: {
+        id: string;
+        number: number;
+        title: string;
+        shortDescription: string | null;
+        public: boolean | null;
+      };
+    }
   | { ok: false; message: string }
 > {
+  // Solo enviar campos definidos: null en title/shortDescription puede borrar valores.
+  const inputFields: string[] = ["projectId: $projectId"];
+  const varDefs: string[] = ["$projectId: ID!"];
+  const variables: Record<string, unknown> = { projectId };
+
+  if (typeof input.title === "string") {
+    varDefs.push("$title: String!");
+    inputFields.push("title: $title");
+    variables.title = input.title;
+  }
+  if (input.shortDescription !== undefined) {
+    varDefs.push("$shortDescription: String");
+    inputFields.push("shortDescription: $shortDescription");
+    variables.shortDescription = input.shortDescription;
+  }
+  if (typeof input.public === "boolean") {
+    varDefs.push("$public: Boolean!");
+    inputFields.push("public: $public");
+    variables.public = input.public;
+  }
+
   const mutation = `
-    mutation($projectId: ID!, $title: String, $shortDescription: String) {
-      updateProjectV2(input: {
-        projectId: $projectId
-        title: $title
-        shortDescription: $shortDescription
-      }) {
-        projectV2 { id number title shortDescription }
+    mutation(${varDefs.join(", ")}) {
+      updateProjectV2(input: { ${inputFields.join("\n        ")} }) {
+        projectV2 { id number title shortDescription public }
       }
     }
   `;
   const result = await graphql<{
-    updateProjectV2?: { projectV2?: GhProject | null };
-  }>(installationToken, mutation, {
-    projectId,
-    title: input.title ?? null,
-    shortDescription: input.shortDescription ?? null,
-  });
+    updateProjectV2?: {
+      projectV2?: (GhProject & { public?: boolean | null }) | null;
+    };
+  }>(installationToken, mutation, variables);
   if (!result.ok) return result;
   const project = result.data.updateProjectV2?.projectV2;
   if (!project) return { ok: false, message: "GitHub no devolvió el Project actualizado." };
@@ -341,6 +492,7 @@ export async function updateGitHubProject(
       number: project.number,
       title: project.title,
       shortDescription: project.shortDescription ?? null,
+      public: typeof project.public === "boolean" ? project.public : null,
     },
   };
 }

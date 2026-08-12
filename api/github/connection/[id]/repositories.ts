@@ -57,10 +57,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       200,
       repos.repos.map((r) => ({
         id: r.id,
+        nodeId: r.node_id ?? "",
         owner: r.owner?.login ?? "",
         name: r.name,
         fullName: r.full_name,
-        private: r.private,
+        private: Boolean(r.private),
         defaultBranch: r.default_branch,
         description: r.description ?? null,
       })),

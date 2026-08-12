@@ -75,6 +75,9 @@ export function GitHubAppPanel() {
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [productId, setProductId] = useState("");
   const [createRemoteProject, setCreateRemoteProject] = useState(true);
+  /** Projects en GitHub se crean privados por defecto (repos privados incluidos). */
+  const [makeRemotePrivate, setMakeRemotePrivate] = useState(true);
+  const [projectsWarning, setProjectsWarning] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     const [c, l] = await Promise.all([getGitHubConnections(), getGitHubLinks()]);
@@ -118,6 +121,8 @@ export function GitHubAppPanel() {
     setNewProjectDescription("");
     setProductId(products[0]?.id ?? "");
     setCreateRemoteProject(true);
+    setMakeRemotePrivate(true);
+    setProjectsWarning(null);
     try {
       const result = await getGitHubRepositories(connection.backendConnectionId);
       if (!result.ok) {
@@ -125,12 +130,15 @@ export function GitHubAppPanel() {
         setRepos([]);
         return;
       }
-      setRepos(result.data);
-      if (result.data[0]) {
-        const first = result.data[0];
+      // Privados primero: suele ser lo que se quiere vincular.
+      const sorted = [...result.data].sort((a, b) => Number(b.private) - Number(a.private));
+      setRepos(sorted);
+      if (sorted[0]) {
+        const first = sorted[0];
         setRepoKey(`${first.owner}/${first.name}`);
         setNewProjectName(first.name);
         setNewProjectDescription(first.description?.trim() || "");
+        setMakeRemotePrivate(true);
         await loadProjectsForOwner(connection.backendConnectionId, first.owner);
       }
     } finally {
@@ -142,9 +150,13 @@ export function GitHubAppPanel() {
     const result = await getGitHubProjects(backendConnectionId, owner);
     if (!result.ok) {
       setGhProjects([]);
-      // Soft: listing projects can fail without Projects permission.
+      setProjectsWarning(
+        result.message ||
+          "No se pudieron listar GitHub Projects. ¿La App tiene permiso Projects (read/write)?",
+      );
       return;
     }
+    setProjectsWarning(null);
     setGhProjects(result.data);
   }
 
@@ -152,8 +164,10 @@ export function GitHubAppPanel() {
     setRepoKey(value);
     const repo = repos.find((r) => `${r.owner}/${r.name}` === value);
     if (!repo || !activeConnection) return;
-    setNewProjectName((prev) => prev || repo.name);
-    setNewProjectDescription((prev) => prev || repo.description?.trim() || "");
+    // Al cambiar de repo, prellenar nombre/desc del repo (usuario puede editar).
+    setNewProjectName(repo.name);
+    setNewProjectDescription(repo.description?.trim() || "");
+    setMakeRemotePrivate(true);
     setGhProjectId("");
     setBusy(true);
     try {
@@ -177,9 +191,13 @@ export function GitHubAppPanel() {
 
       if (localMode === "new") {
         const name = newProjectName.trim() || selectedRepo.name;
+        if (!name) {
+          setError("Escribe un nombre para el proyecto nuevo.");
+          return;
+        }
         const created = newProject(name, productId || null);
         created.description = newProjectDescription.trim();
-        // Preserve: if user typed name/description, they stay; tasks/areas empty on new.
+        // Se guardan nombre/descripcion; tareas/áreas vacías en un proyecto nuevo.
         await createProject(created);
         projectId = created.id;
         project = created;
@@ -188,7 +206,7 @@ export function GitHubAppPanel() {
           setError("Elige un proyecto de Hito existente.");
           return;
         }
-        // Keep all existing local data; only optionally fill empty name/description.
+        // Conservar todas las tareas/áreas; solo rellenar descripción vacía si hay texto.
         const next = { ...project };
         let touched = false;
         if (!next.description.trim() && newProjectDescription.trim()) {
@@ -202,44 +220,17 @@ export function GitHubAppPanel() {
         }
       }
 
+      if (!project || !projectId) {
+        setError("No hay proyecto local para vincular.");
+        return;
+      }
+
       let projectNodeId = selectedGhProject?.id;
       let projectNumber = selectedGhProject?.number;
       let remoteTitle = selectedGhProject?.title ?? null;
       let remoteDesc = selectedGhProject?.shortDescription ?? null;
 
-      // Crear Project en GitHub si se pidió y aún no hay uno elegido.
-      if (createRemoteProject && !projectNodeId && project) {
-        const pushed = await pushProjectMetaToGitHub({
-          backendConnectionId: activeConnection.backendConnectionId,
-          link: buildGitHubLink({
-            projectId,
-            connectionId: activeConnection.id,
-            owner: selectedRepo.owner,
-            repository: selectedRepo.name,
-            repositoryId: selectedRepo.id,
-            remoteRepositoryDescription: selectedRepo.description ?? null,
-          }),
-          local: {
-            name: project.name,
-            description: project.description,
-          },
-        });
-        if (!pushed.ok) {
-          setError(pushed.message);
-          // Still save local link without remote project if create failed.
-        } else {
-          projectNodeId = pushed.link.projectNodeId;
-          projectNumber = pushed.link.projectNumber;
-          remoteTitle = pushed.link.remoteProjectTitle ?? null;
-          remoteDesc = pushed.link.remoteProjectDescription ?? null;
-          await refresh();
-          setMode("idle");
-          toast.success(`Proyecto vinculado: ${project.name} ↔ ${selectedRepo.fullName}`);
-          return;
-        }
-      }
-
-      const link = buildGitHubLink({
+      const baseLink = buildGitHubLink({
         projectId,
         connectionId: activeConnection.id,
         owner: selectedRepo.owner,
@@ -251,11 +242,63 @@ export function GitHubAppPanel() {
         remoteProjectDescription: remoteDesc,
         remoteRepositoryDescription: selectedRepo.description ?? null,
       });
-      await saveGitHubLink(link);
+
+      // Crear Project en GitHub (privado por defecto) si se pidió y no hay uno elegido.
+      if (createRemoteProject && !projectNodeId) {
+        const pushed = await pushProjectMetaToGitHub({
+          backendConnectionId: activeConnection.backendConnectionId,
+          link: baseLink,
+          local: {
+            name: project.name,
+            description: project.description,
+          },
+          repositoryNodeId: selectedRepo.nodeId || null,
+          makePrivate: makeRemotePrivate,
+        });
+        if (!pushed.ok) {
+          // El proyecto local ya se creó: guardar vínculo local y avisar del fallo remoto.
+          await saveGitHubLink(baseLink);
+          await refresh();
+          setError(
+            `Proyecto local guardado, pero no se pudo crear el GitHub Project: ${pushed.message}`,
+          );
+          toast.error("GitHub Project no creado. Revisa permisos Projects de la App.");
+          return;
+        }
+        await refresh();
+        setMode("idle");
+        toast.success(
+          `Proyecto vinculado${selectedRepo.private ? " (repo privado)" : ""}: ${project.name} ↔ ${selectedRepo.fullName}`,
+        );
+        return;
+      }
+
+      // Si el Project ya existe y se pidió privado, intentar forzar public:false en push.
+      if (projectNodeId && makeRemotePrivate) {
+        const pushed = await pushProjectMetaToGitHub({
+          backendConnectionId: activeConnection.backendConnectionId,
+          link: baseLink,
+          local: { name: project.name, description: project.description },
+          repositoryNodeId: selectedRepo.nodeId || null,
+          makePrivate: true,
+        });
+        if (!pushed.ok) {
+          await saveGitHubLink(baseLink);
+          await refresh();
+          setError(`Vínculo local guardado. No se pudo actualizar el Project: ${pushed.message}`);
+          return;
+        }
+        await refresh();
+        setMode("idle");
+        toast.success(`Proyecto vinculado: ${project.name} ↔ ${selectedRepo.fullName}`);
+        return;
+      }
+
+      await saveGitHubLink(baseLink);
       await refresh();
       setMode("idle");
       toast.success(
-        `Proyecto vinculado: ${project?.name ?? "Proyecto"} ↔ ${selectedRepo.fullName}`,
+        `Proyecto vinculado: ${project.name} ↔ ${selectedRepo.fullName}`,
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar el vínculo.");
@@ -460,10 +503,22 @@ export function GitHubAppPanel() {
               {repos.map((r) => (
                 <option key={r.id} value={`${r.owner}/${r.name}`}>
                   {r.fullName}
-                  {r.private ? " (privado)" : ""}
+                  {r.private ? " · privado" : " · público"}
                 </option>
               ))}
             </Select>
+            {selectedRepo?.private && (
+              <p className="text-xs text-muted-foreground">
+                Repo privado: la App debe estar instalada con acceso a este repositorio. El Project
+                se creará privado y enlazado al repo.
+              </p>
+            )}
+            {repos.length === 0 && !busy && (
+              <p className="text-xs text-warning">
+                No hay repositorios visibles. Reinstala la App y marca los repos privados que
+                quieras usar (o “All repositories”).
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -475,20 +530,28 @@ export function GitHubAppPanel() {
                 setGhProjectId(e.target.value);
                 const p = ghProjects.find((x) => x.id === e.target.value);
                 if (p) {
-                  setNewProjectName((n) => n || p.title);
-                  setNewProjectDescription((d) => d || p.shortDescription?.trim() || "");
+                  if (localMode === "new") {
+                    setNewProjectName(p.title);
+                    setNewProjectDescription(p.shortDescription?.trim() || "");
+                  }
                   setCreateRemoteProject(false);
+                } else {
+                  setCreateRemoteProject(true);
                 }
               }}
               disabled={busy || !selectedRepo}
             >
-              <option value="">Ninguno — se puede crear al guardar</option>
+              <option value="">Ninguno — crear uno nuevo al guardar</option>
               {ghProjects.map((p) => (
                 <option key={p.id} value={p.id}>
                   #{p.number} {p.title}
+                  {p.public === false ? " · privado" : p.public ? " · público" : ""}
                 </option>
               ))}
             </Select>
+            {projectsWarning && (
+              <p className="text-xs text-warning">{projectsWarning}</p>
+            )}
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input
                 type="checkbox"
@@ -498,6 +561,16 @@ export function GitHubAppPanel() {
                 onChange={(e) => setCreateRemoteProject(e.target.checked)}
               />
               Crear un GitHub Project nuevo con el nombre del proyecto de Hito
+            </label>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                className="size-3.5 rounded border-input"
+                checked={makeRemotePrivate}
+                disabled={busy || (!createRemoteProject && !ghProjectId)}
+                onChange={(e) => setMakeRemotePrivate(e.target.checked)}
+              />
+              Project privado en GitHub (recomendado con repos privados)
             </label>
           </div>
 

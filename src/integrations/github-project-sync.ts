@@ -107,6 +107,10 @@ export async function pushProjectMetaToGitHub(input: {
   backendConnectionId: string;
   link: GitHubLink;
   local: ProjectMetaSnapshot;
+  /** Node id GraphQL del repositorio (para Projects sobre repos privados). */
+  repositoryNodeId?: string | null;
+  /** Crear Project como privado (default true). */
+  makePrivate?: boolean;
 }): Promise<{ ok: true; link: GitHubLink } | { ok: false; message: string }> {
   const { backendConnectionId, link, local } = input;
   let projectNodeId = link.projectNodeId;
@@ -118,6 +122,8 @@ export async function pushProjectMetaToGitHub(input: {
     const created = await createGitHubProjectRemote(backendConnectionId, {
       owner: link.owner,
       title: remoteTitle || link.repository,
+      repositoryNodeId: input.repositoryNodeId || undefined,
+      makePrivate: input.makePrivate ?? true,
     });
     if (!created.ok) return { ok: false, message: created.message };
     projectNodeId = created.data.id;
@@ -129,6 +135,7 @@ export async function pushProjectMetaToGitHub(input: {
       projectId: projectNodeId,
       title: remoteTitle || undefined,
       shortDescription: remoteDescription || null,
+      public: input.makePrivate === false ? true : false,
     });
     if (!updated.ok) return { ok: false, message: updated.message };
     remoteTitle = updated.data.title;

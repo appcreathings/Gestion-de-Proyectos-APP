@@ -18,6 +18,7 @@ export interface GitHubProjectSummary {
   title: string;
   shortDescription?: string | null;
   ownerLogin: string;
+  public?: boolean | null;
 }
 
 /**
@@ -109,18 +110,35 @@ export function getGitHubProjects(
 
 export function createGitHubProjectRemote(
   connectionId: string,
-  input: { owner: string; title: string },
+  input: {
+    owner: string;
+    title: string;
+    /** GraphQL node id del repo — mejora acceso con repos privados. */
+    repositoryNodeId?: string;
+    /** Por defecto true: Project privado. */
+    makePrivate?: boolean;
+  },
 ): Promise<GitHubBffResult<GitHubProjectSummary>> {
   return request(`/github/connection/${encodeURIComponent(connectionId)}/projects`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body: JSON.stringify({
+      owner: input.owner,
+      title: input.title,
+      repositoryNodeId: input.repositoryNodeId,
+      makePrivate: input.makePrivate ?? true,
+    }),
   });
 }
 
 export function updateGitHubProjectRemote(
   connectionId: string,
-  input: { projectId: string; title?: string; shortDescription?: string | null },
+  input: {
+    projectId: string;
+    title?: string;
+    shortDescription?: string | null;
+    public?: boolean;
+  },
 ): Promise<GitHubBffResult<GitHubProjectSummary>> {
   return request(`/github/connection/${encodeURIComponent(connectionId)}/projects`, {
     method: "PATCH",
