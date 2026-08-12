@@ -804,6 +804,17 @@ export function GitHubAppPanel() {
               />
               Crear GitHub Project (uno por proyecto Hito si vinculas varios)
             </label>
+            <p className="text-xs text-muted-foreground">
+              Projects de cuenta personal usan el token de usuario: si falla la creación,{" "}
+              <button
+                type="button"
+                className="font-medium text-foreground underline"
+                onClick={() => navigate(ROUTES.githubConnect)}
+              >
+                reconecta GitHub
+              </button>{" "}
+              y reintenta. El repo y el proyecto de Hito ya quedan guardados.
+            </p>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input
                 type="checkbox"

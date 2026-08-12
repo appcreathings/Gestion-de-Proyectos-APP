@@ -116,15 +116,23 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       return;
     }
 
+    const tokens = {
+      installationToken: token.token,
+      userAccessToken: parsed.claims.userAccessToken,
+    };
+
     if (method === "GET") {
       const owner = queryParam(req, "owner");
       if (!owner) {
         json(res, 400, { message: "Falta el parámetro owner." });
         return;
       }
-      const projects = await listOrgProjects(token.token, owner);
+      const projects = await listOrgProjects(tokens, owner);
       if (!projects.ok) {
-        json(res, 502, { message: projects.message });
+        json(res, 502, {
+          message: projects.message,
+          hasUserToken: Boolean(parsed.claims.userAccessToken),
+        });
         return;
       }
       json(res, 200, projects.projects);
@@ -148,25 +156,34 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
         return;
       }
 
-      const created = await createGitHubProject(token.token, owner, title, {
+      const created = await createGitHubProject(tokens, owner, title, {
         repositoryNodeId: repositoryNodeId || null,
         makePrivate,
       });
       if (!created.ok) {
-        json(res, 502, { message: created.message });
+        json(res, 502, {
+          message: created.message,
+          hasUserToken: Boolean(parsed.claims.userAccessToken),
+          code: "github_create_project_failed",
+          help: {
+            userProjects: "Projects de usuario → reconectar GitHub (token de usuario)",
+            orgProjects: "Organization permissions → Projects → Read and write",
+          },
+        });
         return;
       }
       json(res, 201, created.project);
       return;
     }
 
-    // PATCH
+    // PATCH — preferir user token si existe
     const projectId = typeof body.projectId === "string" ? body.projectId.trim() : "";
     if (!projectId) {
       json(res, 400, { message: "Se requiere projectId." });
       return;
     }
-    const updated = await updateGitHubProject(token.token, projectId, {
+    const patchToken = tokens.userAccessToken ?? tokens.installationToken;
+    const updated = await updateGitHubProject(patchToken, projectId, {
       title: typeof body.title === "string" ? body.title : undefined,
       shortDescription:
         body.shortDescription === null

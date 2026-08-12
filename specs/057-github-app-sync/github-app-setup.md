@@ -69,7 +69,14 @@ Tras cambiar **Administration** a write:
 
 | Permiso | Nivel | Motivo |
 |---|---|---|
-| Projects (account / organization) | Read and write | Listar, crear y actualizar GitHub Projects (metadatos del proyecto Hito) |
+| **Organization permissions → Projects** | **Read and write** | Crear/listar Projects de una **organización** con installation token |
+| Account / user Projects | vía **user access token** | Los Projects **personales** no se crean bien solo con installation token: Hito usa el token de usuario (hay que **Conectar GitHub** de nuevo tras deploy) |
+
+Si ves `GitHub no devolvió el Project creado`:
+
+1. Confirma Organization → Projects = Read and write (si usas org).
+2. En Hito: **Conectar GitHub** otra vez (renueva el user token sellado).
+3. Reintenta vincular. El vínculo al repo local se guarda aunque el Project falle.
 
 ### Organization permissions
 
