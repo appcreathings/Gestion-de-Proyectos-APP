@@ -12,8 +12,12 @@ describe("github bff client", () => {
     expect(getGitHubConnectUrl()).toBe("/api/github/connect");
   });
 
-  it("supports oauth-only connect mode for reconnect", () => {
-    expect(getGitHubConnectUrl({ mode: "oauth" })).toBe("/api/github/connect?mode=oauth");
+  it("keeps authorize-only as the default connect mode", () => {
+    expect(getGitHubConnectUrl({ mode: "oauth" })).toBe("/api/github/connect");
+  });
+
+  it("supports install mode to open the GitHub App installation UI", () => {
+    expect(getGitHubConnectUrl({ mode: "install" })).toBe("/api/github/connect?mode=install");
   });
 
   it("builds callback URL for Setup URL code handoff", () => {

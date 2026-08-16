@@ -20,13 +20,17 @@ import {
  *
  * Starts GitHub App connection.
  *
- * Default: send the user to the **App install** page so accounts without an
- * installation create one (and, with "Request user authorization during
- * installation", also complete OAuth in the same flow).
+ * Default: **authorize only** (`/login/oauth/authorize`). It carries a
+ * `redirect_uri`, so GitHub always returns the user to our callback. GitHub
+ * itself offers "Install & Authorize" when the account has no installation, and
+ * the callback redirects to the install page if none was created.
+ *
+ * The install page (`/apps/<slug>/installations/new`) takes no `redirect_uri`:
+ * an account that already installed the App lands on the App page in GitHub and
+ * never comes back. That is why it is not the default.
  *
  * Query:
- * - `mode=oauth` — skip install UI and only authorize the user (for reconnect
- *   when the installation already exists).
+ * - `mode=install` — force the install UI (add repos / pick another account).
  * - `linkId` — optional opaque id echoed in signed state.
  */
 export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
@@ -50,7 +54,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
 
     const { env } = loaded;
     const linkId = queryParam(req, "linkId") || undefined;
-    const mode = (queryParam(req, "mode") || "install").toLowerCase();
+    const mode = (queryParam(req, "mode") || "oauth").toLowerCase();
 
     const state = signState(env.stateSecret, {
       n: randomToken(16),
@@ -60,10 +64,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     // Sanity: ensure URL construction did not produce garbage.
     getRequestUrl(req);
 
-    // Prefer install-first when we know the App slug. Users without an
-    // installation must install; users who already installed can re-confirm
-    // repos / account. OAuth-only is kept for explicit reconnects.
-    if (mode !== "oauth" && env.appSlug) {
+    // Install UI only when explicitly requested (add repos / change account).
+    // It has no redirect_uri, so it is a dead end for already-installed users.
+    if (mode === "install" && env.appSlug) {
       redirect(res, githubAppInstallUrl(env.appSlug, state));
       return;
     }

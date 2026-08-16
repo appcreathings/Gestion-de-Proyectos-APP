@@ -107,25 +107,31 @@ GITHUB_APP_ID=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 GITHUB_PRIVATE_KEY=
-# Slug de https://github.com/apps/<slug> — sin esto, "Conectar" solo hace OAuth
-# y falla si la cuenta no tiene la App instalada.
+# Slug de https://github.com/apps/<slug> — necesario para mandar a instalar la App
+# cuando la cuenta autoriza pero todavía no tiene instalación.
 GITHUB_APP_SLUG=
 GITHUB_CALLBACK_URL=https://hito.autos/api/github/callback
 GITHUB_SETUP_URL=https://hito.autos/github/connect
 ```
 
-Con `GITHUB_APP_SLUG`, el endpoint `GET /api/github/connect` redirige a:
+Por defecto, `GET /api/github/connect` redirige a la autorización OAuth:
 
 ```text
-https://github.com/apps/<slug>/installations/new?state=…
+https://github.com/login/oauth/authorize?client_id=…&redirect_uri=…&state=…
 ```
 
-Así el usuario instala la App (elige cuenta y repos) y, si en la App está activado
-**Request user authorization during installation**, también autoriza OAuth en el
-mismo flujo. Si ya estaba instalada, GitHub muestra la instalación existente.
+Esa URL lleva `redirect_uri`, así que GitHub siempre devuelve al usuario a la
+Callback URL. Si la cuenta no tiene la App instalada, GitHub muestra
+**Install & Authorize** en la misma pantalla.
 
-Si el callback detecta OAuth sin instalaciones y hay slug, redirige de nuevo a
-esa URL de instalación en lugar de devolver solo un error.
+`GET /api/github/connect?mode=install` abre la pantalla de instalación
+(`https://github.com/apps/<slug>/installations/new?state=…`) para agregar repos o
+cambiar de cuenta. No usar como camino por defecto: esa URL no acepta
+`redirect_uri`, y una cuenta que ya instaló la App se queda en la página de la App
+en GitHub sin volver a Hito.
+
+Si el callback detecta OAuth sin instalaciones y hay slug, redirige a la URL de
+instalación en lugar de devolver solo un error.
 
 ## 5. Configurar `VITE_GITHUB_BFF_URL`
 

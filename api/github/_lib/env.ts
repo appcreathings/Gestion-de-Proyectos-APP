@@ -8,8 +8,8 @@ export type GitHubOAuthEnv = {
   stateSecret: string;
   /**
    * URL slug of the GitHub App (https://github.com/apps/<slug>).
-   * Used to send "Conectar" through the install flow so users without an
-   * installation create one instead of only authorizing OAuth.
+   * Used to send users to the install page when OAuth succeeded but the account
+   * has no installation, and for the explicit `mode=install` connect.
    */
   appSlug: string | null;
 };
@@ -98,7 +98,7 @@ export function loadGitHubOAuthEnv():
     (origin ? `${origin}/github/connect` : null);
   const stateSecret = required("GITHUB_STATE_SECRET") ?? clientSecret;
   // Slug from the public App URL: github.com/apps/<slug>. Optional but required
-  // for install-first connect (without it we fall back to OAuth-only).
+  // to redirect to the install page (callback fallback and `mode=install`).
   const appSlugRaw = required("GITHUB_APP_SLUG");
   const appSlug = appSlugRaw
     ? appSlugRaw.replace(/^https?:\/\/github\.com\/apps\//i, "").replace(/\/+$/, "").toLowerCase()

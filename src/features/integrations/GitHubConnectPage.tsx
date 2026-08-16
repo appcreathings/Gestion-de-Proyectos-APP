@@ -31,7 +31,7 @@ type PageState =
 
 /**
  * Public page at /github/connect.
- * - Default: start GitHub App connect (BFF → install App if needed + OAuth).
+ * - Default: authorize with GitHub (BFF → OAuth; GitHub ofrece instalar si falta).
  * - Return from BFF: ?status=ok&connectionId=… → persist locally and go to Integrations.
  * - GitHub Setup URL: ?installation_id=…&setup_action=… → finish OAuth if needed.
  * - If GitHub returns ?code=&state= here (OAuth during install), forward to BFF callback.
@@ -150,7 +150,7 @@ export function GitHubConnectPage() {
     };
   }, [returnHint, connectionId, errorParam, installationId, navigate, oauthCode, oauthState]);
 
-  async function startConnect(mode: "install" | "oauth" = "install") {
+  async function startConnect(mode: "install" | "oauth" = "oauth") {
     try {
       // Preflight: surface 503/config errors instead of a blank Vercel crash page.
       const healthUrl = getGitHubConnectUrl().replace(/\/connect\/?$/, "/health");
@@ -177,9 +177,9 @@ export function GitHubConnectPage() {
       } catch {
         // Health may fail on cold start or older deploys — still attempt connect.
       }
-      // After Setup URL install, only OAuth may be left; otherwise install-first.
-      const effectiveMode = state.kind === "setup" ? "oauth" : mode;
-      window.location.assign(getGitHubConnectUrl({ mode: effectiveMode }));
+      // Autorizar es el camino por defecto: GitHub siempre vuelve al callback.
+      // La pantalla de instalación solo se abre si se pide explícitamente.
+      window.location.assign(getGitHubConnectUrl({ mode }));
     } catch {
       setBffReady(false);
       setState({
@@ -315,7 +315,7 @@ export function GitHubConnectPage() {
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   className="flex-1"
-                  onClick={() => void startConnect(state.kind === "setup" ? "oauth" : "install")}
+                  onClick={() => void startConnect("oauth")}
                   disabled={!bffReady}
                 >
                   <Github className="size-4" />
@@ -329,13 +329,24 @@ export function GitHubConnectPage() {
                   <ArrowRight className="size-4" />
                 </Link>
               </div>
+
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline disabled:opacity-50"
+                onClick={() => void startConnect("install")}
+                disabled={!bffReady}
+              >
+                ¿Necesitas agregar repositorios o cambiar de cuenta? Abrir la instalación
+                de la App en GitHub.
+              </button>
             </div>
           )}
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Flujo: instalar App (si falta) → autorizar → callback del servidor{" "}
-          <code className="font-mono">/api/github/callback</code>
+          Flujo: autorizar en GitHub → callback del servidor{" "}
+          <code className="font-mono">/api/github/callback</code>. Si la App aún no está
+          instalada, GitHub lo pide en el mismo paso.
         </p>
       </main>
     </div>

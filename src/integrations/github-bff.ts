@@ -80,11 +80,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<GitHubBffRe
   return { ok: true, data: body as T };
 }
 
-/** BFF start URL. Default is install-first; pass mode=oauth for authorize-only. */
+/**
+ * BFF start URL. Default is authorize-only (GitHub vuelve al callback);
+ * pasa mode=install solo para abrir la UI de instalación de la App.
+ */
 export function getGitHubConnectUrl(options?: { mode?: "install" | "oauth"; linkId?: string }): string {
   const base = url("/github/connect");
   const params = new URLSearchParams();
-  if (options?.mode === "oauth") params.set("mode", "oauth");
+  if (options?.mode === "install") params.set("mode", "install");
   if (options?.linkId) params.set("linkId", options.linkId);
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
