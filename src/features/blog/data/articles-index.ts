@@ -29,18 +29,19 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "como-documentar-procesos-equipos",
-    title: "Cómo documentar procesos en equipos pequeños: guía de SOPs y checklists",
+    title: "Cómo documentar un proceso: SOPs y checklists para equipos",
     excerpt:
-      "Aprendé a escribir SOPs y checklists que tu equipo realmente use. Sin wikis abandonados ni manuales que nadie lee.",
+      "Aprende a escribir SOPs y checklists que tu equipo realmente use. Sin wikis abandonados ni manuales que nadie lee.",
     category: "procesos",
     categoryLabel: "Procesos",
     publishedAt: "2026-07-05",
     readingTime: "7 min",
     featured: false,
+    related: ["organizar-proyectos-tareas-jerarquia", "cierre-de-proyecto-checklist"],
     seo: {
-      title: "Cómo documentar procesos en equipos: guía de SOPs y checklists — Hito",
+      title: "Cómo documentar un proceso: SOPs y checklists | Hito",
       description:
-        "Guía práctica para documentar procesos en equipos pequeños. Cómo crear SOPs útiles, checklists reutilizables y mantener la documentación viva.",
+        "Cómo documentar un proceso y documentar procesos en equipos pequeños: SOPs útiles, checklists reutilizables y documentación que sí se usa.",
       ogImageAlt: "Documentación de procesos con SOPs y checklists.",
     },
   },
@@ -185,7 +186,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "que-es-mcp",
-    title: "Qué es MCP (Model Context Protocol): guía simple y honesta",
+    title: "Qué es MCP (Model Context Protocol): guía del protocolo",
     excerpt:
       "MCP explicado sin hype: qué es, para qué sirve y en qué se diferencia de function calling y RAG. Con un ejemplo real.",
     category: "inteligencia-artificial",
@@ -193,10 +194,15 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-10",
     readingTime: "9 min",
     featured: false,
+    related: [
+      "como-funciona-mcp-paso-a-paso",
+      "mcp-vs-function-calling-vs-rag",
+      "rag-local-explicado",
+    ],
     seo: {
-      title: "Qué es MCP (Model Context Protocol): la guía simple y honesta — Hito",
+      title: "Qué es MCP (Model Context Protocol) y el protocolo | Hito",
       description:
-        "MCP explicado sin hype: qué es, para qué sirve y en qué se diferencia de function calling y RAG. Con un ejemplo real.",
+        "MCP (Model Context Protocol) explicado: qué es el protocolo MCP, qué son los primitives y cómo se diferencia de function calling y RAG.",
       ogImageAlt: "Qué es MCP (Model Context Protocol).",
     },
   },
@@ -253,7 +259,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "como-priorizar-tareas",
-    title: "Cómo priorizar tareas: 4 métodos con ejemplos",
+    title: "Cómo priorizar tareas: 4 métodos de priorización",
     excerpt:
       "4 métodos para priorizar tareas —Eisenhower, MoSCoW, RICE e Ivy Lee— con ejemplos y cómo aplicarlos hoy, en cualquier herramienta.",
     category: "productividad",
@@ -262,10 +268,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
+    related: ["alcance-de-proyecto-scope-creep", "fases-de-un-proyecto"],
     seo: {
-      title: "Cómo priorizar tareas: 4 métodos con ejemplos | Hito",
+      title: "Cómo priorizar tareas: 4 métodos de priorización | Hito",
       description:
-        "4 métodos para priorizar tareas —Eisenhower, MoSCoW, RICE e Ivy Lee— con ejemplos y cómo aplicarlos hoy, en cualquier herramienta.",
+        "Cómo priorizar tareas y la priorización de tareas con Eisenhower, MoSCoW, RICE e Ivy Lee. Guía práctica, con ejemplos, para cualquier herramienta.",
       ogImageAlt: "Cómo priorizar tareas con 4 métodos: Eisenhower, MoSCoW, RICE e Ivy Lee.",
     },
   },
@@ -350,7 +357,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "fases-de-un-proyecto",
-    title: "Las 5 fases de un proyecto, con ejemplos",
+    title: "Fases de un proyecto: las 5 etapas, con ejemplos",
     excerpt:
       "Inicio, planificación, ejecución, seguimiento y cierre: las 5 fases de cualquier proyecto explicadas con un ejemplo real, sin depender de una metodología específica.",
     category: "gestion-proyectos",
@@ -359,11 +366,15 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+    related: [
+      "como-estimar-tiempos-proyecto",
+      "alcance-de-proyecto-scope-creep",
+      "objetivos-proyecto-smart-okr",
+    ],
     seo: {
-      title: "Las 5 fases de un proyecto, con ejemplos | Hito",
+      title: "Fases de un proyecto: las 5 etapas, con ejemplos | Hito",
       description:
-        "Inicio, planificación, ejecución, seguimiento y cierre: las 5 fases de cualquier proyecto explicadas con un ejemplo real.",
+        "Las fases de un proyecto (y cada etapa de un proyecto): inicio, planificación, ejecución, seguimiento y cierre, con un ejemplo real.",
       ogImageAlt: "Las 5 fases de un proyecto explicadas con ejemplos.",
     },
   },
@@ -388,7 +399,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "matriz-raci",
-    title: "Matriz RACI: qué es, cómo armarla y plantilla",
+    title: "Matriz RACI: qué es, ejemplo y diferencia con RASCI",
     excerpt:
       "La matriz RACI aclara quién hace, quién aprueba y quién solo necesita estar informado. Cómo construirla paso a paso, con un ejemplo completo y errores comunes.",
     category: "gestion-proyectos",
@@ -399,16 +410,16 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     pillar: "gestion-de-proyectos-guia-completa",
     related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
     seo: {
-      title: "Matriz RACI: qué es, cómo armarla y plantilla | Hito",
+      title: "Matriz RACI: qué es, ejemplo y diferencia con RASCI | Hito",
       description:
-        "La matriz RACI aclara quién hace, quién aprueba y quién solo necesita estar informado. Paso a paso, con ejemplo y errores comunes.",
+        "Qué es una matriz RACI, con un ejemplo completo. También cubre la matriz RASCI y cómo armarla paso a paso con roles claros.",
       ogImageAlt: "Matriz RACI: responsable, aprobador, consultado e informado.",
     },
   },
   {
   // Cuelga del pilar del cluster "Metodologías" (ver ROADMAP_BLOG.md)
   slug: "scrum-vs-kanban",
-  title: "Scrum vs Kanban: diferencias reales y cuál elegir",
+  title: "Kanban vs Scrum: diferencias reales y cuál elegir",
   excerpt:
     "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para decidir cuál conviene a tu equipo.",
   category: "gestion-proyectos",
@@ -417,17 +428,17 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   readingTime: "10 min",
   featured: false,
   pillar: "metodologias-gestion-proyectos",
-    related: ["fases-de-un-proyecto", "matriz-raci"],
+    related: ["fases-de-un-proyecto", "matriz-raci", "kanban-limites-wip"],
     seo: {
-      title: "Scrum vs Kanban: diferencias reales y cuál elegir | Hito",
+      title: "Kanban vs Scrum (y Scrum vs Kanban): cuál elegir | Hito",
       description:
-        "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para elegir bien.",
-      ogImageAlt: "Scrum vs Kanban: comparativa de roles, ritmo y flujo.",
+        "Kanban vs Scrum y Scrum vs Kanban: diferencias de roles, ritmo y flujo. También Kanban y Scrum juntos, para decidir cuál le conviene a tu equipo.",
+      ogImageAlt: "Kanban vs Scrum: comparativa de roles, ritmo y flujo.",
     },
   },
   {
     slug: "alcance-de-proyecto-scope-creep",
-    title: "Alcance de proyecto: definirlo y evitar el scope creep",
+    title: "Scope creep: qué es (corrupción del alcance) y cómo evitarlo",
     excerpt:
       "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
     category: "gestion-proyectos",
@@ -438,9 +449,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     pillar: "gestion-de-proyectos-guia-completa",
     related: ["fases-de-un-proyecto", "matriz-raci"],
     seo: {
-      title: "Alcance de proyecto: definirlo y evitar el scope creep | Hito",
+      title: "Scope creep: qué es (corrupción del alcance) | Hito",
       description:
-        "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
+        "Qué es el scope creep en español (corrupción del alcance), cómo documentarlo y las 4 señales antes de que se coma el cronograma de tu proyecto.",
       ogImageAlt: "Alcance de proyecto y cómo evitar el scope creep.",
     },
   },
@@ -554,9 +565,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "kanban-limites-wip",
-    title: "Kanban en la práctica: límites WIP",
+    title: "Kanban WIP: qué significa el límite y cómo usarlo",
     excerpt:
-      "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
+      "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no puedes empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
     category: "gestion-proyectos",
     categoryLabel: "Gestión de proyectos",
     publishedAt: "2026-12-28",
@@ -570,9 +581,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "reducir-trabajo-en-curso",
     ],
     seo: {
-      title: "Kanban en la práctica: límites WIP | Hito",
+      title: "Kanban WIP: qué significa y cómo limitar el trabajo | Hito",
       description:
-        "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
+        "Kanban WIP explicado: qué significa W.I.P., cómo fijar el límite y qué pasa con el WIP en Scrum. Termina antes de empezar más.",
       ogImageAlt: "Kanban en la práctica: límites WIP explicados.",
     },
   },
@@ -647,7 +658,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "waterfall-vs-agile",
-    title: "Waterfall vs Agile: cuándo cascada es la respuesta correcta",
+    title: "Metodología Waterfall vs Agile: cuándo elegir cascada",
     excerpt:
       "Cascada no es “vieja y mala”. Cuándo Waterfall es honesto, cuándo Agile es teatro, y una tabla de decisión sin moda de industria.",
     category: "gestion-proyectos",
@@ -663,15 +674,15 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "alcance-de-proyecto-scope-creep",
     ],
     seo: {
-      title: "Waterfall vs Agile: cuándo cascada es la respuesta correcta | Hito",
+      title: "Metodología Waterfall vs Agile (y Agile vs Waterfall) | Hito",
       description:
-        "Cascada no es “vieja y mala”. Cuándo Waterfall es honesto, cuándo Agile es teatro, y una tabla de decisión sin moda de industria.",
+        "Metodología Waterfall vs Agile y Agile vs Waterfall: cuándo usar cascada, cuándo iterar y cómo se ve una metodología agile cascada honesta.",
       ogImageAlt: "Waterfall vs Agile: cuándo elegir cascada y cuándo iterar.",
     },
   },
   {
     slug: "gestionar-varios-proyectos-a-la-vez",
-    title: "Cómo gestionar varios proyectos a la vez",
+    title: "Proyectos múltiples: cómo gestionar varios a la vez",
     excerpt:
       "No es multitasking heroico: es un portafolio personal con capacidad compartida, WIP entre proyectos y un ritmo semanal que evita el caos.",
     category: "gestion-proyectos",
@@ -686,9 +697,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "kanban-limites-wip",
     ],
     seo: {
-      title: "Cómo gestionar varios proyectos a la vez | Hito",
+      title: "Proyectos múltiples: cómo gestionar varios a la vez | Hito",
       description:
-        "No es multitasking heroico: es un portafolio personal con capacidad compartida, WIP entre proyectos y un ritmo semanal que evita el caos.",
+        "Cómo gestionar proyectos múltiples a la vez: un portafolio, pocos frentes abiertos y un ritmo semanal que evita el caos.",
       ogImageAlt: "Gestionar varios proyectos a la vez: portafolio, WIP y ritmo semanal.",
     },
   },
@@ -858,6 +869,44 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Un cliente externo no es un stakeholder más: cambia el costo del cambio de alcance, el canal de comunicación y quién tiene la última palabra. Cómo ordenarlo.",
       ogImageAlt: "Gestionar proyectos con clientes externos: alcance, canal y RACI.",
+    },
+  },
+  {
+    slug: "como-funciona-mcp-paso-a-paso",
+    title: "Cómo funciona MCP paso a paso: sesión e Introducing MCP",
+    excerpt:
+      "Cómo funciona MCP en la práctica: qué es una sesión MCP, qué cubrió Introducing MCP y qué puede hacer un servidor (tools, resources, prompts).",
+    category: "inteligencia-artificial",
+    categoryLabel: "Inteligencia artificial",
+    publishedAt: "2027-03-29",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "que-es-mcp",
+    related: ["que-es-mcp", "mcp-vs-function-calling-vs-rag", "rag-local-explicado"],
+    seo: {
+      title: "MCP paso a paso: sesión e Introducing MCP | Hito",
+      description:
+        "Cómo funciona MCP paso a paso: qué es una sesión MCP, qué cubre Introducing MCP y qué puede hacer (tools, resources, prompts).",
+      ogImageAlt: "Cómo funciona MCP paso a paso: sesión, Introducing MCP y capabilities.",
+    },
+  },
+  {
+    slug: "mcp-vs-function-calling-vs-rag",
+    title: "MCP vs function calling vs RAG: cuándo usar cada uno",
+    excerpt:
+      "MCP, function calling y RAG no son tres alternativas: son tres capas. Qué problema resuelve cada una, cómo se combinan y cuándo no necesitas las tres.",
+    category: "inteligencia-artificial",
+    categoryLabel: "Inteligencia artificial",
+    publishedAt: "2027-04-05",
+    readingTime: "11 min",
+    featured: false,
+    pillar: "que-es-mcp",
+    related: ["que-es-mcp", "como-funciona-mcp-paso-a-paso", "rag-local-explicado"],
+    seo: {
+      title: "MCP vs function calling vs RAG: cuándo usar cada uno | Hito",
+      description:
+        "MCP vs function calling vs RAG: qué problema resuelve cada uno, cómo se combinan y cuándo no necesitas los tres. Con tabla y ejemplo.",
+      ogImageAlt: "MCP vs function calling vs RAG: tres capas, no tres alternativas.",
     },
   },
 ];

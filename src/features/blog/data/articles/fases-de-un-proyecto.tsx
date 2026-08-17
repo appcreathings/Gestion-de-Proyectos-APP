@@ -4,7 +4,7 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "fases-de-un-proyecto",
-  title: "Las 5 fases de un proyecto, con ejemplos",
+  title: "Fases de un proyecto: las 5 etapas, con ejemplos",
   excerpt:
     "Inicio, planificación, ejecución, seguimiento y cierre: las 5 fases de cualquier proyecto explicadas con un ejemplo real, sin depender de una metodología específica.",
   category: "gestion-proyectos",
@@ -14,20 +14,24 @@ export const article: BlogArticle = {
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "gestion-de-proyectos-guia-completa",
-  related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+  related: [
+    "como-estimar-tiempos-proyecto",
+    "alcance-de-proyecto-scope-creep",
+    "objetivos-proyecto-smart-okr",
+  ],
   seo: {
-    title: "Las 5 fases de un proyecto, con ejemplos | Hito",
+    title: "Fases de un proyecto: las 5 etapas, con ejemplos | Hito",
     description:
-      "Inicio, planificación, ejecución, seguimiento y cierre: las 5 fases de cualquier proyecto explicadas con un ejemplo real.",
+      "Las fases de un proyecto (y cada etapa de un proyecto): inicio, planificación, ejecución, seguimiento y cierre, con un ejemplo real.",
     ogImageAlt: "Las 5 fases de un proyecto explicadas con ejemplos.",
   },
   content: {
     eyebrow: "Gestión de proyectos",
     intro: (
       <>
-        <strong>En una línea:</strong> todo proyecto pasa por inicio, planificación, ejecución,
-        seguimiento y cierre — en ese orden, sin importar si usás Scrum, cascada o una hoja de
-        cálculo. Fusionar dos fases sin querer (por ejemplo, empezar a ejecutar sin haber
+        <strong>En una línea:</strong> las fases de un proyecto son cinco — inicio, planificación,
+        ejecución, seguimiento y cierre — en ese orden, sin importar si usas Scrum, cascada o una
+        hoja de cálculo. Fusionar dos fases sin querer (por ejemplo, empezar a ejecutar sin haber
         planificado) es la causa más común de atrasos. Acá van las cinco, con un ejemplo real de
         principio a fin: renovar el sitio web de una empresa pequeña.
       </>
@@ -48,11 +52,18 @@ export const article: BlogArticle = {
               celular y el equipo de ventas se queja de que no genera contactos. El objetivo del
               proyecto: un sitio nuevo, responsive, que duplique los formularios completados en 3
               meses. Esa frase — objetivo + métrica + plazo — es todo lo que necesita el inicio
-              de un proyecto chico. En proyectos grandes se formaliza en un{" "}
-              <em>acta de constitución</em>, pero el contenido mínimo es el mismo.
+              de un proyecto chico. Para escribirlo con criterio, ver{" "}
+              <Link
+                to="/blogs/objetivos-proyecto-smart-okr"
+                className="underline underline-offset-2"
+              >
+                objetivos SMART y OKR
+              </Link>
+              . En proyectos grandes se formaliza en un <em>acta de constitución</em>, pero el
+              contenido mínimo es el mismo.
             </p>
             <p>
-              <strong>Señal de que esta fase está incompleta:</strong> si le preguntás a dos
+              <strong>Señal de que esta fase está incompleta:</strong> si le preguntas a dos
               personas del equipo "¿para qué estamos haciendo esto?" y responden cosas distintas,
               todavía no terminó el inicio.
             </p>
@@ -161,6 +172,23 @@ export const article: BlogArticle = {
             </p>
           </>
         ),
+      },
+    ],
+    faq: [
+      {
+        question: "¿Cuáles son las fases de un proyecto?",
+        answer:
+          "Las fases de un proyecto son cinco: inicio (para qué se hace), planificación (qué, en qué orden y con qué), ejecución (el trabajo real), seguimiento (comparar lo planificado contra lo real) y cierre (entregar y anotar aprendizajes). El orden no cambia si usas Scrum, cascada o una hoja de cálculo.",
+      },
+      {
+        question: "¿Qué es una etapa de un proyecto?",
+        answer:
+          "Etapa de un proyecto y fase de un proyecto se usan como sinónimos: cada bloque con un objetivo distinto (definir, planear, ejecutar, controlar, cerrar). Si fusionas dos etapas —por ejemplo, ejecutar sin haber planificado— el atraso suele aparecer más adelante, no al inicio.",
+      },
+      {
+        question: "¿Cuáles son las fases del proyecto?",
+        answer:
+          "Las fases del proyecto son las mismas cinco, aplicadas a ese trabajo concreto: inicio, planificación, ejecución, seguimiento y cierre. Lo que cambia de un proyecto a otro no es la lista, sino cuánto tiempo y formalidad necesita cada fase.",
       },
     ],
     howTo: {

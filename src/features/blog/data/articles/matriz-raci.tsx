@@ -4,7 +4,7 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "matriz-raci",
-  title: "Matriz RACI: qué es, cómo armarla y plantilla",
+  title: "Matriz RACI: qué es, ejemplo y diferencia con RASCI",
   excerpt:
     "La matriz RACI aclara quién hace, quién aprueba y quién solo necesita estar informado. Cómo construirla paso a paso, con un ejemplo completo y errores comunes.",
   category: "gestion-proyectos",
@@ -16,16 +16,16 @@ export const article: BlogArticle = {
   pillar: "gestion-de-proyectos-guia-completa",
   related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
   seo: {
-    title: "Matriz RACI: qué es, cómo armarla y plantilla | Hito",
+    title: "Matriz RACI: qué es, ejemplo y diferencia con RASCI | Hito",
     description:
-      "La matriz RACI aclara quién hace, quién aprueba y quién solo necesita estar informado. Paso a paso, con ejemplo y errores comunes.",
+      "Qué es una matriz RACI, con un ejemplo completo. También cubre la matriz RASCI y cómo armarla paso a paso con roles claros.",
     ogImageAlt: "Matriz RACI: responsable, aprobador, consultado e informado.",
   },
   content: {
     eyebrow: "Gestión de proyectos",
     intro: (
       <>
-        <strong>En una línea:</strong> RACI es un acrónimo de cuatro roles —{" "}
+        <strong>En una línea:</strong> la matriz RACI es un acrónimo de cuatro roles —{" "}
         <strong>R</strong>esponsable, <strong>A</strong>probador, <strong>C</strong>onsultado e{" "}
         <strong>I</strong>nformado— que se asignan a cada decisión o entregable grande de un
         proyecto, en una tabla simple. Resuelve el problema más común de coordinación: dos
@@ -48,7 +48,14 @@ export const article: BlogArticle = {
                 <strong>Aprobador (Accountable):</strong> quien tiene la decisión final y rinde
                 cuentas por el resultado. <strong>Regla dura: solo puede haber uno por
                 entregable.</strong> Dos aprobadores es la receta exacta para que nadie apruebe
-                nada a tiempo.
+                nada a tiempo. En un cambio de{" "}
+                <Link
+                  to="/blogs/alcance-de-proyecto-scope-creep"
+                  className="underline underline-offset-2"
+                >
+                  alcance de proyecto
+                </Link>
+                , esta es la persona que dice sí o no.
               </li>
               <li>
                 <strong>Consultado (Consulted):</strong> a quien hay que preguntarle{" "}
@@ -116,7 +123,7 @@ export const article: BlogArticle = {
             <p>
               Léela así: para el "Desarrollo", Ingeniería hace el trabajo y aprueba cuándo está
               listo (R/A); Producto opina antes de que se cierre (C); Marketing solo se entera
-              cuando termina (I). Esta única tabla reemplaza semanas de "pensé que vos lo ibas a
+              cuando termina (I). Esta única tabla reemplaza semanas de "pensé que tú lo ibas a
               aprobar".
             </p>
           </>
@@ -128,20 +135,20 @@ export const article: BlogArticle = {
           <>
             <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
               <li>
-                Listá los <strong>entregables o decisiones grandes</strong> del proyecto (entre 5
-                y 15 — si tenés 40, estás siendo demasiado granular).
+                Lista los <strong>entregables o decisiones grandes</strong> del proyecto (entre 5
+                y 15 — si tienes 40, estás siendo demasiado granular).
               </li>
-              <li>Listá las personas o áreas involucradas como columnas.</li>
+              <li>Lista las personas o áreas involucradas como columnas.</li>
               <li>
-                Para cada celda, asigná una letra. Regla de oro:{" "}
+                Para cada celda, asigna una letra. Regla de oro:{" "}
                 <strong>una sola A por fila</strong>, nunca cero, nunca dos.
               </li>
               <li>
-                Revisá que nadie tenga demasiadas A: si una persona aprueba todo, es un cuello de
+                Revisa que nadie tenga demasiadas A: si una persona aprueba todo, es un cuello de
                 botella disfrazado de matriz RACI.
               </li>
               <li>
-                Compartila con todo el equipo <em>antes</em> de arrancar la ejecución, no
+                Compártela con todo el equipo <em>antes</em> de arrancar la ejecución, no
                 después de la primera confusión.
               </li>
             </ol>
@@ -160,7 +167,7 @@ export const article: BlogArticle = {
               </li>
               <li>
                 <strong>Demasiados Consultados.</strong> Si 6 personas son "C" en cada decisión,
-                cada aprobación se convierte en una reunión. Reservá el rol de Consultado para
+                cada aprobación se convierte en una reunión. Reserva el rol de Consultado para
                 quien de verdad aporta información que puede cambiar la decisión.
               </li>
               <li>
@@ -178,6 +185,21 @@ export const article: BlogArticle = {
       },
     ],
     faq: [
+      {
+        question: "¿Qué es una matriz RACI?",
+        answer:
+          "Una matriz RACI es una tabla que asigna, por cada entregable o decisión grande, quién hace el trabajo (Responsible), quién aprueba (Accountable), a quién se consulta antes (Consulted) y a quién se informa después (Informed). Resuelve el caso de dos personas creyendo que aprueban lo mismo, o de nadie haciéndolo.",
+      },
+      {
+        question: "¿Matriz RACI ejemplo: cómo se ve?",
+        answer:
+          "Se ve como una grilla: filas = entregables (especificación, desarrollo, diseño, anuncio) y columnas = roles o áreas (Producto, Ingeniería, Diseño, Marketing). Cada celda lleva una letra. En el ejemplo de este artículo, Ingeniería es R/A del desarrollo y Marketing solo queda informado (I).",
+      },
+      {
+        question: "¿Qué es la matriz RASCI?",
+        answer:
+          "RASCI es la variante de RACI que agrega una S de Support (soporte): alguien que ayuda a ejecutar pero no es el responsable principal. Úsala si en tu equipo hay roles de apoyo que no encajan bien como Consultado ni como Responsable; si no, RACI de cuatro letras suele alcanzar.",
+      },
       {
         question: "¿Puede haber más de un Responsable en la misma fila?",
         answer:

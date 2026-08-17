@@ -49,6 +49,8 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "seguimiento-de-tareas-equipo": () => import("./seguimiento-de-tareas-equipo"),
   "cierre-de-proyecto-checklist": () => import("./cierre-de-proyecto-checklist"),
   "gestionar-proyectos-con-clientes": () => import("./gestionar-proyectos-con-clientes"),
+  "como-funciona-mcp-paso-a-paso": () => import("./como-funciona-mcp-paso-a-paso"),
+  "mcp-vs-function-calling-vs-rag": () => import("./mcp-vs-function-calling-vs-rag"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

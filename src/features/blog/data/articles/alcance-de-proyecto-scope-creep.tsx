@@ -4,7 +4,7 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "alcance-de-proyecto-scope-creep",
-  title: "Alcance de proyecto: definirlo y evitar el scope creep",
+  title: "Scope creep: qué es (corrupción del alcance) y cómo evitarlo",
   excerpt:
     "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
   category: "gestion-proyectos",
@@ -16,9 +16,9 @@ export const article: BlogArticle = {
   pillar: "gestion-de-proyectos-guia-completa",
   related: ["fases-de-un-proyecto", "matriz-raci"],
   seo: {
-    title: "Alcance de proyecto: definirlo y evitar el scope creep | Hito",
+    title: "Scope creep: qué es (corrupción del alcance) | Hito",
     description:
-      "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
+      "Qué es el scope creep en español (corrupción del alcance), cómo documentarlo y las 4 señales antes de que se coma el cronograma de tu proyecto.",
     ogImageAlt: "Alcance de proyecto y cómo evitar el scope creep.",
   },
   content: {
@@ -26,10 +26,11 @@ export const article: BlogArticle = {
     intro: (
       <>
         <strong>En una línea:</strong> el alcance de un proyecto es la línea escrita entre lo que
-        se entrega y lo que no. El <strong>scope creep</strong> (crecimiento de alcance) pasa
-        cuando esa línea se corre de a poco, sin que nadie la apruebe formalmente — "ya que
-        estamos, agreguemos esto también" repetido diez veces. No se combate diciendo que no a
-        todo: se combate teniendo la línea escrita y un camino claro para cambiarla a propósito.
+        se entrega y lo que no. El <strong>scope creep</strong> (corrupción del alcance, o
+        crecimiento de alcance) pasa cuando esa línea se corre de a poco, sin que nadie la
+        apruebe formalmente — "ya que estamos, agreguemos esto también" repetido diez veces. No
+        se combate diciendo que no a todo: se combate teniendo la línea escrita y un camino claro
+        para cambiarla a propósito.
       </>
     ),
     sections: [
@@ -50,7 +51,11 @@ export const article: BlogArticle = {
               <strong>Ejemplo de alcance fuerte:</strong> "Rediseñar las 5 páginas principales del
               sitio (inicio, producto, precios, sobre nosotros, contacto), responsive, en español.
               No incluye: blog, checkout, versión en inglés — quedan para una fase 2 a definir
-              después del lanzamiento."
+              después del lanzamiento." Esa línea se escribe en la planificación — ver{" "}
+              <Link to="/blogs/fases-de-un-proyecto" className="underline underline-offset-2">
+                las fases de un proyecto
+              </Link>
+              .
             </p>
           </>
         ),
@@ -97,11 +102,11 @@ export const article: BlogArticle = {
             </p>
             <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
               <li>
-                <strong>Documentá el alcance original</strong> en un lugar que todo el equipo
+                <strong>Documenta el alcance original</strong> en un lugar que todo el equipo
                 pueda consultar — no en la cabeza de una sola persona.
               </li>
               <li>
-                <strong>Definí quién aprueba cambios de alcance</strong> antes de que aparezca el
+                <strong>Define quién aprueba cambios de alcance</strong> antes de que aparezca el
                 primer pedido — esa persona es el "Aprobador" de la{" "}
                 <Link to="/blogs/matriz-raci" className="underline underline-offset-2">
                   matriz RACI
@@ -109,13 +114,13 @@ export const article: BlogArticle = {
                 del proyecto, no cualquiera que lo pida con suficiente insistencia.
               </li>
               <li>
-                <strong>Cuando llegue un pedido nuevo, hacé visible el trade-off:</strong> "Podemos
+                <strong>Cuando llegue un pedido nuevo, haz visible el trade-off:</strong> "Podemos
                 agregar esto, pero corre la fecha 1 semana o sacamos otra cosa del alcance
                 actual." Ese único paso convierte el scope creep invisible en una decisión
                 consciente — casi siempre cambia la conversación.
               </li>
               <li>
-                <strong>Reservá una "fase 2" explícita</strong> para todo lo bueno que surja
+                <strong>Reserva una "fase 2" explícita</strong> para todo lo bueno que surja
                 durante el proyecto pero no estaba en el alcance original. Le da un lugar al
                 pedido sin comprometer la entrega actual.
               </li>
@@ -144,6 +149,21 @@ export const article: BlogArticle = {
       },
     ],
     faq: [
+      {
+        question: "¿Qué es el scope creep?",
+        answer:
+          "Scope creep es el crecimiento del alcance de un proyecto sin una aprobación formal: pedidos que entran de a poco ('ya que estamos, agreguemos esto') hasta que el cronograma original deja de tener sentido. El problema no es cambiar el alcance, es que cambie sin que nadie ajuste fecha, recursos o exclusiones.",
+      },
+      {
+        question: "¿Qué es la corrupción del alcance?",
+        answer:
+          "Corrupción del alcance es la traducción habitual de scope creep al español. Describe lo mismo: la línea entre lo que se entrega y lo que no se corre sin una decisión visible, y el equipo termina haciendo más trabajo del que se estimó.",
+      },
+      {
+        question: "¿Cómo se dice scope creep in Spanish?",
+        answer:
+          "En español se dice corrupción del alcance o crecimiento de alcance. En la práctica, muchos equipos hispanohablantes siguen usando 'scope creep' en inglés y aclaran la traducción la primera vez que aparece.",
+      },
       {
         question: "¿El scope creep siempre es malo?",
         answer:

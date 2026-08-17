@@ -1,19 +1,21 @@
+import { Link } from "react-router-dom";
 import type { BlogArticle } from "../../types";
 
 export const article: BlogArticle = {
   slug: "como-documentar-procesos-equipos",
-  title: "Cómo documentar procesos en equipos pequeños: guía de SOPs y checklists",
+  title: "Cómo documentar un proceso: SOPs y checklists para equipos",
   excerpt:
-    "Aprendé a escribir SOPs y checklists que tu equipo realmente use. Sin wikis abandonados ni manuales que nadie lee.",
+    "Aprende a escribir SOPs y checklists que tu equipo realmente use. Sin wikis abandonados ni manuales que nadie lee.",
   category: "procesos",
   categoryLabel: "Procesos",
   publishedAt: "2026-07-05",
   readingTime: "7 min",
   featured: false,
+  related: ["organizar-proyectos-tareas-jerarquia", "cierre-de-proyecto-checklist"],
   seo: {
-    title: "Cómo documentar procesos en equipos: guía de SOPs y checklists — Hito",
+    title: "Cómo documentar un proceso: SOPs y checklists | Hito",
     description:
-      "Guía práctica para documentar procesos en equipos pequeños. Cómo crear SOPs útiles, checklists reutilizables y mantener la documentación viva.",
+      "Cómo documentar un proceso y documentar procesos en equipos pequeños: SOPs útiles, checklists reutilizables y documentación que sí se usa.",
     ogImageAlt: "Documentación de procesos con SOPs y checklists.",
   },
   content: {
@@ -24,7 +26,7 @@ export const article: BlogArticle = {
         lean. La documentación muere en carpetas olvidadas, en wikis que nadie actualiza o en
         checklists que se completan por inercia. El problema no suele ser el formato: es la
         distancia entre el proceso documentado y el trabajo real. Esta guía te muestra cómo
-        documentar procesos que realmente usen tus equipos.
+        documentar un proceso —y documentar procesos— que tu equipo sí use.
       </>
     ),
     sections: [
@@ -79,7 +81,15 @@ export const article: BlogArticle = {
               La documentación vive mejor cuando está al lado del trabajo. En lugar de un wiki
               separado, los SOPs deberían estar en el contexto del proyecto, del área o de la
               tarea a la que aplican. Así, cuando alguien llega a una etapa, la guía está a un
-              clic, no a tres búsquedas.
+              clic, no a tres búsquedas. Esa misma lógica —el proceso junto al trabajo, no en un
+              wiki suelto— es la de{" "}
+              <Link
+                to="/blogs/organizar-proyectos-tareas-jerarquia"
+                className="underline underline-offset-2"
+              >
+                organizar proyectos y tareas en jerarquía
+              </Link>
+              .
             </p>
             <p>
               En Hito, cada área de un proyecto puede tener sus propios procesos y checklists.
@@ -90,7 +100,7 @@ export const article: BlogArticle = {
         ),
       },
       {
-        heading: "Hacelo revisable o no lo hagas",
+        heading: "Hazlo revisable o no lo hagas",
         body: (
           <>
             <p>
@@ -157,6 +167,23 @@ export const article: BlogArticle = {
             </dl>
           </>
         ),
+      },
+    ],
+    faq: [
+      {
+        question: "¿Cómo documentar un proceso?",
+        answer:
+          "Empieza por el dolor concreto (el error que se repite), no por el manual completo. Escribe los pasos, los criterios de decisión y quién es responsable. Si alguien nuevo no puede ejecutarlo en unos minutos de lectura, todavía no está documentado: está resumido en tu cabeza.",
+      },
+      {
+        question: "¿Qué es documentar un proceso?",
+        answer:
+          "Es dejar por escrito cómo se hace un trabajo recurrente para que no dependa de quien lo recuerde. Un SOP explica el cómo; un checklist verifica que no falte nada al entregar. Los dos se complementan.",
+      },
+      {
+        question: "¿Cómo documentar procesos en un equipo pequeño?",
+        answer:
+          "Prioriza los tres que más fricción generan y déjalos al lado del trabajo, no en un wiki abandonado. En equipos chicos gana la documentación corta, editable y revisada cada vez que el proceso cambia.",
       },
     ],
   },

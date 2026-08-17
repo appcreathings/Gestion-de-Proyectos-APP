@@ -4,7 +4,7 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "waterfall-vs-agile",
-  title: "Waterfall vs Agile: cuándo cascada es la respuesta correcta",
+  title: "Metodología Waterfall vs Agile: cuándo elegir cascada",
   excerpt:
     "Cascada no es “vieja y mala”. Cuándo Waterfall es honesto, cuándo Agile es teatro, y una tabla de decisión sin moda de industria.",
   category: "gestion-proyectos",
@@ -21,20 +21,20 @@ export const article: BlogArticle = {
     "alcance-de-proyecto-scope-creep",
   ],
   seo: {
-    title: "Waterfall vs Agile: cuándo cascada es la respuesta correcta | Hito",
+    title: "Metodología Waterfall vs Agile (y Agile vs Waterfall) | Hito",
     description:
-      "Cascada no es “vieja y mala”. Cuándo Waterfall es honesto, cuándo Agile es teatro, y una tabla de decisión sin moda de industria.",
+      "Metodología Waterfall vs Agile y Agile vs Waterfall: cuándo usar cascada, cuándo iterar y cómo se ve una metodología agile cascada honesta.",
     ogImageAlt: "Waterfall vs Agile: cuándo elegir cascada y cuándo iterar.",
   },
   content: {
     eyebrow: "Metodologías",
     intro: (
       <>
-        <strong>En una línea:</strong> elegí <strong>Waterfall (cascada)</strong> cuando el
-        alcance es fijo, conocido y el costo de cambiar a mitad de camino es altísimo; elegí{" "}
-        <strong>Agile</strong> cuando vas a descubrir el producto en el camino y el feedback
-        temprano reduce el riesgo. La pelea “moderno vs antiguo” es ruido: la pregunta correcta
-        es qué tan bien conocés hoy lo que hay que entregar.
+        <strong>En una línea:</strong> la metodología Waterfall vs Agile no se decide por moda.
+        Elige <strong>Waterfall (cascada)</strong> cuando el alcance es fijo, conocido y el costo
+        de cambiar a mitad de camino es altísimo; elige <strong>Agile</strong> cuando vas a
+        descubrir el producto en el camino y el feedback temprano reduce el riesgo. La pregunta
+        correcta es qué tan bien conoces hoy lo que hay que entregar.
       </>
     ),
     sections: [
@@ -43,7 +43,7 @@ export const article: BlogArticle = {
         body: (
           <>
             <p>
-              Antes de metodologías, roles y ceremonias, contestá esto con honestidad:
+              Antes de metodologías, roles y ceremonias, contesta esto con honestidad:
             </p>
             <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
               <li>
@@ -259,17 +259,17 @@ export const article: BlogArticle = {
         body: (
           <>
             <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
-              <li>Escribí en una frase el resultado del proyecto y cuánto puede cambiar el “qué”.</li>
-              <li>Marcá en la tabla de arriba 3–5 señales dominantes.</li>
+              <li>Escribe en una frase el resultado del proyecto y cuánto puede cambiar el “qué”.</li>
+              <li>Marca en la tabla de arriba 3–5 señales dominantes.</li>
               <li>
-                Elegí el sistema mínimo: fases y gates (cascada) o ciclos y feedback (Agile).
+                Elige el sistema mínimo: fases y gates (cascada) o ciclos y feedback (Agile).
               </li>
               <li>
-                Definí cómo se aprueban cambios de alcance — sin eso, cualquier metodología se
+                Define cómo se aprueban cambios de alcance — sin eso, cualquier metodología se
                 pudre.
               </li>
               <li>
-                Revisá a las 2–4 semanas: ¿estamos aprendiendo o solo reportando? Ajustá el
+                Revisa a las 2–4 semanas: ¿estamos aprendiendo o solo reportando? Ajusta el
                 ritmo, no el eslogan.
               </li>
             </ol>
@@ -279,6 +279,21 @@ export const article: BlogArticle = {
     ],
     faq: [
       {
+        question: "¿Qué es metodología Waterfall vs Agile?",
+        answer:
+          "Es la comparación entre planificar todo el 'qué' al inicio (Waterfall / cascada) e ir descubriéndolo en ciclos cortos (Agile). No es moderno contra antiguo: es qué tan bien conoces hoy lo que hay que entregar y cuánto cuesta cambiar de idea a mitad de camino.",
+      },
+      {
+        question: "¿Agile vs Waterfall: cuál elegir?",
+        answer:
+          "Elige Waterfall si el alcance es fijo, hay regulaciones o el costo de rehacer es altísimo. Elige Agile si el producto se descubre con usuarios y el feedback temprano reduce el riesgo. Si mezclas las dos sin reglas de cambio de alcance, terminas con teatro: cascada disfrazada de sprints, o Agile sin entregas.",
+      },
+      {
+        question: "¿Qué es una metodología agile cascada?",
+        answer:
+          "Así se busca a veces el híbrido: contrato o fases en cascada hacia afuera, y ciclos cortos adentro. Es honesto si el cliente ve fases y fechas, y el equipo entrega demos internas. No lo es si el plan de 9 meses no se puede tocar y igual le ponen daily.",
+      },
+      {
         question: "¿Waterfall está “obsoleto”?",
         answer:
           "No. Está mal aplicado en contextos de alta incertidumbre, igual que Agile está mal aplicado cuando el alcance es fijo y el cambio es carísimo. La herramienta sigue siendo válida para el problema correcto.",
@@ -286,17 +301,17 @@ export const article: BlogArticle = {
       {
         question: "¿Puedo mezclar Waterfall y Agile en el mismo proyecto?",
         answer:
-          "Sí, si sos explícito: por ejemplo, diseño y compliance en cascada, implementación en sprints; o contrato por fases con demos internas frecuentes. Lo que no funciona es mezclar sin reglas de cambio de alcance.",
+          "Sí, si eres explícito: por ejemplo, diseño y compliance en cascada, implementación en sprints; o contrato por fases con demos internas frecuentes. Lo que no funciona es mezclar sin reglas de cambio de alcance.",
       },
       {
         question: "¿Agile siempre es Scrum?",
         answer:
-          "No. Scrum es un framework Agile. Kanban también puede ser Agile en espíritu (entregar seguido, limitar WIP, mejorar el flujo). Elegí según ritmo y tipo de trabajo, no por el logo de la certificación.",
+          "No. Scrum es un framework Agile. Kanban también puede ser Agile en espíritu (entregar seguido, limitar WIP, mejorar el flujo). Elige según ritmo y tipo de trabajo, no por el logo de la certificación.",
       },
       {
         question: "¿Qué hago si el cliente pide cascada y el equipo quiere Agile?",
         answer:
-          "Negociá la interfaz: entregables y fechas de fase para el cliente; ciclos cortos y demos internas para el equipo. Traducí el lenguaje de ambos lados en un solo plan de hitos, no en dos religiones.",
+          "Negocia la interfaz: entregables y fechas de fase para el cliente; ciclos cortos y demos internas para el equipo. Traduce el lenguaje de ambos lados en un solo plan de hitos, no en dos religiones.",
       },
     ],
   },

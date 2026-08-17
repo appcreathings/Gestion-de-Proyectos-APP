@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import type { BlogArticle } from "../../types";
 
 export const article: BlogArticle = {
   slug: "como-priorizar-tareas",
-  title: "Cómo priorizar tareas: 4 métodos con ejemplos",
+  title: "Cómo priorizar tareas: 4 métodos de priorización",
   excerpt:
     "4 métodos para priorizar tareas —Eisenhower, MoSCoW, RICE e Ivy Lee— con ejemplos y cómo aplicarlos hoy, en cualquier herramienta.",
   category: "productividad",
@@ -10,17 +11,18 @@ export const article: BlogArticle = {
   publishedAt: "2026-09-14",
   readingTime: "10 min",
   featured: false,
+  related: ["alcance-de-proyecto-scope-creep", "fases-de-un-proyecto"],
   seo: {
-    title: "Cómo priorizar tareas: 4 métodos con ejemplos | Hito",
+    title: "Cómo priorizar tareas: 4 métodos de priorización | Hito",
     description:
-      "4 métodos para priorizar tareas —Eisenhower, MoSCoW, RICE e Ivy Lee— con ejemplos y cómo aplicarlos hoy, en cualquier herramienta.",
+      "Cómo priorizar tareas y la priorización de tareas con Eisenhower, MoSCoW, RICE e Ivy Lee. Guía práctica, con ejemplos, para cualquier herramienta.",
     ogImageAlt: "Cómo priorizar tareas con 4 métodos: Eisenhower, MoSCoW, RICE e Ivy Lee.",
   },
   content: {
     eyebrow: "Productividad",
     intro: (
       <>
-        <strong>En una línea:</strong> no existe un método universal para priorizar. La{" "}
+        <strong>En una línea:</strong> no existe un método universal para priorizar tareas. La{" "}
         <strong>Matriz de Eisenhower</strong> separa lo urgente de lo importante para el día a
         día, <strong>MoSCoW</strong> clasifica requisitos cuando el alcance de un proyecto está
         fijo, <strong>RICE Score</strong> puntúa iniciativas quitando la subjetividad, y el{" "}
@@ -136,8 +138,14 @@ export const article: BlogArticle = {
             <p>
               <strong>Cuándo usarlo:</strong> cuando estás definiendo el alcance de un proyecto
               o sprint y necesitas que todo el equipo (y el cliente) esté de acuerdo en qué es
-              innegociable y qué es negociable. Es especialmente útil para evitar el "scope
-              creep" — que todo se vuelva "must have" a último momento.
+              innegociable y qué es negociable. Es especialmente útil para evitar el{" "}
+              <Link
+                to="/blogs/alcance-de-proyecto-scope-creep"
+                className="underline underline-offset-2"
+              >
+                scope creep
+              </Link>{" "}
+              — que todo se vuelva "must have" a último momento.
             </p>
           </>
         ),
@@ -356,6 +364,23 @@ export const article: BlogArticle = {
             </p>
           </>
         ),
+      },
+    ],
+    faq: [
+      {
+        question: "¿Cómo priorizar tareas?",
+        answer:
+          "Elige un criterio y aplícalo a toda la lista, no tarea por tarea a ojo. Para el día a día sirve la matriz de Eisenhower (urgente vs importante) o Ivy Lee (máximo 6 tareas, en orden). Para un proyecto o un backlog, MoSCoW o RICE evitan que gane quien grita más fuerte.",
+      },
+      {
+        question: "¿Qué es la priorización de tareas?",
+        answer:
+          "La priorización de tareas es el proceso de decidir qué se hace primero y qué espera, con un criterio explícito. Sin ese criterio, la lista se ordena por urgencia percibida o por facilidad de tachar — no por impacto real.",
+      },
+      {
+        question: "¿Qué es la priorizacion de tareas?",
+        answer:
+          "Es la misma priorización de tareas, escrita sin tilde: decidir el orden de trabajo con un método (Eisenhower, MoSCoW, RICE o Ivy Lee) en lugar de tratar todo como urgente.",
       },
     ],
   },

@@ -4,7 +4,7 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "gestionar-varios-proyectos-a-la-vez",
-  title: "Cómo gestionar varios proyectos a la vez",
+  title: "Proyectos múltiples: cómo gestionar varios a la vez",
   excerpt:
     "No es multitasking heroico: es un portafolio personal con capacidad compartida, WIP entre proyectos y un ritmo semanal que evita el caos.",
   category: "gestion-proyectos",
@@ -20,19 +20,19 @@ export const article: BlogArticle = {
     "kanban-limites-wip",
   ],
   seo: {
-    title: "Cómo gestionar varios proyectos a la vez | Hito",
+    title: "Proyectos múltiples: cómo gestionar varios a la vez | Hito",
     description:
-      "No es multitasking heroico: es un portafolio personal con capacidad compartida, WIP entre proyectos y un ritmo semanal que evita el caos.",
+      "Cómo gestionar proyectos múltiples a la vez: un portafolio, pocos frentes abiertos y un ritmo semanal que evita el caos.",
     ogImageAlt: "Gestionar varios proyectos a la vez: portafolio, WIP y ritmo semanal.",
   },
   content: {
     eyebrow: "Tips y problemas reales",
     intro: (
       <>
-        <strong>En una línea:</strong> gestionar varios proyectos a la vez no es hacer todo al
-        mismo tiempo — es tratar tu trabajo como un <strong>portafolio</strong>: una sola
-        capacidad, pocos frentes abiertos, un ritmo semanal de decisión y un sistema donde
-        siempre sabés qué es “lo de hoy” sin mentirte. El caos casi nunca es “falta de app”; es
+        <strong>En una línea:</strong> gestionar proyectos múltiples (varios proyectos a la vez)
+        no es hacer todo al mismo tiempo — es tratar tu trabajo como un <strong>portafolio</strong>:
+        una sola capacidad, pocos frentes abiertos, un ritmo semanal de decisión y un sistema donde
+        siempre sabes qué es “lo de hoy” sin mentirte. El caos casi nunca es “falta de app”; es
         exceso de trabajo empezado y cero criterio de atención.
       </>
     ),
@@ -41,10 +41,10 @@ export const article: BlogArticle = {
         heading: "Por qué “varios proyectos” se siente como caos",
         body: (
           <>
-            <p>Si sos freelancer, agencia chica o lead en un equipo de 1–15, el dolor se parece:</p>
+            <p>Si eres freelancer, agencia chica o lead en un equipo de 1–15, el dolor se parece:</p>
             <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
               <li>Cada cliente cree que es tu única prioridad.</li>
-              <li>Empezás el día en un tablero y terminás apagando incendios en otro.</li>
+              <li>Empiezas el día en un tablero y terminas apagando incendios en otro.</li>
               <li>Ningún proyecto está “rojo”, pero todos se mueven lento.</li>
               <li>Las reuniones de status multiplican el contexto switching.</li>
             </ul>
@@ -61,7 +61,7 @@ export const article: BlogArticle = {
         body: (
           <>
             <p>
-              Antes de optimizar cada proyecto, listá el portafolio en una sola vista:
+              Antes de optimizar cada proyecto, lista el portafolio en una sola vista:
             </p>
             <table className="w-full border-collapse text-sm">
               <thead>
@@ -77,7 +77,7 @@ export const article: BlogArticle = {
                   <td className="py-2 pr-4 font-medium">Cliente A — sitio</td>
                   <td className="py-2 pr-4 text-muted-foreground">En curso</td>
                   <td className="py-2 pr-4 text-muted-foreground">Demo viernes</td>
-                  <td className="py-2 text-muted-foreground">Vos</td>
+                  <td className="py-2 text-muted-foreground">Tú</td>
                 </tr>
                 <tr className="border-b border-border/40">
                   <td className="py-2 pr-4 font-medium">Producto interno</td>
@@ -112,16 +112,16 @@ export const article: BlogArticle = {
         body: (
           <>
             <p>
-              Tenés una sola cantidad de horas-persona. Repartirlas “un poco a cada proyecto
-              todos los días” suele ser lo peor: pagás el costo de cambio de contexto y no
-              terminás nada.
+              Tienes una sola cantidad de horas-persona. Repartirlas “un poco a cada proyecto
+              todos los días” suele ser lo peor: pagas el costo de cambio de contexto y no
+              terminas nada.
             </p>
             <p>
               <strong>Reglas prácticas:</strong>
             </p>
             <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
               <li>
-                Definí <strong>proyectos activos</strong> (reciben foco esta semana) vs{" "}
+                Define <strong>proyectos activos</strong> (reciben foco esta semana) vs{" "}
                 <strong>en espera / mantenimiento</strong>.
               </li>
               <li>
@@ -129,7 +129,7 @@ export const article: BlogArticle = {
                 no 12 saltos de 25 minutos.
               </li>
               <li>
-                Priorizá con un criterio explícito (urgencia × impacto, o MoSCoW a nivel
+                Prioriza con un criterio explícito (urgencia × impacto, o MoSCoW a nivel
                 portafolio). Guía en{" "}
                 <Link to="/blogs/como-priorizar-tareas" className="underline underline-offset-2">
                   cómo priorizar tareas
@@ -166,7 +166,7 @@ export const article: BlogArticle = {
               </li>
             </ul>
             <p>
-              Cuando un proyecto se atrasa, no “sumes horas mágicas”: usá un playbook de crisis
+              Cuando un proyecto se atrasa, no “sumes horas mágicas”: usa un playbook de crisis
               (ver{" "}
               <Link
                 to="/blogs/proyecto-atrasado-que-hacer"
@@ -234,7 +234,7 @@ export const article: BlogArticle = {
                   </td>
                 </tr>
                 <tr className="border-b border-border/40">
-                  <td className="py-2 pr-4 font-medium">Vos sos el cuello de botella de todos</td>
+                  <td className="py-2 pr-4 font-medium">Tú eres el cuello de botella de todos</td>
                   <td className="py-2 text-muted-foreground">
                     <Link
                       to="/blogs/como-delegar-tareas"
@@ -270,12 +270,12 @@ export const article: BlogArticle = {
         heading: "Sistema mínimo en 1 hora",
         body: (
           <>
-            <p>Si hoy estás en caos, no diseñes el PMBOK. Hacé esto en una sesión:</p>
+            <p>Si hoy estás en caos, no diseñes el PMBOK. Haz esto en una sesión:</p>
             <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
-              <li>Listá todos los proyectos (activos, en espera, ideas).</li>
-              <li>Elegí máximo 3 activos para los próximos 7 días.</li>
+              <li>Lista todos los proyectos (activos, en espera, ideas).</li>
+              <li>Elige máximo 3 activos para los próximos 7 días.</li>
               <li>Para cada activo: próximo hito + dueño + “qué es hecho”.</li>
-              <li>Definí tu WIP personal (ej. 2 proyectos en foco profundo).</li>
+              <li>Define tu WIP personal (ej. 2 proyectos en foco profundo).</li>
               <li>Agendá el ritual semanal de 30 minutos en el calendario.</li>
             </ol>
           </>
@@ -304,7 +304,7 @@ export const article: BlogArticle = {
               </li>
             </ul>
             <p>
-              Si necesitás el mapa completo de fases, roles y métodos, el hub de fundamentos
+              Si necesitas el mapa completo de fases, roles y métodos, el hub de fundamentos
               está en{" "}
               <Link
                 to="/blogs/gestion-de-proyectos-guia-completa"
@@ -323,7 +323,7 @@ export const article: BlogArticle = {
       steps: [
         {
           name: "Inventariar el portafolio",
-          text: "Listá proyectos activos, en espera e ideas. Si no cabe en una página, está demasiado difuso.",
+          text: "Lista proyectos activos, en espera e ideas. Si no cabe en una página, está demasiado difuso.",
         },
         {
           name: "Elegir como máximo 3 frentes activos",
@@ -344,6 +344,16 @@ export const article: BlogArticle = {
       ],
     },
     faq: [
+      {
+        question: "¿Qué son los proyectos múltiples?",
+        answer:
+          "Proyectos múltiples (también se busca como proyectos multiples) es llevar más de un frente al mismo tiempo: varios clientes, un producto interno y una propuesta, por ejemplo. El error es tratarlos como 12 tableros sueltos; el sistema correcto es un portafolio con una sola capacidad y un límite de frentes activos.",
+      },
+      {
+        question: "¿Cómo gestionar proyectos multiples?",
+        answer:
+          "Con tres piezas: una vista única del portafolio, un tope de proyectos en foco (1–2 por persona) y un ritual semanal para decidir atención. Sin esas tres, 'gestionar varios a la vez' se convierte en cambiar de contexto cada hora.",
+      },
       {
         question: "¿Cuántos proyectos puede manejar una persona a la vez?",
         answer:

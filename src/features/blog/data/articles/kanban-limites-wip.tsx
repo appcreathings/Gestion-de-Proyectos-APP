@@ -4,9 +4,9 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "kanban-limites-wip",
-  title: "Kanban en la práctica: límites WIP",
+  title: "Kanban WIP: qué significa el límite y cómo usarlo",
   excerpt:
-    "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
+    "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no puedes empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
   category: "gestion-proyectos",
   categoryLabel: "Gestión de proyectos",
   publishedAt: "2026-12-28",
@@ -20,18 +20,18 @@ export const article: BlogArticle = {
     "gestionar-varios-proyectos-a-la-vez",
   ],
   seo: {
-    title: "Kanban en la práctica: límites WIP | Hito",
+    title: "Kanban WIP: qué significa y cómo limitar el trabajo | Hito",
     description:
-      "El principio de límites WIP (Work In Progress) es lo que hace que Kanban funcione: no podés empezar algo nuevo antes de terminar algo viejo. Cómo definirlo y por qué importa.",
+      "Kanban WIP explicado: qué significa W.I.P., cómo fijar el límite y qué pasa con el WIP en Scrum. Termina antes de empezar más.",
     ogImageAlt: "Kanban en la práctica: límites WIP explicados.",
   },
   content: {
     eyebrow: "Metodologías",
     intro: (
       <>
-        <strong>En una línea:</strong> Kanban funciona porque tiene un principio simple:{" "}
-        <strong>no podés tener más de X tareas en curso a la vez</strong>. Eso es el límite WIP (Work In
-        Progress). Si el límite es 3 y ya tenés 3 tareas en "En curso", no podés mover una cuarta desde
+        <strong>En una línea:</strong> Kanban WIP es el límite de trabajo en curso:{" "}
+        <strong>no puedes tener más de X tareas abiertas a la vez</strong>. WIP significa Work In
+        Progress. Si el límite es 3 y ya tienes 3 tareas en "En curso", no puedes mover una cuarta desde
         "Por hacer" hasta que una de las tres pase a "Hecho". El límite fuerza a terminar antes de
         empezar — y eso es lo que reduce el tiempo que tarda una tarea en ir del inicio al fin.
       </>
@@ -44,14 +44,14 @@ export const article: BlogArticle = {
             <p>
               Kanban tiene tres principios básicos: visualizar el trabajo, limitar el trabajo en curso,
               y gestionar el flujo. El segundo es el que lo diferencia de un tablero cualquiera. Un
-              tablero donde tenés 15 tareas en "En curso" y no hay límite no es Kanban — es una lista de
+              tablero donde tienes 15 tareas en "En curso" y no hay límite no es Kanban — es una lista de
               tareas desordenada.
             </p>
             <p>
               <strong>El problema sin límite WIP:</strong> cuando no hay límite, el equipo tiende a
               empezar muchas tareas y terminar pocas. El resultado es un montón de trabajo a medio hacer
-              y nada que se entregue. El límite WIP corrige esto invirtiendo el incentivo: no podés
-              empezar algo nuevo hasta terminar algo viejo, así que terminás más rápido.
+              y nada que se entregue. El límite WIP corrige esto invirtiendo el incentivo: no puedes
+              empezar algo nuevo hasta terminar algo viejo, así que terminas más rápido.
             </p>
           </>
         ),
@@ -69,16 +69,16 @@ export const article: BlogArticle = {
                 equipo. Si son 4 personas, límite WIP = 4. Es un punto de partida, no una regla fija.
               </li>
               <li>
-                <strong>Método del flujo actual:</strong> mirá tu tablero actual y contá cuántas tareas
-                hay en "En curso". Si hay 8 y el equipo está bloqueado, bajalo a 6 y medí el resultado.
-                Ajustá hasta que el flujo mejore.
+                <strong>Método del flujo actual:</strong> mira tu tablero actual y cuenta cuántas tareas
+                hay en "En curso". Si hay 8 y el equipo está bloqueado, bájalo a 6 y mide el resultado.
+                Ajusta hasta que el flujo mejore.
               </li>
             </ul>
             <p>
               <strong>Regla de oro:</strong> el límite WIP debe ser lo suficientemente bajo como para
               forzar al equipo a terminar, pero lo suficientemente alto como para que no sea una fuente
               de bloqueo constante. Si siempre estás chocando contra el límite, es muy bajo. Si nunca lo
-              tocás, es muy alto.
+              tocas, es muy alto.
             </p>
           </>
         ),
@@ -126,25 +126,25 @@ export const article: BlogArticle = {
         ),
       },
       {
-        heading: "Qué hacer cuando chocás contra el límite WIP",
+        heading: "Qué hacer cuando chocas contra el límite WIP",
         body: (
           <>
             <p>
-              Si el límite WIP es 3 y ya tenés 3 tareas en "En curso", llegás una nueva tarea y no
-              podés moverla a "En curso". ¿Qué hacés?
+              Si el límite WIP es 3 y ya tienes 3 tareas en "En curso", llega una nueva tarea y no
+              puedes moverla a "En curso". ¿Qué haces?
             </p>
             <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
               <li>
-                <strong>Priorizá:</strong> ¿alguna de las 3 tareas actuales puede esperar? Si sí, movela a
+                <strong>Prioriza:</strong> ¿alguna de las 3 tareas actuales puede esperar? Si sí, muévela a
                 "Por hacer" y entra la nueva.
               </li>
               <li>
-                <strong>Terminá algo:</strong> la respuesta correcta en Kanban es terminar una de las 3
+                <strong>Termina algo:</strong> la respuesta correcta en Kanban es terminar una de las 3
                 tareas actuales, no arrancar una cuarta.
               </li>
               <li>
-                <strong>Ajustá el límite:</strong> si esto pasa seguido, quizás el límite es muy bajo.
-                Aumentalo a 4 y medí el impacto en el flujo.
+                <strong>Ajusta el límite:</strong> si esto pasa seguido, quizás el límite es muy bajo.
+                Auméntalo a 4 y mide el impacto en el flujo.
               </li>
             </ol>
             <p>
@@ -189,6 +189,21 @@ export const article: BlogArticle = {
       },
     ],
     faq: [
+      {
+        question: "¿Qué significa WIP?",
+        answer:
+          "WIP significa Work In Progress: el trabajo que ya empezaste y todavía no terminaste. En Kanban se limita a propósito. W.I.P. es la misma sigla, escrita con puntos.",
+      },
+      {
+        question: "¿Qué es Kanban WIP?",
+        answer:
+          "Kanban WIP es el tope de tarjetas que pueden estar en una columna (o en todo el tablero) al mismo tiempo. Sin ese tope, Kanban es solo un tablero: empiezas mucho y entregas poco.",
+      },
+      {
+        question: "¿Qué es el WIP en Scrum?",
+        answer:
+          "Scrum no exige un límite WIP, pero muchos equipos lo usan dentro del sprint: si ya hay 3 tareas en curso, no se abre una cuarta aunque esté en el backlog del sprint. Eso protege el compromiso y combina ritmo (Scrum) con flujo (Kanban).",
+      },
       {
         question: "¿El límite WIP tiene que ser el mismo para todas las columnas?",
         answer:

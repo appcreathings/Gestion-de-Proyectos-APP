@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import type { BlogArticle } from "../../types";
 
 export const article: BlogArticle = {
   slug: "que-es-mcp",
-  title: "Qué es MCP (Model Context Protocol): guía simple y honesta",
+  title: "Qué es MCP (Model Context Protocol): guía del protocolo",
   excerpt:
     "MCP explicado sin hype: qué es, para qué sirve y en qué se diferencia de function calling y RAG. Con un ejemplo real.",
   category: "inteligencia-artificial",
@@ -10,10 +11,15 @@ export const article: BlogArticle = {
   publishedAt: "2026-08-10",
   readingTime: "9 min",
   featured: false,
+  related: [
+    "como-funciona-mcp-paso-a-paso",
+    "mcp-vs-function-calling-vs-rag",
+    "rag-local-explicado",
+  ],
   seo: {
-    title: "Qué es MCP (Model Context Protocol): la guía simple y honesta — Hito",
+    title: "Qué es MCP (Model Context Protocol) y el protocolo | Hito",
     description:
-      "MCP explicado sin hype: qué es, para qué sirve y en qué se diferencia de function calling y RAG. Con un ejemplo real.",
+      "MCP (Model Context Protocol) explicado: qué es el protocolo MCP, qué son los primitives y cómo se diferencia de function calling y RAG.",
     ogImageAlt: "Qué es MCP (Model Context Protocol).",
   },
   content: {
@@ -171,7 +177,18 @@ export const article: BlogArticle = {
             </table>
             <p>
               Los tres son <strong>complementarios</strong>, no excluyentes. Un buen agente
-              moderno combina los tres.
+              moderno combina los tres. La comparativa a fondo está en{" "}
+              <Link
+                to="/blogs/mcp-vs-function-calling-vs-rag"
+                className="underline underline-offset-2"
+              >
+                MCP vs function calling vs RAG
+              </Link>
+              . Si quieres ver cómo funciona la recuperación de documentos, lee{" "}
+              <Link to="/blogs/rag-local-explicado" className="underline underline-offset-2">
+                RAG local explicado sin jerga
+              </Link>
+              .
             </p>
           </>
         ),
@@ -180,7 +197,17 @@ export const article: BlogArticle = {
         heading: "Anatomía de MCP: servers, clients y transports",
         body: (
           <>
-            <p>Para entender MCP en concreto, hace falta conocer tres piezas:</p>
+            <p>
+              Para entender MCP en concreto, hace falta conocer tres piezas. El procedimiento
+              de abrir una sesión está en{" "}
+              <Link
+                to="/blogs/como-funciona-mcp-paso-a-paso"
+                className="underline underline-offset-2"
+              >
+                cómo funciona MCP paso a paso
+              </Link>
+              .
+            </p>
             <h3 className="mt-6 text-lg font-semibold tracking-tight text-foreground">
               Servidor MCP
             </h3>
@@ -432,6 +459,23 @@ export const article: BlogArticle = {
             </p>
           </>
         ),
+      },
+    ],
+    faq: [
+      {
+        question: "¿Qué es MCP?",
+        answer:
+          "MCP (Model Context Protocol) es un estándar abierto creado por Anthropic en 2024 para que los modelos de lenguaje se conecten a fuentes externas —archivos, bases de datos, APIs, apps— con un formato común. Se lo describe como el USB-C de la IA: cualquier cliente puede hablar con cualquier servidor MCP usando el mismo protocolo.",
+      },
+      {
+        question: "¿Qué es el Model Context Protocol?",
+        answer:
+          "Model Context Protocol es el nombre completo de MCP. Es un protocolo de interoperabilidad: Claude, Cursor u otro IDE pueden conectarse a la misma fuente de datos sin una integración custom por cada herramienta. No reemplaza a function calling ni a RAG; los complementa.",
+      },
+      {
+        question: "¿Qué son los MCP primitives?",
+        answer:
+          "Los primitives de MCP son las tres capacidades que un servidor puede exponer: tools (funciones que el modelo invoca), resources (datos que el modelo puede leer) y prompts (plantillas predefinidas). Son el vocabulario mínimo del protocolo MCP.",
       },
     ],
   },
