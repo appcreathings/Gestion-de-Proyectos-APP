@@ -7,8 +7,12 @@
     scroll-behavior: smooth;
   }
 
-  /* Offset for fixed nav when scrolling to anchor sections */
-  section[id] {
+  /* Offset for fixed nav when scrolling to anchor sections.
+     Los `h2[id]` de artículo (spec 059) lo necesitan igual: sin esto el salto
+     desde la tabla de contenidos deja el heading tapado por el nav fijo. */
+  section[id],
+  h2[id],
+  h3[id] {
     scroll-margin-top: 5rem;
   }
 
@@ -160,5 +164,157 @@
 
   .scrollbar-thin::-webkit-scrollbar-corner {
     background: transparent;
+  }
+}
+
+@layer components {
+  /* Tipografía del cuerpo de artículo — spec 059.
+     Reemplaza a `prose prose-neutral dark:prose-invert`, que era CSS muerto:
+     `@tailwindcss/typography` nunca estuvo instalado en este proyecto.
+
+     TODOS los selectores van dentro de `:where()` → especificidad 0. Los 40+
+     archivos de `data/articles/*.tsx` ya traen utilities inline en su marcado
+     (p. ej. `<ul className="list-disc space-y-2 pl-6 text-muted-foreground">`)
+     y esas clases tienen que seguir ganando: así esta capa solo rellena lo que
+     el autor no estiló a mano, y la regresión sobre el contenido existente es
+     cero. Instalar el plugin, en cambio, pelearía con esas utilities archivo
+     por archivo.
+
+     `--cat-h` se hereda del `<article>` (ver `data/categories.ts`); el fallback
+     cubre a las páginas satélite SEO, que usan `SeoArticle` sin categoría. */
+  .article-prose {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .article-prose :where(p) {
+    margin-block: 1.25em;
+    text-wrap: pretty;
+  }
+
+  .article-prose :where(strong) {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+
+  .article-prose :where(ul) {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-block: 1.25em;
+  }
+
+  .article-prose :where(ol) {
+    list-style: decimal;
+    padding-left: 1.5rem;
+    margin-block: 1.25em;
+  }
+
+  .article-prose :where(li) {
+    margin-block: 0.5em;
+  }
+
+  .article-prose :where(li)::marker {
+    color: hsl(var(--cat-h, 224) 55% 50% / 0.75);
+  }
+
+  /* Hoy los enlaces del cuerpo son indistinguibles del texto salvo que el autor
+     los haya estilado a mano — el subrayado sutil los devuelve al radar. */
+  .article-prose :where(a) {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--primary) / 0.35);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 150ms ease;
+  }
+
+  .article-prose :where(a:hover) {
+    text-decoration-color: hsl(var(--primary) / 0.8);
+  }
+
+  .article-prose :where(h3) {
+    color: hsl(var(--foreground));
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-block: 2em 0.75em;
+  }
+
+  .article-prose :where(h4) {
+    color: hsl(var(--foreground));
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-block: 1.75em 0.5em;
+  }
+
+  .article-prose :where(blockquote) {
+    border-left: 2px solid hsl(var(--cat-h, 224) 55% 50% / 0.4);
+    padding-left: 1.25rem;
+    margin-block: 1.5em;
+    color: hsl(var(--foreground) / 0.85);
+  }
+
+  .article-prose :where(code) {
+    font-family: theme(fontFamily.mono);
+    font-size: 0.875em;
+    background: hsl(var(--muted));
+    padding: 0.15em 0.4em;
+    border-radius: calc(var(--radius) - 4px);
+    color: hsl(var(--foreground));
+  }
+
+  .article-prose :where(pre) {
+    font-family: theme(fontFamily.mono);
+    font-size: 0.875rem;
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-block: 1.5em;
+    overflow-x: auto;
+    color: hsl(var(--foreground));
+  }
+
+  .article-prose :where(pre code) {
+    background: transparent;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  .article-prose :where(hr) {
+    border-color: hsl(var(--border));
+    margin-block: 2.5em;
+  }
+
+  /* Las tablas de comparativa son anchas: sin scroll propio desbordan el
+     viewport en móvil y arrastran la página entera en horizontal. */
+  .article-prose :where(table) {
+    width: 100%;
+    font-size: 0.9375rem;
+    border-collapse: collapse;
+    margin-block: 1.5em;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .article-prose :where(th, td) {
+    border-bottom: 1px solid hsl(var(--border));
+    padding: 0.625rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .article-prose :where(th) {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .article-prose :where(:first-child) {
+    margin-top: 0;
+  }
+
+  .article-prose :where(:last-child) {
+    margin-bottom: 0;
   }
 }

@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { SeoPage } from "@/features/seo/SeoPage";
 import { SeoArticle } from "@/features/seo/SeoArticle";
-import { Breadcrumb } from "@/components/Breadcrumb";
 import { getArticleMeta } from "../data/articles-index";
 import { loadArticle } from "../data/articles";
+import { getCategoryHue } from "../data/categories";
 import type { BlogArticleContent, BlogArticleMeta } from "../types";
 import { RelatedPosts } from "../components/RelatedPosts";
+import { ArticleHeader } from "../components/ArticleHeader";
+import { ArticleToc } from "../components/ArticleToc";
+import { AuthorCard } from "../components/AuthorCard";
+import { ReadingProgress } from "../components/ReadingProgress";
 
 type BlogPostViewProps = {
   meta: BlogArticleMeta;
@@ -21,10 +25,10 @@ type BlogPostViewProps = {
  * saldría con el cuerpo del artículo vacío.
  */
 export function BlogPostView({ meta, content }: BlogPostViewProps) {
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
-  const publishedDate = formatDate(meta.publishedAt);
-  const updatedDate = meta.updatedAt ? formatDate(meta.updatedAt) : null;
+  // Solo mide el avance de lectura — no carga datos, así que `BlogPostView`
+  // sigue siendo presentacional puro y el prerender lo renderiza tal cual.
+  const articleRef = useRef<HTMLElement>(null);
+  const sections = content?.sections ?? [];
 
   const schemas: object[] = [
     {
@@ -78,36 +82,31 @@ export function BlogPostView({ meta, content }: BlogPostViewProps) {
       ]}
       schemaJson={schemas}
     >
-      <article className="border-b border-border/60">
-        <div className="mx-auto max-w-3xl px-6 pt-24 sm:pt-32">
-          <Breadcrumb
-            items={[{ label: "Blog", href: "/blogs" }, { label: meta.title }]}
-            className="mb-6"
-          />
-          <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            <span className="font-mono uppercase tracking-widest">
-              {meta.categoryLabel}
-            </span>
-            <span aria-hidden>·</span>
-            <span>{publishedDate}</span>
-            {updatedDate ? (
-              <>
-                <span aria-hidden>·</span>
-                <span>Actualizado el {updatedDate}</span>
-              </>
-            ) : null}
-            <span aria-hidden>·</span>
-            <span>{meta.readingTime} de lectura</span>
-          </div>
-        </div>
+      {/* `--cat-h` se declara acá y la heredan header, viñetas del cuerpo,
+          barra de progreso y TOC — un solo punto de verdad por artículo. */}
+      <article
+        ref={articleRef}
+        className="border-b border-border/60"
+        style={{ "--cat-h": getCategoryHue(meta.category) } as CSSProperties}
+      >
+        <ReadingProgress targetRef={articleRef} />
+
+        <ArticleHeader meta={meta} intro={content?.intro ?? meta.excerpt} />
 
         <SeoArticle
+          hasOwnHeader
           eyebrow={content?.eyebrow ?? meta.categoryLabel}
           title={meta.title}
           intro={content?.intro ?? meta.excerpt}
-          sections={content?.sections ?? []}
+          sections={sections}
           faq={content?.faq}
           cta={{ label: "Probar Hito — sin registro" }}
+          asideSlot={
+            sections.length > 1 ? (
+              <ArticleToc headings={sections.map((s) => s.heading)} />
+            ) : undefined
+          }
+          footerSlot={<AuthorCard author={meta.author} />}
         />
       </article>
 

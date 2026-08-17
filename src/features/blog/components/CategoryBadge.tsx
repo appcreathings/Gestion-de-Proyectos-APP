@@ -13,7 +13,9 @@ export function CategoryBadge({ category, asLink = false }: CategoryBadgeProps) 
 
   if (asLink) {
     return (
-      <Link to={`/blogs?categoria=${category}`}>
+      // Directo a la URL indexable: `/blogs?categoria=X` sigue funcionando para
+      // enlaces viejos, pero `BlogIndexPage` la redirige — un salto evitable.
+      <Link to={`/blogs/categoria/${category}`}>
         <Badge
           variant="secondary"
           className="font-mono text-[10px] uppercase tracking-widest hover:bg-primary/[0.08]"

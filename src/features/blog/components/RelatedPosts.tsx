@@ -25,8 +25,9 @@ export function RelatedPosts({ currentSlug, category }: RelatedPostsProps) {
               to={`/blogs/${article.slug}`}
               className="group rounded-xl border border-border/60 bg-background p-5 transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.02]"
             >
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              <span className="flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 {article.categoryLabel}
+                <span>{article.readingTime}</span>
               </span>
               <h4 className="mt-2 text-sm font-semibold tracking-tight transition-colors group-hover:text-primary">
                 {article.title}

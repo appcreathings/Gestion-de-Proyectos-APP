@@ -16,9 +16,15 @@ export function StickyCta() {
   useEffect(() => {
     if (dismissed) return;
     const onScroll = () => {
-      const hero = document.querySelector("section");
-      const heroBottom = hero ? hero.getBoundingClientRect().bottom : 0;
-      setVisible(heroBottom < 0);
+      // El sentinel marca el final del bloque superior de la página. Antes esto
+      // era `querySelector("section")`, que asumía el Hero de la landing: en un
+      // post de blog el primer `<section>` es la primera sección del artículo,
+      // así que el CTA aparecía en un punto arbitrario del texto. El fallback
+      // conserva el comportamiento viejo donde todavía no hay sentinel.
+      const anchor =
+        document.querySelector("[data-cta-sentinel]") ?? document.querySelector("section");
+      const anchorBottom = anchor ? anchor.getBoundingClientRect().bottom : 0;
+      setVisible(anchorBottom < 0);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
