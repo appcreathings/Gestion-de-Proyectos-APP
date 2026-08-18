@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "La IA puede acelerar la gestión de proyectos, pero no debería costar tu confidencialidad. Cómo usar un asistente de IA sin entregar tus datos.",
   category: "inteligencia-artificial",
   categoryLabel: "Inteligencia artificial",
-  publishedAt: "2026-07-05",
+  publishedAt: "2026-08-04",
   readingTime: "7 min",
   featured: true,
   seo: {

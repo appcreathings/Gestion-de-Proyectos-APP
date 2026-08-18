@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "Descubre por qué cada vez más equipos eligen un gestor de proyectos sin nube. Control total, privacidad real y datos que siempre puedes migrar.",
   category: "privacidad",
   categoryLabel: "Privacidad",
-  publishedAt: "2026-07-05",
+  publishedAt: "2026-08-01",
   readingTime: "7 min",
   featured: true,
   seo: {

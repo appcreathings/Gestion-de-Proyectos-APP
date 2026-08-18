@@ -775,38 +775,38 @@
     "semantic_hash": "5ece44d99cc4cfea4e0ff34ca72dc3ee"
   },
   "src/features/blog/components/CategoryBadge.tsx": {
-    "mtime": 1787004428.3730576,
-    "ast_hash": "3a16c56885c734844618ebeb6c993781",
-    "semantic_hash": ""
+    "mtime": 1783246722.807776,
+    "ast_hash": "8c18c2cb3682c80dd2f9697f9e365763",
+    "semantic_hash": "8c18c2cb3682c80dd2f9697f9e365763"
   },
   "src/features/blog/components/RelatedPosts.tsx": {
-    "mtime": 1787004428.3740566,
-    "ast_hash": "6a74261068b83bcd7a28d4e37c13253a",
-    "semantic_hash": ""
+    "mtime": 1784701327.3165748,
+    "ast_hash": "234368fdb8db42b869389f0ee40062a6",
+    "semantic_hash": "234368fdb8db42b869389f0ee40062a6"
   },
   "src/features/blog/data/articles-index.ts": {
-    "mtime": 1787024309.2550156,
-    "ast_hash": "3c773c319700dca1d93d06b4b76750d5",
+    "mtime": 1786987747.33903,
+    "ast_hash": "5aab0ebc5066c310656073964112d8ef",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/alternativas-a-notion.tsx": {
-    "mtime": 1787024284.2712147,
-    "ast_hash": "8ebe801d42462273243a3bd1fd2d2a18",
-    "semantic_hash": ""
+    "mtime": 1784701918.3938417,
+    "ast_hash": "a9eb32bd8aa1d981d4efadd7e9c620fb",
+    "semantic_hash": "a9eb32bd8aa1d981d4efadd7e9c620fb"
   },
   "src/features/blog/data/articles/asistente-ia-proyectos-sin-datos.tsx": {
-    "mtime": 1787024284.2671962,
-    "ast_hash": "74e3564d2a79e0ff2e57bbf8eb19eb8f",
-    "semantic_hash": ""
+    "mtime": 1784701918.4103541,
+    "ast_hash": "970fa5ddcda7c12de3611f6deecd22f0",
+    "semantic_hash": "970fa5ddcda7c12de3611f6deecd22f0"
   },
   "src/features/blog/data/articles/automatizar-tareas-sin-nube.tsx": {
-    "mtime": 1787024284.2681928,
-    "ast_hash": "78bab57d585eee078e037e0f58c6f5d0",
-    "semantic_hash": ""
+    "mtime": 1784701918.4334521,
+    "ast_hash": "ca884558088e1361a894fe1a172d3003",
+    "semantic_hash": "ca884558088e1361a894fe1a172d3003"
   },
   "src/features/blog/data/articles/como-documentar-procesos-equipos.tsx": {
-    "mtime": 1787024284.2661922,
-    "ast_hash": "527ea0f7c1f754109bb64fdad2f4964e",
+    "mtime": 1786987502.3795693,
+    "ast_hash": "9b496a7e34736d283e0aa2e76d7adb88",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/como-priorizar-tareas.tsx": {
@@ -815,9 +815,9 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/gestion-proyectos-sin-nube.tsx": {
-    "mtime": 1787024284.2661922,
-    "ast_hash": "842627ea3c49316a791c0cb3623a83f3",
-    "semantic_hash": ""
+    "mtime": 1784701918.4939218,
+    "ast_hash": "26064820eaf764392b8d3b6e600faa66",
+    "semantic_hash": "26064820eaf764392b8d3b6e600faa66"
   },
   "src/features/blog/data/articles/hito-para-estudio-juridico.tsx": {
     "mtime": 1784701918.5263896,
@@ -825,9 +825,9 @@
     "semantic_hash": "00dd9666af89d856c5d2acdb1c584932"
   },
   "src/features/blog/data/articles/hito-project-gestion-por-hitos.tsx": {
-    "mtime": 1787024284.2681928,
-    "ast_hash": "db029fba26dbc85c24913ae9318f1d02",
-    "semantic_hash": ""
+    "mtime": 1784701918.535911,
+    "ast_hash": "b90fba87f5f0a39c5a8c0b679ed84243",
+    "semantic_hash": "b90fba87f5f0a39c5a8c0b679ed84243"
   },
   "src/features/blog/data/articles/hito-vs-clickup.tsx": {
     "mtime": 1784701918.5692155,
@@ -835,9 +835,9 @@
     "semantic_hash": "ff457948e17aa30a127c85733f37ce4a"
   },
   "src/features/blog/data/articles/hito-vs-trello.tsx": {
-    "mtime": 1787024284.2696986,
-    "ast_hash": "cd79ee96bfde4f2a451fce40b0c9fb71",
-    "semantic_hash": ""
+    "mtime": 1784701918.5852818,
+    "ast_hash": "5a80b8e1b332ec3d0d719dd7ff759cd6",
+    "semantic_hash": "5a80b8e1b332ec3d0d719dd7ff759cd6"
   },
   "src/features/blog/data/articles/index.ts": {
     "mtime": 1786987708.9336028,
@@ -850,14 +850,14 @@
     "semantic_hash": "43c174291221e8eb6a6160448c57da75"
   },
   "src/features/blog/data/articles/migrar-trello-a-hito.tsx": {
-    "mtime": 1787024284.2712147,
-    "ast_hash": "132001f1467934a7507ef9e6b0096f90",
-    "semantic_hash": ""
+    "mtime": 1784701918.692378,
+    "ast_hash": "539f9bbb20aa60fb2899be509743e9f9",
+    "semantic_hash": "539f9bbb20aa60fb2899be509743e9f9"
   },
   "src/features/blog/data/articles/organizar-proyectos-tareas-jerarquia.tsx": {
-    "mtime": 1787024284.2671962,
-    "ast_hash": "762225c0d78f6b7816f15c872d6389aa",
-    "semantic_hash": ""
+    "mtime": 1784701918.706887,
+    "ast_hash": "ff9ab7b8de5ee20664220ff45b090acb",
+    "semantic_hash": "ff9ab7b8de5ee20664220ff45b090acb"
   },
   "src/features/blog/data/articles/prompts-gestion-proyectos-ia.tsx": {
     "mtime": 1784701918.7153983,
@@ -865,14 +865,14 @@
     "semantic_hash": "1804f6e914afc6d1e2207febd8bd994c"
   },
   "src/features/blog/data/articles/que-es-mcp.tsx": {
-    "mtime": 1787024284.2722223,
-    "ast_hash": "6cc9b937b45e92118f38cf790f88b2d8",
+    "mtime": 1786987708.954135,
+    "ast_hash": "f565f5c77a9a647c752610d523d063eb",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/que-es-un-hito-gestion-proyectos.tsx": {
-    "mtime": 1787024284.2681928,
-    "ast_hash": "12b0ebfd6b335f91fc32af9899372bc5",
-    "semantic_hash": ""
+    "mtime": 1784701918.7710433,
+    "ast_hash": "187b2260dc80d9330e425e6d25a97c36",
+    "semantic_hash": "187b2260dc80d9330e425e6d25a97c36"
   },
   "src/features/blog/data/articles/rag-local-explicado.tsx": {
     "mtime": 1784701918.7951713,
@@ -885,8 +885,8 @@
     "semantic_hash": "6960615a0af8495958563ce7bfcd29ee"
   },
   "src/features/blog/data/categories.ts": {
-    "mtime": 1787004428.376057,
-    "ast_hash": "9a957120f30e28e5fa82b3b158c481bc",
+    "mtime": 1785519494.7830133,
+    "ast_hash": "52d7ef3b6bc2ec224b4c428b2e589c1e",
     "semantic_hash": ""
   },
   "src/features/blog/pages/BlogIndexPage.tsx": {
@@ -895,8 +895,8 @@
     "semantic_hash": ""
   },
   "src/features/blog/pages/BlogPostPage.tsx": {
-    "mtime": 1787004428.376057,
-    "ast_hash": "402df02bfbd7ac9fdea55949b2177ddf",
+    "mtime": 1785520251.5671744,
+    "ast_hash": "0ba4d127aa1ff9a224cab054e114588b",
     "semantic_hash": ""
   },
   "src/features/blog/types.ts": {
@@ -1310,9 +1310,9 @@
     "semantic_hash": "9737a80373350daee59d5ae18e91ee14"
   },
   "src/features/landing/components/StickyCta.tsx": {
-    "mtime": 1787004428.3780591,
-    "ast_hash": "65ec794cc17a4c8ab451061392822dc8",
-    "semantic_hash": ""
+    "mtime": 1783246247.5648735,
+    "ast_hash": "c72da4b678c67824f5f34f6ce21ea94d",
+    "semantic_hash": "c72da4b678c67824f5f34f6ce21ea94d"
   },
   "src/features/landing/components/TrustBadges.tsx": {
     "mtime": 1784317472.0436883,
@@ -1550,8 +1550,8 @@
     "semantic_hash": "a3be8acbba6be9c1c88f5a7e753aa2e9"
   },
   "src/features/seo/SeoArticle.tsx": {
-    "mtime": 1787004428.3795657,
-    "ast_hash": "de3b6e84c65d3aeee44adf1f55c6f99a",
+    "mtime": 1785519585.295863,
+    "ast_hash": "6bb6a817f5f7b8443a37dd92a7c23203",
     "semantic_hash": ""
   },
   "src/features/seo/SeoPage.tsx": {
@@ -3930,8 +3930,8 @@
     "semantic_hash": ""
   },
   "specs/058-blog-seo-roadmap-gsc/spec.md": {
-    "mtime": 1786989459.7412517,
-    "ast_hash": "390d8400d98af6b687e2f590de8244c4",
+    "mtime": 1786987747.33903,
+    "ast_hash": "459de8ea639c86f26757abc0a17efb58",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/como-funciona-mcp-paso-a-paso.tsx": {
@@ -3942,76 +3942,6 @@
   "src/features/blog/data/articles/mcp-vs-function-calling-vs-rag.tsx": {
     "mtime": 1786987727.7339761,
     "ast_hash": "979ecdfae1bdeded3d2927fdf318ace8",
-    "semantic_hash": ""
-  },
-  "src/features/blog/components/ArticleHeader.tsx": {
-    "mtime": 1787004428.3710568,
-    "ast_hash": "63db7422aa9e438a63ec38daea08f5d8",
-    "semantic_hash": ""
-  },
-  "src/features/blog/components/ArticleToc.tsx": {
-    "mtime": 1787004428.3720574,
-    "ast_hash": "ebb9f239456737eb0a8cc85c813aa2d5",
-    "semantic_hash": ""
-  },
-  "src/features/blog/components/AuthorCard.tsx": {
-    "mtime": 1787004428.3720574,
-    "ast_hash": "20829ea1719d4ac10d93bc9d0809bc42",
-    "semantic_hash": ""
-  },
-  "src/features/blog/components/ReadingProgress.tsx": {
-    "mtime": 1787004428.3730576,
-    "ast_hash": "08755fca804563d43b86f106496d5f90",
-    "semantic_hash": ""
-  },
-  "src/features/blog/components/ShareButton.tsx": {
-    "mtime": 1787004428.3740566,
-    "ast_hash": "1a4bfde7b9fcf60dc56b1d89e76b5f31",
-    "semantic_hash": ""
-  },
-  "src/features/blog/components/articleView.test.tsx": {
-    "mtime": 1787004428.375057,
-    "ast_hash": "c09b24ffa8031d5e9750a8f08fdf65da",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/categories.test.ts": {
-    "mtime": 1787004428.375057,
-    "ast_hash": "61d1f2eec19e40c22c4021a7a8a47bad",
-    "semantic_hash": ""
-  },
-  "src/features/blog/utils/sectionId.test.ts": {
-    "mtime": 1787004428.376057,
-    "ast_hash": "9a59354e27b6cc5d9c4e0f079b7a18f4",
-    "semantic_hash": ""
-  },
-  "src/features/blog/utils/sectionId.ts": {
-    "mtime": 1787004428.377058,
-    "ast_hash": "b84c18b38a1906ff81b03e5e134eaf75",
-    "semantic_hash": ""
-  },
-  "src/features/seo/ArticleFaq.tsx": {
-    "mtime": 1787004428.3780591,
-    "ast_hash": "eb4377429314cd5e148f227fd8d65242",
-    "semantic_hash": ""
-  },
-  "src/features/seo/SectionAnchor.tsx": {
-    "mtime": 1787004428.3780591,
-    "ast_hash": "a68961bdd481a9546f4f9af5966f21e9",
-    "semantic_hash": ""
-  },
-  "specs/059-blog-lectura-visual/design.md": {
-    "mtime": 1787004428.369058,
-    "ast_hash": "95acbef79620b09971dcb3764bbf04a1",
-    "semantic_hash": ""
-  },
-  "specs/059-blog-lectura-visual/spec.md": {
-    "mtime": 1787004428.3700595,
-    "ast_hash": "acc1886fabbb8b6462c77b5550cda6da",
-    "semantic_hash": ""
-  },
-  "specs/059-blog-lectura-visual/tasks.md": {
-    "mtime": 1787004428.3700595,
-    "ast_hash": "9a8c847e2a2e6286a1193022db31668d",
     "semantic_hash": ""
   }
 }

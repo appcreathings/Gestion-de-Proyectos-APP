@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "Un hito marca un punto de control clave en cualquier proyecto. Aprendé a definirlos, diferenciarlos de las tareas y usarlos para avanzar con claridad.",
   category: "productividad",
   categoryLabel: "Productividad",
-  publishedAt: "2026-07-07",
+  publishedAt: "2026-08-08",
   readingTime: "6 min",
   featured: false,
   seo: {

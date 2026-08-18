@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "Gestionar por hitos es avanzar con puntos de control claros. Conocé la filosofía del Hito Project: proyectos locales, hitos verificables y cero dependencia de la nube.",
   category: "productividad",
   categoryLabel: "Productividad",
-  publishedAt: "2026-07-07",
+  publishedAt: "2026-08-10",
   readingTime: "7 min",
   featured: true,
   seo: {

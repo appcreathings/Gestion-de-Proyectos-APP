@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "7 alternativas a Notion según privacidad, precio y funciones: Hito, Obsidian, Trello, ClickUp, Anytype, Capacities y AppFlowy. Comparativa honesta.",
   category: "comparativas",
   categoryLabel: "Comparativas",
-  publishedAt: "2026-07-27",
+  publishedAt: "2026-08-13",
   readingTime: "10 min",
   featured: false,
   seo: {

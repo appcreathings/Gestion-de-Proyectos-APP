@@ -8,7 +8,7 @@ export const article: BlogArticle = {
     "Aprende a escribir SOPs y checklists que tu equipo realmente use. Sin wikis abandonados ni manuales que nadie lee.",
   category: "procesos",
   categoryLabel: "Procesos",
-  publishedAt: "2026-07-05",
+  publishedAt: "2026-08-02",
   readingTime: "7 min",
   featured: false,
   related: ["organizar-proyectos-tareas-jerarquia", "cierre-de-proyecto-checklist"],

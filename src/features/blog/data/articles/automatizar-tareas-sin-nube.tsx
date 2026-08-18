@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "Las automatizaciones no tienen por qué depender de servicios externos. Aprendé a crear reglas locales trigger→condición→acción que funcionan offline.",
   category: "automatizacion",
   categoryLabel: "Automatización",
-  publishedAt: "2026-07-05",
+  publishedAt: "2026-08-07",
   readingTime: "7 min",
   featured: false,
   seo: {

@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "Comparativa honesta entre Hito y Trello: privacidad, IA, precio y casos de uso. Descubre cuál te conviene según tu situación y cómo migrar.",
   category: "comparativas",
   categoryLabel: "Comparativas",
-  publishedAt: "2026-07-20",
+  publishedAt: "2026-08-12",
   readingTime: "9 min",
   featured: false,
   seo: {

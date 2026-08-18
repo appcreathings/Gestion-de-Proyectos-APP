@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "No necesitas más apps: necesitas una estructura clara. Descubre una jerarquía práctica para organizar proyectos, áreas, procesos y tareas.",
   category: "productividad",
   categoryLabel: "Productividad",
-  publishedAt: "2026-07-05",
+  publishedAt: "2026-08-05",
   readingTime: "7 min",
   featured: false,
   seo: {

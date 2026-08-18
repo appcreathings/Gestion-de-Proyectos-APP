@@ -8,7 +8,7 @@ export const article: BlogArticle = {
     "MCP explicado sin hype: qué es, para qué sirve y en qué se diferencia de function calling y RAG. Con un ejemplo real.",
   category: "inteligencia-artificial",
   categoryLabel: "Inteligencia artificial",
-  publishedAt: "2026-08-10",
+  publishedAt: "2026-08-16",
   readingTime: "9 min",
   featured: false,
   related: [

@@ -7,7 +7,7 @@ export const article: BlogArticle = {
     "Guía honesta para migrar de Trello a Hito: tabla de mapeo verificada, paso a paso y qué hacer con los datos sin equivalente directo. Sin promesas falsas.",
   category: "implementacion",
   categoryLabel: "Implementación",
-  publishedAt: "2026-08-03",
+  publishedAt: "2026-08-15",
   readingTime: "9 min",
   featured: false,
   seo: {
