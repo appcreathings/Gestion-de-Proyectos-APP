@@ -1,6 +1,7 @@
 import type { PartListUnion } from "@google/genai";
 import { getFunctionDeclarations } from "@/ai/tools";
 import { createClient } from "@/ai/gemini/client";
+import { parseGeminiUsage } from "@/ai/usage/parseUsage";
 import type {
   AiMessage,
   StreamTurnOptions,
@@ -31,6 +32,7 @@ export async function geminiStreamTurn(opts: StreamTurnOptions): Promise<StreamT
 
   const stream = await chat.sendMessageStream({ message });
   let text = "";
+  let lastMeta: unknown;
   const functionCalls: Array<{ id?: string; name?: string; args?: Record<string, unknown> }> = [];
 
   for await (const chunk of stream) {
@@ -42,6 +44,7 @@ export async function geminiStreamTurn(opts: StreamTurnOptions): Promise<StreamT
     if (chunk.functionCalls?.length) {
       functionCalls.push(...chunk.functionCalls);
     }
+    if (chunk.usageMetadata) lastMeta = chunk.usageMetadata;
   }
 
   const toolCalls: AiToolCall[] = functionCalls.map((fc) => ({
@@ -50,7 +53,7 @@ export async function geminiStreamTurn(opts: StreamTurnOptions): Promise<StreamT
     args: (fc.args as Record<string, unknown>) ?? {},
   }));
 
-  return { text, toolCalls };
+  return { text, toolCalls, usage: parseGeminiUsage(lastMeta) ?? undefined };
 }
 
 /**
