@@ -150,6 +150,18 @@ function sortRows(rows: MyTaskRow[], now: Date): MyTaskRow[] {
   });
 }
 
+function matchesDateFilter(
+  dueDate: string | null,
+  date: MyTasksDateFilter,
+  now: Date,
+): boolean {
+  const d = daysUntil(dueDate, now);
+  if (d === null) return false;
+  if (date === "overdue") return d < 0;
+  if (date === "due-soon") return d >= 0 && d <= 3;
+  return d >= 0 && d <= 7; // this-week
+}
+
 export function filterAndSortMyTasks(
   projects: Project[],
   query: MyTasksQuery,
@@ -162,11 +174,52 @@ export function filterAndSortMyTasks(
     ? assigned
     : assigned.filter((t) => t.status !== "done");
 
-  const rows = sortRows(afterHide, now);
+  const knownProjectIds = new Set(projects.map((p) => p.id));
+
+  let filtered = afterHide;
+  if (query.status) {
+    filtered = filtered.filter((t) => t.status === query.status);
+  }
+  if (query.priority) {
+    filtered = filtered.filter((t) => t.priority === query.priority);
+  }
+  if (query.date) {
+    filtered = filtered.filter((t) => matchesDateFilter(t.dueDate, query.date!, now));
+  }
+  if (query.projectId && knownProjectIds.has(query.projectId)) {
+    filtered = filtered.filter((t) => t.projectId === query.projectId);
+  }
+
+  const rows = sortRows(filtered, now);
+
+  const groups: MyTasksResult["groups"] = [];
+  const groupIndex = new Map<string, number>();
+  for (const row of rows) {
+    const existing = groupIndex.get(row.projectId);
+    if (existing === undefined) {
+      groupIndex.set(row.projectId, groups.length);
+      groups.push({
+        projectId: row.projectId,
+        projectName: row.projectName,
+        tasks: [row],
+      });
+    } else {
+      groups[existing].tasks.push(row);
+    }
+  }
+
+  const optionMap = new Map<string, string>();
+  for (const row of afterHide) {
+    if (!optionMap.has(row.projectId)) optionMap.set(row.projectId, row.projectName);
+  }
+  const projectOptions = [...optionMap.entries()]
+    .map(([id, name]) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
   return {
     rows,
-    groups: [],
-    projectOptions: [],
+    groups,
+    projectOptions,
     openCount: rows.filter((t) => t.status !== "done").length,
     totalCount: rows.length,
     assignedCount: assigned.length,

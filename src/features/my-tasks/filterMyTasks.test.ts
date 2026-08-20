@@ -160,3 +160,68 @@ describe("filterAndSortMyTasks hide-done / archive / sort", () => {
     expect(titles).toEqual(["C-soon", "C-none", "H-over", "H-later", "M", "L"]);
   });
 });
+
+describe("filterAndSortMyTasks filters / groups / options", () => {
+  it("date=overdue excludes undated and hidden done", () => {
+    const area = newArea("Core");
+    const projects = [
+      project(
+        "Alpha",
+        [
+          task({ title: "Over", dueDate: "2026-08-15", status: "todo" }),
+          task({ title: "Today", dueDate: "2026-08-20", status: "todo" }),
+          task({ title: "None", dueDate: null, status: "todo" }),
+          task({ title: "DoneOver", dueDate: "2026-08-10", status: "done" }),
+        ],
+        [area],
+      ),
+    ];
+    const hidden = filterAndSortMyTasks(projects, q({ date: "overdue" }), NOW);
+    expect(hidden.rows.map((r) => r.title)).toEqual(["Over"]);
+
+    const shown = filterAndSortMyTasks(
+      projects,
+      q({ date: "overdue", showDone: true }),
+      NOW,
+    );
+    expect(shown.rows.map((r) => r.title)).toEqual(["DoneOver", "Over"]);
+  });
+
+  it("project recorta; unknown id does not recortar", () => {
+    const alphaTasks = [task({ title: "A", priority: "high" })];
+    const betaTasks = [task({ title: "B", priority: "critical" })];
+    const alpha = project("Alpha", alphaTasks);
+    const beta = project("Beta", betaTasks);
+    const projects = [alpha, beta];
+
+    const cut = filterAndSortMyTasks(projects, q({ projectId: alpha.id }), NOW);
+    expect(cut.rows.map((r) => r.title)).toEqual(["A"]);
+
+    const unknown = filterAndSortMyTasks(projects, q({ projectId: "missing" }), NOW);
+    expect(unknown.rows.map((r) => r.title)).toEqual(["B", "A"]);
+  });
+
+  it("groups: most urgent project's group first; order preserved inside", () => {
+    const alpha = project("Alpha", [
+      task({ title: "A-low", priority: "low", dueDate: "2026-08-30" }),
+    ]);
+    const beta = project("Beta", [
+      task({ title: "B-crit", priority: "critical", dueDate: "2026-08-15" }),
+      task({ title: "B-med", priority: "medium", dueDate: "2026-08-20" }),
+    ]);
+    const result = filterAndSortMyTasks([alpha, beta], q(), NOW);
+    expect(result.rows.map((r) => r.title)).toEqual(["B-crit", "B-med", "A-low"]);
+    expect(result.groups.map((g) => g.projectName)).toEqual(["Beta", "Alpha"]);
+    expect(result.groups[0].tasks.map((t) => t.title)).toEqual(["B-crit", "B-med"]);
+  });
+
+  it("projectOptions omits a project that only has hidden done", () => {
+    const alpha = project("Alpha", [task({ title: "Open", status: "todo" })]);
+    const beta = project("Beta", [task({ title: "Done", status: "done" })]);
+    const hidden = filterAndSortMyTasks([alpha, beta], q(), NOW);
+    expect(hidden.projectOptions.map((o) => o.name)).toEqual(["Alpha"]);
+
+    const shown = filterAndSortMyTasks([alpha, beta], q({ showDone: true }), NOW);
+    expect(shown.projectOptions.map((o) => o.name)).toEqual(["Alpha", "Beta"]);
+  });
+});
