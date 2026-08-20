@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { UserCheck } from "lucide-react";
+import { UserCheck, ChevronDown, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
@@ -71,15 +71,18 @@ export function MyTasksPage() {
   function handleUpdateTask(updatedTask: Task) {
     if (!detailProject) return;
     mutate(detailProject.id, (p) => ops.updateTask(p, updatedTask));
-    if (detailTask) {
-      const area = detailProject.areas.find((a) => a.id === updatedTask.areaId);
-      setDetailTask({
-        ...updatedTask,
-        projectId: detailTask.projectId,
-        projectName: detailTask.projectName,
-        areaName: area?.name,
-      });
+    if (updatedTask.status === "done" && !query.showDone) {
+      setDetailTask(null);
+      setDetailProject(null);
+      return;
     }
+    const area = detailProject.areas.find((a) => a.id === updatedTask.areaId);
+    setDetailTask({
+      ...updatedTask,
+      projectId: detailProject.id,
+      projectName: detailProject.name,
+      areaName: area?.name,
+    });
   }
 
   return (
@@ -204,24 +207,64 @@ export function MyTasksPage() {
           title="Selecciona una persona"
           description="Elige una persona del selector superior para ver sus tareas asignadas."
         />
-      ) : result.rows.length === 0 ? (
+      ) : result.assignedCount === 0 ? (
         <EmptyState
           icon={UserCheck}
           title="No hay tareas asignadas"
-          description={`No hay tareas asignadas a ${selectedPerson?.name}.`}
+          description={`No hay tareas asignadas a ${selectedPerson.name}.`}
+        />
+      ) : result.totalCount === 0 && !hasActiveFilters && !query.showDone ? (
+        <EmptyState
+          icon={UserCheck}
+          title="No hay tareas abiertas"
+          description={`Todas las tareas de ${selectedPerson.name} están hechas.`}
+          action={
+            <Button type="button" size="sm" onClick={() => commit(applyShowDone(searchParams, true))}>
+              Mostrar hechas
+            </Button>
+          }
+        />
+      ) : result.totalCount === 0 ? (
+        <EmptyState
+          icon={UserCheck}
+          title="Ninguna coincide con los filtros"
+          description="Prueba a limpiar los filtros para volver a ver las tareas de esta persona."
+          action={
+            <Button type="button" size="sm" variant="outline" onClick={() => commit(clearMyTaskFilters(searchParams))}>
+              Limpiar filtros
+            </Button>
+          }
         />
       ) : (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {result.totalCount} tarea{result.totalCount !== 1 ? "s" : ""} asignada
-            {result.totalCount !== 1 ? "s" : ""} a{" "}
-            <span className="font-medium text-foreground">{selectedPerson?.name}</span>
+            {query.showDone
+              ? `${result.totalCount} tarea${result.totalCount !== 1 ? "s" : ""}`
+              : `${result.openCount} abierta${result.openCount !== 1 ? "s" : ""}`}
+            {" "}asignada{result.totalCount !== 1 ? "s" : ""} a{" "}
+            <span className="font-medium text-foreground">{selectedPerson.name}</span>
           </p>
-          <div className="divide-y divide-border/60 rounded-2xl border border-border/70 bg-background">
-            {result.rows.map((row) => (
-              <TaskRow key={row.id} task={row} onClick={() => openDetail(row)} />
-            ))}
-          </div>
+          {query.view === "project"
+            ? result.groups.map((g) => (
+                <ProjectTaskGroup
+                  key={g.projectId}
+                  projectName={g.projectName}
+                  tasks={g.tasks}
+                  onOpenDetail={openDetail}
+                />
+              ))
+            : (
+                <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/70 bg-background">
+                  {result.rows.map((row) => (
+                    <TaskRow
+                      key={row.id}
+                      task={row}
+                      showProjectName
+                      onClick={() => openDetail(row)}
+                    />
+                  ))}
+                </div>
+              )}
         </div>
       )}
 
@@ -240,7 +283,56 @@ export function MyTasksPage() {
   );
 }
 
-function TaskRow({ task, onClick }: { task: MyTaskRow; onClick: () => void }) {
+function ProjectTaskGroup({
+  projectName,
+  tasks,
+  onOpenDetail,
+}: {
+  projectName: string;
+  tasks: MyTaskRow[];
+  onOpenDetail: (t: MyTaskRow) => void;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <div className="rounded-2xl border border-border/70 bg-background">
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="flex w-full items-center gap-3 border-b border-border/60 p-4 text-left hover:bg-accent/50"
+      >
+        {collapsed ? (
+          <ChevronRight className="size-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="size-4 text-muted-foreground" />
+        )}
+        <span className="flex-1 font-semibold">{projectName}</span>
+        <Badge variant="secondary">{tasks.length}</Badge>
+      </button>
+      {!collapsed && (
+        <div className="divide-y divide-border/60">
+          {tasks.map((task) => (
+            <TaskRow
+              key={task.id}
+              task={task}
+              showProjectName={false}
+              onClick={() => onOpenDetail(task)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TaskRow({
+  task,
+  onClick,
+  showProjectName,
+}: {
+  task: MyTaskRow;
+  onClick: () => void;
+  showProjectName: boolean;
+}) {
   const d = daysUntil(task.dueDate);
   const overdue = task.status !== "done" && d !== null && d < 0;
   const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
@@ -259,8 +351,12 @@ function TaskRow({ task, onClick }: { task: MyTaskRow; onClick: () => void }) {
       </Badge>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{task.title}</p>
-        {task.areaName && (
-          <p className="text-xs text-muted-foreground truncate">{task.areaName}</p>
+        {(showProjectName || task.areaName) && (
+          <p className="truncate text-xs text-muted-foreground">
+            {showProjectName ? task.projectName : null}
+            {showProjectName && task.areaName ? " · " : null}
+            {task.areaName}
+          </p>
         )}
       </div>
       {task.dueDate && (
