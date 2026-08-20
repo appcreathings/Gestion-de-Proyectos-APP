@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { UserCheck, ChevronDown, ChevronRight } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { daysUntil } from "@/domain/compute";
@@ -12,12 +14,15 @@ import { useDataStore } from "@/store/useDataStore";
 import type { Project, Task } from "@/domain/schemas";
 import { TaskDetailDrawer } from "@/features/projects/components/kanban/TaskDetailDrawer";
 import * as ops from "@/domain/projectOps";
-
-interface TaskWithProject extends Task {
-  project: Project;
-  projectName: string;
-  areaName?: string;
-}
+import {
+  applyFilter,
+  applyShowDone,
+  applyStatus,
+  clearMyTaskFilters,
+  filterAndSortMyTasks,
+  parseMyTasksQuery,
+  type MyTaskRow,
+} from "./filterMyTasks";
 
 export function MyTasksPage() {
   const projects = useDataStore((s) => s.projects);
@@ -25,59 +30,37 @@ export function MyTasksPage() {
   const mutate = useDataStore((s) => s.mutateProject);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const selectedPersonId = searchParams.get("person");
-  const statusFilter = searchParams.get("status");
+  const query = useMemo(() => parseMyTasksQuery(searchParams), [searchParams]);
+  const selectedPerson = query.personId
+    ? people.find((p) => p.id === query.personId) ?? null
+    : null;
 
-  const selectedPerson = selectedPersonId ? people.find((p) => p.id === selectedPersonId) : null;
-
-  // Get all tasks assigned to the selected person
-  const tasksByProject = useMemo(() => {
-    if (!selectedPersonId) return new Map<string, { project: Project; tasks: TaskWithProject[] }>();
-
-    const result = new Map<string, { project: Project; tasks: TaskWithProject[] }>();
-
-    for (const project of projects) {
-      const tasks: TaskWithProject[] = [];
-
-      for (const task of project.tasks) {
-        if (task.assigneeId !== selectedPersonId) continue;
-        if (task.archived) continue;
-
-        // Apply status filter
-        if (statusFilter && task.status !== statusFilter) continue;
-
-        const area = project.areas.find((a) => a.id === task.areaId);
-        tasks.push({
-          ...task,
-          project,
-          projectName: project.name,
-          areaName: area?.name,
-        });
-      }
-
-      if (tasks.length > 0) {
-        result.set(project.id, { project, tasks });
-      }
+  useEffect(() => {
+    if (query.personId && !selectedPerson) {
+      setSearchParams(applyFilter(searchParams, "person", null), { replace: true });
     }
+  }, [query.personId, selectedPerson, searchParams, setSearchParams]);
 
-    return result;
-  }, [projects, selectedPersonId, statusFilter]);
+  const result = useMemo(
+    () => filterAndSortMyTasks(projects, query, new Date()),
+    [projects, query],
+  );
 
-  const totalTasks = useMemo(() => {
-    let count = 0;
-    for (const { tasks } of tasksByProject.values()) {
-      count += tasks.length;
-    }
-    return count;
-  }, [tasksByProject]);
+  const hasActiveFilters = Boolean(
+    query.status || query.priority || query.date || query.projectId,
+  );
 
-  // Detail drawer state
-  const [detailTask, setDetailTask] = useState<TaskWithProject | null>(null);
+  function commit(next: URLSearchParams) {
+    setSearchParams(next, { replace: true });
+  }
+
+  const [detailTask, setDetailTask] = useState<MyTaskRow | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
 
-  function openDetail(task: TaskWithProject) {
-    setDetailTask(task);
-    setDetailProject(task.project);
+  function openDetail(row: MyTaskRow) {
+    const project = projects.find((p) => p.id === row.projectId) ?? null;
+    setDetailTask(row);
+    setDetailProject(project);
   }
 
   function closeDetail() {
@@ -88,27 +71,15 @@ export function MyTasksPage() {
   function handleUpdateTask(updatedTask: Task) {
     if (!detailProject) return;
     mutate(detailProject.id, (p) => ops.updateTask(p, updatedTask));
-    setDetailTask({ ...updatedTask, project: detailProject, projectName: detailProject.name });
-  }
-
-  function setPerson(personId: string | null) {
-    const next = new URLSearchParams(searchParams);
-    if (personId) {
-      next.set("person", personId);
-    } else {
-      next.delete("person");
+    if (detailTask) {
+      const area = detailProject.areas.find((a) => a.id === updatedTask.areaId);
+      setDetailTask({
+        ...updatedTask,
+        projectId: detailTask.projectId,
+        projectName: detailTask.projectName,
+        areaName: area?.name,
+      });
     }
-    setSearchParams(next, { replace: true });
-  }
-
-  function setStatus(status: string | null) {
-    const next = new URLSearchParams(searchParams);
-    if (status) {
-      next.set("status", status);
-    } else {
-      next.delete("status");
-    }
-    setSearchParams(next, { replace: true });
   }
 
   return (
@@ -119,66 +90,138 @@ export function MyTasksPage() {
         description="Vista unificada de todas tus tareas asignadas en todos los proyectos."
       />
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <label className="mb-1.5 block text-sm font-medium">Persona</label>
-          <Select
-            value={selectedPersonId ?? ""}
-            onChange={(e) => setPerson(e.target.value || null)}
-          >
-            <option value="">Seleccionar persona...</option>
-            {people.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </Select>
+      <div className="mb-6 flex flex-col gap-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-[12rem] flex-1">
+            <label className="mb-1.5 block text-sm font-medium">Persona</label>
+            <Select
+              value={query.personId ?? ""}
+              onChange={(e) => commit(applyFilter(searchParams, "person", e.target.value || null))}
+            >
+              <option value="">Seleccionar persona...</option>
+              {people.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </Select>
+          </div>
+
+          <label className="mb-2 flex items-center gap-2 text-sm font-medium">
+            <Checkbox
+              checked={query.showDone}
+              onCheckedChange={(c) => commit(applyShowDone(searchParams, c))}
+              aria-label="Mostrar hechas"
+            />
+            Mostrar hechas
+          </label>
+
+          <div className="min-w-[9rem] flex-1">
+            <label className="mb-1.5 block text-sm font-medium">Estado</label>
+            <Select
+              value={query.status ?? ""}
+              onChange={(e) => commit(applyStatus(searchParams, e.target.value || null))}
+            >
+              <option value="">Todos</option>
+              <option value="todo">Por hacer</option>
+              <option value="doing">En curso</option>
+              <option value="blocked">Bloqueada</option>
+              <option value="done">Hecha</option>
+            </Select>
+          </div>
+
+          <div className="min-w-[9rem] flex-1">
+            <label className="mb-1.5 block text-sm font-medium">Prioridad</label>
+            <Select
+              value={query.priority ?? ""}
+              onChange={(e) => commit(applyFilter(searchParams, "priority", e.target.value || null))}
+            >
+              <option value="">Todas</option>
+              <option value="critical">Crítica</option>
+              <option value="high">Alta</option>
+              <option value="medium">Media</option>
+              <option value="low">Baja</option>
+            </Select>
+          </div>
+
+          <div className="min-w-[11rem] flex-1">
+            <label className="mb-1.5 block text-sm font-medium">Vencimiento</label>
+            <Select
+              value={query.date ?? ""}
+              onChange={(e) => commit(applyFilter(searchParams, "date", e.target.value || null))}
+            >
+              <option value="">Todas</option>
+              <option value="overdue">Vencidas</option>
+              <option value="due-soon">Por vencer (3 días)</option>
+              <option value="this-week">Esta semana</option>
+            </Select>
+          </div>
+
+          <div className="min-w-[11rem] flex-1">
+            <label className="mb-1.5 block text-sm font-medium">Proyecto</label>
+            <Select
+              value={query.projectId ?? ""}
+              onChange={(e) => commit(applyFilter(searchParams, "project", e.target.value || null))}
+            >
+              <option value="">Todos</option>
+              {result.projectOptions.map((o) => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </Select>
+          </div>
         </div>
-        <div className="flex-1">
-          <label className="mb-1.5 block text-sm font-medium">Estado</label>
-          <Select
-            value={statusFilter ?? ""}
-            onChange={(e) => setStatus(e.target.value || null)}
-          >
-            <option value="">Todos</option>
-            <option value="todo">Por hacer</option>
-            <option value="doing">En curso</option>
-            <option value="blocked">Bloqueada</option>
-            <option value="done">Hecha</option>
-          </Select>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center rounded-md border border-border/70">
+            <Button
+              type="button"
+              variant={query.view === "priority" ? "secondary" : "ghost"}
+              size="sm"
+              className="rounded-r-none"
+              onClick={() => commit(applyFilter(searchParams, "view", null))}
+            >
+              Por prioridad
+            </Button>
+            <Button
+              type="button"
+              variant={query.view === "project" ? "secondary" : "ghost"}
+              size="sm"
+              className="rounded-l-none"
+              onClick={() => commit(applyFilter(searchParams, "view", "project"))}
+            >
+              Por proyecto
+            </Button>
+          </div>
+          {hasActiveFilters && (
+            <Button type="button" variant="ghost" size="sm" onClick={() => commit(clearMyTaskFilters(searchParams))}>
+              Limpiar filtros
+            </Button>
+          )}
         </div>
       </div>
 
-      {!selectedPersonId ? (
+      {!query.personId || !selectedPerson ? (
         <EmptyState
           icon={UserCheck}
           title="Selecciona una persona"
           description="Elige una persona del selector superior para ver sus tareas asignadas."
         />
-      ) : totalTasks === 0 ? (
+      ) : result.rows.length === 0 ? (
         <EmptyState
           icon={UserCheck}
           title="No hay tareas asignadas"
-          description={
-            statusFilter
-              ? `No hay tareas con estado "${taskStatusLabel[statusFilter as keyof typeof taskStatusLabel]}" asignadas a ${selectedPerson?.name}.`
-              : `No hay tareas asignadas a ${selectedPerson?.name}.`
-          }
+          description={`No hay tareas asignadas a ${selectedPerson?.name}.`}
         />
       ) : (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {totalTasks} tarea{totalTasks !== 1 ? "s" : ""} asignada{totalTasks !== 1 ? "s" : ""} a{" "}
+            {result.totalCount} tarea{result.totalCount !== 1 ? "s" : ""} asignada
+            {result.totalCount !== 1 ? "s" : ""} a{" "}
             <span className="font-medium text-foreground">{selectedPerson?.name}</span>
           </p>
-          {Array.from(tasksByProject.entries()).map(([projectId, { project, tasks }]) => (
-            <ProjectTaskGroup
-              key={projectId}
-              project={project}
-              tasks={tasks}
-              onOpenDetail={openDetail}
-            />
-          ))}
+          <div className="divide-y divide-border/60 rounded-2xl border border-border/70 bg-background">
+            {result.rows.map((row) => (
+              <TaskRow key={row.id} task={row} onClick={() => openDetail(row)} />
+            ))}
+          </div>
         </div>
       )}
 
@@ -197,43 +240,7 @@ export function MyTasksPage() {
   );
 }
 
-function ProjectTaskGroup({
-  project,
-  tasks,
-  onOpenDetail,
-}: {
-  project: Project;
-  tasks: TaskWithProject[];
-  onOpenDetail: (task: TaskWithProject) => void;
-}) {
-  const [collapsed, setCollapsed] = useState(false);
-
-  return (
-    <div className="rounded-2xl border border-border/70 bg-background">
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="flex w-full items-center gap-3 border-b border-border/60 p-4 text-left hover:bg-accent/50"
-      >
-        {collapsed ? (
-          <ChevronRight className="size-4 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="size-4 text-muted-foreground" />
-        )}
-        <span className="flex-1 font-semibold">{project.name}</span>
-        <Badge variant="secondary">{tasks.length}</Badge>
-      </button>
-      {!collapsed && (
-        <div className="divide-y divide-border/60">
-          {tasks.map((task) => (
-            <TaskRow key={task.id} task={task} onClick={() => onOpenDetail(task)} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TaskRow({ task, onClick }: { task: TaskWithProject; onClick: () => void }) {
+function TaskRow({ task, onClick }: { task: MyTaskRow; onClick: () => void }) {
   const d = daysUntil(task.dueDate);
   const overdue = task.status !== "done" && d !== null && d < 0;
   const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
