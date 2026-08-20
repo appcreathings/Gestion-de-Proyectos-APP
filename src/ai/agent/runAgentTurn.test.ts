@@ -23,8 +23,13 @@ const FLASH_MODELS = [
 type Behavior =
   | { kind: "rate-limit" }
   | { kind: "project-quota-zero" }
-  | { kind: "ok-text"; text?: string }
-  | { kind: "ok-tools"; text?: string; toolCalls: StreamTurnResult["toolCalls"] };
+  | { kind: "ok-text"; text?: string; usage?: StreamTurnResult["usage"] }
+  | {
+      kind: "ok-tools";
+      text?: string;
+      toolCalls: StreamTurnResult["toolCalls"];
+      usage?: StreamTurnResult["usage"];
+    };
 
 function makeFakeProvider(sequence: Behavior[]): {
   provider: AiProvider;
@@ -50,11 +55,11 @@ function makeFakeProvider(sequence: Behavior[]): {
       if (b.kind === "project-quota-zero") throw new Error("project-quota-zero");
       if (b.kind === "ok-tools") {
         if (b.text) opts.onTextDelta(b.text);
-        return { text: b.text ?? "", toolCalls: b.toolCalls };
+        return { text: b.text ?? "", toolCalls: b.toolCalls, usage: b.usage };
       }
       const text = b.text ?? "Hola";
       opts.onTextDelta(text);
-      return { text, toolCalls: [] };
+      return { text, toolCalls: [], usage: b.usage };
     },
   };
   return { provider, streamCalls: () => streams };
@@ -382,5 +387,61 @@ describe("runAgentTurn — bucle de fallback real (spec 031, provider-agnóstico
       error: expect.stringContaining("Argumentos inválidos"),
     });
     expect(result.error).toBeUndefined();
+  });
+});
+
+describe("runAgentTurn — accounting por ronda (spec 060 D4 / CA-01.4)", () => {
+  beforeEach(() => {
+    // El limiter es un singleton: las 8 rondas de MAX_ROUNDS ya llenan rpm:6 de flash.
+    const windows = (rateLimiter as unknown as { windows: Map<string, unknown> }).windows;
+    for (const id of FLASH_MODELS) windows.delete(id);
+  });
+
+  it("registra 2 recordRequest en 1 tool-round + 1 texto final", async () => {
+    const { provider } = makeFakeProvider([
+      { kind: "ok-tools", toolCalls: [{ id: "c1", name: "missing", args: {} }] },
+      { kind: "ok-text", text: "listo" },
+    ]);
+    const before = rateLimiter.getStatus("gemini:gemini-2.5-flash").rpmUsed;
+    const result = await runAgentTurn(baseOpts(provider));
+    expect(result.error).toBeUndefined();
+    expect(result.rounds).toBe(2);
+    expect(result.usages.length).toBe(2);
+    expect(rateLimiter.getStatus("gemini:gemini-2.5-flash").rpmUsed).toBe(before + 2);
+  });
+
+  it("no incrementa rpmUsed cuando todos los streamTurn lanzan rate-limit", async () => {
+    const { provider } = makeFakeProvider([
+      { kind: "rate-limit" },
+      { kind: "rate-limit" },
+      { kind: "rate-limit" },
+      { kind: "rate-limit" },
+    ]);
+    const before = rateLimiter.getStatus("gemini:gemini-2.5-flash").rpmUsed;
+    const result = await runAgentTurn(baseOpts(provider));
+    expect(result.error).toBe("all-models-exhausted");
+    expect(result.rounds).toBe(0);
+    expect(rateLimiter.getStatus("gemini:gemini-2.5-flash").rpmUsed).toBe(before);
+  });
+
+  it("usa TokenUsage del proveedor cuando streamTurn lo devuelve", async () => {
+    const { provider } = makeFakeProvider([
+      {
+        kind: "ok-text",
+        text: "hola",
+        usage: { inputTokens: 10, outputTokens: 2, totalTokens: 12, source: "provider" },
+      },
+    ]);
+    const result = await runAgentTurn(baseOpts(provider));
+    expect(result.error).toBeUndefined();
+    expect(result.rounds).toBe(1);
+    expect(result.usages).toHaveLength(1);
+    expect(result.usages[0].source).toBe("provider");
+    expect(result.usages[0]).toEqual({
+      inputTokens: 10,
+      outputTokens: 2,
+      totalTokens: 12,
+      source: "provider",
+    });
   });
 });
