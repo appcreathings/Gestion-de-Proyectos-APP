@@ -5,6 +5,7 @@ import {
   createToolCallAccumulator,
   finalizeToolCalls,
   parseOpenAiChunk,
+  parseOpenAiUsageField,
   toOpenAiMessages,
 } from "./mapping";
 
@@ -115,5 +116,24 @@ describe("parseOpenAiChunk", () => {
 
   it("devuelve null si el JSON está roto", () => {
     expect(parseOpenAiChunk("{")).toBeNull();
+  });
+});
+
+describe("parseOpenAiUsageField (spec 060)", () => {
+  it("reads usage on a trailer chunk with empty choices", () => {
+    const raw = JSON.stringify({
+      choices: [],
+      usage: { prompt_tokens: 11, completion_tokens: 2, total_tokens: 13 },
+    });
+    expect(parseOpenAiUsageField(raw)).toEqual({
+      prompt_tokens: 11,
+      completion_tokens: 2,
+      total_tokens: 13,
+    });
+  });
+
+  it("returns null when usage is absent or JSON is broken", () => {
+    expect(parseOpenAiUsageField("{\"choices\":[{}]}")).toBeNull();
+    expect(parseOpenAiUsageField("not-json")).toBeNull();
   });
 });
