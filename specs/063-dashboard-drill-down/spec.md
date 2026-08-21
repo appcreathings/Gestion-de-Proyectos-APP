@@ -1,6 +1,6 @@
 # Spec 063 — Dashboard: drill-down a listas filtradas
 
-> Estado: **PROPUESTO**
+> Estado: **IMPLEMENTADO**
 > Feature dir: `specs/063-dashboard-drill-down/` · Fecha: 2026-08-20
 > Baseline: `SCHEMA_VERSION` **sin bump** (solo UI + searchParams)
 > Depende de (reusa): Spec 061 (contrato URL de Mis tareas), Spec 017 HU-14 (KPI click, implementado a medias: todo cae en `/app/projects` sin filtro), `computePortfolio` / `effectiveHealth` / `isStalled`.
@@ -156,11 +156,11 @@ No se inventa `date=` en esta ruta: las fechas urgentes no son un atributo de pr
 
 ## 10. Definición de hecho
 
-- [ ] Spec revisado por el usuario
-- [ ] HU-01…HU-04
-- [ ] Tests §9 verdes
-- [ ] `typecheck` + suite
-- [ ] Smoke: click Activos / Estancados / Rojo / persona; recargar URL; hash vencimientos
+- [x] Spec revisado por el usuario
+- [x] HU-01…HU-04
+- [x] Tests §9 verdes
+- [x] `typecheck` + suite
+- [x] Smoke: click Activos / Estancados / Rojo / persona; recargar URL; hash vencimientos (verificación estática + build; sin browser interactivo)
 
 ## 11. Documentos
 
