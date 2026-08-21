@@ -13,6 +13,7 @@ import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels
 import { useDataStore } from "@/store/useDataStore";
 import type { Project, Task } from "@/domain/schemas";
 import { TaskDetailDrawer } from "@/features/projects/components/kanban/TaskDetailDrawer";
+import { WorkTypeBadge } from "@/features/projects/components/kanban/WorkTypeBadge";
 import * as ops from "@/domain/projectOps";
 import {
   applyFilter,
@@ -346,6 +347,7 @@ function TaskRow({
         dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
       )}
     >
+      <WorkTypeBadge workType={task.workType} />
       <Badge variant={priorityVariant[task.priority]} className="text-xs">
         {priorityLabel[task.priority]}
       </Badge>

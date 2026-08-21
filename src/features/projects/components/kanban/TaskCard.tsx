@@ -28,8 +28,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn, highlightText } from "@/lib/utils";
 import { daysUntil } from "@/domain/compute";
+import { krProgress } from "@/domain/krProgress";
 import { priorityLabel, priorityVariant } from "@/domain/labels";
 import type { Area, Person, Sprint, Task } from "@/domain/schemas";
+import { WorkTypeBadge } from "./WorkTypeBadge";
 
 interface Props {
   task: Task;
@@ -164,6 +166,7 @@ export function TaskCard({
           badges/actions so the origin slot reads as a calm hole rather than a duplicate card. */}
       {!isPlaceholder && (
         <div className="mt-0 mb-1.5 flex flex-wrap items-center gap-1">
+          <WorkTypeBadge workType={task.workType} />
           <Badge variant={priorityVariant[task.priority]} className="text-[11px] leading-tight px-1.5 py-0.5">
             {priorityLabel[task.priority]}
           </Badge>
@@ -248,6 +251,21 @@ export function TaskCard({
           )}
         </div>
       )}
+      {/* Barra KR compacta (spec 062 D8): solo si el tipo es key result y hay números. */}
+      {!isPlaceholder && task.workType === "key_result" && (() => {
+        const p = krProgress(task.krCurrent ?? null, task.krTarget ?? null);
+        if (p === null) return null;
+        return (
+          <div className="mb-1.5">
+            <div className="h-1 rounded-full bg-muted">
+              <div
+                className="h-1 rounded-full bg-primary"
+                style={{ width: `${Math.round(p * 100)}%` }}
+              />
+            </div>
+          </div>
+        );
+      })()}
       {!isOverlay && !isPlaceholder && (
         <div className="mt-auto flex items-center justify-end gap-0.5 border-t border-border/50 pt-2">
           {/* Spec 054: targets ≥44px en móvil (max-sm:size-11). */}

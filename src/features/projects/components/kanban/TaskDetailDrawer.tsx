@@ -11,8 +11,9 @@ import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { RichTextField } from "@/components/forms/RichTextField";
-import { priorityLabel, taskStatusLabel, TASK_COLUMNS } from "@/domain/labels";
+import { priorityLabel, taskStatusLabel, TASK_COLUMNS, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
+import { krProgress } from "@/domain/krProgress";
 import { uuid, nowIso, cn } from "@/lib/utils";
 import {
   MAX_TASK_LINKS,
@@ -29,6 +30,7 @@ import type {
   Task,
   TaskLink,
   TaskStatus,
+  WorkType,
 } from "@/domain/schemas";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 import { useChatStore } from "@/store/useChatStore";
@@ -59,6 +61,11 @@ export function TaskDetailDrawer({
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>("todo");
   const [priority, setPriority] = useState<Priority>("medium");
+  const [workType, setWorkType] = useState<WorkType>("task");
+  // Métrica KR como strings — vacío → null; nunca se persiste NaN (spec 062 D8).
+  const [krCurrent, setKrCurrent] = useState("");
+  const [krTarget, setKrTarget] = useState("");
+  const [krUnit, setKrUnit] = useState("");
   const [areaId, setAreaId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -112,6 +119,10 @@ export function TaskDetailDrawer({
       setDescription(task.description);
       setStatus(task.status);
       setPriority(task.priority);
+      setWorkType(task.workType ?? "task");
+      setKrCurrent(task.krCurrent !== null && task.krCurrent !== undefined ? String(task.krCurrent) : "");
+      setKrTarget(task.krTarget !== null && task.krTarget !== undefined ? String(task.krTarget) : "");
+      setKrUnit(task.krUnit ?? "");
       setAreaId(task.areaId ?? "");
       setAssigneeId(task.assigneeId ?? "");
       setDueDate(task.dueDate ?? "");
@@ -209,6 +220,36 @@ export function TaskDetailDrawer({
     },
     [task, onUpdate],
   );
+
+  const handleKrNumberChange = useCallback(
+    (field: "krCurrent" | "krTarget", value: string) => {
+      if (!task) return;
+      if (field === "krCurrent") setKrCurrent(value);
+      else setKrTarget(value);
+      const trimmed = value.trim();
+      // Vacío → null (KR cualitativo). No finito → no se toca el draft ni se
+      // persiste: nunca guardar NaN.
+      if (trimmed === "") {
+        if ((task[field] ?? null) !== null) {
+          onUpdate({ ...task, [field]: null, updatedAt: nowIso() });
+        }
+        return;
+      }
+      const num = Number(trimmed);
+      if (!Number.isFinite(num)) return;
+      if (num === (task[field] ?? null)) return;
+      onUpdate({ ...task, [field]: num, updatedAt: nowIso() });
+    },
+    [task, onUpdate],
+  );
+
+  const handleKrUnitBlur = useCallback(() => {
+    if (!task) return;
+    const next = krUnit.trim();
+    if (next !== (task.krUnit ?? "")) {
+      onUpdate({ ...task, krUnit: next, updatedAt: nowIso() });
+    }
+  }, [task, krUnit, onUpdate]);
 
   const addSubtask = useCallback(() => {
     if (!task || !newSubtaskTitle.trim()) return;
@@ -321,6 +362,9 @@ export function TaskDetailDrawer({
           break;
         case "priority":
           if (value !== task.priority) updates.priority = value as Priority;
+          break;
+        case "workType":
+          if (value !== task.workType) updates.workType = value as WorkType;
           break;
         case "areaId":
           {
@@ -599,6 +643,9 @@ export function TaskDetailDrawer({
                 placeholder="Añade contexto, criterios de aceptación o notas relevantes..."
                 textareaClassName="min-h-[120px]"
               />
+              {workType === "prd" && (
+                <p className="text-xs text-muted-foreground">El PRD vive en la descripción.</p>
+              )}
             </div>
 
             {/* Links externos — chips compactos (spec 043) */}
@@ -812,7 +859,94 @@ export function TaskDetailDrawer({
                   ))}
                 </Select>
               </div>
+              <div className="grid gap-1.5 col-span-2 md:col-span-1">
+                <Label htmlFor="d-worktype" className="text-xs text-muted-foreground">
+                  Tipo
+                </Label>
+                <Select
+                  id="d-worktype"
+                  value={workType}
+                  onChange={(e) => {
+                    setWorkType(e.target.value as WorkType);
+                    persist("workType", e.target.value);
+                  }}
+                >
+                  {WORK_TYPE_OPTIONS.map((v) => (
+                    <option key={v} value={v}>
+                      {workTypeLabel[v]}
+                    </option>
+                  ))}
+                </Select>
+              </div>
             </div>
+
+            {/* Métrica de key result (spec 062 D8): solo si el tipo es key_result. */}
+            {workType === "key_result" && (
+              <div className="grid gap-1.5">
+                <Label className="text-xs text-muted-foreground">Key result</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="grid gap-1">
+                    <Label htmlFor="d-kr-current" className="text-[10px] text-muted-foreground">
+                      Actual
+                    </Label>
+                    <Input
+                      id="d-kr-current"
+                      type="number"
+                      step="any"
+                      value={krCurrent}
+                      onChange={(e) => handleKrNumberChange("krCurrent", e.target.value)}
+                      placeholder="40"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    <Label htmlFor="d-kr-target" className="text-[10px] text-muted-foreground">
+                      Meta
+                    </Label>
+                    <Input
+                      id="d-kr-target"
+                      type="number"
+                      step="any"
+                      value={krTarget}
+                      onChange={(e) => handleKrNumberChange("krTarget", e.target.value)}
+                      placeholder="55"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    <Label htmlFor="d-kr-unit" className="text-[10px] text-muted-foreground">
+                      Unidad
+                    </Label>
+                    <Input
+                      id="d-kr-unit"
+                      value={krUnit}
+                      onChange={(e) => setKrUnit(e.target.value)}
+                      onBlur={handleKrUnitBlur}
+                      placeholder="%"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+                {(() => {
+                  const p = krProgress(task.krCurrent ?? null, task.krTarget ?? null);
+                  if (p === null) return null;
+                  return (
+                    <div className="space-y-1">
+                      <div className="h-1 rounded-full bg-muted">
+                        <div
+                          className="h-1 rounded-full bg-primary"
+                          style={{ width: `${Math.round(p * 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        {task.krCurrent} / {task.krTarget}
+                        {task.krUnit ? ` ${task.krUnit}` : ""} · {Math.round(p * 100)}%
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
@@ -885,7 +1019,7 @@ export function TaskDetailDrawer({
 
             <div className="grid gap-1.5">
               <Label htmlFor="d-estimate" className="text-xs text-muted-foreground">
-                Estimación (horas)
+                {workType === "spike" ? "Time-box (h)" : "Estimación (horas)"}
               </Label>
               <Input
                 id="d-estimate"
@@ -897,6 +1031,11 @@ export function TaskDetailDrawer({
                 placeholder="Ej: 8"
                 className="text-sm"
               />
+              {workType === "spike" && (
+                <p className="text-xs text-muted-foreground">
+                  Techo de horas para la prueba de concepto. No es una promesa de entrega.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-1.5">
