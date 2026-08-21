@@ -1,6 +1,6 @@
 # Spec 062 — Tipos de trabajo (historia, enabler, spike, key result, bug, PRD, tarea)
 
-> Estado: **BORRADOR** (listo para implementación; no re-preguntar el alcance)
+> Estado: **IMPLEMENTADO**
 > Feature dir: `specs/062-tipos-de-trabajo/` · Fecha: 2026-08-20
 > Baseline al empezar: `SCHEMA_VERSION` **21** → **22**
 > Depende de: 017 (estimate, Kanban filters), 061 (Mis tareas URL)
@@ -147,42 +147,42 @@ no se valida). Anexos (042) para mockups.
 **Como** PM, **quiero** marcar el tipo de una tarea **para** que el tablero distinga
 spikes, bugs y PRDs.
 
-- [ ] Select **Tipo** en `TaskFormDialog` y `TaskDetailDrawer` (junto a prioridad).
-- [ ] Default al crear: Tarea.
-- [ ] Al cambiar a Spike, el label de estimación pasa a “Time-box (h)” + ayuda.
-- [ ] Al cambiar a Key result, aparecen Actual / Meta / Unidad.
-- [ ] Al cambiar a PRD, aparece el helper de descripción.
-- [ ] Guardar persiste `workType` (y KR si aplica).
+- [x] Select **Tipo** en `TaskFormDialog` y `TaskDetailDrawer` (junto a prioridad).
+- [x] Default al crear: Tarea.
+- [x] Al cambiar a Spike, el label de estimación pasa a “Time-box (h)” + ayuda.
+- [x] Al cambiar a Key result, aparecen Actual / Meta / Unidad.
+- [x] Al cambiar a PRD, aparece el helper de descripción.
+- [x] Guardar persiste `workType` (y KR si aplica).
 
 ### HU-02 — Ver el tipo de un vistazo
 
-- [ ] `TaskCard`: badge con label si `workType !== "task"`.
-- [ ] Mis tareas (fila): el mismo criterio, a la izquierda del badge de prioridad
+- [x] `TaskCard`: badge con label si `workType !== "task"`.
+- [x] Mis tareas (fila): el mismo criterio, a la izquierda del badge de prioridad
       o junto al título.
-- [ ] Kanban lista (`KanbanListView`): igual que la card.
+- [x] Kanban lista (`KanbanListView`): igual que la card.
 
 ### HU-03 — Filtrar por tipo
 
-- [ ] Kanban: el menú Filtros gana **Tipo** (Todas + los 7). Param `workType`.
+- [x] Kanban: el menú Filtros gana **Tipo** (Todas + los 7). Param `workType`.
       Se combina AND con área/sprint/prioridad/assignee/fecha/búsqueda.
-- [ ] Mis tareas: Select **Tipo**; param `workType`; entra en Limpiar filtros.
-- [ ] `filterAndSortMyTasks` recorta por `query.workType` después de prioridad
+- [x] Mis tareas: Select **Tipo**; param `workType`; entra en Limpiar filtros.
+- [x] `filterAndSortMyTasks` recorta por `query.workType` después de prioridad
       y antes de fecha (un paso más en el pipeline 061).
-- [ ] Valor inválido: se ignora.
+- [x] Valor inválido: se ignora.
 
 ### HU-04 — Key result medible
 
-- [ ] Si tipo = key result, drawer muestra los tres campos numéricos/texto.
-- [ ] Si `krCurrent` y `krTarget` son números y target ≠ 0, una barrita
+- [x] Si tipo = key result, drawer muestra los tres campos numéricos/texto.
+- [x] Si `krCurrent` y `krTarget` son números y target ≠ 0, una barrita
       `clamp(current/target, 0, 1)` en drawer y, compacta, en la card.
-- [ ] Vacío es válido (KR cualitativo por ahora).
-- [ ] Inputs no numéricos no se guardan como `NaN` (se deja `null`).
+- [x] Vacío es válido (KR cualitativo por ahora).
+- [x] Inputs no numéricos no se guardan como `NaN` (se deja `null`).
 
 ### HU-05 — IA y flujos no inventan otro default
 
-- [ ] `create_task` / `update_task` aceptan `workType` (enum). Ausente → `task`.
-- [ ] `CreateTaskOutput.workType` opcional; `newTask` cubre el default.
-- [ ] Serializers de tarea (`taskView`) incluyen `workType` para que la IA lo lea.
+- [x] `create_task` / `update_task` aceptan `workType` (enum). Ausente → `task`.
+- [x] `CreateTaskOutput.workType` opcional; `newTask` cubre el default.
+- [x] Serializers de tarea (`taskView`) incluyen `workType` para que la IA lo lea.
 
 ## 8. Archivos (mapa)
 
@@ -243,8 +243,8 @@ Vitest, sin test de componente de página salvo que ya exista patrón barato.
 
 ## 12. Definición de hecho
 
-- [ ] HU-01…HU-05
-- [ ] Tests §9 verdes; `typecheck` + suite (`--exclude ".worktrees/**"`)
-- [ ] Migración 22 en projects y flows
-- [ ] `graphify update .`
-- [ ] Spec → **IMPLEMENTADO**
+- [x] HU-01…HU-05
+- [x] Tests §9 verdes; `typecheck` + suite (`--exclude ".worktrees/**"`)
+- [x] Migración 22 en projects y flows
+- [x] `graphify update .`
+- [x] Spec → **IMPLEMENTADO**
