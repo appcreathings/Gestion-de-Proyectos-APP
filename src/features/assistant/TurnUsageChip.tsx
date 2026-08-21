@@ -1,6 +1,13 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatTurnChip } from "@/ai/usage/format";
-import type { TurnUsageView } from "@/ai/usage/types";
+import type { RagSkipReason, TurnUsageView } from "@/ai/usage/types";
+
+function skipReasonLabel(reason: RagSkipReason): string {
+  if (reason === "continuation") return "continuación";
+  if (reason === "cache-hit") return "cache";
+  if (reason === "disabled") return "off";
+  return reason;
+}
 
 export function TurnUsageChip({ turn }: { turn: TurnUsageView }) {
   const { label, ariaLabel } = formatTurnChip({
@@ -11,7 +18,7 @@ export function TurnUsageChip({ turn }: { turn: TurnUsageView }) {
   const ragLine = turn.rag?.injected
     ? "RAG inyectado"
     : turn.rag?.skipReason
-      ? `skip: ${turn.rag.skipReason}`
+      ? `skip: ${skipReasonLabel(turn.rag.skipReason)}`
       : "RAG off";
   return (
     <Popover>
