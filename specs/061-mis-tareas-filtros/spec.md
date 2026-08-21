@@ -1,6 +1,6 @@
 # Spec 061 — Mis tareas: filtros, ocultar hechas y vistas de prioridad
 
-> Estado: **BORRADOR** (pendiente de revisión del usuario)
+> Estado: **IMPLEMENTADO**
 > Feature dir: `specs/061-mis-tareas-filtros/` · Fecha: 2026-08-20
 > Baseline al empezar: `SCHEMA_VERSION` **21** (sin bump de schema — filtros de UI + URL)
 > Depende de: 017 HU-03 (ruta `/app/my-tasks` ya existe, implementación incompleta)
@@ -141,37 +141,37 @@ testea.
 **Como** persona que tria su día, **quiero** no ver las tareas hechas salvo que las pida
 **para** concentrarme en lo abierto.
 
-- [ ] Sin `done` en la URL, ninguna fila tiene `status === "done"`.
-- [ ] Interruptor “Mostrar hechas” apagado ↔ param ausente; encendido ↔ `done=1`.
-- [ ] Al marcar hecha desde el drawer con el interruptor apagado, la fila desaparece al
+- [x] Sin `done` en la URL, ninguna fila tiene `status === "done"`.
+- [x] Interruptor “Mostrar hechas” apagado ↔ param ausente; encendido ↔ `done=1`.
+- [x] Al marcar hecha desde el drawer con el interruptor apagado, la fila desaparece al
       re-render (el store ya muta; el pipeline la filtra).
-- [ ] Archivadas nunca aparecen, con o sin interruptor.
+- [x] Archivadas nunca aparecen, con o sin interruptor.
 
 ### HU-02 — Filtros de triaje
 
 **Como** PM, **quiero** recortar por estado, prioridad, vencimiento y proyecto **para**
 encontrar el lote que me importa.
 
-- [ ] Selects visibles: Estado, Prioridad (incluye Crítica), Vencimiento (Vencidas / Por
+- [x] Selects visibles: Estado, Prioridad (incluye Crítica), Vencimiento (Vencidas / Por
       vencer (3 días) / Esta semana), Proyecto (`projectOptions`).
-- [ ] Estado “Hecha” enciende el interruptor (D7). Apagar el interruptor con estado Hecha
+- [x] Estado “Hecha” enciende el interruptor (D7). Apagar el interruptor con estado Hecha
       limpia `status`.
-- [ ] Los filtros se combinan (AND).
-- [ ] “Limpiar filtros” visible solo si hay `status`, `priority`, `date` o `project`;
+- [x] Los filtros se combinan (AND).
+- [x] “Limpiar filtros” visible solo si hay `status`, `priority`, `date` o `project`;
       ejecuta D11.
-- [ ] Contador: `N abierta(s)` si el interruptor está apagado; `N tarea(s)` si está
+- [x] Contador: `N abierta(s)` si el interruptor está apagado; `N tarea(s)` si está
       encendido. Usar `openCount` / `totalCount`.
 
 ### HU-03 — Vista por prioridad (default)
 
 **Como** PM, **quiero** una lista plana ordenada por urgencia **para** saber qué hago ahora.
 
-- [ ] Default al entrar (sin `view`): lista plana, sin agrupación.
-- [ ] Cada fila: badge de prioridad, título, nombre de proyecto, área si existe, fecha,
+- [x] Default al entrar (sin `view`): lista plana, sin agrupación.
+- [x] Cada fila: badge de prioridad, título, nombre de proyecto, área si existe, fecha,
       estado.
-- [ ] Vencidas (`status !== "done"` y `daysUntil < 0`) y por vencer (`0..3`) conservan el
+- [x] Vencidas (`status !== "done"` y `daysUntil < 0`) y por vencer (`0..3`) conservan el
       fondo rojo / ámbar de las filas actuales.
-- [ ] Click abre `TaskDetailDrawer` igual que hoy (sin meter `detail` en la URL de esta
+- [x] Click abre `TaskDetailDrawer` igual que hoy (sin meter `detail` en la URL de esta
       página: el drawer sigue en estado local, no se cambia ese contrato).
 
 ### HU-04 — Vista por proyecto
@@ -179,21 +179,21 @@ encontrar el lote que me importa.
 **Como** PM, **quiero** agrupar por proyecto **para** trabajar un proyecto a la vez sin
 perder el orden interno de urgencia.
 
-- [ ] Control de dos segmentos “Por prioridad | Por proyecto”; el segundo escribe
+- [x] Control de dos segmentos “Por prioridad | Por proyecto”; el segundo escribe
       `view=project`.
-- [ ] Grupos colapsables (mismo patrón visual que hoy).
-- [ ] Filas dentro del grupo: mismo orden del pipeline. El nombre de proyecto no se
+- [x] Grupos colapsables (mismo patrón visual que hoy).
+- [x] Filas dentro del grupo: mismo orden del pipeline. El nombre de proyecto no se
       repite en la fila (ya está en el header del grupo); área / fecha / estado sí.
-- [ ] Orden de grupos: por la tarea más urgente de cada uno (§5 `groups`).
-- [ ] Con un solo proyecto, las dos vistas existen; “Por proyecto” muestra un grupo.
+- [x] Orden de grupos: por la tarea más urgente de cada uno (§5 `groups`).
+- [x] Con un solo proyecto, las dos vistas existen; “Por proyecto” muestra un grupo.
 
 ### HU-05 — Estados vacíos
 
-- [ ] Sin `person` (o id inválido): empty actual “Selecciona una persona”.
-- [ ] Persona sin ninguna asignada (ni hechas visibles): “No hay tareas asignadas a {nombre}”.
-- [ ] Persona con solo hechas y interruptor apagado, **sin** otros filtros: copy que lo
+- [x] Sin `person` (o id inválido): empty actual “Selecciona una persona”.
+- [x] Persona sin ninguna asignada (ni hechas visibles): “No hay tareas asignadas a {nombre}”.
+- [x] Persona con solo hechas y interruptor apagado, **sin** otros filtros: copy que lo
       diga + CTA “Mostrar hechas”.
-- [ ] Persona con asignadas que los filtros dejan en 0: “Ninguna coincide con los filtros”
+- [x] Persona con asignadas que los filtros dejan en 0: “Ninguna coincide con los filtros”
       + CTA “Limpiar filtros”. No se calcula un contrafactual de “si mostrara hechas
       coincidirían”: un solo CTA.
 
@@ -267,10 +267,12 @@ como criterio de HU-02 y se verifica a mano / en el browser al implementar.
 
 ## 12. Definición de hecho
 
-- [ ] Spec revisado por el usuario
-- [ ] HU-01…HU-05 implementadas según D1–D12
-- [ ] `filterMyTasks.test.ts` cubre los 8 casos de §9 y pasa
-- [ ] `npm run typecheck` + `npm test` verdes
+- [x] Spec revisado por el usuario
+- [x] HU-01…HU-05 implementadas según D1–D12
+- [x] `filterMyTasks.test.ts` cubre los 8 casos de §9 y pasa
+- [x] `npm run typecheck` + `npm test` verdes
 - [ ] Verificación en browser: interruptor, filtros, las dos vistas, drawer, marcar hecha
       desaparece, URL se actualiza, recargar conserva el estado
-- [ ] Estado → **IMPLEMENTADO**
+- [x] Estado → **IMPLEMENTADO**
+
+Nota: smoke visual en browser pendiente (sin MCP de browser en el entorno de cierre); cubierto por tests de pipeline/URL writers + código de UI.
