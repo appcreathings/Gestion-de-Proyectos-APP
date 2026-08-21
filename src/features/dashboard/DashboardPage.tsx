@@ -19,17 +19,23 @@ import { Progress } from "@/components/ui/progress";
 import { Panel } from "@/components/ui/Panel";
 import { StatTile } from "@/components/ui/StatTile";
 import { HierarchyLegend } from "@/components/HierarchyLegend";
+import { ScrollToHash } from "@/components/ScrollToHash";
 import { HealthBadge, HealthDot, healthColorClass } from "@/components/HealthBadge";
 import { useDataStore } from "@/store/useDataStore";
 import { useAppStore } from "@/store/useAppStore";
 import { isDemoCleared } from "@/storage/mode";
 import { projectStatusLabel } from "@/domain/labels";
 import { computePortfolio, type DueRow, type ProductRollup } from "./portfolio";
+import { dashboardHrefs } from "./dashboardHrefs";
 import type { Health, Project, ProjectStatus } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
 import { ExportReportMenu } from "@/features/reports/ExportReportMenu";
 
 const HEALTH_ORDER: Health[] = ["red", "amber", "green"];
+
+/** Fila de card clickable (mismo look que las filas de StalledCard, spec 063 §3.2). */
+const ROW_CLASS = "flex items-center gap-3 rounded-md border border-border/60 px-3 py-2";
+const ROW_LINK_CLASS = `${ROW_CLASS} transition-colors hover:bg-accent`;
 
 export function DashboardPage() {
   const projects = useDataStore((s) => s.projects);
@@ -43,6 +49,8 @@ export function DashboardPage() {
     () => (settings ? computePortfolio(projects, products, settings, new Date(), people) : null),
     [projects, products, settings, people],
   );
+
+  const personIds = useMemo(() => new Set(people.map((p) => p.id)), [people]);
 
   if (!settings || !stats) return null;
 
@@ -92,6 +100,7 @@ export function DashboardPage() {
 
   return (
     <div>
+      <ScrollToHash />
       <PageHeader
         label="Dashboard"
         title="Portafolio"
@@ -104,9 +113,9 @@ export function DashboardPage() {
       />
 
       <div className="grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-border sm:grid-cols-2 lg:grid-cols-4">
-        <Link to={ROUTES.projects} className="block">
+        <Link to={dashboardHrefs.activeProjects()} className="block">
           <StatTile
-            value={stats.active}
+            value={stats.byStatus.active}
             label="Proyectos activos"
             icon={FolderKanban}
             tone="default"
@@ -118,7 +127,7 @@ export function DashboardPage() {
           icon={Gauge}
           tone="default"
         />
-        <Link to={ROUTES.projects} className="block">
+        <Link to={dashboardHrefs.overdueAnchor()} className="block">
           <StatTile
             value={stats.overdue.length}
             label="Vencidos"
@@ -126,7 +135,7 @@ export function DashboardPage() {
             tone="destructive"
           />
         </Link>
-        <Link to={ROUTES.projects} className="block">
+        <Link to={dashboardHrefs.stalledProjects()} className="block">
           <StatTile
             value={stats.stalled.length}
             label="Estancados"
@@ -148,7 +157,7 @@ export function DashboardPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <DueCard overdue={stats.overdue} dueSoon={stats.dueSoon} />
-        <WorkloadCard workload={stats.workload} />
+        <WorkloadCard workload={stats.workload} knownPersonIds={personIds} />
       </div>
     </div>
   );
@@ -175,12 +184,25 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
             )}
           </div>
           <ul className="space-y-3">
-            {HEALTH_ORDER.map((h) => (
-              <li key={h} className="flex items-center gap-3 rounded-md border border-border/60 px-3 py-2">
-                <HealthBadge health={h} className="flex-1 text-muted-foreground" />
-                <span className="font-mono text-sm font-semibold">{byHealth[h]}</span>
-              </li>
-            ))}
+            {HEALTH_ORDER.map((h) => {
+              const row = (
+                <>
+                  <HealthBadge health={h} className="flex-1 text-muted-foreground" />
+                  <span className="font-mono text-sm font-semibold">{byHealth[h]}</span>
+                </>
+              );
+              return byHealth[h] > 0 ? (
+                <li key={h}>
+                  <Link to={dashboardHrefs.byHealth(h)} className={ROW_LINK_CLASS}>
+                    {row}
+                  </Link>
+                </li>
+              ) : (
+                <li key={h} className={ROW_CLASS}>
+                  {row}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
@@ -205,11 +227,16 @@ function StatusCard({
         <ul className="space-y-4">
           {rows.map((s) => (
             <li key={s}>
-              <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{projectStatusLabel[s]}</span>
-                <span className="font-mono text-sm font-semibold">{byStatus[s]}</span>
-              </div>
-              <Progress value={total === 0 ? 0 : (byStatus[s] / total) * 100} />
+              <Link
+                to={dashboardHrefs.byStatus(s)}
+                className="block rounded-md px-1 transition-colors hover:bg-accent"
+              >
+                <div className="mb-1.5 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{projectStatusLabel[s]}</span>
+                  <span className="font-mono text-sm font-semibold">{byStatus[s]}</span>
+                </div>
+                <Progress value={total === 0 ? 0 : (byStatus[s] / total) * 100} />
+              </Link>
             </li>
           ))}
         </ul>
@@ -226,26 +253,39 @@ function ProductCard({ rollups }: { rollups: ProductRollup[] }) {
         <p className="text-sm text-muted-foreground">No hay proyectos activos.</p>
       ) : (
         <ul className="space-y-2">
-          {rollups.map((r) => (
-            <li key={r.id ?? "none"} className="flex items-center gap-3 rounded-md border border-border/60 px-3 py-2">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{r.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {r.total} proyecto{r.total === 1 ? "" : "s"} · {r.avgProgress}% avance
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                {HEALTH_ORDER.map((h) =>
-                  r.byHealth[h] > 0 ? (
-                    <span key={h} className="flex items-center gap-1 font-mono text-xs">
-                      <HealthDot health={h} className="size-2" />
-                      {r.byHealth[h]}
-                    </span>
-                  ) : null,
+          {rollups.map((r) => {
+            const row = (
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{r.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {r.total} proyecto{r.total === 1 ? "" : "s"} · {r.avgProgress}% avance
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {HEALTH_ORDER.map((h) =>
+                    r.byHealth[h] > 0 ? (
+                      <span key={h} className="flex items-center gap-1 font-mono text-xs">
+                        <HealthDot health={h} className="size-2" />
+                        {r.byHealth[h]}
+                      </span>
+                    ) : null,
+                  )}
+                </div>
+              </>
+            );
+            return (
+              <li key={r.id ?? "none"}>
+                {r.id === null ? (
+                  <div className={ROW_CLASS}>{row}</div>
+                ) : (
+                  <Link to={dashboardHrefs.byProduct(r.id)} className={ROW_LINK_CLASS}>
+                    {row}
+                  </Link>
                 )}
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </Panel>
@@ -293,16 +333,18 @@ function StalledCard({
 function DueCard({ overdue, dueSoon }: { overdue: DueRow[]; dueSoon: DueRow[] }) {
   if (overdue.length === 0 && dueSoon.length === 0) {
     return (
-      <Panel label="Vencimientos" title="Sin fechas urgentes">
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <CheckCircle2 className="size-5 text-success" />
-          No hay fechas vencidas ni próximos vencimientos.
-        </div>
-      </Panel>
+      <div id="vencimientos" className="scroll-mt-6">
+        <Panel label="Vencimientos" title="Sin fechas urgentes">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <CheckCircle2 className="size-5 text-success" />
+            No hay fechas vencidas ni próximos vencimientos.
+          </div>
+        </Panel>
+      </div>
     );
   }
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div id="vencimientos" className="grid scroll-mt-6 gap-6 lg:grid-cols-2">
       <DueSection
         title="Vencidos"
         icon={AlertTriangle}
@@ -387,7 +429,13 @@ function daysSince(iso: string): number {
 }
 
 /* ---- Carga de trabajo por persona ---- */
-function WorkloadCard({ workload }: { workload: import("./portfolio").WorkloadEntry[] }) {
+function WorkloadCard({
+  workload,
+  knownPersonIds,
+}: {
+  workload: import("./portfolio").WorkloadEntry[];
+  knownPersonIds: ReadonlySet<string>;
+}) {
   if (workload.length === 0) {
     return (
       <Panel label="Carga" title="Carga de trabajo">
@@ -404,7 +452,16 @@ function WorkloadCard({ workload }: { workload: import("./portfolio").WorkloadEn
         {workload.map((entry) => (
           <li key={entry.personId}>
             <div className="mb-1.5 flex items-center justify-between text-sm">
-              <span className="font-medium">{entry.personName}</span>
+              {knownPersonIds.has(entry.personId) ? (
+                <Link
+                  to={dashboardHrefs.personTasks(entry.personId)}
+                  className="font-medium hover:underline"
+                >
+                  {entry.personName}
+                </Link>
+              ) : (
+                <span className="font-medium">{entry.personName}</span>
+              )}
               <span className="font-mono text-xs text-muted-foreground">
                 {entry.taskCount} tareas · {entry.totalEstimate}h
               </span>

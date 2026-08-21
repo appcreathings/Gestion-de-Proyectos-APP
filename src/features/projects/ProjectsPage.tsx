@@ -14,13 +14,20 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ProjectFormDialog } from "./ProjectFormDialog";
 import { CreateFromTypeDialog } from "./CreateFromTypeDialog";
 import { useDataStore } from "@/store/useDataStore";
+import { useAppStore } from "@/store/useAppStore";
 import {
   priorityLabel,
   priorityVariant,
   projectStatusLabel,
   projectStatusVariant,
+  healthLabel,
 } from "@/domain/labels";
 import { aggregateChecklistProgress, projectChecklistProgress } from "@/domain/compute";
+import {
+  parseProjectsQuery,
+  applyProjectsFilter,
+  filterProjectsByQuery,
+} from "./filterProjects";
 import { ROUTES } from "@/routes/paths";
 import type { Product, Project, Quarter } from "@/domain/schemas";
 
@@ -43,35 +50,31 @@ function ProjectsContent() {
   const products = useDataStore((s) => s.products);
   const quarters = useDataStore((s) => s.quarters);
   const createProject = useDataStore((s) => s.createProject);
+  const settings = useAppStore((s) => s.workspace?.settings);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [formOpen, setFormOpen] = useState(false);
   const [fromTypeOpen, setFromTypeOpen] = useState(false);
-  const [productFilter, setProductFilter] = useState(searchParams.get("product") ?? "");
-  const [statusFilter, setStatusFilter] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
-  // Sync productFilter when URL param changes (e.g. clicking product link)
-  useEffect(() => {
-    const param = searchParams.get("product") ?? "";
-    setProductFilter(param);
-  }, [searchParams]);
+  // URL es la fuente de verdad de los filtros (spec 063 D2).
+  const query = useMemo(() => parseProjectsQuery(searchParams), [searchParams]);
+  const knownProductIds = useMemo(() => new Set(products.map((p) => p.id)), [products]);
+
+  const filtered = useMemo(
+    () => filterProjectsByQuery(projects, query, settings ?? null, new Date(), knownProductIds),
+    [projects, query, settings, knownProductIds],
+  );
+
+  function commit(next: URLSearchParams) {
+    setSearchParams(next, { replace: true });
+  }
 
   // Deep-link from Trimestres (?quarter=<id>) jumps straight into the "Por trimestre" view.
-  const quarterParam = searchParams.get("quarter");
+  const quarterParam = query.quarterId;
   useEffect(() => {
     if (quarterParam) setViewMode("quarter");
   }, [quarterParam]);
-
-  const filtered = useMemo(
-    () =>
-      projects.filter(
-        (p) =>
-          (!productFilter || p.productId === productFilter) &&
-          (!statusFilter || p.status === statusFilter),
-      ),
-    [projects, productFilter, statusFilter],
-  );
 
   const productName = (id: string | null) =>
     products.find((p) => p.id === id)?.name;
@@ -111,11 +114,11 @@ function ProjectsContent() {
       ) : (
         <>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Select
                 className="w-full sm:w-48"
-                value={productFilter}
-                onChange={(e) => setProductFilter(e.target.value)}
+                value={query.productId && knownProductIds.has(query.productId) ? query.productId : ""}
+                onChange={(e) => commit(applyProjectsFilter(searchParams, "product", e.target.value || null))}
               >
                 <option value="">Todos los productos</option>
                 {products.map((p) => (
@@ -126,8 +129,8 @@ function ProjectsContent() {
               </Select>
               <Select
                 className="w-full sm:w-48"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                value={query.status ?? ""}
+                onChange={(e) => commit(applyProjectsFilter(searchParams, "status", e.target.value || null))}
               >
                 <option value="">Todos los estados</option>
                 {Object.entries(projectStatusLabel).map(([v, l]) => (
@@ -136,6 +139,32 @@ function ProjectsContent() {
                   </option>
                 ))}
               </Select>
+              {query.health && (
+                <Badge variant="secondary" className="gap-1">
+                  {healthLabel[query.health]}
+                  <button
+                    type="button"
+                    aria-label="Quitar filtro de salud"
+                    onClick={() => commit(applyProjectsFilter(searchParams, "health", null))}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              )}
+              {query.stalled && (
+                <Badge variant="warning" className="gap-1">
+                  Estancados
+                  <button
+                    type="button"
+                    aria-label="Quitar filtro de estancados"
+                    onClick={() => commit(applyProjectsFilter(searchParams, "stalled", null))}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              )}
             </div>
             <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
               <TabsList>
@@ -146,13 +175,18 @@ function ProjectsContent() {
             </Tabs>
           </div>
 
-          {viewMode === "list" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((p) => (
-                <ProjectCard key={p.id} project={p} productName={productName(p.productId)} />
-              ))}
-            </div>
-          )}
+          {viewMode === "list" &&
+            (filtered.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Ningún proyecto coincide con los filtros actuales.
+              </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {filtered.map((p) => (
+                  <ProjectCard key={p.id} project={p} productName={productName(p.productId)} />
+                ))}
+              </div>
+            ))}
 
           {viewMode === "quarter" && (
             <GroupedProjects
