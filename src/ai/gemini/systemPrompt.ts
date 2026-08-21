@@ -35,6 +35,24 @@ ${entries}
 `;
 }
 
+/** design.md §6 — solo cuando ragContext no está vacío. */
+const EVIDENCE_BLOCK = `## Prioridad de evidencia
+El índice de abajo está recortado al foco de pantalla. El bloque "Contexto semántico" son hits del RAG (índice actualizado). Usalos antes de llamar list_projects, list_tasks o search_workspace. Si necesitás detalle de un id concreto, usá get_project / list_tasks filtrado por ese id. No re-descubras el portafolio si el foco + RAG alcanzan para responder.
+`;
+
+function renderSection(
+  title: string,
+  body: string,
+  emptyPlaceholder: string,
+  omitEmpty: boolean,
+): string {
+  if (!body) {
+    if (omitEmpty) return "";
+    return `${title}\n${emptyPlaceholder}`;
+  }
+  return `${title}\n${body}`;
+}
+
 /**
  * Pure system-prompt builder. Injects the lightweight workspace index (already
  * maintained by useDataStore.reindex) so the model knows every project/product
@@ -42,12 +60,16 @@ ${entries}
  *
  * `screenContextBlock` (spec 050 HU-01/D2) se inserta después del índice del
  * workspace para que el modelo vea primero el catálogo y luego el foco actual.
+ *
+ * `options.omitEmptyIndexSections` (spec 060 CA-03.6): si hay workspace y el
+ * flag está activo, no serializa secciones de índice con array vacío.
  */
 export function buildSystemPrompt(
   workspace: Workspace | null,
   ragContext: string = "",
   today: Date = new Date(),
   screenContextBlock: string = "",
+  options?: { omitEmptyIndexSections?: boolean },
 ): string {
   const org = workspace?.org.name ?? "Mi Empresa";
   const settings: Settings = workspace?.settings ?? {
@@ -73,6 +95,19 @@ export function buildSystemPrompt(
     .map((t) => `- ${t.name} (id: ${t.id})`)
     .join("\n");
 
+  const omitEmpty = Boolean(workspace && options?.omitEmptyIndexSections);
+  const indexMarkdown = [
+    renderSection("Proyectos:", projects, "(ninguno)", omitEmpty),
+    renderSection("Productos:", products, "(ninguno)", omitEmpty),
+    renderSection("Tipos de proyecto:", types, "(ninguno)", omitEmpty),
+    renderSection("Plantillas de checklist:", templates, "(ninguna)", omitEmpty),
+    renderSection("Plantillas de proceso:", processTemplates, "(ninguna)", omitEmpty),
+  ]
+    .filter((section) => section.length > 0)
+    .join("\n\n");
+
+  const evidenceBlock = ragContext ? EVIDENCE_BLOCK : "";
+
   return `Eres el asistente de gestión de proyectos de "${org}". Ayudas a un Project Manager con su portafolio: productos, proyectos, áreas, procesos (SOPs), checklists, tareas Kanban y automatizaciones. Respondes siempre en español, de forma directa y accionable.
 
 Hoy es ${date}. Un proyecto se considera estancado tras ${settings.stalledAfterDays} días sin cambios; "por vencer" significa a ${settings.dueSoonDays} días o menos.
@@ -92,23 +127,10 @@ Hoy es ${date}. Un proyecto se considera estancado tras ${settings.stalledAfterD
 - Nombra plantillas por su resultado ("Checklist de lanzamiento web") y usa category para agrupar ("Lanzamiento", "QA", "Marketing").
 
 ## Índice del workspace (siempre actualizado)
-Proyectos:
-${projects || "(ninguno)"}
-
-Productos:
-${products || "(ninguno)"}
-
-Tipos de proyecto:
-${types || "(ninguno)"}
-
-Plantillas de checklist:
-${templates || "(ninguna)"}
-
-Plantillas de proceso:
-${processTemplates || "(ninguna)"}
+${indexMarkdown}
 ${screenContextBlock}
 ${ragContext}
-## Estilo
+${evidenceBlock}## Estilo
 - Sé conciso; usa listas y negritas con moderación.
 - Piensa como PM: prioriza por vencimiento, bloqueos y salud; una tarea sin responsable ni fecha rara vez avanza; los proyectos en rojo o ámbar merecen atención antes que nuevas iniciativas.
 - Si la petición es ambigua (p. ej. varios proyectos con nombre similar), pregunta antes de escribir datos.`;
