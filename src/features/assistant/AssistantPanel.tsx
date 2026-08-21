@@ -15,6 +15,7 @@ import {
   ASSISTANT_PANEL_MIN_WIDTH,
   ASSISTANT_PANEL_MAX_WIDTH,
 } from "@/store/useChatStore";
+import { useAiUsageStore } from "@/store/useAiUsageStore";
 import { selectQuickActions, type QuickAction } from "@/ai/chat/quickActions";
 import { summarizeUiContext } from "@/ai/chat/uiContext";
 import { AssistantEmptyState } from "./AssistantEmptyState";
@@ -22,6 +23,7 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessageList } from "./ChatMessageList";
 import { QuickActionChips } from "./QuickActionChips";
 import { RateLimitStatus } from "./RateLimitStatus";
+import { TurnUsageChip } from "./TurnUsageChip";
 import { ROUTES } from "@/routes/paths";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useChatUiContext } from "./useChatUiContext";
@@ -44,6 +46,7 @@ export function AssistantPanel() {
   const newConversation = useChatStore((s) => s.newConversation);
   const hydrated = useChatStore((s) => s.hydrated);
   const hydrateFromIdb = useChatStore((s) => s.hydrateFromIdb);
+  const lastTurn = useAiUsageStore((s) => s.lastTurn);
 
   const config = useAiConfigStore((s) => s.config);
   const hasKey = Boolean(activeKey(config));
@@ -76,6 +79,7 @@ export function AssistantPanel() {
 
   useEffect(() => {
     if (!hydrated) void hydrateFromIdb();
+    void useAiUsageStore.getState().hydrate();
   }, [hydrated, hydrateFromIdb]);
 
   useEffect(() => {
@@ -220,6 +224,7 @@ export function AssistantPanel() {
             )}
           </div>
         )}
+        {status === "idle" && lastTurn ? <TurnUsageChip turn={lastTurn} /> : null}
         {hasKey && (
           <Badge variant={modelBadgeVariant} className="ml-auto font-mono text-[10px] gap-1">
             {config.model.includes(":") ? config.model.split(":").slice(1).join(":") : config.model}
