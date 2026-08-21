@@ -177,3 +177,13 @@ export function parseOpenAiChunk(raw: string): OpenAiStreamDelta | null {
     return null;
   }
 }
+
+/** Extract `usage` from an OpenAI-compatible SSE data payload (usage trailer). */
+export function parseOpenAiUsageField(raw: string): unknown | null {
+  try {
+    const json = JSON.parse(raw) as { usage?: unknown };
+    return json.usage ?? null;
+  } catch {
+    return null;
+  }
+}

@@ -8,6 +8,7 @@ vi.mock("@/ai/rag/store", () => ({
 
 vi.mock("@/ai/rag/search", () => ({
   semanticSearch: vi.fn(),
+  semanticSearchDetailed: vi.fn(),
 }));
 
 describe("buildSystemPrompt", () => {
@@ -95,7 +96,63 @@ describe("buildSystemPrompt", () => {
     const without = buildSystemPrompt(null, "", new Date("2026-07-02T10:00:00Z"));
     expect(withBlock).toBe(without);
   });
+
+  it("con ragContext no vacio inserta ## Prioridad de evidencia antes de ## Estilo", () => {
+    const ctx =
+      '## Contexto semantico (busqueda: "test")\n[1] project:abc\n   "Proyecto de prueba"\n   (similitud: 95%)\n\n';
+    const prompt = buildSystemPrompt(null, ctx, new Date("2026-07-02T10:00:00Z"));
+    expect(prompt).toContain("## Prioridad de evidencia");
+    expect(prompt).toContain(
+      'El índice de abajo está recortado al foco de pantalla. El bloque "Contexto semántico" son hits del RAG (índice actualizado). Usalos antes de llamar list_projects, list_tasks o search_workspace. Si necesitás detalle de un id concreto, usá get_project / list_tasks filtrado por ese id. No re-descubras el portafolio si el foco + RAG alcanzan para responder.',
+    );
+    const ragIdx = prompt.indexOf("Contexto semantico");
+    const evidenceIdx = prompt.indexOf("## Prioridad de evidencia");
+    const styleIdx = prompt.indexOf("## Estilo");
+    expect(ragIdx).toBeGreaterThan(-1);
+    expect(evidenceIdx).toBeGreaterThan(-1);
+    expect(ragIdx).toBeLessThan(evidenceIdx);
+    expect(evidenceIdx).toBeLessThan(styleIdx);
+  });
+
+  it("con ragContext vacio no incluye Prioridad de evidencia", () => {
+    const prompt = buildSystemPrompt(null, "", new Date("2026-07-02T10:00:00Z"));
+    expect(prompt).not.toContain("Prioridad de evidencia");
+  });
+
+  it("omite secciones vacias del indice cuando omitEmptyIndexSections es true (CA-03.6)", () => {
+    const ws: Workspace = {
+      ...emptyWorkspace(),
+      index: {
+        ...emptyWorkspace().index,
+        projects: [
+          {
+            id: "p1",
+            name: "Alpha",
+            productId: null,
+            status: "active",
+            health: "green",
+            updatedAt: "2026-01-01T00:00:00.000Z",
+          },
+        ],
+      },
+    };
+    const prompt = buildSystemPrompt(ws, "", new Date("2026-07-02T10:00:00Z"), "", {
+      omitEmptyIndexSections: true,
+    });
+    expect(prompt).toContain("Alpha");
+    expect(prompt).not.toContain("Plantillas de checklist");
+    expect(prompt).not.toContain("(ninguna)");
+  });
+
+  it("con workspace null y omitEmptyIndexSections sigue mostrando (ninguno) (CA-03.6)", () => {
+    const prompt = buildSystemPrompt(null, "", new Date("2026-07-02T10:00:00Z"), "", {
+      omitEmptyIndexSections: true,
+    });
+    expect(prompt).toContain("(ninguno)");
+    expect(prompt).toContain("Plantillas de checklist");
+  });
 });
+
 
 describe("buildRagContext", () => {
   beforeEach(() => {
@@ -109,5 +166,35 @@ describe("buildRagContext", () => {
     const { buildRagContext } = await import("./systemPrompt");
     const result = await buildRagContext("test query", "fake-key");
     expect(result).toBe("");
+  });
+
+  it("buildRagContextDetailed reporta hits y fromCache desde semanticSearchDetailed", async () => {
+    const { loadEmbeddings } = await import("@/ai/rag/store");
+    const { semanticSearchDetailed } = await import("@/ai/rag/search");
+    vi.mocked(loadEmbeddings).mockResolvedValue(new Map([["e1", {} as never]]));
+    vi.mocked(semanticSearchDetailed).mockResolvedValue({
+      results: [
+        {
+          entity: {
+            id: "e1",
+            entityType: "project",
+            entityId: "p1",
+            text: "Proyecto de prueba",
+            updatedAt: "2026-01-01T00:00:00.000Z",
+            indexedAt: "2026-01-01T00:00:00.000Z",
+          },
+          score: 0.95,
+        },
+      ],
+      fromCache: true,
+    });
+
+    const { buildRagContextDetailed, buildRagContext } = await import("./systemPrompt");
+    const detailed = await buildRagContextDetailed("test query", "fake-key");
+    expect(detailed.hits).toBe(1);
+    expect(detailed.fromCache).toBe(true);
+    expect(detailed.block).toContain("Proyecto de prueba");
+    expect(detailed.block).toContain("project:p1");
+    expect(await buildRagContext("test query", "fake-key")).toBe(detailed.block);
   });
 });

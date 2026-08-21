@@ -1,6 +1,7 @@
 import type { AiTool } from "@/ai/tools/types";
 import type { AiErrorKind } from "@/ai/gemini/errors";
 import type { KeyValidation } from "@/ai/gemini/client";
+import type { TokenUsage } from "@/ai/usage/types";
 
 export type { AiErrorKind, KeyValidation };
 
@@ -37,6 +38,8 @@ export interface StreamTurnResult {
   /** Texto acumulado del turno (para reconstruir el mensaje assistant). */
   text: string;
   toolCalls: AiToolCall[];
+  /** Ausente si el proveedor no mandó usage (fake providers, retry sin stream_options). */
+  usage?: TokenUsage;
 }
 
 export interface AiProvider {

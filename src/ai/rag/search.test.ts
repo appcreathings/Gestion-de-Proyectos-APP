@@ -1,13 +1,25 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
-import { cosineSimilarity, embedText, searchByEntityId } from "./search";
+import {
+  cosineSimilarity,
+  embedText,
+  searchByEntityId,
+  semanticSearch,
+  semanticSearchDetailed,
+} from "./search";
+import { resetQueryCacheForTests } from "./queryCache";
 import type { RagEntry } from "./types";
 
 vi.mock("@/ai/gemini/client", () => ({
   createClient: vi.fn(),
 }));
 
+vi.mock("./store", () => ({
+  loadEmbeddings: vi.fn(async () => new Map()),
+}));
+
 import { createClient } from "@/ai/gemini/client";
 import { rateLimiter } from "@/ai/rateLimiter";
+import { loadEmbeddings } from "./store";
 
 const originalOnLine = navigator.onLine;
 function forceOnline(on: boolean) {
@@ -134,8 +146,9 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
     });
     vi.mocked(createClient).mockResolvedValue(client as never);
 
-    const vec = await embedText("hola", "key");
-    expect(vec).toEqual([0.1, 0.2]);
+    const result = await embedText("hola", "key");
+    expect(result.vector).toEqual([0.1, 0.2]);
+    expect(result.modelId).toBe("gemini:gemini-embedding-001");
   });
 
   it("T3133: cae a gemini-embedding-2 cuando embedding-001 falla por rate-limit", async () => {
@@ -147,8 +160,9 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
     });
     vi.mocked(createClient).mockResolvedValue(client as never);
 
-    const vec = await embedText("hola", "key");
-    expect(vec).toEqual([0.9, 0.8]);
+    const result = await embedText("hola", "key");
+    expect(result.vector).toEqual([0.9, 0.8]);
+    expect(result.modelId).toBe("gemini:gemini-embedding-2");
     // El primer modelo quedó marcado saturado en el rate limiter local.
     expect(rateLimiter.getStatus("gemini:gemini-embedding-001").saturated).toBe(true);
   });
@@ -195,5 +209,69 @@ describe("embedText — fallback entre modelos de embedding (spec 031)", () => {
 
     await expect(embedText("hola", "key")).rejects.toBe(err400);
     expect(rateLimiter.getStatus("gemini:gemini-embedding-001").saturated).toBe(false);
+  });
+});
+
+describe("semanticSearchDetailed — cache de embeddings de query (spec 060)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetQueryCacheForTests();
+    forceOnline(true);
+    for (const id of ["gemini:gemini-embedding-001", "gemini:gemini-embedding-2"]) {
+      rateLimiter.markSaturated(id, 0);
+      rateLimiter.canMakeRequest(id);
+    }
+    vi.mocked(loadEmbeddings).mockResolvedValue(new Map());
+  });
+  afterEach(() => forceOnline(originalOnLine));
+
+  it("la segunda llamada con la misma query no llama embedText (fromCache)", async () => {
+    const entry = makeEntry("project:a", "a");
+    entry.embedding = [0.1, 0.2];
+    vi.mocked(loadEmbeddings).mockResolvedValue(new Map([["project:a", entry]]));
+
+    const client = makeEmbeddingClient({
+      "models/gemini-embedding-001": () => ({ embeddings: [{ values: [0.1, 0.2] }] }),
+    });
+    vi.mocked(createClient).mockResolvedValue(client as never);
+
+    const first = await semanticSearchDetailed("q", "k");
+    expect(first.fromCache).toBe(false);
+    expect(first.modelId).toBe("gemini:gemini-embedding-001");
+    expect(createClient).toHaveBeenCalledTimes(1);
+    expect(first.results).toHaveLength(1);
+    expect(first.results[0].entity.entityId).toBe("a");
+    expect(first.results[0].score).toBeCloseTo(1);
+
+    const second = await semanticSearchDetailed("q", "k");
+    expect(second.fromCache).toBe(true);
+    expect(second.modelId).toBeUndefined();
+    expect(createClient).toHaveBeenCalledTimes(1);
+    expect(second.results).toEqual(first.results);
+  });
+
+  it("reporta el modelId del embedding que tuvo éxito (fallback a embedding-2)", async () => {
+    const client = makeEmbeddingClient({
+      "models/gemini-embedding-001": () => {
+        throw sdkError(RATE_LIMIT_BODY);
+      },
+      "models/gemini-embedding-2": () => ({ embeddings: [{ values: [0.9, 0.8] }] }),
+    });
+    vi.mocked(createClient).mockResolvedValue(client as never);
+
+    const first = await semanticSearchDetailed("q", "k");
+    expect(first.fromCache).toBe(false);
+    expect(first.modelId).toBe("gemini:gemini-embedding-2");
+  });
+
+  it("semanticSearch devuelve SearchResult[] (unwrap de detailed)", async () => {
+    const client = makeEmbeddingClient({
+      "models/gemini-embedding-001": () => ({ embeddings: [{ values: [0.1, 0.2] }] }),
+    });
+    vi.mocked(createClient).mockResolvedValue(client as never);
+
+    const results = await semanticSearch("q", "k");
+    expect(Array.isArray(results)).toBe(true);
+    expect(results).toEqual((await semanticSearchDetailed("q", "k")).results);
   });
 });

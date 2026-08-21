@@ -1,4 +1,6 @@
 import { toOpenAiTool } from "@/ai/tools/schema";
+import { parseOpenAiUsage } from "@/ai/usage/parseUsage";
+import type { TokenUsage } from "@/ai/usage/types";
 import type { ProviderDefinition } from "../catalog";
 import type {
   AiProvider,
@@ -12,9 +14,30 @@ import {
   createToolCallAccumulator,
   finalizeToolCalls,
   parseOpenAiChunk,
+  parseOpenAiUsageField,
   toOpenAiMessages,
 } from "./mapping";
 import { consumeSseStream } from "./sse";
+
+export function buildOpenAiChatBody(input: {
+  model: string;
+  messages: unknown;
+  tools?: unknown;
+  includeUsage: boolean;
+}): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    model: input.model,
+    messages: input.messages,
+    stream: true,
+  };
+  if (input.tools !== undefined) body.tools = input.tools;
+  if (input.includeUsage) body.stream_options = { include_usage: true };
+  return body;
+}
+
+export function shouldRetryWithoutStreamOptions(status: number, bodyText: string): boolean {
+  return status === 400 && /stream_options/i.test(bodyText);
+}
 
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/+$/, "");
@@ -63,23 +86,41 @@ export function createOpenAiCompatibleProvider(def: ProviderDefinition): AiProvi
     async streamTurn(opts: StreamTurnOptions): Promise<StreamTurnResult> {
       const base = normalizeBaseUrl(opts.baseUrl?.trim() || def.defaultBaseUrl);
       const messages = toOpenAiMessages(opts.history, opts.systemInstruction);
-      const body = {
-        model: opts.model,
-        messages,
-        tools: opts.tools.length ? opts.tools.map(toOpenAiTool) : undefined,
-        stream: true,
-      };
+      const tools = opts.tools.length ? opts.tools.map(toOpenAiTool) : undefined;
+      const url = `${base}/chat/completions`;
+      const headers = authHeaders(def, opts.apiKey);
 
-      const res = await fetch(`${base}/chat/completions`, {
-        method: "POST",
-        headers: authHeaders(def, opts.apiKey),
-        body: JSON.stringify(body),
-        signal: opts.signal,
-      });
+      const post = (includeUsage: boolean) =>
+        fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(
+            buildOpenAiChatBody({
+              model: opts.model,
+              messages,
+              tools,
+              includeUsage,
+            }),
+          ),
+          signal: opts.signal,
+        });
+
+      let includeUsage = true;
+      let res = await post(true);
 
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new HttpError(res.status, text);
+        const errText = await res.text().catch(() => "");
+        if (shouldRetryWithoutStreamOptions(res.status, errText)) {
+          includeUsage = false;
+          res = await post(false);
+        } else {
+          throw new HttpError(res.status, errText);
+        }
+      }
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new HttpError(res.status, errText);
       }
       if (!res.body) {
         throw new Error("Respuesta sin body (stream no disponible)");
@@ -87,10 +128,15 @@ export function createOpenAiCompatibleProvider(def: ProviderDefinition): AiProvi
 
       let text = "";
       const acc = createToolCallAccumulator();
+      let usage: TokenUsage | undefined;
 
       await consumeSseStream(
         res.body,
         (data) => {
+          if (includeUsage) {
+            const parsed = parseOpenAiUsage(parseOpenAiUsageField(data));
+            if (parsed) usage = parsed;
+          }
           const delta = parseOpenAiChunk(data);
           if (!delta) return;
           if (delta.content) {
@@ -107,6 +153,7 @@ export function createOpenAiCompatibleProvider(def: ProviderDefinition): AiProvi
       return {
         text,
         toolCalls: finalizeToolCalls(acc),
+        usage,
       };
     },
 

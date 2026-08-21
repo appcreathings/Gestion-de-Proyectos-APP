@@ -4,6 +4,8 @@ import { rateLimiter } from "@/ai/rateLimiter";
 import { modelSelector, type FallbackEvent } from "@/ai/modelSelector";
 import { isQualifiedModelId, splitQualified } from "@/ai/models";
 import type { AiMessage, AiProvider, AiToolCall } from "@/ai/providers/types";
+import { estimateTurnUsage } from "@/ai/usage/parseUsage";
+import type { TokenUsage } from "@/ai/usage/types";
 
 const MAX_ROUNDS = 8;
 
@@ -47,6 +49,8 @@ export interface AgentTurnResult {
   /** Mensaje crudo del último error (detalle técnico colapsable). Principio I. */
   rawMessage?: string;
   modelSwitch?: FallbackEvent;
+  rounds: number;
+  usages: TokenUsage[];
 }
 
 /**
@@ -57,8 +61,17 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
   const { callbacks, tools, signal, preferredModel, autoFallback = true, fallbackGroup, provider } =
     opts;
 
+  let successfulRounds = 0;
+  const usages: TokenUsage[] = [];
+
   if (!isQualifiedModelId(preferredModel)) {
-    return { history: opts.history, roundsExceeded: false, error: "no-model-selected" };
+    return {
+      history: opts.history,
+      roundsExceeded: false,
+      error: "no-model-selected",
+      rounds: 0,
+      usages: [],
+    };
   }
 
   let lastFallbackEvent: FallbackEvent | undefined;
@@ -85,6 +98,8 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
       history: opts.history,
       roundsExceeded: false,
       error: autoFallback ? "all-models-exhausted" : "rate-limit",
+      rounds: 0,
+      usages: [],
     };
   }
   let currentModelId: string = resolved;
@@ -108,6 +123,8 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
             error: outcome.kind,
             rawMessage: outcome.rawMessage,
             modelSwitch: lastFallbackEvent,
+            rounds: successfulRounds,
+            usages,
           };
         }
         rateLimiter.markSaturated(modelId, 60);
@@ -119,6 +136,8 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
             error: outcome.kind,
             rawMessage: outcome.rawMessage,
             modelSwitch: lastFallbackEvent,
+            rounds: successfulRounds,
+            usages,
           };
         }
         const selection = modelSelector.select(preferredModel, fallbackGroup, tried);
@@ -129,6 +148,8 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
             error: "all-models-exhausted",
             rawMessage: lastRawMessage,
             modelSwitch: lastFallbackEvent,
+            rounds: successfulRounds,
+            usages,
           };
         }
         if (selection.fallbackEvent) {
@@ -148,8 +169,13 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
           ...history,
           { role: "assistant", content: text },
         ];
-        rateLimiter.recordRequest(currentModelId ?? preferredModel);
-        return { history, roundsExceeded: false, modelSwitch: lastFallbackEvent };
+        return {
+          history,
+          roundsExceeded: false,
+          modelSwitch: lastFallbackEvent,
+          rounds: successfulRounds,
+          usages,
+        };
       }
 
       history = [
@@ -196,8 +222,13 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
       }
     }
     roundsExceeded = true;
-    rateLimiter.recordRequest(currentModelId ?? preferredModel);
-    return { history, roundsExceeded, modelSwitch: lastFallbackEvent };
+    return {
+      history,
+      roundsExceeded,
+      modelSwitch: lastFallbackEvent,
+      rounds: successfulRounds,
+      usages,
+    };
   } catch (e) {
     return {
       history,
@@ -205,6 +236,8 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
       error: provider.classifyError(e),
       rawMessage: e instanceof Error ? e.message : String(e),
       modelSwitch: lastFallbackEvent,
+      rounds: successfulRounds,
+      usages,
     };
   }
 
@@ -226,6 +259,17 @@ export async function runAgentTurn(opts: AgentTurnOptions): Promise<AgentTurnRes
         signal,
         onTextDelta: callbacks.onTextDelta,
       });
+      const usage =
+        result.usage ??
+        estimateTurnUsage({
+          systemInstruction: opts.systemInstruction,
+          historyJson: JSON.stringify(history),
+          userMessage: opts.userMessage,
+          outputText: result.text,
+        });
+      rateLimiter.recordRequest(qualifiedModelId, usage.totalTokens);
+      usages.push(usage);
+      successfulRounds++;
       return { ok: true, text: result.text, toolCalls: result.toolCalls };
     } catch (e) {
       return {
