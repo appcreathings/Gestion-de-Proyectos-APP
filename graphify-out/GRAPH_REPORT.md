@@ -1,16 +1,16 @@
-# Graph Report - feat-060-ai-token-usage  (2026-08-20)
+# Graph Report - 3. Gestión de Proyectos APP  (2026-08-20)
 
 ## Corpus Check
-- 858 files · ~718,955 words
+- 841 files · ~715,746 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 6287 nodes · 13252 edges · 375 communities (354 shown, 21 thin omitted)
+- 6225 nodes · 13311 edges · 344 communities (324 shown, 20 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `19755f02`
+- Built from commit: `9d6deb79`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,46 +18,46 @@
 - projectOps.ts
 - Spec 060 — Consumo de tokens y requests del asistente (auditoría + recorte RAG-aware)
 - button.tsx
-- articles-index.ts
-- utils.tsx
-- Task
-- useRagStore.ts
+- blog/types.ts
+- AiSettingsCard.tsx
+- FlowCanvas.tsx
+- search.ts
 - github.ts
 - LandingPage.tsx
-- blog/types.ts
+- categories.ts
 - nodeTypes.tsx
 - devDependencies
 - hubspot-poller.ts
-- cn
+- config.ts
 - schemas/project.ts
 - github-bff.ts
-- RateLimiter
+- models.ts
 - schemas/index.ts
-- FlowRule
+- DebuggerPanel.tsx
 - variables.ts
 - dependencies
-- usage/types.ts
+- useAiUsageStore.ts
 - flows/engine.ts
-- schedule-cadence.ts
-- validation.ts
+- schedule-manager.ts
+- filterMyTasks.ts
 - tools/types.ts
-- useAppStore
-- uiContext.ts
+- App.tsx
+- AssistantPanel.tsx
 - Design 042 — Anexos multimedia en carpeta local
 - DocsIndexPage.tsx
 - Diseño técnico — Spec 059 (Blog: experiencia de lectura)
 - Spec 059 — Blog: experiencia de lectura y textura visual del artículo
-- GitHubAppPanel.tsx
+- IntegrationsPage.tsx
 - FileSystemAdapter
 - useChatStore.ts
 - 007 — Busqueda Semantica (RAG) con Embeddings
 - compilerOptions
-- categories.ts
+- BlogPostPage.tsx
 - Design 046 — Scroll interno del sidebar + modo minimizado
 - useAppStore.ts
 - StorageAdapter
 - connections.ts
-- emptyWorkspace
+- Spec 062 — Tipos de trabajo (historia, enabler, spike, key result, bug, PRD, tarea)
 - PollingManager
 - idbSet
 - Design 053 — Vista línea de tiempo / calendario
@@ -76,8 +76,8 @@
 - File structure (lock this)
 - improve.ts
 - scripts
-- FlowCanvas.tsx
-- SeoPage.tsx
+- graph.ts
+- FileSystemAdapter.ts
 - dispatcher.ts
 - factories.ts
 - 5. Historias de usuario y criterios de aceptación
@@ -89,7 +89,7 @@
 - Spec 061 — Mis tareas: filtros, ocultar hechas y vistas de prioridad
 - MappingEngine
 - projectTabMemory.ts
-- ExportReportMenu.tsx
+- statusReportMarkdown.ts
 - Design 045 — Enlaces que funcionan + Ver por defecto con lápiz
 - fs-types.d.ts
 - Plan Técnico — Mejora integral de la experiencia PM (017)
@@ -106,7 +106,7 @@
 - Design 040 — UX: la app le contesta al usuario
 - Design — Spec 026 · Interpolación confiable, llenado real de objetos y webhooks configurables
 - Spec 053 — Vista línea de tiempo / calendario
-- Task 5 Report — prune, aggregate, format (pure)
+- AutomationDialog.tsx
 - Tasks 047 — Proveedores de IA intercambiables
 - Spec 033 — Automatizaciones: cerrar el round-trip, expresividad y confianza
 - @fontsource-variable/jetbrains-mono
@@ -116,10 +116,10 @@
 - Spec: Mejorar con IA (AI Improve)
 - Plan Técnico — 012 AI Improve Fallback
 - Design 057 — GitHub App + archivos de proyecto en el repo
-- FieldMapping
+- interpolation.ts
 - Spec 023 — Integración avanzada con Google Sheets/HubSpot + Flujos con lógica real
-- Task 6 Report — IndexedDB + useAiUsageStore
-- ReleasesPage.tsx
+- Design 062 — Tipos de trabajo
+- releases/types.ts
 - Tareas — Spec 059 (Blog: experiencia de lectura y textura visual)
 - Design 039 — Datos legibles y una sola forma de elegir variables
 - Design 032 — Round-trip con Make/Zapier
@@ -232,7 +232,7 @@
 - Plan de Refactorización
 - Tasks — Documentación pública in-house (029)
 - 8.1 Análisis por API
-- buildCalendarItems.ts
+- schedule-cadence.ts
 - 10. Experiencia de Usuario (UI/UX) — actualizada a la UI real construida
 - 11. Consideraciones de Seguridad
 - 5. Encriptación de Credenciales (Web Crypto API)
@@ -251,7 +251,7 @@
 - Guía — Creación y configuración de la GitHub App para Hito
 - Spec 043 — Links en tareas (botones clickeables)
 - Smoke 050 — Chat IA UX + eficiencia
-- marketingRoutes.tsx
+- Prompt de ejecución — Spec 062
 - Prompt de ejecución — Spec 042
 - Spec 040 — Blog: roadmap de gestión de proyectos + prerender de rutas públicas
 - Tasks 041 — Editor de flujos: diálogo de configuración acorde al nodo
@@ -261,11 +261,11 @@
 - Design 051 — Trigger programado (schedule)
 - Spec 046 — Scroll interno del sidebar + modo minimizado (rail de íconos)
 - vault.ts
-- runAgentTurn.ts
+- providers/types.ts
 - Design 043 — Links en tareas
 - Prompt de ejecución — Spec 044
 - Design 054 — Kanban usable en el teléfono
-- BlogPostPage.tsx
+- articleView.test.tsx
 - Prompt de ejecución — Spec 047
 - Tasks 043 — Links en tareas
 - ConditionConfigFields.tsx
@@ -278,12 +278,12 @@
 - Prompt de ejecución — Spec 046
 - Tasks 046 — Scroll interno del sidebar + modo minimizado
 - Project
-- DashboardPage.tsx
+- GitHubAppPanel.tsx
 - Spec 052 — Export de informe de estado (proyecto / portafolio)
 - Tasks 045 — Enlaces que funcionan + Ver por defecto con lápiz
 - vite-plugin-sitemap
-- github-project-sync.ts
-- catalog.ts
+- Tasks 062 — Tipos de trabajo
+- generate-transform.ts
 - @dnd-kit/utilities
 - @radix-ui/react-popover
 - github-repo-sync.ts
@@ -292,15 +292,15 @@
 - migrations.ts
 - Design 048 — Continuidad de navegación + productividad en tareas y asistente
 - sse.ts
-- useDataStore
+- cn
 - Spec 055 — Flujos: guardas por salida (branching ligero)
-- TaskDetailDrawer.tsx
+- RichTextField.tsx
 - Tasks 051 — Trigger programado (schedule)
 - statusReport.ts
 - Spec 048 — Continuidad de navegación + productividad en tareas y asistente
 - AppLayout.tsx
 - Guía — Proxy propio en Cloudflare Workers (NVIDIA / OpenCode Zen)
-- labels.ts
+- utils.tsx
 - Tasks 057 — GitHub App + sync al repositorio
 - retry-engine.ts
 - Spec 051 — Flujos: trigger programado (schedule / cron ligero)
@@ -308,7 +308,7 @@
 - Prompt de ejecución — Spec 049
 - Tasks 049 — Correcciones post-review de la spec 047
 - Tasks 048 — Continuidad de navegación + productividad en tareas y asistente
-- Task 4 Report — runAgentTurn: one recordRequest per successful round
+- ArticleHeader.tsx
 - Spec 056 — Webhook saliente: método HTTP y headers custom
 - Design 055 — Guardas por salida
 - Design 052 — Export de informe de estado
@@ -330,58 +330,40 @@
 - 5. UI
 - openai-compatible/index.ts
 - inbox-poller.ts
-- search.ts
+- TurnUsageChip.tsx
 - connection-health.ts
-- App
+- ReleasesPage.tsx
 - useDataStore.ts
-- providers/types.ts
-- node-issues.ts
+- validation.ts
 - File structure
 - compilerOptions
 - @dnd-kit/core
-- VariableMenu.tsx
+- VariablesPanel.tsx
 - useGraphHistory.ts
-- Task 1 Report — TokenUsage types + parseUsage
-- useBreakpoint.ts
 - @dnd-kit/sortable
 - lucide-react
 - react-helmet-async
 - react-router-dom
 - @vercel/analytics
 - @xyflow/react
-- Task 7 Report: ragPolicy (pure)
-- DateFieldPreview.tsx
-- SDD ledger — plan: specs/060-ai-token-usage/plan.md
-- AreaCard.tsx
-- Task 3 Report — StreamTurnResult.usage + Gemini + OpenAI adapters
-- Task 2 Report — OpenAI SSE: capture `usage` on usage-only chunks
 - integration-db.ts
-- Task 13 Report: AiUsageCard + Settings + RagSettings copy
-- temporal.ts
-- Task 8 Report: selectWorkspaceIndex + systemPrompt evidence / omit empty
-- Task 11 Report: Wire `send()` — policy, focused index, cache, usage events
-- task-14-brief.md
-- Task 12 Report: TurnUsageChip + AssistantPanel
-- config.ts
+- useDataStore
+- webhook-request.ts
 - dexie
-- Task 9 Report: query embedding LRU + semanticSearch
-- Task 10 Report: compactToolResults
-- ActionConfigFields.tsx
-- transformSnippets.ts
-- integrationDb
+- TransformConfigFields.tsx
 - 060-ai-token-usage/smoke.md
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 150 edges
-2. `Button` - 98 edges
-3. `useDataStore` - 89 edges
-4. `Project` - 88 edges
+2. `Button` - 99 edges
+3. `Project` - 89 edges
+4. `useDataStore` - 89 edges
 5. `ROUTES` - 65 edges
 6. `nowIso()` - 62 edges
 7. `uuid()` - 58 edges
 8. `Person` - 50 edges
 9. `BlogArticle` - 46 edges
-10. `Badge()` - 42 edges
+10. `newProject()` - 44 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Tabs()` --references--> `react`  [EXTRACTED]
@@ -398,11 +380,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (375 total, 21 thin omitted)
+## Communities (344 total, 20 thin omitted)
 
 ### Community 0 - "projectOps.ts"
-Cohesion: 0.13
-Nodes (22): addChecklist(), addProcess(), addSprint(), applyChecklistToArea(), applyProcessToArea(), assignTaskToSprint(), mapArea(), mapChecklist() (+14 more)
+Cohesion: 0.14
+Nodes (21): addChecklist(), addProcess(), addSprint(), applyChecklistToArea(), applyProcessToArea(), mapArea(), mapChecklist(), removeChecklist() (+13 more)
 
 ### Community 1 - "Spec 060 — Consumo de tokens y requests del asistente (auditoría + recorte RAG-aware)"
 Cohesion: 0.09
@@ -410,23 +392,23 @@ Nodes (22): 10. PR Plan, 11. Documentos de esta carpeta, 1.1 Qué se manda hoy e
 
 ### Community 2 - "button.tsx"
 Cohesion: 0.09
-Nodes (60): AiImproveButton(), AttachmentsSection(), Props, SortableItem(), SortableRenderProps, DateRangeSummary(), Entity, EntitySelect() (+52 more)
+Nodes (62): AiImproveButton(), AttachmentsSection(), ConfirmDialogProps, Props, SortableItem(), SortableRenderProps, DateRangeSummary(), Entity (+54 more)
 
-### Community 3 - "articles-index.ts"
-Cohesion: 0.06
-Nodes (30): article, article, article, article, article, article, article, article (+22 more)
+### Community 3 - "blog/types.ts"
+Cohesion: 0.04
+Nodes (52): article, article, article, article, article, article, article, article (+44 more)
 
-### Community 4 - "utils.tsx"
-Cohesion: 0.09
-Nodes (35): splitQualified(), EntityCardProps, Badge(), badgeVariants, Card, CardContent, CardDescription, CardFooter (+27 more)
+### Community 4 - "AiSettingsCard.tsx"
+Cohesion: 0.11
+Nodes (26): EntityCardProps, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox (+18 more)
 
-### Community 5 - "Task"
-Cohesion: 0.07
-Nodes (42): Area, Checklist, ChecklistItem, Sprint, Task, TaskWithProject, TaskWithProject, Props (+34 more)
+### Community 5 - "FlowCanvas.tsx"
+Cohesion: 0.11
+Nodes (21): DropdownMenuContent, DropdownMenuItem, DropdownMenuSubContent, DropdownMenuSubTrigger, FlowCanvas(), NO_ISSUES, Props, RunProjection (+13 more)
 
-### Community 6 - "useRagStore.ts"
-Cohesion: 0.18
-Nodes (21): buildRagContext(), buildRagContextDetailed(), buildSystemPrompt(), formatRagBlock(), renderSection(), buildEmbeddingText(), collectEntities(), indexAllEntities() (+13 more)
+### Community 6 - "search.ts"
+Cohesion: 0.11
+Nodes (31): buildRagContext(), buildRagContextDetailed(), buildSystemPrompt(), formatRagBlock(), renderSection(), buildEmbeddingText(), collectEntities(), indexAllEntities() (+23 more)
 
 ### Community 7 - "github.ts"
 Cohesion: 0.09
@@ -434,15 +416,15 @@ Nodes (70): handler(), handler(), handler(), readJsonBody(), handler(), handler(
 
 ### Community 8 - "LandingPage.tsx"
 Cohesion: 0.05
-Nodes (37): HierarchyLegend(), LibraryOrderLegend(), AiAssistantSection(), FLOW_STEPS, PILLARS, BlogTeaser(), TEASER_ARTICLES, Cell (+29 more)
+Nodes (41): ScrollToHash(), AiAssistantSection(), FLOW_STEPS, PILLARS, Cell, Comparison(), COMPETITORS, ROWS (+33 more)
 
-### Community 9 - "blog/types.ts"
-Cohesion: 0.06
-Nodes (24): BlogCard(), BlogCardProps, CategoryBadge(), CategoryBadgeProps, article, article, article, article (+16 more)
+### Community 9 - "categories.ts"
+Cohesion: 0.16
+Nodes (13): BlogCard(), BlogCardProps, CategoryBadge(), CategoryBadgeProps, BLOG_CATEGORIES, BLOG_CATEGORY_SLUGS, BlogCategoryMeta, DEFAULT_CATEGORY_HUE (+5 more)
 
 ### Community 10 - "nodeTypes.tsx"
 Cohesion: 0.11
-Nodes (33): providerLabel, Output, Props, actionSummary(), conditionSummary(), defaultOutputForType(), formatConditionValue(), outputMeta() (+25 more)
+Nodes (32): providerLabel, Output, Props, actionSummary(), conditionSummary(), defaultOutputForType(), formatConditionValue(), outputMeta() (+24 more)
 
 ### Community 11 - "devDependencies"
 Cohesion: 0.05
@@ -452,65 +434,65 @@ Nodes (41): autoprefixer, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-
 Cohesion: 0.12
 Nodes (27): PollFilter, ManualPollFetchResult, ManualRunOutcome, DEALS_FLOOR, HubSpotDeal, pollHubSpotDeals(), CONTACTS_FLOOR, HubSpotConfig (+19 more)
 
-### Community 13 - "cn"
-Cohesion: 0.07
-Nodes (46): activeKey(), activeProviderId(), AiConfig, hasKey(), AI_ERROR_MESSAGES, getModelDef(), AiModelSelector(), AiModelSelectorProps (+38 more)
+### Community 13 - "config.ts"
+Cohesion: 0.08
+Nodes (40): activeBaseUrl(), activeKey(), activeProviderId(), AI_MODELS, AiConfig, AiConfigSchema, AiProviderConfig, AiProviderConfigSchema (+32 more)
 
 ### Community 14 - "schemas/project.ts"
 Cohesion: 0.04
-Nodes (68): ACTIVITY_CAP, ActivityDoc, ActivityDocSchema, ActivityEntrySchema, emptyActivityDoc(), AttachmentSchema, Action, ActionSchema (+60 more)
+Nodes (66): countWorkspaceAttachments(), ACTIVITY_CAP, ActivityDoc, ActivityDocSchema, ActivityEntrySchema, emptyActivityDoc(), AttachmentSchema, Action (+58 more)
 
 ### Community 15 - "github-bff.ts"
-Cohesion: 0.13
-Nodes (23): GitHubConnectPage(), humanizeError(), PageState, StatusBlock(), BFF_BASE_URL, createGitHubRepository(), getGitHubCallbackUrl(), getGitHubConnection() (+15 more)
+Cohesion: 0.11
+Nodes (29): GitHubConnectPage(), humanizeError(), PageState, StatusBlock(), BFF_BASE_URL, createGitHubProjectRemote(), createGitHubRepository(), getGitHubCallbackUrl() (+21 more)
 
-### Community 16 - "RateLimiter"
-Cohesion: 0.12
-Nodes (16): buildGenerateTransformPrompt(), GenerateTransformOptions, GenerateTransformOptionsWithFallback, GenerateTransformResult, GenerateTransformResultWithMeta, parseGenerateTransformResponse(), runGenerateTransform(), runGenerateTransformWithFallback() (+8 more)
+### Community 16 - "models.ts"
+Cohesion: 0.11
+Nodes (21): defaultModelForProvider(), customModelDef(), FALLBACK_CHAINS, FallbackChain, gemini(), getChainForGroup(), getModelDef(), getModelsByProvider() (+13 more)
 
 ### Community 17 - "schemas/index.ts"
-Cohesion: 0.07
-Nodes (46): CreateNotificationOutput, CreateNotificationOutputSchema, CreatePersonOutput, CreatePersonOutputSchema, CreateProjectOutput, CreateProjectOutputSchema, CreateTaskOutput, CreateTaskOutputSchema (+38 more)
+Cohesion: 0.06
+Nodes (58): CreateNotificationOutput, CreateNotificationOutputSchema, CreatePersonOutput, CreatePersonOutputSchema, CreateProjectOutput, CreateProjectOutputSchema, CreateTaskOutput, CreateTaskOutputSchema (+50 more)
 
-### Community 18 - "FlowRule"
-Cohesion: 0.14
-Nodes (20): DomainEvent, DomainEventType, FlowRule, DebuggerPanel(), Props, Status, rawEventFields(), Props (+12 more)
+### Community 18 - "DebuggerPanel.tsx"
+Cohesion: 0.24
+Nodes (10): DebuggerPanel(), Props, Status, FlowHistoryPage(), FlowRunDetailDrawer(), Props, FlowRunTraceView(), DryRunResult (+2 more)
 
 ### Community 19 - "variables.ts"
-Cohesion: 0.09
-Nodes (31): getSampleDataForTrigger(), TransformConfigFields(), detectType(), formatExample(), SampleFieldInfo, sampleFields(), allInternalTargetFields(), AREA_ENRICHMENT_EXAMPLES (+23 more)
+Cohesion: 0.08
+Nodes (34): DomainEventType, InterpolableField(), Props, Props, SampleExplorer(), detectType(), formatExample(), SampleFieldInfo (+26 more)
 
 ### Community 20 - "dependencies"
 Cohesion: 0.06
 Nodes (35): class-variance-authority, clsx, cmdk, @dnd-kit/modifiers, @fontsource-variable/inter, dependencies, class-variance-authority, clsx (+27 more)
 
-### Community 21 - "usage/types.ts"
-Cohesion: 0.10
-Nodes (20): aggregateDay(), aggregateTurn(), localDateKey(), buildExportPayload(), formatTokenCount(), formatTurnChip(), IDB_USAGE_EVENTS, loadEvents() (+12 more)
+### Community 21 - "useAiUsageStore.ts"
+Cohesion: 0.09
+Nodes (23): aggregateDay(), aggregateTurn(), localDateKey(), buildExportPayload(), IDB_USAGE_EVENTS, loadEvents(), saveEvents(), pruneEvents() (+15 more)
 
 ### Community 22 - "flows/engine.ts"
-Cohesion: 0.07
-Nodes (56): newPerson(), WebhookOutput, evaluateCondition(), toComparableNumber(), buildOutboundSyncLog(), maskSecretInPayload(), persistOutboundDeliveries(), truncateForLog() (+48 more)
+Cohesion: 0.11
+Nodes (33): applyMapping(), buildNotificationEntityRef(), collapseAndStampDeliveries(), describeOutput(), EmailDelivery, evaluateConditionsDetailed(), eventToSource(), executeOutput() (+25 more)
 
-### Community 23 - "schedule-cadence.ts"
-Cohesion: 0.13
-Nodes (19): atLocal(), formatScheduleSummary(), isDue(), nextFireAfter(), pad2(), previousFireAtOrBefore(), ScheduleCadence, ScheduleSpec (+11 more)
+### Community 23 - "schedule-manager.ts"
+Cohesion: 0.18
+Nodes (10): ScheduleSpec, registerScheduleFlow(), ScheduleManager, ScheduleRegistration, unregisterScheduleFlow(), clearLastFiredAt(), loadLastFiredAt(), memory (+2 more)
 
-### Community 24 - "validation.ts"
+### Community 24 - "filterMyTasks.ts"
 Cohesion: 0.12
-Nodes (18): Trigger, Props, TriggerNodeDrawer(), HUBSPOT_DEFAULT_FIELDS_FOR_OBJECT_TYPE, stageVariables, Props, VariablesPanel(), createEmptyFlow() (+10 more)
+Nodes (26): applyFilter(), applyShowDone(), applyStatus(), clearMyTaskFilters(), collectAssigned(), DATE_FILTERS, emptyResult(), filterAndSortMyTasks() (+18 more)
 
 ### Community 25 - "tools/types.ts"
-Cohesion: 0.07
-Nodes (71): ctx, mcp, tools, areaLabel(), automationName(), checklistTemplateName(), personLabel(), processTemplateName() (+63 more)
-
-### Community 26 - "useAppStore"
 Cohesion: 0.08
-Nodes (27): DailyStandupPage, DashboardPage, FlowBuilderPage, FlowHistoryPage, FlowsPage, GitHubConnectPage, IntegrationsPage, LibraryPage (+19 more)
+Nodes (63): ctx, mcp, tools, areaLabel(), automationName(), checklistTemplateName(), personLabel(), processTemplateName() (+55 more)
 
-### Community 27 - "uiContext.ts"
+### Community 26 - "App.tsx"
 Cohesion: 0.05
-Nodes (56): buildCatalog(), ctxKind(), filterBySlot(), GENERIC_FOLLOWUPS, QuickAction, selectFollowUps(), selectQuickActions(), globalCtx (+48 more)
+Nodes (37): DailyStandupPage, DashboardPage, FlowBuilderPage, FlowHistoryPage, FlowsPage, GitHubConnectPage, IntegrationsPage, LibraryPage (+29 more)
+
+### Community 27 - "AssistantPanel.tsx"
+Cohesion: 0.07
+Nodes (51): buildCatalog(), ctxKind(), filterBySlot(), GENERIC_FOLLOWUPS, QuickAction, selectFollowUps(), selectQuickActions(), globalCtx (+43 more)
 
 ### Community 28 - "Design 042 — Anexos multimedia en carpeta local"
 Cohesion: 0.05
@@ -528,17 +510,17 @@ Nodes (22): 1.1 El dato, 1.2 Cómo llega al CSS, 1.3 Regla de contraste, 1. Acen
 Cohesion: 0.11
 Nodes (17): 1.1 Auditoría del estado actual, 1.2 Lo que ya sirve y no se toca, 1. Contexto, 2. Objetivo, 3. Decisiones de diseño (resueltas), 4. Historias de usuario (con criterios de aceptación), 5. Alcance, 6. Riesgos y mitigaciones (+9 more)
 
-### Community 32 - "GitHubAppPanel.tsx"
+### Community 32 - "IntegrationsPage.tsx"
 Cohesion: 0.08
-Nodes (35): Breadcrumb(), BreadcrumbItem, BreadcrumbProps, PageHeader(), PageHeaderProps, Panel, PanelProps, formatMs() (+27 more)
+Nodes (37): PageHeader(), Panel, PanelProps, formatMs(), PollingStatusRow, ScheduledServicesPage(), ConnectionDialog(), Props (+29 more)
 
 ### Community 33 - "FileSystemAdapter"
-Cohesion: 0.13
-Nodes (13): assertSafeAttachmentPath(), COLLECTION_DIRS, DOC_DIRS, fileExists(), FileSystemAdapter, parseOrThrow(), readJsonFile(), StorageError (+5 more)
+Cohesion: 0.16
+Nodes (8): fileExists(), FileSystemAdapter, parseOrThrow(), readJsonFile(), verifyPermission(), writeBlob(), writeJsonFile(), writeRaw()
 
 ### Community 34 - "useChatStore.ts"
-Cohesion: 0.10
-Nodes (20): AGENT_HISTORY_WINDOW, trimAgentHistory(), shouldAutoRag(), shouldFocusIndex(), Case, cases, CONTINUATIONS, shouldSkipRag() (+12 more)
+Cohesion: 0.08
+Nodes (24): AGENT_HISTORY_WINDOW, trimAgentHistory(), shouldAutoRag(), shouldFocusIndex(), Case, cases, CONTINUATIONS, shouldSkipRag() (+16 more)
 
 ### Community 35 - "007 — Busqueda Semantica (RAG) con Embeddings"
 Cohesion: 0.04
@@ -548,29 +530,29 @@ Nodes (46): 007 — Busqueda Semantica (RAG) con Embeddings, 10. Modificaciones 
 Cohesion: 0.08
 Nodes (23): DOM, DOM.Iterable, ES2020, src, compilerOptions, allowImportingTsExtensions, isolatedModules, jsx (+15 more)
 
-### Community 37 - "categories.ts"
+### Community 37 - "BlogPostPage.tsx"
 Cohesion: 0.11
-Nodes (24): distDir, GENERIC_ROUTES, injectIntoTemplate(), main(), outputPathFor(), root, writeRoute(), BLOG_ARTICLES_META (+16 more)
+Nodes (22): distDir, GENERIC_ROUTES, injectIntoTemplate(), main(), outputPathFor(), root, writeRoute(), ReadingProgress() (+14 more)
 
 ### Community 38 - "Design 046 — Scroll interno del sidebar + modo minimizado"
 Cohesion: 0.12
 Nodes (16): 0. Mapa de archivos, 1. Fix de altura (root cause), 2. Scroll del `<nav>` del sidebar, 3. Estado de colapso + persistencia, 4. Ancho del `<aside>` de escritorio, 5.1 Header (logo), 5.2 Botón de colapsar/expandir, 5.3 Botón de búsqueda (⌘K) (+8 more)
 
 ### Community 39 - "useAppStore.ts"
-Cohesion: 0.14
-Nodes (23): clearAiConfig(), DemoBanner(), idbDel(), idbGet(), openDb(), dismissDemoBanner(), getWorkspaceMode(), isDemoBannerDismissed() (+15 more)
+Cohesion: 0.16
+Nodes (19): DemoBanner(), WorkspaceStatus(), createStorageAdapter(), dismissDemoBanner(), getWorkspaceMode(), isDemoBannerDismissed(), isDemoSeeded(), markDemoCleared() (+11 more)
 
 ### Community 40 - "StorageAdapter"
 Cohesion: 0.09
-Nodes (12): seedDemo(), makeRecordingAdapter(), Workspace, WorkspaceSchema, DOCS, exportCollection(), importCollection(), isDoc() (+4 more)
+Nodes (5): DOCS, exportCollection(), importCollection(), isDoc(), StorageAdapter
 
 ### Community 41 - "connections.ts"
-Cohesion: 0.10
-Nodes (31): TriggerStep(), ConnectionDialog(), Props, PROVIDER_META, ProviderField, ProviderMeta, AppsScriptGuideProps, ProviderConnectionsPanel() (+23 more)
+Cohesion: 0.12
+Nodes (18): ConnectionProbeOptions, ConnectionProbeResult, ConnectionTestResult, createConnection(), CreateConnectionInput, DEFAULT_PROBE_OPERATION, EmailProbeOperation, extractHubSpotRecords() (+10 more)
 
-### Community 42 - "emptyWorkspace"
-Cohesion: 0.09
-Nodes (16): makeCtx(), makeCtx(), emptyWorkspace(), agentCalls, confirmResults, ragState, agentCalls, ragContextCalls (+8 more)
+### Community 42 - "Spec 062 — Tipos de trabajo (historia, enabler, spike, key result, bug, PRD, tarea)"
+Cohesion: 0.08
+Nodes (25): 10. Fuera de alcance, 11. Riesgos, 12. Definición de hecho, 1. Contexto, 2. Objetivo, 3. Por qué no otras formas (descartado), 4. Decisiones fijadas (no re-preguntar), 5. Modelo de datos (+17 more)
 
 ### Community 43 - "PollingManager"
 Cohesion: 0.14
@@ -578,15 +560,15 @@ Nodes (7): PollHandler, PollingConfig, PollingManager, PollingRegistration, init
 
 ### Community 44 - "idbSet"
 Cohesion: 0.18
-Nodes (4): BLOB_KEY(), DownloadAdapter, KEY(), idbSet()
+Nodes (5): assertSafeAttachmentPath(), BLOB_KEY(), DownloadAdapter, KEY(), idbSet()
 
 ### Community 45 - "Design 053 — Vista línea de tiempo / calendario"
 Cohesion: 0.08
 Nodes (23): 0. Mapa de archivos (previsto), 1.1 Builder, 1.2 Rangos de navegación (`dateRange.ts`), 1. Modelo de ítems (puro), 2.1 Props, 2.2 Layout semana, 2.3 Layout mes, 2.4 Chips (+15 more)
 
 ### Community 46 - "ops.ts"
-Cohesion: 0.07
-Nodes (42): Props, AttachmentRow(), KIND_ICON, Props, Props, SingleToast(), TOAST_CLASSES, TOAST_ICONS (+34 more)
+Cohesion: 0.09
+Nodes (33): AudioPreview(), Props, VideoPreview(), AttachmentRow(), KIND_ICON, Props, Props, ATTACHMENT_ALLOWLIST (+25 more)
 
 ### Community 47 - "Design 047 — Proveedores de IA intercambiables"
 Cohesion: 0.11
@@ -637,28 +619,28 @@ Cohesion: 0.11
 Nodes (18): AI Token Usage (spec 060) Implementation Plan, File structure (lock this), Global Constraints, Spec coverage (self-review), Task 10: compactToolResults, Task 11: Wire `send()` — policy, focused index, cache, usage events, Task 12: TurnUsageChip + AssistantPanel, Task 13: AiUsageCard + Settings + RagSettings copy (+10 more)
 
 ### Community 59 - "improve.ts"
-Cohesion: 0.13
-Nodes (23): AiImproveResult, AiImproveResultSchema, buildImprovePrompt(), EntityType, FieldSuggestion, FieldSuggestionSchema, ImproveOptions, ImproveOptionsWithFallback (+15 more)
+Cohesion: 0.14
+Nodes (19): AiImproveResult, AiImproveResultSchema, buildImprovePrompt(), FieldSuggestion, FieldSuggestionSchema, ImproveOptions, ImproveOptionsWithFallback, ImproveResult (+11 more)
 
 ### Community 60 - "scripts"
 Cohesion: 0.20
 Nodes (10): scripts, build, dev, format, lint, mcp:server, prerender, preview (+2 more)
 
-### Community 61 - "FlowCanvas.tsx"
-Cohesion: 0.09
-Nodes (34): DialogSize, CanvasInner(), drawerTitle(), FlowCanvas(), NO_ISSUES, Props, RunProjection, toPlainNodes() (+26 more)
+### Community 61 - "graph.ts"
+Cohesion: 0.16
+Nodes (20): DialogSize, CanvasInner(), drawerTitle(), toPlainNodes(), nodeConfigDialogSize(), buildGraphFromRule(), COLUMN_X, compileGraphToRule() (+12 more)
 
-### Community 62 - "SeoPage.tsx"
-Cohesion: 0.10
-Nodes (14): ScrollToHash(), COLUMNS, FooterLink, LandingFooter(), LandingNav(), StickyCta(), ArticleFaq(), ArticleFaqProps (+6 more)
+### Community 62 - "FileSystemAdapter.ts"
+Cohesion: 0.22
+Nodes (13): makeRecordingAdapter(), Workspace, WorkspaceSchema, COLLECTION_DIRS, DOC_DIRS, StorageError, idbGet(), openDb() (+5 more)
 
 ### Community 63 - "dispatcher.ts"
-Cohesion: 0.16
-Nodes (19): Props, buildPayload(), createWebhookSubscription(), dispatchOutboundEvents(), enqueueDelivery(), getWebhookSubscriptions(), logDispatchFailure(), migrateWebhookSubscriptionSecrets() (+11 more)
+Cohesion: 0.18
+Nodes (17): buildPayload(), createWebhookSubscription(), dispatchOutboundEvents(), enqueueDelivery(), getWebhookSubscriptions(), logDispatchFailure(), migrateWebhookSubscriptionSecrets(), OutboundPayload (+9 more)
 
 ### Community 64 - "factories.ts"
-Cohesion: 0.11
-Nodes (54): seededCtx(), createCompositeTools(), makeCtx(), projectWithChecklist(), applyAction(), projectWithChecklist(), diffProjectEvents(), dailyCompletedYesterday() (+46 more)
+Cohesion: 0.09
+Nodes (59): seededCtx(), createCompositeTools(), makeCtx(), makeCtx(), makeCtx(), projectWithChecklist(), applyAction(), projectWithChecklist() (+51 more)
 
 ### Community 65 - "5. Historias de usuario y criterios de aceptación"
 Cohesion: 0.10
@@ -669,8 +651,8 @@ Cohesion: 0.11
 Nodes (18): 1.1 UX hoy (con anclas de código), 1.2 Costo de llamados hoy, 1.3 Qué NO es el problema (fuera de esta spec), 1. Contexto, 2. Objetivo, 3. Decisiones fijadas (no re-preguntar), 4. Historias de usuario y criterios de aceptación, 5. Fuera de alcance (+10 more)
 
 ### Community 67 - "PortfolioCalendarView.tsx"
-Cohesion: 0.14
-Nodes (40): CalendarTaskItem, monthsOverlapping(), tasksOnDay(), bandColor(), bandTooltip(), colorIndex(), DayPanel(), Density (+32 more)
+Cohesion: 0.08
+Nodes (69): SprintStatus, bandsCoveringDay(), BuildCalendarInput, buildCalendarModel(), BuildPortfolioCalendarInput, buildPortfolioCalendarModel(), CalendarModel, CalendarProjectDueItem (+61 more)
 
 ### Community 68 - "Spec 035 — Blog: performance y organización (split por artículo + metadata separada)"
 Cohesion: 0.07
@@ -696,9 +678,9 @@ Nodes (4): FieldMapping, getNestedValue(), MappingAction, MappingEngine
 Cohesion: 0.44
 Nodes (7): ProjectDetailContent(), isValidTab(), LAST_TAB_KEY, ProjectTab, readLastTab(), VALID_TABS, writeLastTab()
 
-### Community 74 - "ExportReportMenu.tsx"
-Cohesion: 0.19
-Nodes (18): Props, PortfolioStatusReport, ProjectStatusReport, StatusReport, settings, escapeHtml(), markdownToSimpleHtml(), reportToPrintableHtml() (+10 more)
+### Community 74 - "statusReportMarkdown.ts"
+Cohesion: 0.24
+Nodes (14): PortfolioStatusReport, ProjectStatusReport, StatusReport, escapeHtml(), markdownToSimpleHtml(), reportToPrintableHtml(), escCell(), omittedNote() (+6 more)
 
 ### Community 75 - "Design 045 — Enlaces que funcionan + Ver por defecto con lápiz"
 Cohesion: 0.13
@@ -748,9 +730,9 @@ Nodes (26): 10. Riesgos y mitigaciones, 11. Métrica de aceptación, 1. Decision
 Cohesion: 0.09
 Nodes (22): 10. Progreso, 1.1 Qué reutilizamos, 1.2 Qué no es esta spec, 1. Contexto, 2. Objetivo, 3. Decisiones fijadas (no re-preguntar), 4. Historias de usuario y criterios de aceptación, 5. Contenido visual (contrato) (+14 more)
 
-### Community 91 - "Task 5 Report — prune, aggregate, format (pure)"
-Cohesion: 0.18
-Nodes (10): Commit, Concerns, Files changed, GREEN, RED, Self-review, Status, Task 5 Report — prune, aggregate, format (pure) (+2 more)
+### Community 91 - "AutomationDialog.tsx"
+Cohesion: 0.15
+Nodes (13): actionLabel, conditionFieldLabel, EVENT_TRIGGERS, severityLabel, triggerLabel, Scope, ACTION_TYPES, OPS (+5 more)
 
 ### Community 92 - "Tasks 047 — Proveedores de IA intercambiables"
 Cohesion: 0.18
@@ -780,21 +762,21 @@ Nodes (24): Alcance técnico, Algoritmo, Archivos creados:, Archivos modificados
 Cohesion: 0.25
 Nodes (7): Design 057 — GitHub App + archivos de proyecto en el repo, Endpoints BFF, Fronteras, Niveles (syncMode), Permisos App, Persistencia local, Sync de archivos
 
-### Community 101 - "FieldMapping"
-Cohesion: 0.32
-Nodes (6): FieldMapping, mappingEffect, rootOf(), SAMPLE_FIELDS, Props, TransformNodeData
+### Community 101 - "interpolation.ts"
+Cohesion: 0.23
+Nodes (13): InterpolationPreview(), Props, applyMods(), coerceDateString(), formatNumberEs(), interpolateObject(), interpolateString(), InterpolationObjectResult (+5 more)
 
 ### Community 102 - "Spec 023 — Integración avanzada con Google Sheets/HubSpot + Flujos con lógica real"
 Cohesion: 0.08
 Nodes (23): Archivos clave, Context, Decisiones confirmadas con el usuario, Fase A — Vault: persistencia elegible + auto-lock configurable, Fase B — Probar conexión: operación + respuesta cruda + guías, Fase C — Variables asistidas: selector + asociación origen→destino intuitiva, Fase D — Nodo "Crear tarea" completo + referencia al proyecto creado, Fase E — Deduplicación por clave en crear-tarea / crear-proyecto (+15 more)
 
-### Community 103 - "Task 6 Report — IndexedDB + useAiUsageStore"
-Cohesion: 0.18
-Nodes (10): Commit, Concerns, Files changed, GREEN, RED, Self-review, Status, Task 6 Report — IndexedDB + useAiUsageStore (+2 more)
+### Community 103 - "Design 062 — Tipos de trabajo"
+Cohesion: 0.17
+Nodes (11): 10. Alternativas descartadas en implementación, 1. Schema, 2. Factory + migración, 3. Labels, 4. KR compacto, 5. Forms, 6. Filtros, 7. IA (+3 more)
 
-### Community 104 - "ReleasesPage.tsx"
-Cohesion: 0.15
-Nodes (16): CAPABILITIES, Capability, RELEASES, ROADMAP, ROADMAP_HORIZONS, formatReleaseDate(), KIND_META, ReleasesPage() (+8 more)
+### Community 104 - "releases/types.ts"
+Cohesion: 0.19
+Nodes (11): CAPABILITIES, Capability, RELEASES, ROADMAP, ROADMAP_HORIZONS, ReleaseChange, ReleaseChangeKind, ReleaseEntry (+3 more)
 
 ### Community 105 - "Tareas — Spec 059 (Blog: experiencia de lectura y textura visual)"
 Cohesion: 0.22
@@ -1013,8 +995,8 @@ Cohesion: 0.15
 Nodes (12): Decisiones explícitas (no re-preguntar), Especificación — Resiliencia de la integración con Gemini (errores de cuota y fallback), Fuera de alcance, Historias de usuario (con criterios de aceptación), HU-01 — Diagnóstico correcto: cuota de proyecto en cero vs. rate-limit transitorio, HU-02 — El fallback de modelos agota el grupo, no se rinde tras un reintento, HU-03 — Un fallo en RAG no rompe el envío del mensaje, HU-04 — Detalle técnico disponible sin ensuciar el mensaje principal (+4 more)
 
 ### Community 165 - "manual-run.test.ts"
-Cohesion: 0.17
-Nodes (11): fetchPollSampleForFlow(), mockedGetConnection, mockedPollGoogleSheets, mockedPollHubSpot, mockedPollHubSpotDeals, mockedResolveSecret, GoogleSheetsConfig, logSync() (+3 more)
+Cohesion: 0.18
+Nodes (10): mockedGetConnection, mockedPollGoogleSheets, mockedPollHubSpot, mockedPollHubSpotDeals, mockedResolveSecret, GoogleSheetsConfig, logSync(), parseSheetRows() (+2 more)
 
 ### Community 166 - "README.md"
 Cohesion: 0.17
@@ -1244,9 +1226,9 @@ Nodes (6): Explícitamente fuera de este tasks.md, Fase 1 — Esqueleto, Fase 2 
 Cohesion: 0.33
 Nodes (6): 8.1 Análisis por API, 8.2 UI de diagnóstico CORS, 8. El Problema de CORS — Estrategias de Mitigación, Google Sheets API (✅ CORS nativo con gapi.js), HubSpot API (❌ No soporta CORS), Zapier / Make Webhooks (✅ CORS permitido)
 
-### Community 223 - "buildCalendarItems.ts"
-Cohesion: 0.13
-Nodes (27): SprintStatus, bandsCoveringDay(), BuildCalendarInput, buildCalendarModel(), BuildPortfolioCalendarInput, buildPortfolioCalendarModel(), CalendarModel, CalendarProjectDueItem (+19 more)
+### Community 223 - "schedule-cadence.ts"
+Cohesion: 0.36
+Nodes (9): atLocal(), formatScheduleSummary(), isDue(), nextFireAfter(), pad2(), previousFireAtOrBefore(), ScheduleCadence, syntheticScheduleRecord() (+1 more)
 
 ### Community 225 - "10. Experiencia de Usuario (UI/UX) — actualizada a la UI real construida"
 Cohesion: 0.40
@@ -1316,9 +1298,9 @@ Nodes (15): 1. Contexto, 2. Objetivo, 3. Decisiones fijadas (no re-preguntar), 4
 Cohesion: 0.18
 Nodes (10): Cierre, HU-01 — Contexto de pantalla, HU-02 — Chips, HU-03 — Slash, HU-04 — Follow-ups, HU-05 — Copiar / regenerar / reintentar, HU-06 — Eficiencia (aproximada a mano), Prep (+2 more)
 
-### Community 243 - "marketingRoutes.tsx"
-Cohesion: 0.13
-Nodes (13): ScrollToTop(), AlternativaNotionPage, AlternativaTrelloPage, BlogCategoryPage, BlogIndexPage, BlogPostPage, DocModulePage, DocsIndexPage (+5 more)
+### Community 243 - "Prompt de ejecución — Spec 062"
+Cohesion: 0.25
+Nodes (7): Baseline al empezar, Cómo ejecutar, Decisiones ya fijadas — no re-preguntar, Definición de hecho, Invariantes (no romper), Orden de lectura obligatorio (antes de tocar código), Prompt de ejecución — Spec 062
 
 ### Community 244 - "Prompt de ejecución — Spec 042"
 Cohesion: 0.20
@@ -1356,9 +1338,9 @@ Nodes (14): 1. Contexto, 2. Objetivo, 3. Decisiones fijadas (no re-preguntar), 4
 Cohesion: 0.11
 Nodes (14): decryptPayload(), decryptWithKey(), deriveKey(), EncryptedPayload, encryptPayload(), encryptWithKey(), exportKeyRaw(), importKeyRaw() (+6 more)
 
-### Community 253 - "runAgentTurn.ts"
-Cohesion: 0.11
-Nodes (23): AgentCallbacks, AgentTurnOptions, AgentTurnResult, executeCall(), runAgentTurn(), safeDescribe(), Behavior, FLASH_MODELS (+15 more)
+### Community 253 - "providers/types.ts"
+Cohesion: 0.08
+Nodes (41): AgentCallbacks, AgentTurnOptions, AgentTurnResult, executeCall(), runAgentTurn(), safeDescribe(), Behavior, FLASH_MODELS (+33 more)
 
 ### Community 254 - "Design 043 — Links en tareas"
 Cohesion: 0.17
@@ -1372,9 +1354,9 @@ Nodes (9): Arranque, Baseline a verificar al empezar, Cómo ejecutar, Decisiones
 Cohesion: 0.10
 Nodes (19): 0. Mapa de archivos, 1.1 Componente, 1.2 Scroll sync — `useSnapColumnIndex`, 1.3 Sticky, 1. Pager de columnas (HU-01), 2.1 Card — targets, 2.2 Drawer — control de estado de primera clase, 2.3 Sensores (sin cambio de política) (+11 more)
 
-### Community 257 - "BlogPostPage.tsx"
-Cohesion: 0.10
-Nodes (22): ArticleHeader(), ArticleHeaderProps, formatDate(), ArticleToc(), ArticleTocProps, META, SECTIONS, AuthorCard() (+14 more)
+### Community 257 - "articleView.test.tsx"
+Cohesion: 0.11
+Nodes (15): ArticleToc(), ArticleTocProps, META, SECTIONS, AuthorCard(), AuthorCardProps, initials(), buildSectionIds() (+7 more)
 
 ### Community 258 - "Prompt de ejecución — Spec 047"
 Cohesion: 0.22
@@ -1385,8 +1367,8 @@ Cohesion: 0.33
 Nodes (5): Fase A — Dominio, Fase B — Helper, Fase C — UI, Fase D — Cierre, Tasks 043 — Links en tareas
 
 ### Community 260 - "ConditionConfigFields.tsx"
-Cohesion: 0.17
-Nodes (18): FlowCondition, ConditionConfigFields(), ConditionFieldPicker(), ConditionPreview(), formatValue(), Props, STRINGISH_OPS, conditionUpdatesWithPrefill() (+10 more)
+Cohesion: 0.16
+Nodes (20): FlowCondition, OutputWhen, ConditionConfigFields(), ConditionPreview(), formatValue(), Props, STRINGISH_OPS, conditionUpdatesWithPrefill() (+12 more)
 
 ### Community 261 - "Spec 054 — Kanban usable en el teléfono"
 Cohesion: 0.10
@@ -1421,12 +1403,12 @@ Cohesion: 0.22
 Nodes (8): Fase A — Fix de altura del app-shell (root cause), Fase B — Scroll del `<nav>` del sidebar, Fase C — Estado de colapso + persistencia, Fase D — Rail de íconos, Fase E — `WorkspaceStatus` colapsado, Fase F — Smoke manual (obligatorio — no hay RTL en el repo para esto), Fase G — Cierre, Tasks 046 — Scroll interno del sidebar + modo minimizado
 
 ### Community 269 - "Project"
-Cohesion: 0.10
-Nodes (46): empty, sample, ToolActions, ToolData, conditionsPass(), EngineInput, EngineResult, evalCondition() (+38 more)
+Cohesion: 0.05
+Nodes (83): empty, sample, ToolActions, ToolData, EngineInput, EngineResult, DomainEvent, TemporalInput (+75 more)
 
-### Community 270 - "DashboardPage.tsx"
-Cohesion: 0.11
-Nodes (16): HealthBadge(), healthColorClass, HealthDot(), SectionLabel(), SectionLabelProps, StatTile(), StatTileProps, TONE (+8 more)
+### Community 270 - "GitHubAppPanel.tsx"
+Cohesion: 0.08
+Nodes (38): AppGate(), ConnectFolderDialog(), buttonVariants, DropdownMenuSeparator, SingleToast(), TOAST_CLASSES, TOAST_ICONS, Toaster() (+30 more)
 
 ### Community 271 - "Spec 052 — Export de informe de estado (proyecto / portafolio)"
 Cohesion: 0.14
@@ -1436,17 +1418,17 @@ Nodes (14): 10. Progreso, 1.1 Qué reutilizamos (no reinventar), 1.2 Qué no es 
 Cohesion: 0.22
 Nodes (8): Decisión C (2026-08-10), Fase A — Fix de enlaces, Fase B — Estado inicial y toolbar colapsada, Fase C — Tests, Fase D — Smoke manual (obligatorio — la 044 lo dejó pendiente), Fase E — Cierre, Smoke D (2026-08-10) — contra `npm run dev` + Playwright headless (TEMP, no dep del repo), Tasks 045 — Enlaces que funcionan + Ver por defecto con lápiz
 
-### Community 274 - "github-project-sync.ts"
-Cohesion: 0.28
-Nodes (11): createGitHubProjectRemote(), getGitHubProjects(), updateGitHubProjectRemote(), applyPullToProject(), buildProjectSyncPlan(), ProjectMetaSnapshot, ProjectSyncPlan, pullProjectMetaFromGitHub() (+3 more)
+### Community 274 - "Tasks 062 — Tipos de trabajo"
+Cohesion: 0.25
+Nodes (7): Fase A — Dominio, Fase B — Labels, badge, KR, Fase C — Forms y cards, Fase D — Filtros, Fase E — IA y flujos, Fase F — Cierre, Tasks 062 — Tipos de trabajo
 
-### Community 275 - "catalog.ts"
-Cohesion: 0.22
-Nodes (13): BY_ID, getProviderDef(), isProviderId(), PROVIDER_CATALOG, ProviderDefinition, getProvider(), ProviderId, CloudflareProxyGuide() (+5 more)
+### Community 275 - "generate-transform.ts"
+Cohesion: 0.15
+Nodes (20): buildGenerateTransformPrompt(), GenerateTransformOptions, GenerateTransformOptionsWithFallback, GenerateTransformResult, GenerateTransformResultWithMeta, parseGenerateTransformResponse(), runGenerateTransform(), runGenerateTransformWithFallback() (+12 more)
 
 ### Community 278 - "github-repo-sync.ts"
 Cohesion: 0.13
-Nodes (31): ProjectSchema, getGitHubRepoFile(), putGitHubRepoFile(), attachmentRepoPath(), AttachmentSyncStats, base64ToUint8Array(), blobToBase64(), buildProjectRepoPayload() (+23 more)
+Nodes (32): ProjectSchema, getGitHubRepoFile(), putGitHubRepoFile(), attachmentRepoPath(), AttachmentSyncStats, base64ToUint8Array(), blobToBase64(), buildProjectRepoPayload() (+24 more)
 
 ### Community 280 - "Spec 057 — GitHub App y sincronización de proyectos al repositorio"
 Cohesion: 0.25
@@ -1464,49 +1446,49 @@ Nodes (17): 0. Mapa de archivos, 1. HU-01 — Memoria global de última pestaña
 Cohesion: 0.29
 Nodes (6): consumeSseStream(), dispatchBlock(), findEventBoundary(), SseHandler, enc(), pull()
 
-### Community 284 - "useDataStore"
+### Community 284 - "cn"
 Cohesion: 0.04
-Nodes (75): react, react, HitoMark(), HitoMarkProps, ConfirmDialog(), ConfirmDialogProps, EmptyState(), EmptyStateProps (+67 more)
+Nodes (78): react, react, AttachmentDropZone(), Props, AttachmentPreviewDialog(), KIND_FILTERS, extFromMime(), imageFilesFromClipboardRead() (+70 more)
 
 ### Community 285 - "Spec 055 — Flujos: guardas por salida (branching ligero)"
 Cohesion: 0.15
 Nodes (13): 1.1 Qué reutilizamos, 1.2 Qué no es, 1. Contexto, 2. Objetivo, 3. Decisiones fijadas, 4. Historias y CAs, 5. Fuera de alcance, 6. Archivos clave (+5 more)
 
-### Community 286 - "TaskDetailDrawer.tsx"
-Cohesion: 0.18
-Nodes (15): Mode, ModeButton(), RichTextField(), RichTextFieldProps, TaskDetailDrawer(), clamp(), EditResult, insertLink() (+7 more)
+### Community 286 - "RichTextField.tsx"
+Cohesion: 0.11
+Nodes (22): DateFieldPreview(), DateFieldPreviewProps, DISPLAY_FORMATTER, formatDisplay(), parseDayKey(), parseDisplay(), toDayKey(), Mode (+14 more)
 
 ### Community 287 - "Tasks 051 — Trigger programado (schedule)"
 Cohesion: 0.17
 Nodes (8): Fase 0 — Schema, migración y helpers puros (sin UI visible), Fase 1 — Motor reconoce `schedule`, Fase 2 — Scheduler, store y bootstrap (catch-up real), Fase 3 — UI de configuración y “Ejecutar ahora”, Fase 4 — Observabilidad, cierre y docs, Notas para el agente implementador, Tasks 051 — Trigger programado (schedule), Trazabilidad 033 → 051
 
 ### Community 288 - "statusReport.ts"
-Cohesion: 0.15
-Nodes (31): buildContext(), aggregateChecklistProgress(), areaProgress(), checklistProgress(), isStalled(), ProgressStat, projectChecklistProgress(), projectTaskProgress() (+23 more)
+Cohesion: 0.07
+Nodes (57): buildContext(), conditionsPass(), evalCondition(), runEngine(), scopeMatches(), toNum(), diffProjectEvents(), approachingMessage() (+49 more)
 
 ### Community 289 - "Spec 048 — Continuidad de navegación + productividad en tareas y asistente"
 Cohesion: 0.13
 Nodes (14): 1. Contexto, 2. Objetivo, 3. Decisiones fijadas (no re-preguntar), 4. Historias de usuario y criterios de aceptación, 5. Requisitos no funcionales, 6. Archivos afectados (previsto), 7. Fuera de alcance, 8. Riesgos (+6 more)
 
 ### Community 290 - "AppLayout.tsx"
-Cohesion: 0.15
-Nodes (13): KeyboardShortcutsModal(), Props, SHORTCUTS, AppLayout(), AssistantPanel, MOBILE_PRIMARY_NAV, NAV, Props (+5 more)
+Cohesion: 0.08
+Nodes (26): KeyboardShortcutsModal(), Props, SHORTCUTS, AppLayout(), AssistantPanel, MOBILE_PRIMARY_NAV, MobileBottomNav(), NAV (+18 more)
 
 ### Community 291 - "Guía — Proxy propio en Cloudflare Workers (NVIDIA / OpenCode Zen)"
 Cohesion: 0.18
 Nodes (10): 0. Qué vas a tener al final, 1. Crea la cuenta y el Worker, 2. El código del Worker, 3. Verifica el Worker antes de tocar la app, 4. Configura la app, 5. Seguridad: por qué el Worker no guarda la key, 6. Límites reales, 7. Si algo no funciona (+2 more)
 
-### Community 292 - "labels.ts"
-Cohesion: 0.06
-Nodes (42): StakeholderRow, ClickableCard, ClickableCardProps, daysUntil(), actionLabel, BadgeVariant, conditionFieldLabel, EVENT_TRIGGERS (+34 more)
+### Community 292 - "utils.tsx"
+Cohesion: 0.08
+Nodes (42): Badge(), badgeVariants, ClickableCard, ClickableCardProps, daysUntil(), krProgress(), BadgeVariant, healthVariant (+34 more)
 
 ### Community 293 - "Tasks 057 — GitHub App + sync al repositorio"
 Cohesion: 0.50
 Nodes (3): Hecho, Pendiente opcional (post-v1), Tasks 057 — GitHub App + sync al repositorio
 
 ### Community 294 - "retry-engine.ts"
-Cohesion: 0.29
-Nodes (6): calculateRetryDelay(), DEFAULT_RETRY_CONFIG, RetryConfig, logDelivery(), processOutboundQueue(), startOutboundProcessor()
+Cohesion: 0.20
+Nodes (9): App(), maybeRunMaintenance(), runMaintenance(), calculateRetryDelay(), DEFAULT_RETRY_CONFIG, RetryConfig, logDelivery(), processOutboundQueue() (+1 more)
 
 ### Community 295 - "Spec 051 — Flujos: trigger programado (schedule / cron ligero)"
 Cohesion: 0.17
@@ -1528,9 +1510,9 @@ Nodes (9): Cierre F6 / F7 (2026-08-11), Fase A — F1 + F2: que el modelo ad-hoc
 Cohesion: 0.29
 Nodes (6): Fase A — HU-01: Memoria global de última pestaña de proyecto, Fase B — HU-02: Panel de tarea y asistente lado a lado, Fase C — HU-03: Botón "Aprobar todo", Fase D — HU-04: Pegar imagen del portapapeles, Fase E — Cierre, Tasks 048 — Continuidad de navegación + productividad en tareas y asistente
 
-### Community 300 - "Task 4 Report — runAgentTurn: one recordRequest per successful round"
-Cohesion: 0.18
-Nodes (10): Commit, Concerns, Files changed, GREEN, RED, Self-review, Status, Task 4 Report — runAgentTurn: one recordRequest per successful round (+2 more)
+### Community 300 - "ArticleHeader.tsx"
+Cohesion: 0.32
+Nodes (6): ArticleHeader(), ArticleHeaderProps, formatDate(), ShareButton(), ShareButtonProps, BlogArticleMeta
 
 ### Community 301 - "Spec 056 — Webhook saliente: método HTTP y headers custom"
 Cohesion: 0.20
@@ -1609,36 +1591,32 @@ Cohesion: 0.50
 Nodes (4): 5.1 Componente `ExportReportButton`, 5.2 Download helper, 5.3 Toasts, 5. UI
 
 ### Community 320 - "openai-compatible/index.ts"
-Cohesion: 0.14
-Nodes (14): classifyOpenAiError(), HttpError, buildOpenAiChatBody(), shouldRetryWithoutStreamOptions(), accumulateToolCallDelta(), createToolCallAccumulator(), finalizeToolCalls(), OpenAiMessage (+6 more)
+Cohesion: 0.11
+Nodes (21): classifyOpenAiError(), HttpError, buildOpenAiChatBody(), shouldRetryWithoutStreamOptions(), accumulateToolCallDelta(), createToolCallAccumulator(), finalizeToolCalls(), OpenAiMessage (+13 more)
 
 ### Community 321 - "inbox-poller.ts"
 Cohesion: 0.17
 Nodes (13): drainInbox(), DrainResponse, flattenDelivery(), InboxConfig, InboxDelivery, config, INBOX_TEST_SAMPLE, InboxRoundTripResult (+5 more)
 
-### Community 322 - "search.ts"
-Cohesion: 0.16
-Nodes (15): createClient(), validateApiKey(), classifyAiError(), extractStatus(), hasZeroQuota(), cache, getCachedEmbedding(), normalize() (+7 more)
+### Community 322 - "TurnUsageChip.tsx"
+Cohesion: 0.57
+Nodes (4): formatTokenCount(), formatTurnChip(), skipReasonLabel(), TurnUsageChip()
 
 ### Community 323 - "connection-health.ts"
 Cohesion: 0.18
 Nodes (13): Props, BACKLOG_RETENTION_DAYS, BACKLOG_RETENTION_RISK, ConnectionHealth, ConnectionHealthInput, ConnectionHealthWarning, deriveConnectionHealth(), HealthWarningType (+5 more)
 
-### Community 324 - "App"
-Cohesion: 0.20
-Nodes (6): App(), ErrorBoundary, Props, State, maybeRunMaintenance(), runMaintenance()
+### Community 324 - "ReleasesPage.tsx"
+Cohesion: 0.38
+Nodes (5): formatReleaseDate(), KIND_META, ReleasesPage(), STATUS_LABEL, STATUS_VARIANT
 
 ### Community 325 - "useDataStore.ts"
-Cohesion: 0.14
-Nodes (24): appendEntries(), describe(), describeEvents(), findChecklist(), refFor(), withAttachments(), adapter(), applyAttachmentList() (+16 more)
+Cohesion: 0.13
+Nodes (25): appendEntries(), describe(), describeEvents(), findChecklist(), refFor(), NotificationsDoc, PeopleDoc, adapter() (+17 more)
 
-### Community 326 - "providers/types.ts"
-Cohesion: 0.21
-Nodes (16): compactToolResults(), TOOL_RESULT_MAX_CHARS, runAgentTurn(), geminiProvider, fromGeminiContents(), looksLikeGeminiHistory(), looksLikeNeutralHistory(), toGeminiContents() (+8 more)
-
-### Community 327 - "node-issues.ts"
-Cohesion: 0.19
-Nodes (12): FlowIssuesBanner(), Props, FlowRunRecordTrace, FlowGraphNode, nodeIdsByKind(), nodeIssueMap(), NodeIssues, NodeLike (+4 more)
+### Community 327 - "validation.ts"
+Cohesion: 0.12
+Nodes (18): FlowIssuesBanner(), Props, FlowRunRecordTrace, FlowGraphNode, nodeIdsByKind(), nodeIssueMap(), NodeIssues, NodeLike (+10 more)
 
 ### Community 328 - "File structure"
 Cohesion: 0.18
@@ -1648,113 +1626,49 @@ Nodes (10): File structure, Global Constraints, Mis tareas: filtros, ocultar hec
 Cohesion: 0.14
 Nodes (13): compilerOptions, lib, module, moduleResolution, noEmit, skipLibCheck, strict, target (+5 more)
 
-### Community 331 - "VariableMenu.tsx"
-Cohesion: 0.10
-Nodes (25): DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSubContent, DropdownMenuSubTrigger, OutputWhen, buildToken(), insertTextAt() (+17 more)
+### Community 331 - "VariablesPanel.tsx"
+Cohesion: 0.12
+Nodes (21): Trigger, ConditionFieldPicker(), buildToken(), insertTextAt(), SelectionLike, Props, Props, VariableMenu() (+13 more)
 
 ### Community 332 - "useGraphHistory.ts"
 Cohesion: 0.27
 Nodes (11): CanvasNode, DEFAULT_HISTORY_LIMIT, GraphHistory, HistoryEntry, HistoryState, pushHistory(), redoHistory(), samePositions() (+3 more)
 
-### Community 333 - "Task 1 Report — TokenUsage types + parseUsage"
-Cohesion: 0.18
-Nodes (10): Commit, Concerns, Files changed, GREEN, RED, Self-review, Status, Task 1 Report — TokenUsage types + parseUsage (+2 more)
-
-### Community 334 - "useBreakpoint.ts"
-Cohesion: 0.39
-Nodes (7): BREAKPOINTS, useIsDesktop(), useIsMobile(), useIsTablet(), getSnapshot(), subscribe(), useMediaQuery()
-
-### Community 341 - "Task 7 Report: ragPolicy (pure)"
-Cohesion: 0.20
-Nodes (9): Commit, Concerns, Follow-ups, `shouldAutoRag`, `shouldFocusIndex`, Status, Task 7 Report: ragPolicy (pure), Tests (+1 more)
-
-### Community 342 - "DateFieldPreview.tsx"
-Cohesion: 0.29
-Nodes (10): DateFieldPreview(), DateFieldPreviewProps, DISPLAY_FORMATTER, formatDisplay(), parseDayKey(), parseDisplay(), toDayKey(), Calendar() (+2 more)
-
-### Community 343 - "SDD ledger — plan: specs/060-ai-token-usage/plan.md"
-Cohesion: 0.50
-Nodes (3): Execution, Pre-flight scan, SDD ledger — plan: specs/060-ai-token-usage/plan.md
-
-### Community 346 - "AreaCard.tsx"
-Cohesion: 0.24
-Nodes (8): IconPicker(), IconPickerProps, components, Markdown(), ApplyTemplateDialog(), AreaCard(), areaIcon(), MAP
-
-### Community 347 - "Task 3 Report — StreamTurnResult.usage + Gemini + OpenAI adapters"
-Cohesion: 0.18
-Nodes (10): Commit, Concerns, Files changed, GREEN, RED, Self-review, Status, Task 3 Report — StreamTurnResult.usage + Gemini + OpenAI adapters (+2 more)
-
-### Community 350 - "Task 2 Report — OpenAI SSE: capture `usage` on usage-only chunks"
-Cohesion: 0.18
-Nodes (10): Commit, Concerns, Files changed, GREEN, RED, Self-review, Status, Task 2 Report — OpenAI SSE: capture `usage` on usage-only chunks (+2 more)
-
 ### Community 351 - "integration-db.ts"
 Cohesion: 0.09
-Nodes (23): GitHubProjectSyncButton(), Props, formatAttachmentStats(), githubRepoHtmlUrl(), SYNC_MODE_HINTS, SYNC_MODE_LABELS, GitHubScheduler, GitHubSyncHandler (+15 more)
+Nodes (20): GitHubScheduler, GitHubSyncHandler, buildGitHubLink(), deleteGitHubConnection(), deleteGitHubLink(), getNextGitHubSyncAt(), GITHUB_SCHEDULE_MS, EmailConfig (+12 more)
 
-### Community 352 - "Task 13 Report: AiUsageCard + Settings + RagSettings copy"
-Cohesion: 0.17
-Nodes (11): `AiUsageCard` (`src/features/settings/AiUsageCard.tsx`), `buildExportPayload` (`src/ai/usage/export.ts`), Commit, Concerns, Follow-ups, RAG copy (CA-02.7), Settings mount, Status (+3 more)
+### Community 353 - "useDataStore"
+Cohesion: 0.06
+Nodes (48): ConfirmDialog(), EntityCard(), ProjectTree(), ProjectTreeProps, QuickAddTask(), productStatusLabel, quarterStatusLabel, quarterStatusVariant (+40 more)
 
-### Community 353 - "temporal.ts"
-Cohesion: 0.29
-Nodes (10): approachingMessage(), evaluateTemporal(), overdueMessage(), overdueSeverity(), rolloverRecurring(), EntityRef, DueRow, DatedEntity (+2 more)
-
-### Community 354 - "Task 8 Report: selectWorkspaceIndex + systemPrompt evidence / omit empty"
-Cohesion: 0.18
-Nodes (10): `buildSystemPrompt` 5th arg, Commit, Concerns, Evidence block (design.md §6, verbatim), Follow-ups, `selectWorkspaceIndex(index, uiCtx) → WorkspaceIndex`, Status, Task 8 Report: selectWorkspaceIndex + systemPrompt evidence / omit empty (+2 more)
-
-### Community 355 - "Task 11 Report: Wire `send()` — policy, focused index, cache, usage events"
-Cohesion: 0.20
-Nodes (9): `buildRagContextDetailed` (`systemPrompt.ts`), Commit, Concerns, Follow-ups, `send()` order (design §10), Status, Task 11 Report: Wire `send()` — policy, focused index, cache, usage events, Tests (+1 more)
-
-### Community 366 - "Task 12 Report: TurnUsageChip + AssistantPanel"
-Cohesion: 0.20
-Nodes (9): `AssistantPanel`, Commit, Concerns, Follow-ups, Status, Task 12 Report: TurnUsageChip + AssistantPanel, Tests, `TurnUsageChip` (`src/features/assistant/TurnUsageChip.tsx`) (+1 more)
-
-### Community 367 - "config.ts"
-Cohesion: 0.12
-Nodes (22): AI_MODELS, AiConfigSchema, AiProviderConfig, AiProviderConfigSchema, defaultAiConfig(), defaultFallbackGroupForProvider(), defaultModelForProvider(), geminiKey() (+14 more)
-
-### Community 369 - "Task 9 Report: query embedding LRU + semanticSearch"
-Cohesion: 0.20
-Nodes (9): Commit, Concerns, Follow-ups, `queryCache.ts` — module singleton Map, `search.ts`, Status, Task 9 Report: query embedding LRU + semanticSearch, Tests (+1 more)
-
-### Community 370 - "Task 10 Report: compactToolResults"
+### Community 367 - "webhook-request.ts"
 Cohesion: 0.22
-Nodes (8): Commit, Concerns, Follow-ups, Status, Task 10 Report: compactToolResults, Tests, `toolResultCompact.ts`, What was built
+Nodes (12): SECRET_KEYS, WebhookOutput, buildOutboundSyncLog(), maskSecretInPayload(), persistOutboundDeliveries(), truncateForLog(), OutboundDelivery, buildWebhookRequest() (+4 more)
 
-### Community 371 - "ActionConfigFields.tsx"
-Cohesion: 0.32
-Nodes (3): ActionConfigFields(), generateWebhookSecret(), OutputWhenEditor()
-
-### Community 372 - "transformSnippets.ts"
-Cohesion: 0.43
-Nodes (5): applySnippet(), MDN_JS_GUIDE_URL, RETURN_LINE, TRANSFORM_SNIPPETS, TransformSnippet
-
-### Community 373 - "integrationDb"
-Cohesion: 0.40
-Nodes (5): EmailConfig, EmailPayload, logEmailDelivery(), sendEmailViaAppsScript(), integrationDb
+### Community 372 - "TransformConfigFields.tsx"
+Cohesion: 0.18
+Nodes (14): mappingEffect, rootOf(), SAMPLE_FIELDS, getSampleDataForTrigger(), MappingFieldOption, TransformConfigFields(), applySnippet(), MDN_JS_GUIDE_URL (+6 more)
 
 ## Knowledge Gaps
-- **3041 isolated node(s):** `printWidth`, `singleQuote`, `trailingComma`, `semi`, `ConnectionClaims` (+3036 more)
+- **2990 isolated node(s):** `printWidth`, `singleQuote`, `trailingComma`, `semi`, `ConnectionClaims` (+2985 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Button` connect `button.tsx` to `utils.tsx`, `ConditionConfigFields.tsx`, `LandingPage.tsx`, `blog/types.ts`, `cn`, `DashboardPage.tsx`, `github-bff.ts`, `FlowRule`, `catalog.ts`, `validation.ts`, `useAppStore`, `uiContext.ts`, `useDataStore`, `TaskDetailDrawer.tsx`, `GitHubAppPanel.tsx`, `AppLayout.tsx`, `labels.ts`, `connections.ts`, `ops.ts`, `improve.ts`, `FlowCanvas.tsx`, `SeoPage.tsx`, `PortfolioCalendarView.tsx`, `ExportReportMenu.tsx`, `VariableMenu.tsx`, `DateFieldPreview.tsx`, `AreaCard.tsx`, `integration-db.ts`, `ReleasesPage.tsx`, `ActionConfigFields.tsx`?**
+- **Why does `cn()` connect `cn` to `button.tsx`, `AiSettingsCard.tsx`, `FlowCanvas.tsx`, `nodeTypes.tsx`, `config.ts`, `GitHubAppPanel.tsx`, `github-bff.ts`, `AssistantPanel.tsx`, `RichTextField.tsx`, `IntegrationsPage.tsx`, `AppLayout.tsx`, `useChatStore.ts`, `utils.tsx`, `ops.ts`, `graph.ts`, `PortfolioCalendarView.tsx`, `ReleasesPage.tsx`, `useDataStore`, `TransformConfigFields.tsx`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `dependencies` to `package.json`, `@dnd-kit/core`, `@dnd-kit/sortable`, `dexie`, `lucide-react`, `react-helmet-async`, `react-router-dom`, `@dnd-kit/utilities`, `@radix-ui/react-popover`, `@vercel/analytics`, `tailwind-merge`, `vite-plugin-sitemap`, `@xyflow/react`, `cn`, `@fontsource-variable/jetbrains-mono`, `@google/genai`?**
   _High betweenness centrality (0.020) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `dependencies` to `package.json`, `@dnd-kit/core`, `@dnd-kit/sortable`, `dexie`, `lucide-react`, `react-helmet-async`, `react-router-dom`, `@dnd-kit/utilities`, `@radix-ui/react-popover`, `@vercel/analytics`, `tailwind-merge`, `vite-plugin-sitemap`, `@xyflow/react`, `useDataStore`, `@fontsource-variable/jetbrains-mono`, `@google/genai`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
-- **Why does `react` connect `useDataStore` to `dependencies`?**
+- **Why does `react` connect `cn` to `dependencies`?**
   _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **What connects `printWidth`, `singleQuote`, `trailingComma` to the rest of the system?**
-  _3041 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2990 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `projectOps.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14130434782608695 - nodes in this community are weakly interconnected._
 - **Should `Spec 060 — Consumo de tokens y requests del asistente (auditoría + recorte RAG-aware)` be split into smaller, more focused modules?**
   _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._
 - **Should `button.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.09471649484536082 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08681318681318681 - nodes in this community are weakly interconnected._

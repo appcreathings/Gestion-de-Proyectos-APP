@@ -45,11 +45,57 @@ describe("migrateRecord", () => {
     expect(value).toMatchObject({ schemaVersion: 2, priority: "medium" });
   });
 
-  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v21)", () => {
+  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v22)", () => {
     const v1 = { id: "p1", schemaVersion: 1, name: "Demo" };
     const { value, migrated } = migrateRecord("projects", v1);
     expect(migrated).toBe(true);
-    expect(value.schemaVersion).toBe(21);
+    expect(value.schemaVersion).toBe(22);
+  });
+});
+
+describe("projects v21 -> v22 (spec 062: Task.workType + kr*, identity step)", () => {
+  it("converges a v21 project to v22 without touching inner tasks", () => {
+    const doc = {
+      id: "p1",
+      schemaVersion: 21,
+      name: "Demo",
+      tasks: [{ id: "t1", title: "Vieja", status: "todo", priority: "medium" }],
+    };
+    const { value, migrated } = migrateRecord("projects", doc, 22, MIGRATIONS);
+    expect(migrated).toBe(true);
+    expect(value.schemaVersion).toBe(22);
+    const task = (value as { tasks: Record<string, unknown>[] }).tasks[0];
+    // Identity step: no defaults are written — Zod's `.default()` applies at
+    // parse time (workType: "task", krCurrent/krTarget: null, krUnit: "").
+    expect(task).not.toHaveProperty("workType");
+    expect(task).not.toHaveProperty("krCurrent");
+  });
+
+  it("is idempotent: a v22 project is not touched", () => {
+    const doc = { id: "p1", schemaVersion: 22, name: "Demo", tasks: [] };
+    const { migrated } = migrateRecord("projects", doc, 22, MIGRATIONS);
+    expect(migrated).toBe(false);
+  });
+});
+
+describe("flows v21 -> v22 (spec 062: CreateTaskOutput.workType, identity step)", () => {
+  it("converges a v21 flows doc to v22 without touching inner flows", () => {
+    const doc = {
+      schemaVersion: 21,
+      flows: [
+        {
+          id: "flow-a",
+          name: "Demo",
+          trigger: { type: "event", event: "task.added" },
+          outputs: [{ type: "createTask", title: "T", projectRef: "explicit", projectId: "p1" }],
+        },
+      ],
+    };
+    const { value, migrated } = migrateRecord("flows", doc, 22, MIGRATIONS);
+    expect(migrated).toBe(true);
+    expect(value.schemaVersion).toBe(22);
+    const flow = (value as { flows: Record<string, unknown>[] }).flows[0];
+    expect((flow.outputs as Record<string, unknown>[])[0]).not.toHaveProperty("workType");
   });
 });
 

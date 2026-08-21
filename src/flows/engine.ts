@@ -2,6 +2,7 @@ import { nowIso, uuid } from "@/lib/utils";
 import { newTask, newPerson, newProject } from "@/domain/factories";
 import { instantiateProjectFromType } from "@/domain/instantiate";
 import * as ops from "@/domain/projectOps";
+import { WorkType } from "@/domain/schemas";
 import type {
   ChecklistTemplate,
   Notification,
@@ -1104,6 +1105,11 @@ async function executeOutput(
       const task = newTask(titleResult.value, areaId);
       const resolved: Record<string, string> = { title: truncateForTrace(titleResult.value) };
       if (output.priority) task.priority = output.priority as Task["priority"];
+      // Spec 062 D12: `workType` es un string opcional sin validación estricta
+      // en el schema del output — el engine solo lo asigna si es del enum.
+      if (output.workType && WorkType.safeParse(output.workType).success) {
+        task.workType = output.workType as Task["workType"];
+      }
       if (output.description) task.description = interpolateString(output.description, data);
       if (output.status) task.status = output.status as Task["status"];
       // Spec 026 §B5: el valor interpolado (ej. `{{email}}`) se resuelve

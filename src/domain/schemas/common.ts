@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const SCHEMA_VERSION = 21;
+export const SCHEMA_VERSION = 22;
 
 /** Enumerations (constitución / data-model.md). */
 export const ProductStatus = z.enum(["idea", "active", "maintenance", "sunset"]);
@@ -21,6 +21,19 @@ export type Health = z.infer<typeof Health>;
 
 export const Priority = z.enum(["low", "medium", "high", "critical"]);
 export type Priority = z.infer<typeof Priority>;
+
+/** Tipo de trabajo de una tarea (spec 062). El Área sigue siendo el bucket
+ * operativo; esto declara la naturaleza del ítem (historia, spike, bug…). */
+export const WorkType = z.enum([
+  "task",
+  "story",
+  "enabler",
+  "spike",
+  "key_result",
+  "bug",
+  "prd",
+]);
+export type WorkType = z.infer<typeof WorkType>;
 
 export const TaskStatus = z.enum(["todo", "doing", "blocked", "done"]);
 export type TaskStatus = z.infer<typeof TaskStatus>;

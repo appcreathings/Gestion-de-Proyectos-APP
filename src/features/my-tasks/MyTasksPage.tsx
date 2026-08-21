@@ -9,10 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { daysUntil } from "@/domain/compute";
-import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels";
+import { priorityLabel, priorityVariant, taskStatusLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
 import { useDataStore } from "@/store/useDataStore";
 import type { Project, Task } from "@/domain/schemas";
 import { TaskDetailDrawer } from "@/features/projects/components/kanban/TaskDetailDrawer";
+import { WorkTypeBadge } from "@/features/projects/components/kanban/WorkTypeBadge";
 import * as ops from "@/domain/projectOps";
 import {
   applyFilter,
@@ -47,7 +48,7 @@ export function MyTasksPage() {
   );
 
   const hasActiveFilters = Boolean(
-    query.status || query.priority || query.date || query.projectId,
+    query.status || query.priority || query.date || query.projectId || query.workType,
   );
 
   function commit(next: URLSearchParams) {
@@ -167,6 +168,19 @@ export function MyTasksPage() {
               <option value="">Todos</option>
               {result.projectOptions.map((o) => (
                 <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="min-w-[9rem] flex-1">
+            <label className="mb-1.5 block text-sm font-medium">Tipo</label>
+            <Select
+              value={query.workType ?? ""}
+              onChange={(e) => commit(applyFilter(searchParams, "workType", e.target.value || null))}
+            >
+              <option value="">Todas</option>
+              {WORK_TYPE_OPTIONS.map((v) => (
+                <option key={v} value={v}>{workTypeLabel[v]}</option>
               ))}
             </Select>
           </div>
@@ -346,6 +360,7 @@ function TaskRow({
         dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
       )}
     >
+      <WorkTypeBadge workType={task.workType} />
       <Badge variant={priorityVariant[task.priority]} className="text-xs">
         {priorityLabel[task.priority]}
       </Badge>

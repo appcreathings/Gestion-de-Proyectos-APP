@@ -70,6 +70,12 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     { to: 18, up: (data) => data },
     // v18 -> v19 (spec 043): Task.links. New field is optional/defaulted in Zod.
     { to: 19, up: (data) => data },
+    // v21 -> v22 (spec 062): Task.workType + krCurrent/krTarget/krUnit. New
+    // fields are optional/defaulted in the Zod schema (workType: "task", KR
+    // null/""), so existing records need no data transformation. No
+    // project-level change happened at v20/v21 (bumps from flows-only specs
+    // 055/051) — the convergence fallback carries a v19 project to v22.
+    { to: 22, up: (data) => data },
   ],
   "checklist-templates": [
     // v1 -> v18: ChecklistTemplate.attachments.
@@ -147,6 +153,9 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // v20 -> v21 (spec 051 schedule trigger / identity): `TriggerSchema` gana
     // el miembro `schedule`. Flujos existentes son event|poll; paso identidad.
     { to: 21, up: (data) => data },
+    // v21 -> v22 (spec 062 / identity): `CreateTaskOutputSchema` gana
+    // `workType` opcional. Flujos existentes no lo usan; paso identidad.
+    { to: 22, up: (data) => data },
   ],
   "process-templates": [
     // v1/v17 -> v18: identity (attachments ya en 17; bump compartido).

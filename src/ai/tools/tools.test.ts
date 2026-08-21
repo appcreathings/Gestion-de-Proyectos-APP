@@ -250,7 +250,7 @@ describe("read tools", () => {
 });
 
 describe("write tools", () => {
-  it("create_task valida el área y llama a mutateProject", async () => {
+  it("create_task valida el área, acepta workType y llama a mutateProject", async () => {
     const { ctx, actions, project, area } = makeCtx();
     const tools = createAiTools(ctx);
     const res = await callTool(tools, "create_task", {
@@ -258,13 +258,46 @@ describe("write tools", () => {
       title: "Nueva tarea",
       areaId: area.id,
       priority: "high",
+      workType: "spike",
     });
     expect(res.ok).toBe(true);
     expect(actions.mutateProject).toHaveBeenCalledOnce();
+    const created = ctx
+      .getData()
+      .projects[0].tasks.find((t) => t.title === "Nueva tarea")!;
+    expect(created.workType).toBe("spike");
+    expect(created.areaId).toBe(area.id);
     const list = await callTool(tools, "list_tasks", { projectId: project.id });
     expect((list.result as { title: string }[]).map((t) => t.title)).toContain(
       "Nueva tarea",
     );
+  });
+
+  it("create_task sin workType usa el default task; update_task puede convertir a key result con métrica", async () => {
+    const { ctx, project } = makeCtx();
+    const tools = createAiTools(ctx);
+    const created = await callTool(tools, "create_task", {
+      projectId: project.id,
+      title: "Sin tipo",
+    });
+    expect(created.ok).toBe(true);
+    const plain = ctx.getData().projects[0].tasks.find((t) => t.title === "Sin tipo")!;
+    expect(plain.workType).toBe("task");
+
+    const kr = await callTool(tools, "update_task", {
+      projectId: project.id,
+      taskId: plain.id,
+      workType: "key_result",
+      krCurrent: 40,
+      krTarget: 55,
+      krUnit: "pts",
+    });
+    expect(kr.ok).toBe(true);
+    const updated = ctx.getData().projects[0].tasks.find((t) => t.id === plain.id)!;
+    expect(updated.workType).toBe("key_result");
+    expect(updated.krCurrent).toBe(40);
+    expect(updated.krTarget).toBe(55);
+    expect(updated.krUnit).toBe("pts");
   });
 
   it("set_checklist_item marca el ítem vía mutateProject", async () => {

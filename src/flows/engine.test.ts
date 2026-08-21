@@ -1211,6 +1211,51 @@ describe("FlowEngine", () => {
       expect(result.changedProjects[0].tasks[0].title).toBe("Follow up");
     });
 
+    it("createTask assigns workType only when the value is in the enum (spec 062 D12)", async () => {
+      const makeFlow = (workType: string | undefined): FlowRule => ({
+        id: "flow-wt",
+        schemaVersion: 21,
+        name: "Typed Task Flow",
+        enabled: true,
+        notifyOnFailure: true,
+        trigger: { type: "event", event: "checklist.completed" },
+        logic: { conditions: [], mapping: [] },
+        outputs: [
+          { type: "createTask", title: "Typed", projectRef: "trigger", ...(workType && { workType }) },
+        ],
+        lastRunAt: null,
+        runCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      const events: DomainEvent[] = [
+        { type: "checklist.completed", projectId: "project-1", areaId: "area-1", checklistId: "cl-1" },
+      ];
+
+      const typed = await runFlowEngine({
+        flows: [makeFlow("bug")],
+        events,
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+      });
+      expect(typed.changedProjects[0].tasks[0].workType).toBe("bug");
+
+      const garbage = await runFlowEngine({
+        flows: [makeFlow("epic")],
+        events,
+        projects: [createTestProject()],
+        people: [],
+        checklistTemplates: [],
+        projectTypes: [],
+        processTemplates: [],
+      });
+      expect(garbage.changedProjects[0].tasks[0].workType).toBe("task");
+    });
+
     it("does not mutate unrelated projects (change tracking is precise, not all-projects)", async () => {
       const flow: FlowRule = {
         id: "flow-1",

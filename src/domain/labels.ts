@@ -7,6 +7,7 @@ import type {
   RaciRole,
   SprintStatus,
   TaskStatus,
+  WorkType,
 } from "./schemas";
 import type { PollTrigger } from "./schemas/flow";
 
@@ -56,6 +57,39 @@ export const priorityVariant: Record<Priority, BadgeVariant> = {
   high: "warning",
   critical: "destructive",
 };
+
+/** Tipos de trabajo (spec 062). `task` no se pinta como badge (D5). */
+export const workTypeLabel: Record<WorkType, string> = {
+  task: "Tarea",
+  story: "Historia",
+  enabler: "Enabler",
+  spike: "Spike",
+  key_result: "Key result",
+  bug: "Bug",
+  prd: "PRD",
+};
+
+export const workTypeVariant: Record<WorkType, BadgeVariant> = {
+  task: "outline",
+  story: "secondary",
+  enabler: "outline",
+  spike: "warning",
+  key_result: "default",
+  bug: "destructive",
+  prd: "outline",
+};
+
+/** Orden del <select> de tipo (spec 062 §5): Tarea al final — es el default,
+ * no el protagonista. */
+export const WORK_TYPE_OPTIONS: WorkType[] = [
+  "story",
+  "enabler",
+  "spike",
+  "key_result",
+  "bug",
+  "prd",
+  "task",
+];
 
 export const healthLabel: Record<Health, string> = {
   green: "En verde",

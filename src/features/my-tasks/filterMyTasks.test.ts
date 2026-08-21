@@ -20,6 +20,7 @@ describe("parseMyTasksQuery", () => {
       priority: null,
       date: null,
       projectId: null,
+      workType: null,
       showDone: false,
       view: "priority",
     });
@@ -28,7 +29,7 @@ describe("parseMyTasksQuery", () => {
   it("reads valid params and treats done=1 / view=project", () => {
     const q = parseMyTasksQuery(
       new URLSearchParams(
-        "person=ana&status=doing&priority=critical&date=overdue&project=p1&done=1&view=project",
+        "person=ana&status=doing&priority=critical&date=overdue&project=p1&workType=bug&done=1&view=project",
       ),
     );
     expect(q.personId).toBe("ana");
@@ -36,17 +37,19 @@ describe("parseMyTasksQuery", () => {
     expect(q.priority).toBe("critical");
     expect(q.date).toBe("overdue");
     expect(q.projectId).toBe("p1");
+    expect(q.workType).toBe("bug");
     expect(q.showDone).toBe(true);
     expect(q.view).toBe("project");
   });
 
-  it("ignores invalid status/priority/date and treats other done/view as defaults", () => {
+  it("ignores invalid status/priority/date/workType and treats other done/view as defaults", () => {
     const q = parseMyTasksQuery(
-      new URLSearchParams("status=nope&priority=urgent&date=soon&done=true&view=list"),
+      new URLSearchParams("status=nope&priority=urgent&date=soon&workType=epic&done=true&view=list"),
     );
     expect(q.status).toBeNull();
     expect(q.priority).toBeNull();
     expect(q.date).toBeNull();
+    expect(q.workType).toBeNull();
     expect(q.showDone).toBe(false);
     expect(q.view).toBe("priority");
   });
@@ -73,9 +76,11 @@ describe("URL writers (D7, D11)", () => {
     expect(next.get("status")).toBe("doing");
   });
 
-  it("clearMyTaskFilters keeps person, done and view", () => {
+  it("clearMyTaskFilters keeps person, done and view; drops workType (spec 062)", () => {
     const next = clearMyTaskFilters(
-      new URLSearchParams("person=ana&status=todo&priority=high&date=overdue&project=p1&done=1&view=project"),
+      new URLSearchParams(
+        "person=ana&status=todo&priority=high&date=overdue&project=p1&workType=bug&done=1&view=project",
+      ),
     );
     expect(next.get("person")).toBe("ana");
     expect(next.get("done")).toBe("1");
@@ -84,6 +89,7 @@ describe("URL writers (D7, D11)", () => {
     expect(next.get("priority")).toBeNull();
     expect(next.get("date")).toBeNull();
     expect(next.get("project")).toBeNull();
+    expect(next.get("workType")).toBeNull();
   });
 
   it("applyFilter deletes the key when value is null; view=priority deletes view", () => {
@@ -104,6 +110,7 @@ function q(over: Partial<MyTasksQuery> = {}): MyTasksQuery {
     priority: null,
     date: null,
     projectId: null,
+    workType: null,
     showDone: false,
     view: "priority",
     ...over,
@@ -213,6 +220,24 @@ describe("filterAndSortMyTasks filters / groups / options", () => {
     expect(result.rows.map((r) => r.title)).toEqual(["B-crit", "B-med", "A-low"]);
     expect(result.groups.map((g) => g.projectName)).toEqual(["Beta", "Alpha"]);
     expect(result.groups[0].tasks.map((t) => t.title)).toEqual(["B-crit", "B-med"]);
+  });
+
+  it("workType=bug deja solo los bugs; null no recorta (spec 062)", () => {
+    const bug = task({ title: "Bug de pago", workType: "bug" });
+    const story = task({ title: "Historia de onboarding", workType: "story" });
+    const plain = task({ title: "Genérica" });
+    const projects = [project("Alpha", [bug, story, plain])];
+
+    const onlyBugs = filterAndSortMyTasks(projects, q({ workType: "bug" }), NOW);
+    expect(onlyBugs.rows.map((r) => r.title)).toEqual(["Bug de pago"]);
+    expect(onlyBugs.assignedCount).toBe(3);
+
+    const all = filterAndSortMyTasks(projects, q(), NOW);
+    expect(all.rows.map((r) => r.title).sort()).toEqual([
+      "Bug de pago",
+      "Genérica",
+      "Historia de onboarding",
+    ]);
   });
 
   it("projectOptions omits a project that only has hidden done", () => {

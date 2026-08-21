@@ -32,6 +32,12 @@ export function taskView(t: Task, project: Project, people: Person[]) {
     title: t.title,
     status: t.status,
     priority: t.priority,
+    workType: t.workType,
+    ...(t.workType === "key_result" && {
+      krCurrent: t.krCurrent ?? null,
+      krTarget: t.krTarget ?? null,
+      krUnit: t.krUnit ?? "",
+    }),
     dueDate: t.dueDate,
     daysUntilDue: daysUntil(t.dueDate),
     assignee: personName(people, t.assigneeId),

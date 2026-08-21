@@ -33,7 +33,8 @@ import {
 import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import * as ops from "@/domain/projectOps";
-import { TASK_COLUMNS } from "@/domain/labels";
+import { TASK_COLUMNS, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { WorkType } from "@/domain/schemas";
 import type { Person, Priority, Project, Sprint, Task, TaskStatus } from "@/domain/schemas";
 import { TaskFormDialog } from "./TaskFormDialog";
 import { SprintFormDialog } from "./SprintFormDialog";
@@ -211,6 +212,11 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   const priorityFilter = searchParams.get("priority") as Priority | null;
   const assigneeFilter = searchParams.get("assignee");
   const dateFilter = searchParams.get("date");
+  // Spec 062 D15: valor inválido se ignora (no filtra), igual que priority basura.
+  const workTypeRaw = searchParams.get("workType");
+  const workTypeFilter = WorkType.safeParse(workTypeRaw).success
+    ? (workTypeRaw as WorkType)
+    : null;
 
   function setFilter(key: string, value: string | null) {
     const next = new URLSearchParams(searchParams);
@@ -227,10 +233,11 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     next.delete("priority");
     next.delete("assignee");
     next.delete("date");
+    next.delete("workType");
     setSearchParams(next, { replace: true });
   }
 
-  const activeFiltersCount = [priorityFilter, assigneeFilter, dateFilter].filter(Boolean).length;
+  const activeFiltersCount = [priorityFilter, assigneeFilter, dateFilter, workTypeFilter].filter(Boolean).length;
 
   // Detail drawer state (spec 013)
   const detailTaskId = searchParams.get("detail");
@@ -307,6 +314,11 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
       result = result.filter((t) => t.priority === priorityFilter);
     }
 
+    // Apply work type filter (spec 062)
+    if (workTypeFilter) {
+      result = result.filter((t) => t.workType === workTypeFilter);
+    }
+
     // Apply assignee filter
     if (assigneeFilter) {
       result = result.filter((t) => t.assigneeId === assigneeFilter);
@@ -352,7 +364,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     }
 
     return result;
-  }, [areaScoped, sprintScope, debouncedQuery, priorityFilter, assigneeFilter, dateFilter]);
+  }, [areaScoped, sprintScope, debouncedQuery, priorityFilter, assigneeFilter, dateFilter, workTypeFilter]);
 
   // Spec 054: sync pager with carousel scroll.
   useEffect(() => {
@@ -689,6 +701,20 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                     <option value="overdue">Vencidas</option>
                     <option value="due-soon">Por vencer (3 días)</option>
                     <option value="this-week">Esta semana</option>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Tipo</label>
+                  <Select
+                    value={workTypeFilter ?? ""}
+                    onChange={(e) => setFilter("workType", e.target.value || null)}
+                  >
+                    <option value="">Todas</option>
+                    {WORK_TYPE_OPTIONS.map((v) => (
+                      <option key={v} value={v}>
+                        {workTypeLabel[v]}
+                      </option>
+                    ))}
                   </Select>
                 </div>
                 {activeFiltersCount > 0 && (

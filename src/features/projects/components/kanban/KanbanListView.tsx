@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { daysUntil } from "@/domain/compute";
 import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels";
 import type { Area, Person, Task } from "@/domain/schemas";
+import { WorkTypeBadge } from "./WorkTypeBadge";
 
 interface Props {
   tasks: Task[];
@@ -75,6 +76,7 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
                       {task.status === "blocked" && (
                         <span className="text-red-500 text-xs">🔒</span>
                       )}
+                      <WorkTypeBadge workType={task.workType} />
                       <span className="text-sm font-medium">{task.title}</span>
                     </div>
                   </td>

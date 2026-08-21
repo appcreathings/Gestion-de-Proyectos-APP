@@ -72,5 +72,10 @@ describe("names and shapes", () => {
     expect(params.type).toBe("object");
     expect(params.required).toEqual(expect.arrayContaining(["projectId", "title"]));
     expect(params.required).not.toContain("dueDate");
+    // Spec 062 D11: workType es opcional — el asistente no puede verse obligado a mentir el tipo.
+    expect(params.required).not.toContain("workType");
+    const props = (createTask.parametersJsonSchema as { properties: Record<string, unknown> })
+      .properties;
+    expect(props).toHaveProperty("workType");
   });
 });

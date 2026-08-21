@@ -11,6 +11,7 @@ import {
   SCHEMA_VERSION,
   SprintStatus,
   TaskStatus,
+  WorkType,
 } from "./common";
 import { AttachmentSchema } from "./attachment";
 
@@ -109,6 +110,13 @@ export const TaskSchema = z.object({
   summary: z.string().max(140).default(""),
   status: TaskStatus.default("todo"),
   priority: Priority.default("medium"),
+  /** Tipo de trabajo (spec 062). Default silencioso para lo existente. */
+  workType: WorkType.default("task"),
+  /** Métrica de key result (spec 062 D8): la UI solo la muestra si
+   * `workType === "key_result"`. Cambiar de tipo no borra los números. */
+  krCurrent: z.number().nullable().default(null),
+  krTarget: z.number().nullable().default(null),
+  krUnit: z.string().default(""),
   assigneeId: Id.nullable().default(null),
   dueDate: DayDate.default(null),
   areaId: Id.nullable().default(null),

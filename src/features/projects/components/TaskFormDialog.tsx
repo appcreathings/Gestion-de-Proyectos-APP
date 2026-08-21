@@ -19,9 +19,9 @@ import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
-import { priorityLabel, taskStatusLabel } from "@/domain/labels";
+import { priorityLabel, taskStatusLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
 import { newTask } from "@/domain/factories";
-import type { Area, Person, Priority, Sprint, Task, TaskStatus } from "@/domain/schemas";
+import type { Area, Person, Priority, Sprint, Task, TaskStatus, WorkType } from "@/domain/schemas";
 
 interface Props {
   open: boolean;
@@ -51,6 +51,11 @@ export function TaskFormDialog({
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>(defaultStatus);
   const [priority, setPriority] = useState<Priority>("medium");
+  const [workType, setWorkType] = useState<WorkType>("task");
+  // Métrica KR como strings — se parsean al guardar (vacío → null, nunca NaN).
+  const [krCurrent, setKrCurrent] = useState("");
+  const [krTarget, setKrTarget] = useState("");
+  const [krUnit, setKrUnit] = useState("");
   const [areaId, setAreaId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -67,6 +72,10 @@ export function TaskFormDialog({
       setDescription(task?.description ?? "");
       setStatus(task?.status ?? defaultStatus);
       setPriority(task?.priority ?? "medium");
+      setWorkType(task?.workType ?? "task");
+      setKrCurrent(task?.krCurrent !== null && task?.krCurrent !== undefined ? String(task.krCurrent) : "");
+      setKrTarget(task?.krTarget !== null && task?.krTarget !== undefined ? String(task.krTarget) : "");
+      setKrUnit(task?.krUnit ?? "");
       setAreaId(task?.areaId ?? "");
       setAssigneeId(task?.assigneeId ?? "");
       setDueDate(task?.dueDate ?? "");
@@ -93,6 +102,12 @@ export function TaskFormDialog({
       return;
     }
     const base = task ?? newTask(title);
+    const parseKr = (v: string): number | null => {
+      const trimmed = v.trim();
+      if (trimmed === "") return null;
+      const n = Number(trimmed);
+      return Number.isFinite(n) ? n : null;
+    };
     setSaving(true);
     try {
       await onSubmit({
@@ -101,6 +116,10 @@ export function TaskFormDialog({
         description,
         status,
         priority,
+        workType,
+        krCurrent: parseKr(krCurrent),
+        krTarget: parseKr(krTarget),
+        krUnit: krUnit.trim(),
         areaId: areaId || null,
         assigneeId: assigneeId || null,
         dueDate: dueDate || null,
@@ -163,6 +182,9 @@ export function TaskFormDialog({
                 placeholder="Añade contexto, criterios de aceptación o notas relevantes..."
                 textareaClassName="min-h-[100px]"
               />
+              {workType === "prd" && (
+                <p className="text-xs text-muted-foreground">El PRD vive en la descripción.</p>
+              )}
             </div>
           </section>
 
@@ -215,6 +237,60 @@ export function TaskFormDialog({
                     ))}
                   </Select>
                 </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="t-worktype">Tipo</Label>
+                  <Select
+                    id="t-worktype"
+                    value={workType}
+                    onChange={(e) => setWorkType(e.target.value as WorkType)}
+                  >
+                    {WORK_TYPE_OPTIONS.map((v) => (
+                      <option key={v} value={v}>
+                        {workTypeLabel[v]}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                {workType === "spike" && (
+                  <p className="col-span-full text-xs text-muted-foreground">
+                    Techo de horas para la prueba de concepto. No es una promesa de entrega.
+                  </p>
+                )}
+                {workType === "key_result" && (
+                  <div className="col-span-full grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="grid gap-2">
+                      <Label htmlFor="t-kr-current">Actual</Label>
+                      <Input
+                        id="t-kr-current"
+                        type="number"
+                        step="any"
+                        value={krCurrent}
+                        onChange={(e) => setKrCurrent(e.target.value)}
+                        placeholder="40"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="t-kr-target">Meta</Label>
+                      <Input
+                        id="t-kr-target"
+                        type="number"
+                        step="any"
+                        value={krTarget}
+                        onChange={(e) => setKrTarget(e.target.value)}
+                        placeholder="55"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="t-kr-unit">Unidad</Label>
+                      <Input
+                        id="t-kr-unit"
+                        value={krUnit}
+                        onChange={(e) => setKrUnit(e.target.value)}
+                        placeholder="%"
+                      />
+                    </div>
+                  </div>
+                )}
                 <div className="grid gap-2">
                   <Label htmlFor="t-area">Área</Label>
                   <EntitySelect
