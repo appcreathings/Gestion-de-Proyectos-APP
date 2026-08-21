@@ -74,6 +74,7 @@ describe("github-repo-sync", () => {
         comments: [],
         archived: false,
         estimate: null,
+        actualHours: null,
         subtasks: [],
         attachments: [
           shared,
@@ -133,6 +134,7 @@ describe("github-repo-sync", () => {
         comments: [{ id: "c1", authorId: null, text: "hi", createdAt: "x", updatedAt: "x" }],
         archived: false,
         estimate: null,
+        actualHours: null,
         subtasks: [],
         attachments: [],
         links: [],
@@ -169,6 +171,7 @@ describe("github-repo-sync", () => {
         comments: [{ id: "c1", authorId: null, text: "hi", createdAt: "x", updatedAt: "x" }],
         archived: false,
         estimate: null,
+        actualHours: null,
         subtasks: [],
         attachments: [],
         links: [],

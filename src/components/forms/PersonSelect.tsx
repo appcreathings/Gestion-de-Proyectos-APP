@@ -12,6 +12,8 @@ interface PersonSelectProps {
   people: Person[];
   placeholder?: string;
   className?: string;
+  /** Pasante a `EntitySelect` — ver la nota de tamaño allí (spec 064). */
+  size?: "default" | "sm";
 }
 
 /** Single-person selector with "— Sin asignar —" default. */
@@ -22,6 +24,7 @@ export function PersonSelect({
   people,
   placeholder = "— Sin asignar —",
   className,
+  size,
 }: PersonSelectProps) {
   return (
     <EntitySelect
@@ -31,6 +34,7 @@ export function PersonSelect({
       options={people}
       placeholder={placeholder}
       className={className}
+      size={size}
     />
   );
 }

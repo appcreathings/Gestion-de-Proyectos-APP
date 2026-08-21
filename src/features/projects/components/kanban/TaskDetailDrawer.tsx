@@ -35,6 +35,44 @@ import type {
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 import { useChatStore } from "@/store/useChatStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { PropertyRow, QUIET_CONTROL, QUIET_DATE, QUIET_INPUT } from "./PropertyRow";
+import { dueLabel, dueSuffix, metaLabel, relativeSince } from "./taskDetailLabels";
+
+/** Pastilla de estado de la cabecera (spec 064 D5, design §5).
+ *
+ * `blocked` y `done` llevan pareja clara/oscura explícita en vez de
+ * `bg-destructive/10 text-destructive`: en tema oscuro ese token es un rojo
+ * apagado (#bb2a2a) que sobre el fondo casi negro del panel no llegaba a AA.
+ * Es el mismo patrón que ya usa el chip ámbar de "vence pronto". */
+const STATUS_PILL: Record<TaskStatus, string> = {
+  todo: "bg-muted text-muted-foreground",
+  doing: "bg-accent text-accent-foreground",
+  blocked: "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100",
+  done: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100",
+};
+
+const STATUS_DOT: Record<TaskStatus, string> = {
+  todo: "bg-muted-foreground",
+  doing: "bg-primary",
+  blocked: "bg-destructive",
+  done: "bg-success",
+};
+
+/** Punto de prioridad: `low` va hueco para que "sin urgencia" no pese. */
+const PRIORITY_DOT: Record<Priority, string> = {
+  low: "border border-muted-foreground",
+  medium: "bg-muted-foreground",
+  high: "bg-warning",
+  critical: "bg-destructive",
+};
+
+/** Ancho de panel a partir del cual las propiedades caben en dos columnas.
+ *
+ * Es el ancho del **drawer**, no del viewport: el panel es redimensionable y
+ * guarda su ancho en `localStorage`, así que una media query de viewport daría
+ * el resultado equivocado en una ventana ancha con el panel estrecho
+ * (spec 064 D3, CA-05). */
+const TWO_COLUMN_MIN_WIDTH = 460;
 
 interface Props {
   task: Task | null;
@@ -74,6 +112,7 @@ export function TaskDetailDrawer({
   const [tagInput, setTagInput] = useState("");
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [estimate, setEstimate] = useState("");
+  const [actualHours, setActualHours] = useState("");
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
@@ -89,7 +128,7 @@ export function TaskDetailDrawer({
     }
   });
   const drawerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
   const commentsEndRef = useRef<HTMLDivElement>(null);
   const isResizingRef = useRef(false);
 
@@ -128,6 +167,11 @@ export function TaskDetailDrawer({
       setDueDate(task.dueDate ?? "");
       setSprintId(task.sprintId ?? "");
       setEstimate(task.estimate !== null && task.estimate !== undefined ? String(task.estimate) : "");
+      setActualHours(
+        task.actualHours !== null && task.actualHours !== undefined
+          ? String(task.actualHours)
+          : "",
+      );
       setSubtasks(task.subtasks ?? []);
     }
   }, [task]);
@@ -149,11 +193,17 @@ export function TaskDetailDrawer({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [task, onClose]);
 
+  // El título crece hacia abajo en vez de recortarse: es un textarea de una
+  // línea al que se le ajusta el alto al contenido (spec 064 D4).
+  //
+  // No se le pone foco al abrir la tarea a propósito: robaba el cursor y
+  // dejaba el panel en modo edición sin que nadie lo pidiera.
   useEffect(() => {
-    if (task && titleRef.current) {
-      titleRef.current.focus();
-    }
-  }, [task?.id]);
+    const el = titleRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [title, task?.id]);
 
   // Get all existing tags from all tasks for autocomplete
   const allExistingTags = useMemo(() => {
@@ -206,17 +256,22 @@ export function TaskDetailDrawer({
     [task, onUpdate],
   );
 
-  const handleEstimateChange = useCallback(
-    (value: string) => {
+  /** Estimación y tiempo real comparten forma: horas, vacío → null.
+   *
+   * Un solo manejador para los dos (spec 064 D12). Se valida con `Number` y no
+   * con `parseFloat`, que aceptaba "8abc" y guardaba 8 en silencio; el mismo
+   * criterio de "no persistir NaN" que la métrica de KR (spec 062 D8). */
+  const handleHoursChange = useCallback(
+    (field: "estimate" | "actualHours", value: string) => {
       if (!task) return;
-      setEstimate(value);
-      const numValue = value === "" ? null : parseFloat(value);
-      if (isNaN(numValue as number)) return;
-      onUpdate({
-        ...task,
-        estimate: numValue,
-        updatedAt: nowIso(),
-      });
+      if (field === "estimate") setEstimate(value);
+      else setActualHours(value);
+
+      const trimmed = value.trim();
+      const num = trimmed === "" ? null : Number(trimmed);
+      if (num !== null && !Number.isFinite(num)) return;
+      if (num === (task[field] ?? null)) return;
+      onUpdate({ ...task, [field]: num, updatedAt: nowIso() });
     },
     [task, onUpdate],
   );
@@ -485,21 +540,6 @@ export function TaskDetailDrawer({
     }
   }, [task, onUpdate, onClose]);
 
-  const formatRelativeDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return "ahora";
-    if (diffMins < 60) return `hace ${diffMins} min`;
-    if (diffHours < 24) return `hace ${diffHours}h`;
-    if (diffDays < 7) return `hace ${diffDays}d`;
-    return date.toLocaleDateString();
-  };
-
   if (!task) return null;
 
   const d = daysUntil(task.dueDate);
@@ -507,10 +547,22 @@ export function TaskDetailDrawer({
   const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
   const isBlocked = task.status === "blocked";
 
+  // Dos columnas solo cuando el panel da de sí. En móvil ocupa el viewport
+  // completo y los controles necesitan el ancho entero (CA-05, CA-06).
+  const twoColumns = !isMobile && drawerWidth >= TWO_COLUMN_MIN_WIDTH;
+
+  const doneSubtasks = subtasks.filter((s) => s.done).length;
+  const subtaskProgress =
+    subtasks.length > 0 ? Math.round((doneSubtasks / subtasks.length) * 100) : 0;
+  const krPercent = krProgress(task.krCurrent ?? null, task.krTarget ?? null);
+
   function changeStatus(next: TaskStatus) {
     setStatus(next);
     persist("status", next);
   }
+
+  /** Encabezado de sección: versalita fina, sin caja (spec 064 D6). */
+  const SECTION = "text-[11px] font-semibold uppercase tracking-[0.07em] text-muted-foreground";
 
   return (
     <>
@@ -553,24 +605,47 @@ export function TaskDetailDrawer({
           }}
           aria-hidden="true"
         />
-        <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="text-xs text-muted-foreground">
-              {taskStatusLabel[task.status]}
-            </span>
+
+        {/* Cabecera: estado y urgencia, lo primero que se lee (spec 064 D5). */}
+        <div className="flex items-center justify-between gap-2 border-b px-4 py-2.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <div
+              className={cn(
+                "relative inline-flex items-center gap-1.5 rounded-full pl-2.5",
+                STATUS_PILL[status],
+              )}
+            >
+              <span
+                className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[status])}
+                aria-hidden="true"
+              />
+              <Select
+                id="d-status"
+                size="sm"
+                value={status}
+                aria-label="Estado de la tarea"
+                onChange={(e) => changeStatus(e.target.value as TaskStatus)}
+                className="h-6 w-auto rounded-full border-transparent bg-transparent pl-0 pr-6 font-medium [&>option]:bg-popover [&>option]:font-normal [&>option]:text-popover-foreground"
+              >
+                {Object.entries(taskStatusLabel).map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
             {overdue && (
-              <Badge variant="destructive" className="text-[11px] leading-tight px-1.5 py-0.5">
-                {d !== null && d < 0
-                  ? `Vencida hace ${Math.abs(d)} día${Math.abs(d) === 1 ? "" : "s"}`
-                  : "Vencida"}
+              <Badge variant="destructive" className="text-[11px] leading-tight px-2 py-0.5">
+                {dueLabel(d)}
               </Badge>
             )}
             {dueSoon && !overdue && (
               <Badge
                 variant="outline"
-                className="border-amber-500/50 bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100 text-[11px] leading-tight px-1.5 py-0.5"
+                className="border-amber-500/50 bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100 text-[11px] leading-tight px-2 py-0.5"
               >
-                {d === 0 ? "Vence hoy" : `Vence en ${d} día${d === 1 ? "" : "s"}`}
+                {dueLabel(d)}
               </Badge>
             )}
           </div>
@@ -586,37 +661,40 @@ export function TaskDetailDrawer({
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <div className="grid gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="d-title" className="text-xs text-muted-foreground">
+          <div className="min-h-0 flex-1 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
+
+            {/* Encabezado: qué es esta tarea (spec 064 D4). */}
+            <div className="grid gap-1 px-5 pb-3 pt-4">
+              <Label htmlFor="d-title" className="sr-only">
                 Título
               </Label>
-              <Input
+              <Textarea
                 ref={titleRef}
                 id="d-title"
+                rows={1}
                 value={title}
-                className="text-base font-medium"
+                placeholder="Título de la tarea"
+                className="min-h-0 resize-none overflow-hidden border-transparent bg-transparent px-0 py-0 text-xl font-semibold leading-snug tracking-tight sm:text-xl focus-visible:ring-offset-0"
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={() => persist("title", title)}
                 onKeyDown={(e) => {
+                  // Enter confirma; el salto de línea no aporta nada a un
+                  // título y rompería la fila del Kanban.
                   if (e.key === "Enter") {
+                    e.preventDefault();
                     e.currentTarget.blur();
                   }
                 }}
               />
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="d-summary" className="text-xs text-muted-foreground">
+              <Label htmlFor="d-summary" className="sr-only">
                 Resumen
               </Label>
               <Input
                 id="d-summary"
                 value={summary}
                 maxLength={140}
-                placeholder="Resumen corto del alcance de la tarea..."
-                className="text-sm"
+                placeholder="Resumen corto del alcance…"
+                className="h-auto border-transparent bg-transparent px-0 py-0 text-[13.5px] text-muted-foreground sm:text-[13.5px] focus-visible:ring-offset-0"
                 onChange={(e) => setSummary(e.target.value)}
                 onBlur={() => persist("summary", summary)}
                 onKeyDown={(e) => {
@@ -625,13 +703,321 @@ export function TaskDetailDrawer({
                   }
                 }}
               />
-              <span className="text-[10px] text-muted-foreground text-right">
-                {summary.length}/140
-              </span>
+              {summary.length > 120 && (
+                <span className="text-right text-[10px] text-muted-foreground">
+                  {summary.length}/140
+                </span>
+              )}
             </div>
 
-            <div className="grid gap-1.5">
-              <Label htmlFor="d-desc" className="text-xs text-muted-foreground">
+            {/* Spec 054: estado táctil en móvil, por encima del fold. */}
+            <div className="grid gap-1.5 px-5 pb-3 md:hidden">
+              <span className={SECTION}>Cambiar estado</span>
+              <div className="grid grid-cols-4 gap-1">
+                {TASK_COLUMNS.map((col) => (
+                  <Button
+                    key={col}
+                    type="button"
+                    size="sm"
+                    variant={status === col ? "default" : "outline"}
+                    className="min-h-11 px-1 text-[11px]"
+                    disabled={status === col}
+                    onClick={() => changeStatus(col)}
+                  >
+                    {taskStatusLabel[col]}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Propiedades: filas de 32 px, dos columnas si el panel da (D1, D3). */}
+            <div
+              className={cn(
+                "grid gap-x-1.5 gap-y-0.5 px-3 pb-3",
+                twoColumns ? "sm:grid-cols-2" : "grid-cols-1",
+              )}
+            >
+              <PropertyRow label="Responsable" htmlFor="d-assignee">
+                <PersonSelect
+                  id="d-assignee"
+                  size="sm"
+                  value={assigneeId}
+                  className={QUIET_CONTROL}
+                  onChange={(v) => {
+                    setAssigneeId(v);
+                    persist("assigneeId", v);
+                  }}
+                  people={people}
+                />
+              </PropertyRow>
+
+              <PropertyRow label="Prioridad" htmlFor="d-priority">
+                <span
+                  className={cn(
+                    "mr-1.5 size-[7px] shrink-0 rounded-full",
+                    PRIORITY_DOT[priority],
+                  )}
+                  aria-hidden="true"
+                />
+                <Select
+                  id="d-priority"
+                  size="sm"
+                  value={priority}
+                  className={QUIET_CONTROL}
+                  onChange={(e) => {
+                    setPriority(e.target.value as Priority);
+                    persist("priority", e.target.value);
+                  }}
+                >
+                  {Object.entries(priorityLabel).map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </Select>
+              </PropertyRow>
+
+              <PropertyRow label="Área" htmlFor="d-area">
+                <EntitySelect
+                  id="d-area"
+                  size="sm"
+                  value={areaId}
+                  className={QUIET_CONTROL}
+                  onChange={(v) => {
+                    setAreaId(v);
+                    persist("areaId", v);
+                  }}
+                  options={areas}
+                  placeholder="— Sin área —"
+                />
+              </PropertyRow>
+
+              <PropertyRow label="Tipo" htmlFor="d-worktype">
+                <Select
+                  id="d-worktype"
+                  size="sm"
+                  value={workType}
+                  className={QUIET_CONTROL}
+                  onChange={(e) => {
+                    setWorkType(e.target.value as WorkType);
+                    persist("workType", e.target.value);
+                  }}
+                >
+                  {WORK_TYPE_OPTIONS.map((v) => (
+                    <option key={v} value={v}>
+                      {workTypeLabel[v]}
+                    </option>
+                  ))}
+                </Select>
+              </PropertyRow>
+
+              {/* Estimación y tiempo real comparten fila SIEMPRE, no solo en
+                  modo dos columnas: la promesa y el hecho se leen juntos o no
+                  dicen nada (spec 064 D12). Caben porque son dos números de
+                  tres caracteres — no necesitan media fila cada uno. */}
+              <PropertyRow
+                label={workType === "spike" ? "Time-box" : "Estimación"}
+                htmlFor="d-estimate"
+                wide={twoColumns}
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <Input
+                    id="d-estimate"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={estimate}
+                    onChange={(e) => handleHoursChange("estimate", e.target.value)}
+                    placeholder="— h"
+                    className={cn(QUIET_INPUT, "w-16 shrink-0")}
+                  />
+                  <Label
+                    htmlFor="d-actual"
+                    className="shrink-0 pl-1 text-xs font-normal text-muted-foreground"
+                  >
+                    Tiempo real
+                  </Label>
+                  <Input
+                    id="d-actual"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={actualHours}
+                    onChange={(e) => handleHoursChange("actualHours", e.target.value)}
+                    placeholder="— h"
+                    className={cn(QUIET_INPUT, "w-16 shrink-0")}
+                  />
+                </div>
+              </PropertyRow>
+
+              {/* Sprint a ancho completo: si ocupara media fila, aparecer o no
+                  (depende de si el proyecto tiene sprints) descolocaría el
+                  emparejamiento de las filas siguientes. */}
+              {sprints.length > 0 && (
+                <PropertyRow label="Sprint" htmlFor="d-sprint" wide={twoColumns}>
+                  <Select
+                    id="d-sprint"
+                    size="sm"
+                    value={sprintId}
+                    className={QUIET_CONTROL}
+                    onChange={(e) => {
+                      setSprintId(e.target.value);
+                      persist("sprintId", e.target.value);
+                    }}
+                  >
+                    <option value="">— Backlog —</option>
+                    {sprints.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </Select>
+                </PropertyRow>
+              )}
+
+              <PropertyRow label="Fecha límite" htmlFor="d-due" wide={twoColumns}>
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <DateFieldPreview
+                    id="d-due"
+                    compact
+                    value={dueDate}
+                    className={QUIET_DATE}
+                    onChange={(v) => {
+                      setDueDate(v);
+                      persist("dueDate", v);
+                    }}
+                  />
+                  {dueDate && d !== null && (
+                    <span
+                      className={cn(
+                        "shrink-0 text-xs",
+                        overdue
+                          ? "text-destructive"
+                          : dueSoon
+                            ? "text-amber-700 dark:text-amber-400"
+                            : "text-muted-foreground",
+                      )}
+                    >
+                      · {dueSuffix(d)}
+                    </span>
+                  )}
+                </div>
+              </PropertyRow>
+
+              <PropertyRow label="Etiquetas" wide={twoColumns}>
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 py-1">
+                  {(task.tags ?? []).map((tag) => (
+                    <Badge key={tag} variant="secondary" className="gap-1 pr-1 font-normal">
+                      {tag}
+                      <button
+                        onClick={() => removeTag(tag)}
+                        className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10"
+                        aria-label={`Eliminar tag ${tag}`}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                  <div className="relative min-w-[7rem] flex-1">
+                    <Label htmlFor="d-tag" className="sr-only">
+                      Añadir etiqueta
+                    </Label>
+                    <Input
+                      id="d-tag"
+                      value={tagInput}
+                      onChange={(e) => {
+                        setTagInput(e.target.value);
+                        setShowTagSuggestions(true);
+                      }}
+                      onFocus={() => setShowTagSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && tagInput.trim()) {
+                          e.preventDefault();
+                          addTag(tagInput);
+                        }
+                      }}
+                      placeholder="Añadir…"
+                      className={QUIET_INPUT}
+                    />
+                    {showTagSuggestions && filteredTagSuggestions.length > 0 && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border bg-popover shadow-md">
+                        {filteredTagSuggestions.map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => addTag(tag)}
+                            className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent"
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </PropertyRow>
+
+              {/* Key result: la métrica es una fila, no tres campos sueltos (D10). */}
+              {workType === "key_result" && (
+                <>
+                  {krPercent !== null && (
+                    <PropertyRow label="Progreso" wide={twoColumns}>
+                      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                        <div className="h-1 min-w-0 flex-1 rounded-full bg-muted">
+                          <div
+                            className="h-1 rounded-full bg-brand-accent"
+                            style={{ width: `${Math.round(krPercent * 100)}%` }}
+                          />
+                        </div>
+                        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                          {task.krCurrent} / {task.krTarget}
+                          {task.krUnit ? ` ${task.krUnit}` : ""} · {Math.round(krPercent * 100)}%
+                        </span>
+                      </div>
+                    </PropertyRow>
+                  )}
+                  <PropertyRow label="Métrica" htmlFor="d-kr-current" wide={twoColumns}>
+                    <div className="grid min-w-0 flex-1 grid-cols-3 gap-1.5">
+                      <Input
+                        id="d-kr-current"
+                        type="number"
+                        step="any"
+                        value={krCurrent}
+                        onChange={(e) => handleKrNumberChange("krCurrent", e.target.value)}
+                        placeholder="Actual"
+                        aria-label="Valor actual"
+                        className={QUIET_INPUT}
+                      />
+                      <Input
+                        id="d-kr-target"
+                        type="number"
+                        step="any"
+                        value={krTarget}
+                        onChange={(e) => handleKrNumberChange("krTarget", e.target.value)}
+                        placeholder="Meta"
+                        aria-label="Meta"
+                        className={QUIET_INPUT}
+                      />
+                      <Input
+                        id="d-kr-unit"
+                        value={krUnit}
+                        onChange={(e) => setKrUnit(e.target.value)}
+                        onBlur={handleKrUnitBlur}
+                        placeholder="Unidad"
+                        aria-label="Unidad"
+                        className={QUIET_INPUT}
+                      />
+                    </div>
+                  </PropertyRow>
+                </>
+              )}
+            </div>
+
+            <div className="mx-5 h-px bg-border" />
+
+            {/* Descripción */}
+            <div className="grid gap-2 px-5 py-4">
+              <Label htmlFor="d-desc" className={SECTION}>
                 Descripción
               </Label>
               <RichTextField
@@ -640,17 +1026,114 @@ export function TaskDetailDrawer({
                 value={description}
                 onChange={setDescription}
                 onBlur={() => persist("description", description)}
-                placeholder="Añade contexto, criterios de aceptación o notas relevantes..."
+                placeholder="Añade contexto, criterios de aceptación o notas relevantes…"
                 textareaClassName="min-h-[120px]"
               />
               {workType === "prd" && (
                 <p className="text-xs text-muted-foreground">El PRD vive en la descripción.</p>
               )}
+              {workType === "spike" && (
+                <p className="text-xs text-muted-foreground">
+                  El time-box es el techo de horas de la prueba de concepto. No es una promesa de
+                  entrega.
+                </p>
+              )}
             </div>
 
-            {/* Links externos — chips compactos (spec 043) */}
-            <div className="grid gap-1.5">
-              <Label className="text-xs text-muted-foreground">Links</Label>
+            <div className="mx-5 h-px bg-border" />
+
+            {/* Subtareas, con su avance a la vista */}
+            <div className="grid gap-2.5 px-5 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className={SECTION}>Subtareas</span>
+                {subtasks.length > 0 && (
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {doneSubtasks} / {subtasks.length}
+                  </span>
+                )}
+              </div>
+              {subtasks.length > 0 && (
+                <>
+                  <div
+                    className="h-[3px] overflow-hidden rounded-full bg-muted"
+                    role="progressbar"
+                    aria-valuenow={subtaskProgress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Avance de subtareas"
+                  >
+                    <div
+                      className="h-[3px] rounded-full bg-brand-accent transition-all"
+                      style={{ width: `${subtaskProgress}%` }}
+                    />
+                  </div>
+                  <div className="grid">
+                    {subtasks.map((subtask) => (
+                      <div key={subtask.id} className="group flex items-center gap-2.5 py-1">
+                        <Checkbox
+                          checked={subtask.done}
+                          onCheckedChange={() => toggleSubtask(subtask.id)}
+                          aria-label={subtask.title}
+                          className="size-4"
+                        />
+                        <span
+                          className={cn(
+                            "flex-1 text-[13.5px]",
+                            subtask.done && "text-muted-foreground line-through",
+                          )}
+                        >
+                          {subtask.title}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                          onClick={() => deleteSubtask(subtask.id)}
+                          aria-label={`Eliminar subtarea ${subtask.title}`}
+                        >
+                          <Trash2 className="size-3 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              <div className="flex gap-2">
+                <Label htmlFor="d-subtask" className="sr-only">
+                  Nueva subtarea
+                </Label>
+                <Input
+                  id="d-subtask"
+                  value={newSubtaskTitle}
+                  onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newSubtaskTitle.trim()) {
+                      e.preventDefault();
+                      addSubtask();
+                    }
+                  }}
+                  placeholder="Añadir subtarea…"
+                  className="h-9 text-[13.5px] sm:text-[13.5px]"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-9 shrink-0"
+                  onClick={addSubtask}
+                  disabled={!newSubtaskTitle.trim()}
+                  aria-label="Añadir subtarea"
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="mx-5 h-px bg-border" />
+
+            {/* Referencias: links y anexos bajo un mismo encabezado (D7).
+                Los anexos conservan su propia interfaz — ver spec 064 §6. */}
+            <div className="grid gap-2.5 px-5 py-4">
+              <span className={SECTION}>Referencias</span>
 
               <div className="flex flex-wrap items-center gap-1.5" aria-label="Links de la tarea">
                 {links.map((link) => {
@@ -664,7 +1147,7 @@ export function TaskDetailDrawer({
                         title={link.url}
                         aria-label={`Abrir ${display}`}
                         className={cn(
-                          "inline-flex h-7 max-w-[11rem] items-center gap-1 rounded-full border border-border/70 bg-muted/40 px-2.5 text-xs font-medium",
+                          "inline-flex h-7 max-w-[11rem] items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium",
                           "hover:bg-accent hover:text-accent-foreground",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                         )}
@@ -684,7 +1167,7 @@ export function TaskDetailDrawer({
                         className={cn(
                           "absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full",
                           "border border-border bg-background text-muted-foreground shadow-sm",
-                          "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive",
+                          "hover:border-destructive hover:bg-destructive hover:text-destructive-foreground",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                           "opacity-80 group-hover:opacity-100",
                         )}
@@ -700,7 +1183,7 @@ export function TaskDetailDrawer({
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="size-7 shrink-0 rounded-full"
+                    className="size-7 shrink-0 border-dashed"
                     title="Añadir link"
                     aria-label="Añadir link"
                     aria-expanded={false}
@@ -725,7 +1208,7 @@ export function TaskDetailDrawer({
                       autoFocus
                       placeholder="URL o dominio.com/…"
                       value={linkUrl}
-                      className="h-8 flex-1 text-xs"
+                      className="h-8 flex-1 text-xs sm:text-xs"
                       onChange={(e) => {
                         setLinkUrl(e.target.value);
                         if (linkError) setLinkError(null);
@@ -763,29 +1246,6 @@ export function TaskDetailDrawer({
                       <X className="size-3.5" />
                     </Button>
                   </div>
-                  <Label htmlFor="d-link-label" className="sr-only">
-                    Etiqueta del link (opcional)
-                  </Label>
-                  <Input
-                    id="d-link-label"
-                    type="text"
-                    autoComplete="off"
-                    placeholder="Etiqueta opcional"
-                    value={linkLabel}
-                    className="h-8 text-xs"
-                    onChange={(e) => setLinkLabel(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addLink();
-                      }
-                      if (e.key === "Escape") {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        cancelAddLink();
-                      }
-                    }}
-                  />
                   {linkError && (
                     <p className="text-[11px] text-destructive" role="alert">
                       {linkError}
@@ -799,399 +1259,41 @@ export function TaskDetailDrawer({
                   Máximo {MAX_TASK_LINKS} links.
                 </p>
               )}
-            </div>
 
-            {/* Spec 054: estado arriba del fold en móvil + chips táctiles. */}
-            <div className="grid gap-1.5 md:hidden">
-              <Label className="text-xs text-muted-foreground">Estado</Label>
-              <div className="grid grid-cols-4 gap-1">
-                {TASK_COLUMNS.map((col) => (
-                  <Button
-                    key={col}
-                    type="button"
-                    size="sm"
-                    variant={status === col ? "default" : "outline"}
-                    className="min-h-11 px-1 text-[11px]"
-                    disabled={status === col}
-                    onClick={() => changeStatus(col)}
-                  >
-                    {taskStatusLabel[col]}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="hidden gap-1.5 md:grid">
-                <Label htmlFor="d-status" className="text-xs text-muted-foreground">
-                  Estado
-                </Label>
-                <Select
-                  id="d-status"
-                  value={status}
-                  onChange={(e) => {
-                    changeStatus(e.target.value as TaskStatus);
-                  }}
-                >
-                  {Object.entries(taskStatusLabel).map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className="grid gap-1.5 col-span-2 md:col-span-1">
-                <Label htmlFor="d-priority" className="text-xs text-muted-foreground">
-                  Prioridad
-                </Label>
-                <Select
-                  id="d-priority"
-                  value={priority}
-                  onChange={(e) => {
-                    setPriority(e.target.value as Priority);
-                    persist("priority", e.target.value);
-                  }}
-                >
-                  {Object.entries(priorityLabel).map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className="grid gap-1.5 col-span-2 md:col-span-1">
-                <Label htmlFor="d-worktype" className="text-xs text-muted-foreground">
-                  Tipo
-                </Label>
-                <Select
-                  id="d-worktype"
-                  value={workType}
-                  onChange={(e) => {
-                    setWorkType(e.target.value as WorkType);
-                    persist("workType", e.target.value);
-                  }}
-                >
-                  {WORK_TYPE_OPTIONS.map((v) => (
-                    <option key={v} value={v}>
-                      {workTypeLabel[v]}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-
-            {/* Métrica de key result (spec 062 D8): solo si el tipo es key_result. */}
-            {workType === "key_result" && (
-              <div className="grid gap-1.5">
-                <Label className="text-xs text-muted-foreground">Key result</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="grid gap-1">
-                    <Label htmlFor="d-kr-current" className="text-[10px] text-muted-foreground">
-                      Actual
-                    </Label>
-                    <Input
-                      id="d-kr-current"
-                      type="number"
-                      step="any"
-                      value={krCurrent}
-                      onChange={(e) => handleKrNumberChange("krCurrent", e.target.value)}
-                      placeholder="40"
-                      className="text-sm"
-                    />
-                  </div>
-                  <div className="grid gap-1">
-                    <Label htmlFor="d-kr-target" className="text-[10px] text-muted-foreground">
-                      Meta
-                    </Label>
-                    <Input
-                      id="d-kr-target"
-                      type="number"
-                      step="any"
-                      value={krTarget}
-                      onChange={(e) => handleKrNumberChange("krTarget", e.target.value)}
-                      placeholder="55"
-                      className="text-sm"
-                    />
-                  </div>
-                  <div className="grid gap-1">
-                    <Label htmlFor="d-kr-unit" className="text-[10px] text-muted-foreground">
-                      Unidad
-                    </Label>
-                    <Input
-                      id="d-kr-unit"
-                      value={krUnit}
-                      onChange={(e) => setKrUnit(e.target.value)}
-                      onBlur={handleKrUnitBlur}
-                      placeholder="%"
-                      className="text-sm"
-                    />
-                  </div>
-                </div>
-                {(() => {
-                  const p = krProgress(task.krCurrent ?? null, task.krTarget ?? null);
-                  if (p === null) return null;
-                  return (
-                    <div className="space-y-1">
-                      <div className="h-1 rounded-full bg-muted">
-                        <div
-                          className="h-1 rounded-full bg-primary"
-                          style={{ width: `${Math.round(p * 100)}%` }}
-                        />
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        {task.krCurrent} / {task.krTarget}
-                        {task.krUnit ? ` ${task.krUnit}` : ""} · {Math.round(p * 100)}%
-                      </p>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-1.5">
-                <Label htmlFor="d-area" className="text-xs text-muted-foreground">
-                  Área
-                </Label>
-                <EntitySelect
-                  id="d-area"
-                  value={areaId}
-                  onChange={(v) => {
-                    setAreaId(v);
-                    persist("areaId", v);
-                  }}
-                  options={areas}
-                  placeholder="— Sin área —"
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="d-assignee" className="text-xs text-muted-foreground">
-                  Responsable
-                </Label>
-                <PersonSelect
-                  id="d-assignee"
-                  value={assigneeId}
-                  onChange={(v) => {
-                    setAssigneeId(v);
-                    persist("assigneeId", v);
-                  }}
-                  people={people}
-                />
-              </div>
-            </div>
-
-            {sprints.length > 0 && (
-              <div className="grid gap-1.5">
-                <Label htmlFor="d-sprint" className="text-xs text-muted-foreground">
-                  Sprint
-                </Label>
-                <Select
-                  id="d-sprint"
-                  value={sprintId}
-                  onChange={(e) => {
-                    setSprintId(e.target.value);
-                    persist("sprintId", e.target.value);
-                  }}
-                >
-                  <option value="">— Backlog —</option>
-                  {sprints.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            )}
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="d-due" className="text-xs text-muted-foreground">
-                Fecha límite
-              </Label>
-              <DateFieldPreview
-                id="d-due"
-                value={dueDate}
-                onChange={(v) => {
-                  setDueDate(v);
-                  persist("dueDate", v);
-                }}
-              />
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="d-estimate" className="text-xs text-muted-foreground">
-                {workType === "spike" ? "Time-box (h)" : "Estimación (horas)"}
-              </Label>
-              <Input
-                id="d-estimate"
-                type="number"
-                min="0"
-                step="0.5"
-                value={estimate}
-                onChange={(e) => handleEstimateChange(e.target.value)}
-                placeholder="Ej: 8"
-                className="text-sm"
-              />
-              {workType === "spike" && (
-                <p className="text-xs text-muted-foreground">
-                  Techo de horas para la prueba de concepto. No es una promesa de entrega.
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label className="text-xs text-muted-foreground">
-                Subtareas ({subtasks.filter((s) => s.done).length}/{subtasks.length})
-              </Label>
-              {subtasks.length > 0 && (
-                <div className="space-y-1.5">
-                  {subtasks.map((subtask) => (
-                    <div key={subtask.id} className="flex items-center gap-2 group">
-                      <Checkbox
-                        checked={subtask.done}
-                        onCheckedChange={() => toggleSubtask(subtask.id)}
-                      />
-                      <span
-                        className={cn(
-                          "flex-1 text-sm",
-                          subtask.done && "line-through text-muted-foreground",
-                        )}
-                      >
-                        {subtask.title}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => deleteSubtask(subtask.id)}
-                      >
-                        <Trash2 className="size-3 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Input
-                  value={newSubtaskTitle}
-                  onChange={(e) => setNewSubtaskTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newSubtaskTitle.trim()) {
-                      e.preventDefault();
-                      addSubtask();
-                    }
-                  }}
-                  placeholder="Nueva subtarea..."
-                  className="text-sm"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-9"
-                  onClick={addSubtask}
-                  disabled={!newSubtaskTitle.trim()}
-                >
-                  <Plus className="size-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label className="text-xs text-muted-foreground">Tags</Label>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {(task.tags ?? []).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="gap-1 pr-1">
-                    {tag}
-                    <button
-                      onClick={() => removeTag(tag)}
-                      className="ml-0.5 rounded-full hover:bg-foreground/10 p-0.5"
-                      aria-label={`Eliminar tag ${tag}`}
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <div className="relative">
-                <Input
-                  value={tagInput}
-                  onChange={(e) => {
-                    setTagInput(e.target.value);
-                    setShowTagSuggestions(true);
-                  }}
-                  onFocus={() => setShowTagSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && tagInput.trim()) {
-                      e.preventDefault();
-                      addTag(tagInput);
-                    }
-                  }}
-                  placeholder="Escribe un tag y presiona Enter..."
-                  className="text-sm"
-                />
-                {showTagSuggestions && filteredTagSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 rounded-md border bg-popover shadow-md">
-                    {filteredTagSuggestions.map((tag) => (
-                      <button
-                        key={tag}
-                        onClick={() => addTag(tag)}
-                        className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent"
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t pt-3">
-              <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-                <div>
-                  <span className="font-medium">Creada:</span>{" "}
-                  {new Date(task.createdAt).toLocaleDateString()}
-                </div>
-                <div>
-                  <span className="font-medium">Actualizada:</span>{" "}
-                  {new Date(task.updatedAt).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-3">
-              <Button
-                variant={task.archived ? "default" : "outline"}
-                size="sm"
-                onClick={toggleArchive}
-                className="w-full"
-              >
-                <Archive className="size-3.5 mr-1.5" />
-                {task.archived ? "Desarchivar tarea" : "Archivar tarea"}
-              </Button>
-            </div>
-
-            {projectId && (
-              <div className="border-t pt-4">
+              {projectId && (
                 <AttachmentsSection
                   parent={{ type: "task", projectId, taskId: task.id }}
                   attachments={task.attachments ?? []}
                 />
-              </div>
-            )}
+              )}
+            </div>
 
-            <div className="border-t pt-4">
-              <Label className="text-xs text-muted-foreground flex items-center gap-1.5 mb-3">
-                <MessageCircle className="size-3.5" />
-                Comentarios ({task.comments?.length ?? 0})
-              </Label>
+            <div className="mx-5 h-px bg-border" />
+
+            {/* Actividad */}
+            <div className="grid gap-3 px-5 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className={cn(SECTION, "flex items-center gap-1.5")}>
+                  <MessageCircle className="size-3.5" />
+                  Actividad
+                </span>
+                {(task.comments?.length ?? 0) > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {task.comments!.length}{" "}
+                    {task.comments!.length === 1 ? "comentario" : "comentarios"}
+                  </span>
+                )}
+              </div>
 
               {(task.comments?.length ?? 0) > 0 && (
-                <div className="mb-4 max-h-[40vh] space-y-3 overflow-y-auto md:max-h-[300px]">
+                <div className="max-h-[40vh] space-y-3 overflow-y-auto md:max-h-[300px]">
                   {task.comments!.map((comment) => (
                     <div key={comment.id} className="rounded-lg bg-muted/50 p-3">
-                      <p className="text-sm whitespace-pre-wrap">{comment.text}</p>
-                      <p className="text-[10px] text-muted-foreground mt-1.5">
-                        {formatRelativeDate(comment.createdAt)}
+                      <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed">
+                        {comment.text}
+                      </p>
+                      <p className="mt-1.5 text-[10px] text-muted-foreground">
+                        {relativeSince(comment.createdAt)}
                       </p>
                     </div>
                   ))}
@@ -1201,7 +1303,11 @@ export function TaskDetailDrawer({
 
               {/* Spec 054: text-base evita zoom iOS; min-h táctil en botón. */}
               <div className="space-y-2">
+                <Label htmlFor="d-comment" className="sr-only">
+                  Nuevo comentario
+                </Label>
                 <Textarea
+                  id="d-comment"
                   ref={commentComposerRef}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
@@ -1215,8 +1321,8 @@ export function TaskDetailDrawer({
                       100,
                     );
                   }}
-                  placeholder="Escribe un comentario..."
-                  className="min-h-[80px] resize-y text-base"
+                  placeholder="Escribe un comentario…"
+                  className="min-h-[72px] resize-y text-base"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
                       e.preventDefault();
@@ -1228,17 +1334,33 @@ export function TaskDetailDrawer({
                   onClick={addComment}
                   disabled={!newComment.trim()}
                   size="sm"
-                  className="min-h-11 w-full"
+                  className="min-h-11 w-full sm:min-h-9"
                 >
-                  <Send className="size-3.5 mr-1.5" />
+                  <Send className="size-3.5" />
                   Comentar
                 </Button>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Pie: metadatos y archivar en una línea (D9). */}
+          <div className="flex items-center justify-between gap-3 border-t px-5 py-2">
+            <span className="truncate text-[11.5px] text-muted-foreground">
+              {metaLabel(task.createdAt, task.updatedAt)}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleArchive}
+              className="h-8 shrink-0 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <Archive className="size-3.5" />
+              {task.archived ? "Desarchivar" : "Archivar"}
+            </Button>
+          </div>
         </div>
       </div>
     </>
   );
 }
+

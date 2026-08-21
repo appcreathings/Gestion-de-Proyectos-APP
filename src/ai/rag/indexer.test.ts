@@ -114,6 +114,7 @@ const sample: ToolData = {
           comments: [],
           archived: false,
           estimate: null,
+          actualHours: null,
           subtasks: [],
           attachments: [],
           links: [],

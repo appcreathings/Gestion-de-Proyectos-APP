@@ -126,6 +126,10 @@ export const TaskSchema = z.object({
   comments: z.array(CommentSchema).default([]),
   archived: z.boolean().default(false),
   estimate: z.number().nullable().default(null),
+  /** Horas que la tarea realmente costó (spec 064 D12). Contraparte de
+   * `estimate`: esa es la promesa, esta el hecho. `null` mientras no se
+   * registre — no se deriva ni se autocompleta desde `estimate`. */
+  actualHours: z.number().nullable().default(null),
   subtasks: z.array(SubtaskSchema).default([]),
   attachments: z.array(AttachmentSchema).default([]),
   /** Links externos (Figma, Notion, ticket…) mostrados como botones bajo la descripción (spec 043). */

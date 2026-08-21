@@ -150,6 +150,7 @@ export function newTask(title: string, areaId: string | null = null): Task {
     comments: [],
     archived: false,
     estimate: null,
+    actualHours: null,
     subtasks: [],
     attachments: [],
     links: [],
