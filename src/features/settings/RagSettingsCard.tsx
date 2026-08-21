@@ -128,7 +128,7 @@ export function RagSettingsCard() {
         {/* Partial hint */}
         {status === "partial" && (
           <p className="text-xs text-warning">
-            Hay cambios sin indexar. Vuelve a indexar para mantener el contexto actualizado.
+            Hay cambios sin indexar. Vuelve a indexar para mantener el contexto actualizado. El asistente no embebe la pregunta hasta reindexar (ahorra 1 request) y usa el índice completo del workspace.
           </p>
         )}
 

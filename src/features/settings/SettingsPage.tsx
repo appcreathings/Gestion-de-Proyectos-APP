@@ -17,6 +17,7 @@ import { fieldAria, useFieldErrors } from "@/lib/formErrors";
 import { PeopleCard } from "./PeopleCard";
 import { CollectionTransferCard } from "./CollectionTransferCard";
 import { AiSettingsCard } from "./AiSettingsCard";
+import { AiUsageCard } from "./AiUsageCard";
 import { RagSettingsCard } from "./RagSettingsCard";
 
 const THEMES = [
@@ -267,6 +268,8 @@ function SettingsContent() {
         <AiSettingsCard />
 
         <RagSettingsCard />
+
+        <AiUsageCard />
 
         <CollectionTransferCard />
 
