@@ -147,4 +147,34 @@ describe("useAiUsageStore", () => {
     expect(useAiUsageStore.getState().includeEstimated).toBe(false);
     expect(localStorage.getItem("hito:aiUsage:includeEstimated")).toBe("false");
   });
+
+  it("hydrate merges a record that landed during loadEvents (lost-update)", async () => {
+    const persisted = ev({ id: "persisted", turnId: "t-old", kind: "chat" });
+    const live = ev({ id: "live", turnId: "t-live", kind: "embedding" });
+    const { idbGet } = await import("@/storage/idb");
+
+    let release!: () => void;
+    let started!: () => void;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    const loadStarted = new Promise<void>((r) => {
+      started = r;
+    });
+    vi.mocked(idbGet).mockImplementationOnce(async () => {
+      started();
+      await gate;
+      return [persisted];
+    });
+
+    const hydrateP = useAiUsageStore.getState().hydrate();
+    await loadStarted;
+    await useAiUsageStore.getState().record(live);
+    release();
+    await hydrateP;
+
+    const ids = useAiUsageStore.getState().events.map((e) => e.id);
+    expect(ids).toContain("persisted");
+    expect(ids).toContain("live");
+  });
 });

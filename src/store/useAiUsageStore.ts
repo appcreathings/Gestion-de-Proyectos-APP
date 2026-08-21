@@ -48,6 +48,17 @@ function writeIncludeEstimated(v: boolean): void {
   }
 }
 
+/** Union by id; on collision keep the event with the later `ts`. */
+function mergeEventsById(loaded: UsageEvent[], live: UsageEvent[]): UsageEvent[] {
+  const map = new Map<string, UsageEvent>();
+  for (const e of loaded) map.set(e.id, e);
+  for (const e of live) {
+    const prev = map.get(e.id);
+    if (!prev || e.ts >= prev.ts) map.set(e.id, e);
+  }
+  return [...map.values()];
+}
+
 export const useAiUsageStore = create<AiUsageState>((set, get) => ({
   events: [],
   session: emptySession(),
@@ -57,7 +68,9 @@ export const useAiUsageStore = create<AiUsageState>((set, get) => ({
 
   async hydrate() {
     if (get().loaded) return;
-    const events = await loadEvents();
+    const loaded = await loadEvents();
+    const live = get().events;
+    const events = pruneEvents(live.length > 0 ? mergeEventsById(loaded, live) : loaded);
     set({
       events,
       includeEstimated: readIncludeEstimated(),

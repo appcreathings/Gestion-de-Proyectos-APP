@@ -211,7 +211,7 @@ export async function indexAllEntities(
     }
 
     const text = buildEmbeddingText(entity);
-    const embedding = await embedText(text, apiKey);
+    const { vector: embedding } = await embedText(text, apiKey);
 
     const entry: RagEntry = {
       id: entity.id,

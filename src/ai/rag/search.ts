@@ -32,7 +32,7 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 export async function embedText(
   text: string,
   apiKey: string,
-): Promise<number[]> {
+): Promise<{ vector: number[]; modelId: string }> {
   const candidates = getModelsByGroup("gemini:embedding");
   let lastError: unknown = new Error("no embedding models available");
 
@@ -50,7 +50,7 @@ export async function embedText(
       const embedding = response.embeddings?.[0]?.values;
       if (!embedding) throw new Error("No embedding returned");
       rateLimiter.recordRequest(modelDef.id, Math.ceil(text.length / 4));
-      return embedding;
+      return { vector: embedding, modelId: modelDef.id };
     } catch (e) {
       lastError = e;
       const kind = classifyAiError(e);
@@ -70,16 +70,19 @@ export async function semanticSearchDetailed(
   query: string,
   apiKey: string,
   topK = 5,
-): Promise<{ results: SearchResult[]; fromCache: boolean }> {
+): Promise<{ results: SearchResult[]; fromCache: boolean; modelId?: string }> {
   let queryVec = getCachedEmbedding(query);
   const fromCache = queryVec !== undefined;
+  let modelId: string | undefined;
   if (queryVec === undefined) {
-    queryVec = await embedText(query, apiKey);
+    const embedded = await embedText(query, apiKey);
+    queryVec = embedded.vector;
+    modelId = embedded.modelId;
     setCachedEmbedding(query, queryVec);
   }
 
   const entries = await loadEmbeddings();
-  if (entries.size === 0) return { results: [], fromCache };
+  if (entries.size === 0) return { results: [], fromCache, modelId };
 
   const scored: SearchResult[] = [];
   for (const [, entry] of entries) {
@@ -90,7 +93,7 @@ export async function semanticSearchDetailed(
   }
 
   scored.sort((a, b) => b.score - a.score);
-  return { results: scored.slice(0, topK), fromCache };
+  return { results: scored.slice(0, topK), fromCache, modelId };
 }
 
 export async function semanticSearch(

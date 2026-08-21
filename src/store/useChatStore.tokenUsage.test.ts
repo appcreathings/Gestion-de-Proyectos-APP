@@ -1,11 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 /**
- * Spec 060 — política RAG en send() (fresco vs stale), skip, checkStale fail-open
- * y evento de uso CA-07.4 cuando el agente falla sin rondas.
+ * Spec 060 — política RAG en send() (fresco vs stale), skip, checkStale fail-open,
+ * CA-07.3 (abort round 0 no inventa request) y CA-07.4 (error de proveedor sin rondas).
  */
 
 const ragContextCalls = vi.hoisted(() => vi.fn());
+const ragDetailed = vi.hoisted(() => ({
+  current: {
+    block: "",
+    hits: 0,
+    fromCache: true as boolean,
+    modelId: undefined as string | undefined,
+  },
+}));
 const agentCalls = vi.hoisted(() => vi.fn());
 const agentResult = vi.hoisted(() => ({
   current: {
@@ -34,7 +42,7 @@ vi.mock("@/ai/gemini/systemPrompt", () => ({
   },
   buildRagContextDetailed: async (...args: unknown[]) => {
     ragContextCalls(...args);
-    return { block: "", hits: 0, fromCache: true };
+    return { ...ragDetailed.current };
   },
   buildSystemPrompt: () => "system prompt",
 }));
@@ -75,6 +83,7 @@ const LONG_TEXT = "Dame un análisis detallado del portafolio";
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  ragDetailed.current = { block: "", hits: 0, fromCache: true, modelId: undefined };
   ragState.status = "up-to-date";
   ragState.meta = { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" };
   agentResult.current = {
@@ -177,5 +186,34 @@ describe("useChatStore.send — política RAG y usage (spec 060)", () => {
       totalTokens: 0,
       source: "estimated",
     });
+  });
+
+  it("evento embedding usa el modelId real, no gemini-embedding-001 hardcodeado", async () => {
+    ragDetailed.current = {
+      block: "ctx",
+      hits: 1,
+      fromCache: false,
+      modelId: "gemini:gemini-embedding-2",
+    };
+
+    await useChatStore.getState().send(LONG_TEXT);
+
+    const embedEvents = useAiUsageStore.getState().events.filter((e) => e.kind === "embedding");
+    expect(embedEvents).toHaveLength(1);
+    expect(embedEvents[0]?.modelId).toBe("gemini:gemini-embedding-2");
+  });
+
+  it("abort en round 0 no registra evento de uso (CA-07.3)", async () => {
+    agentResult.current = {
+      history: [],
+      roundsExceeded: false,
+      rounds: 0,
+      usages: [],
+      error: "aborted",
+    };
+
+    await useChatStore.getState().send(LONG_TEXT);
+
+    expect(useAiUsageStore.getState().events).toEqual([]);
   });
 });

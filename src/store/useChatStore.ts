@@ -318,7 +318,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         if (detailed.fromCache) {
           ragSkipReason = "cache-hit";
         }
-        if (!detailed.fromCache) {
+        if (!detailed.fromCache && detailed.modelId) {
           const embedTokens = estimateTokensFromChars(trimmed.length);
           await recordUsageEvent({
             id: uuid(),
@@ -326,7 +326,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             turnId,
             kind: "embedding",
             provider: "gemini",
-            modelId: "gemini:gemini-embedding-001",
+            modelId: detailed.modelId,
             requests: 1,
             usage: {
               inputTokens: embedTokens,
@@ -451,32 +451,36 @@ export const useChatStore = create<ChatState>((set, get) => ({
     };
     if (ragSkipReason) ragSnapshot.skipReason = ragSkipReason;
 
-    if (result.error && rounds === 0) {
-      await recordUsageEvent({
-        id: uuid(),
-        ts: new Date().toISOString(),
-        turnId,
-        kind: "chat",
-        provider: providerId,
-        modelId: config.model,
-        requests: 1,
-        rounds: 0,
-        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, source: "estimated" },
-        rag: ragSnapshot,
-      });
-    } else {
-      await recordUsageEvent({
-        id: uuid(),
-        ts: new Date().toISOString(),
-        turnId,
-        kind: "chat",
-        provider: providerId,
-        modelId: config.model,
-        requests: rounds,
-        rounds,
-        usage: sumTokenUsages(usages),
-        rag: ragSnapshot,
-      });
+    // CA-07.3: abort on the first streamTurn must not invent a request.
+    // CA-07.4: real provider errors with 0 rounds still get a phantom estimated event.
+    if (result.error !== "aborted" || rounds > 0) {
+      if (result.error && rounds === 0) {
+        await recordUsageEvent({
+          id: uuid(),
+          ts: new Date().toISOString(),
+          turnId,
+          kind: "chat",
+          provider: providerId,
+          modelId: config.model,
+          requests: 1,
+          rounds: 0,
+          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, source: "estimated" },
+          rag: ragSnapshot,
+        });
+      } else {
+        await recordUsageEvent({
+          id: uuid(),
+          ts: new Date().toISOString(),
+          turnId,
+          kind: "chat",
+          provider: providerId,
+          modelId: config.model,
+          requests: rounds,
+          rounds,
+          usage: sumTokenUsages(usages),
+          rag: ragSnapshot,
+        });
+      }
     }
 
     if (result.roundsExceeded) {

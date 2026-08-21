@@ -31,15 +31,16 @@ export async function buildRagContextDetailed(
   query: string,
   apiKey: string,
   topK: number = 5,
-): Promise<{ block: string; hits: number; fromCache: boolean }> {
+): Promise<{ block: string; hits: number; fromCache: boolean; modelId?: string }> {
   const embeddings = await loadEmbeddings();
   if (embeddings.size === 0) return { block: "", hits: 0, fromCache: false };
 
-  const { results, fromCache } = await semanticSearchDetailed(query, apiKey, topK);
+  const { results, fromCache, modelId } = await semanticSearchDetailed(query, apiKey, topK);
   return {
     block: formatRagBlock(query, results),
     hits: results.length,
     fromCache,
+    modelId,
   };
 }
 
