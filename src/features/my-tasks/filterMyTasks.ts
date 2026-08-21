@@ -1,4 +1,5 @@
 import { daysUntil } from "@/domain/compute";
+import { WorkType } from "@/domain/schemas";
 import type { Priority, Project, Task, TaskStatus } from "@/domain/schemas";
 
 export const MY_TASKS_PRIORITY_ORDER: readonly Priority[] = [
@@ -17,12 +18,15 @@ export type MyTasksQuery = {
   priority: Priority | null;
   date: MyTasksDateFilter | null;
   projectId: string | null;
+  /** Tipo de trabajo (spec 062). Valor inválido en URL → null (no filtra). */
+  workType: WorkType | null;
   showDone: boolean;
   view: MyTasksView;
 };
 
 const TASK_STATUSES: readonly TaskStatus[] = ["todo", "doing", "blocked", "done"];
 const DATE_FILTERS: readonly MyTasksDateFilter[] = ["overdue", "due-soon", "this-week"];
+const WORK_TYPES: readonly WorkType[] = WorkType.options;
 
 function isTaskStatus(v: string | null): v is TaskStatus {
   return v !== null && (TASK_STATUSES as readonly string[]).includes(v);
@@ -33,17 +37,22 @@ function isPriority(v: string | null): v is Priority {
 function isDateFilter(v: string | null): v is MyTasksDateFilter {
   return v !== null && (DATE_FILTERS as readonly string[]).includes(v);
 }
+function isWorkType(v: string | null): v is WorkType {
+  return v !== null && (WORK_TYPES as readonly string[]).includes(v);
+}
 
 export function parseMyTasksQuery(params: URLSearchParams): MyTasksQuery {
   const statusRaw = params.get("status");
   const priorityRaw = params.get("priority");
   const dateRaw = params.get("date");
+  const workTypeRaw = params.get("workType");
   return {
     personId: params.get("person"),
     status: isTaskStatus(statusRaw) ? statusRaw : null,
     priority: isPriority(priorityRaw) ? priorityRaw : null,
     date: isDateFilter(dateRaw) ? dateRaw : null,
     projectId: params.get("project"),
+    workType: isWorkType(workTypeRaw) ? workTypeRaw : null,
     showDone: params.get("done") === "1",
     view: params.get("view") === "project" ? "project" : "priority",
   };
@@ -73,7 +82,7 @@ export function applyStatus(params: URLSearchParams, status: string | null): URL
 
 export function applyFilter(
   params: URLSearchParams,
-  key: "priority" | "date" | "project" | "person" | "view",
+  key: "priority" | "date" | "project" | "person" | "view" | "workType",
   value: string | null,
 ): URLSearchParams {
   const next = new URLSearchParams(params);
@@ -88,6 +97,7 @@ export function clearMyTaskFilters(params: URLSearchParams): URLSearchParams {
   next.delete("priority");
   next.delete("date");
   next.delete("project");
+  next.delete("workType");
   return next;
 }
 
@@ -182,6 +192,9 @@ export function filterAndSortMyTasks(
   }
   if (query.priority) {
     filtered = filtered.filter((t) => t.priority === query.priority);
+  }
+  if (query.workType) {
+    filtered = filtered.filter((t) => t.workType === query.workType);
   }
   if (query.date) {
     filtered = filtered.filter((t) => matchesDateFilter(t.dueDate, query.date!, now));
