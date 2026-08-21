@@ -15,7 +15,7 @@ import type {
   RetryPolicy,
   Trigger,
 } from "@/domain/schemas/flow";
-import { TASK_COLUMNS, taskStatusLabel } from "@/domain/labels";
+import { TASK_COLUMNS, taskStatusLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
 import { useDataStore } from "@/store/useDataStore";
 import { getConnections, type IntegrationConnection } from "@/integrations/connections";
 import { ROUTES } from "@/routes/paths";
@@ -296,6 +296,21 @@ export function ActionConfigFields({
               <option value="medium">Media</option>
               <option value="high">Alta</option>
               <option value="critical">Crítica</option>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Tipo de trabajo (opcional)</Label>
+            <Select
+              value={output.workType ?? ""}
+              onChange={(e) => onChange({ workType: e.target.value || undefined })}
+            >
+              <option value="">— Default: Tarea —</option>
+              {WORK_TYPE_OPTIONS.map((v) => (
+                <option key={v} value={v}>
+                  {workTypeLabel[v]}
+                </option>
+              ))}
             </Select>
           </div>
 
