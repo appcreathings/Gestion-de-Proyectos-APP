@@ -2,6 +2,7 @@ import { createClient } from "@/ai/gemini/client";
 import { classifyAiError } from "@/ai/gemini/errors";
 import { getModelsByGroup } from "@/ai/models";
 import { rateLimiter } from "@/ai/rateLimiter";
+import { getCachedEmbedding, setCachedEmbedding } from "./queryCache";
 import { loadEmbeddings } from "./store";
 import type { SearchResult, RagEntry } from "./types";
 
@@ -65,15 +66,20 @@ export async function embedText(
   throw lastError;
 }
 
-export async function semanticSearch(
+export async function semanticSearchDetailed(
   query: string,
   apiKey: string,
   topK = 5,
-): Promise<SearchResult[]> {
-  const queryVec = await embedText(query, apiKey);
+): Promise<{ results: SearchResult[]; fromCache: boolean }> {
+  let queryVec = getCachedEmbedding(query);
+  const fromCache = queryVec !== undefined;
+  if (queryVec === undefined) {
+    queryVec = await embedText(query, apiKey);
+    setCachedEmbedding(query, queryVec);
+  }
 
   const entries = await loadEmbeddings();
-  if (entries.size === 0) return [];
+  if (entries.size === 0) return { results: [], fromCache };
 
   const scored: SearchResult[] = [];
   for (const [, entry] of entries) {
@@ -84,7 +90,15 @@ export async function semanticSearch(
   }
 
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, topK);
+  return { results: scored.slice(0, topK), fromCache };
+}
+
+export async function semanticSearch(
+  query: string,
+  apiKey: string,
+  topK = 5,
+): Promise<SearchResult[]> {
+  return (await semanticSearchDetailed(query, apiKey, topK)).results;
 }
 
 export async function searchByEntityId(
