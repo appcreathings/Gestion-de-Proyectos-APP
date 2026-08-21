@@ -61,11 +61,13 @@ export function applyProjectsFilter(
  * Filtro AND de `/app/projects` (spec 063). Un proyecto `done`/`archived`
  * nunca entra con `health` (D14) ni con `stalled=1` (`isStalled` ya lo excluye).
  * Un `product` que no existe en `knownProductIds` se ignora (D5/§4).
+ * Sin `settings` (workspace sin hidratar) `health`/`stalled` se ignoran;
+ * `status`/`product` sí aplican (design §5).
  */
 export function filterProjectsByQuery(
   projects: Project[],
   query: ProjectsQuery,
-  settings: Settings,
+  settings: Settings | null,
   now: Date,
   knownProductIds: ReadonlySet<string>,
 ): Project[] {
@@ -77,11 +79,11 @@ export function filterProjectsByQuery(
   return projects.filter((p) => {
     if (productOk && p.productId !== productOk) return false;
     if (query.status && p.status !== query.status) return false;
-    if (query.health) {
+    if (query.health && settings) {
       if (p.status === "done" || p.status === "archived") return false; // D14
       if (effectiveHealth(p, settings, now) !== query.health) return false;
     }
-    if (query.stalled && !isStalled(p, settings.stalledAfterDays, now)) return false;
+    if (query.stalled && settings && !isStalled(p, settings.stalledAfterDays, now)) return false;
     return true;
   });
 }

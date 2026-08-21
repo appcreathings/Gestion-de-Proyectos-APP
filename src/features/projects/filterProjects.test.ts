@@ -194,4 +194,22 @@ describe("filterProjectsByQuery", () => {
     );
     expect(result).toHaveLength(2);
   });
+
+  it("sin settings: status/product aplican, health/stalled se ignoran (design §5)", () => {
+    const red = project("Rojo", {
+      status: "active",
+      health: "red",
+      updatedAt: "2026-07-01T12:00:00.000Z",
+    });
+    const done = project("Done", { status: "done" });
+
+    const result = filterProjectsByQuery(
+      [red, done],
+      q({ health: "red", stalled: true, status: "done" }),
+      null,
+      NOW,
+      new Set(),
+    );
+    expect(result.map((p) => p.name)).toEqual(["Done"]);
+  });
 });
