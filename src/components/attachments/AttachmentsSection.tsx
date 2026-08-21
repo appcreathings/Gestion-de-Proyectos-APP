@@ -217,7 +217,7 @@ export function AttachmentsSection({
 
       {sorted.length === 0 ? (
         <p className="text-[11px] italic text-muted-foreground">
-          Aún no hay anexos — adjuntá PDFs, capturas o videos cortos.
+          Aún no hay anexos — adjunta PDFs, capturas o videos cortos.
         </p>
       ) : (
         <ul className="space-y-1.5">

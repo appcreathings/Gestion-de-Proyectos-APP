@@ -76,6 +76,12 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // project-level change happened at v20/v21 (bumps from flows-only specs
     // 055/051) — the convergence fallback carries a v19 project to v22.
     { to: 22, up: (data) => data },
+    // v22 -> v23 (spec 064 D12): Task.actualHours. New field is
+    // optional/defaulted in the Zod schema (null), so existing v22 records
+    // need no data transformation. Deliberately does NOT copy `estimate` into
+    // `actualHours`: an estimate is not recorded time, and seeding it would
+    // make every old task look as if it had been measured.
+    { to: 23, up: (data) => data },
   ],
   "checklist-templates": [
     // v1 -> v18: ChecklistTemplate.attachments.

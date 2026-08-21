@@ -12,6 +12,13 @@ interface DateFieldPreviewProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   onChange: (value: string) => void;
   /** Days out still considered "próxima" — shown in the warning tone. */
   warnWithinDays?: number;
+  /**
+   * Altura reducida (32 px) para las filas de propiedad del detalle de tarea
+   * (spec 064 §3.2). Sin esto el botón del calendario queda fijo en `h-10` y
+   * desborda la fila. No afecta a ningún otro uso: por defecto es `false` y el
+   * render es exactamente el de siempre.
+   */
+  compact?: boolean;
 }
 
 const DISPLAY_FORMATTER = new Intl.DateTimeFormat("es", {
@@ -87,6 +94,7 @@ export function DateFieldPreview({
   className,
   id,
   disabled,
+  compact = false,
   ...props
 }: DateFieldPreviewProps) {
   const fallbackId = useId();
@@ -156,7 +164,7 @@ export function DateFieldPreview({
             value={inputText}
             onChange={(e) => handleInputChange(e.target.value)}
             onBlur={handleInputBlur}
-            className={cn("pr-10", className)}
+            className={cn(compact ? "h-8 pr-8" : "pr-10", className)}
             aria-describedby={value ? `${inputId}-preview` : undefined}
           />
           <PopoverTrigger asChild>
@@ -164,7 +172,10 @@ export function DateFieldPreview({
               type="button"
               variant="ghost"
               disabled={disabled}
-              className="absolute right-0 top-0 z-10 h-10 w-10 rounded-l-none p-0 text-foreground/80 hover:text-foreground"
+              className={cn(
+                "absolute right-0 top-0 z-10 rounded-l-none p-0 text-foreground/80 hover:text-foreground",
+                compact ? "h-8 w-8" : "h-10 w-10",
+              )}
               aria-label="Abrir calendario"
             >
               <CalendarIcon className="size-4" />
