@@ -11,10 +11,24 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const ragContextCalls = vi.hoisted(() => vi.fn());
 const agentCalls = vi.hoisted(() => vi.fn());
 
+const ragState = vi.hoisted(() => ({
+  status: "up-to-date" as string,
+  meta: { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" },
+  checkStale: vi.fn(async () => {}),
+}));
+
+vi.mock("@/store/useRagStore", () => ({
+  useRagStore: Object.assign(() => ragState, { getState: () => ragState }),
+}));
+
 vi.mock("@/ai/gemini/systemPrompt", () => ({
   buildRagContext: async (...args: unknown[]) => {
     ragContextCalls(...args);
     // async throw → se convierte en Promise rejected, que el .catch(() => "") del store atrapa.
+    throw new Error("simulated RAG failure");
+  },
+  buildRagContextDetailed: async (...args: unknown[]) => {
+    ragContextCalls(...args);
     throw new Error("simulated RAG failure");
   },
   buildSystemPrompt: () => "system prompt",
@@ -26,6 +40,8 @@ vi.mock("@/ai/agent/runAgentTurn", () => ({
     return Promise.resolve({
       history: [],
       roundsExceeded: false,
+      rounds: 1,
+      usages: [],
     });
   },
 }));
@@ -49,12 +65,15 @@ vi.mock("@/storage/idb", () => ({
   idbDel: () => Promise.resolve(),
 }));
 
+import { emptyWorkspace } from "@/domain/schemas";
 import { useChatStore } from "./useChatStore";
 import { useAiConfigStore } from "./useAiConfigStore";
 import { useAppStore } from "./useAppStore";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  ragState.status = "up-to-date";
+  ragState.meta = { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" };
   // Estado de mensajes limpio para que el snapshot persistido no interfiera.
   useChatStore.setState({
     messages: [],
@@ -84,7 +103,7 @@ beforeEach(() => {
     },
     lastError: null,
   });
-  useAppStore.setState({ workspace: { projects: [], products: [] } } as never);
+  useAppStore.setState({ workspace: emptyWorkspace() });
 });
 
 describe("useChatStore.send — aislamiento de fallos RAG (T3132)", () => {

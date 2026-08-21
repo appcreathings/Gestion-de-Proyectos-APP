@@ -1,21 +1,9 @@
 import type { Settings, Workspace } from "@/domain/schemas";
-import { semanticSearch } from "@/ai/rag/search";
+import { semanticSearchDetailed } from "@/ai/rag/search";
 import { loadEmbeddings } from "@/ai/rag/store";
+import type { SearchResult } from "@/ai/rag/types";
 
-/**
- * Build a RAG context string by performing semantic search against embedded
- * entities. Returns a formatted block with the top-k matches, or an empty
- * string if no embeddings are available.
- */
-export async function buildRagContext(
-  query: string,
-  apiKey: string,
-  topK: number = 5,
-): Promise<string> {
-  const embeddings = await loadEmbeddings();
-  if (embeddings.size === 0) return "";
-
-  const results = await semanticSearch(query, apiKey, topK);
+function formatRagBlock(query: string, results: SearchResult[]): string {
   if (results.length === 0) return "";
 
   const entries = results
@@ -33,6 +21,39 @@ Los siguientes registros coinciden semánticamente con la consulta del usuario. 
 ${entries}
 
 `;
+}
+
+/**
+ * Semantic-search context plus cache/hit metadata for send() usage events.
+ * `fromCache` comes from `semanticSearchDetailed` (CA-02.5).
+ */
+export async function buildRagContextDetailed(
+  query: string,
+  apiKey: string,
+  topK: number = 5,
+): Promise<{ block: string; hits: number; fromCache: boolean }> {
+  const embeddings = await loadEmbeddings();
+  if (embeddings.size === 0) return { block: "", hits: 0, fromCache: false };
+
+  const { results, fromCache } = await semanticSearchDetailed(query, apiKey, topK);
+  return {
+    block: formatRagBlock(query, results),
+    hits: results.length,
+    fromCache,
+  };
+}
+
+/**
+ * Build a RAG context string by performing semantic search against embedded
+ * entities. Returns a formatted block with the top-k matches, or an empty
+ * string if no embeddings are available.
+ */
+export async function buildRagContext(
+  query: string,
+  apiKey: string,
+  topK: number = 5,
+): Promise<string> {
+  return (await buildRagContextDetailed(query, apiKey, topK)).block;
 }
 
 /** design.md §6 — solo cuando ragContext no está vacío. */

@@ -10,10 +10,24 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const ragContextCalls = vi.hoisted(() => vi.fn());
 const agentCalls = vi.hoisted(() => vi.fn());
 
+const ragState = vi.hoisted(() => ({
+  status: "up-to-date" as string,
+  meta: { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" },
+  checkStale: vi.fn(async () => {}),
+}));
+
+vi.mock("@/store/useRagStore", () => ({
+  useRagStore: Object.assign(() => ragState, { getState: () => ragState }),
+}));
+
 vi.mock("@/ai/gemini/systemPrompt", () => ({
   buildRagContext: async (...args: unknown[]) => {
     ragContextCalls(...args);
     return "";
+  },
+  buildRagContextDetailed: async (...args: unknown[]) => {
+    ragContextCalls(...args);
+    return { block: "", hits: 0, fromCache: true };
   },
   buildSystemPrompt: () => "system prompt",
 }));
@@ -30,6 +44,8 @@ vi.mock("@/ai/agent/runAgentTurn", () => ({
         { role: "assistant", content: "respuesta" },
       ],
       roundsExceeded: false,
+      rounds: 1,
+      usages: [],
     });
   },
 }));
@@ -53,12 +69,15 @@ vi.mock("@/storage/idb", () => ({
   idbDel: () => Promise.resolve(),
 }));
 
+import { emptyWorkspace } from "@/domain/schemas";
 import { useChatStore } from "./useChatStore";
 import { useAiConfigStore } from "./useAiConfigStore";
 import { useAppStore } from "./useAppStore";
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  ragState.status = "up-to-date";
+  ragState.meta = { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" };
   // Reset del agentHistory del módulo (variable interna persistente entre tests).
   await useChatStore.getState().newConversation();
   useChatStore.setState({
@@ -89,7 +108,7 @@ beforeEach(async () => {
     },
     lastError: null,
   });
-  useAppStore.setState({ workspace: { index: { projects: [] } } } as never);
+  useAppStore.setState({ workspace: emptyWorkspace() });
 });
 
 describe("useChatStore.send — skipRag (spec 050 D7 / CA-06.1)", () => {

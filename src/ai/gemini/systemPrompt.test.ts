@@ -8,6 +8,7 @@ vi.mock("@/ai/rag/store", () => ({
 
 vi.mock("@/ai/rag/search", () => ({
   semanticSearch: vi.fn(),
+  semanticSearchDetailed: vi.fn(),
 }));
 
 describe("buildSystemPrompt", () => {
@@ -165,5 +166,35 @@ describe("buildRagContext", () => {
     const { buildRagContext } = await import("./systemPrompt");
     const result = await buildRagContext("test query", "fake-key");
     expect(result).toBe("");
+  });
+
+  it("buildRagContextDetailed reporta hits y fromCache desde semanticSearchDetailed", async () => {
+    const { loadEmbeddings } = await import("@/ai/rag/store");
+    const { semanticSearchDetailed } = await import("@/ai/rag/search");
+    vi.mocked(loadEmbeddings).mockResolvedValue(new Map([["e1", {} as never]]));
+    vi.mocked(semanticSearchDetailed).mockResolvedValue({
+      results: [
+        {
+          entity: {
+            id: "e1",
+            entityType: "project",
+            entityId: "p1",
+            text: "Proyecto de prueba",
+            updatedAt: "2026-01-01T00:00:00.000Z",
+            indexedAt: "2026-01-01T00:00:00.000Z",
+          },
+          score: 0.95,
+        },
+      ],
+      fromCache: true,
+    });
+
+    const { buildRagContextDetailed, buildRagContext } = await import("./systemPrompt");
+    const detailed = await buildRagContextDetailed("test query", "fake-key");
+    expect(detailed.hits).toBe(1);
+    expect(detailed.fromCache).toBe(true);
+    expect(detailed.block).toContain("Proyecto de prueba");
+    expect(detailed.block).toContain("project:p1");
+    expect(await buildRagContext("test query", "fake-key")).toBe(detailed.block);
   });
 });

@@ -8,8 +8,19 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const agentCalls = vi.hoisted(() => vi.fn());
 const confirmResults = vi.hoisted(() => [] as boolean[]);
 
+const ragState = vi.hoisted(() => ({
+  status: "up-to-date" as string,
+  meta: { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" },
+  checkStale: vi.fn(async () => {}),
+}));
+
+vi.mock("@/store/useRagStore", () => ({
+  useRagStore: Object.assign(() => ragState, { getState: () => ragState }),
+}));
+
 vi.mock("@/ai/gemini/systemPrompt", () => ({
   buildRagContext: async () => "",
+  buildRagContextDetailed: async () => ({ block: "", hits: 0, fromCache: true }),
   buildSystemPrompt: () => "system prompt",
 }));
 
@@ -33,7 +44,13 @@ vi.mock("@/ai/agent/runAgentTurn", () => ({
       );
       confirmResults.push(r1);
       if (opts.signal?.aborted) {
-        return { history: [], roundsExceeded: false, error: "aborted" as const };
+        return {
+          history: [],
+          roundsExceeded: false,
+          error: "aborted" as const,
+          rounds: 0,
+          usages: [],
+        };
       }
       const r2 = await opts.callbacks.onConfirmWrite(
         { id: "w2", name: "createTask", args: {} },
@@ -48,7 +65,7 @@ vi.mock("@/ai/agent/runAgentTurn", () => ({
       );
       confirmResults.push(r3);
     }
-    return { history: [], roundsExceeded: false };
+    return { history: [], roundsExceeded: false, rounds: 1, usages: [] };
   },
 }));
 
@@ -71,6 +88,7 @@ vi.mock("@/storage/idb", () => ({
   idbDel: () => Promise.resolve(),
 }));
 
+import { emptyWorkspace } from "@/domain/schemas";
 import { useChatStore } from "./useChatStore";
 import { useAiConfigStore } from "./useAiConfigStore";
 import { useAppStore } from "./useAppStore";
@@ -98,6 +116,8 @@ function waitUntil(pred: () => boolean, timeoutMs = 2000): Promise<void> {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  ragState.status = "up-to-date";
+  ragState.meta = { entityCount: 10, lastIndexedAt: "2026-08-20T00:00:00.000Z" };
   confirmResults.length = 0;
   useChatStore.setState({
     messages: [],
@@ -128,7 +148,7 @@ beforeEach(() => {
     },
     lastError: null,
   });
-  useAppStore.setState({ workspace: { projects: [], products: [] } } as never);
+  useAppStore.setState({ workspace: emptyWorkspace() });
 });
 
 describe("approveAll (spec 048 HU-03)", () => {
