@@ -163,6 +163,10 @@ export const CreateTaskOutputSchema = z.object({
   tags: z.array(z.string()).optional(),
   estimate: z.number().optional(),
   summary: z.string().optional(),
+  /** Tipo de trabajo de la tarea creada (spec 062 D12). String opcional sin
+   * validación estricta — el engine coacciona contra el enum y asigna solo
+   * si el valor es válido. */
+  workType: z.string().optional(),
   /** Plantilla interpolada (ej. `{{id}}`) que identifica el registro de
    * origen — si ya existe una tarea con este `dedupeKey` en el proyecto
    * destino, se omite la creación en vez de duplicar (spec 023 §E). Vacío/

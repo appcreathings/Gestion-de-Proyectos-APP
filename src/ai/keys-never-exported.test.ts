@@ -58,7 +58,7 @@ describe("CA-06.2 — las API keys nunca salen en el export del workspace", () =
     }
     // Sanidad: el export sí trae workspace (no está vacío)
     expect(text).toContain("workspace");
-    expect(SCHEMA_VERSION).toBe(21);
+    expect(SCHEMA_VERSION).toBe(22);
   });
 
   it("el documento de aiConfig en idb NO se incluye como colección del bundle", async () => {
