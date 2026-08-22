@@ -33,12 +33,29 @@
     --accent-foreground: 222 47% 11%;
     --brand-accent: 158 64% 40%;
     --brand-accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    /* Spec 065 D3: sólidos con menos croma (no pastel — el pastel lo pinta la
+       familia `soft`, que baja en paralelo). Los valores verifican AA 4.5:1
+       contra su -foreground en `contrast.test.ts`. `--success` bajó además la
+       luminosidad (38→32) porque a 38 no llegaba a AA. */
+    --destructive: 0 60% 52%;
     --destructive-foreground: 210 40% 98%;
-    --success: 142 71% 35%;
+    --success: 142 58% 32%;
     --success-foreground: 210 40% 98%;
-    --warning: 38 92% 45%;
+    --warning: 38 78% 47%;
     --warning-foreground: 222 47% 11%;
+    /* Spec 065 D2: familia pastel para todo badge, pastilla y tinte.
+       Fondo muy claro + texto del mismo tono muy oscuro (patrón que 064 D15
+       y los calendarios ya usaban por separado). Pareja explícita por tema. */
+    --destructive-soft: 356 100% 95%;          /* rose-100  */
+    --destructive-soft-foreground: 336 74% 30%; /* rose-900  */
+    --warning-soft: 48 96% 89%;                 /* amber-100 */
+    --warning-soft-foreground: 28 78% 26%;      /* amber-900 */
+    --success-soft: 149 80% 90%;                /* emerald-100 */
+    --success-soft-foreground: 164 86% 16%;     /* emerald-900 */
+    --info-soft: 214 95% 93%;                   /* blue-100  */
+    --info-soft-foreground: 224 64% 33%;        /* blue-900  */
+    --primary-soft: 214 32% 91%;
+    --primary-soft-foreground: 222 47% 25%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 222 47% 31%;
@@ -62,12 +79,23 @@
     --accent-foreground: 210 40% 96%;
     --brand-accent: 158 64% 52%;
     --brand-accent-foreground: 222 47% 7%;
-    --destructive: 0 63% 45%;
+    /* Spec 065 D2/D3 — misma familia soft y sólidos desaturados, tema oscuro. */
+    --destructive: 0 52% 47%;
     --destructive-foreground: 210 40% 98%;
-    --success: 142 64% 42%;
+    --success: 142 52% 32%;
     --success-foreground: 210 40% 98%;
-    --warning: 38 92% 50%;
+    --warning: 38 78% 52%;
     --warning-foreground: 222 47% 11%;
+    --destructive-soft: 342 88% 16%;            /* rose-950  */
+    --destructive-soft-foreground: 356 100% 95%;
+    --warning-soft: 28 74% 12%;                 /* amber-950 */
+    --warning-soft-foreground: 48 96% 89%;
+    --success-soft: 166 91% 9%;                 /* emerald-950 */
+    --success-soft-foreground: 149 80% 90%;
+    --info-soft: 226 57% 21%;                   /* blue-950  */
+    --info-soft-foreground: 214 95% 93%;
+    --primary-soft: 222 40% 20%;
+    --primary-soft-foreground: 210 40% 92%;
     --border: 217 33% 20%;
     --input: 217 33% 22%;
     --ring: 213 27% 70%;
