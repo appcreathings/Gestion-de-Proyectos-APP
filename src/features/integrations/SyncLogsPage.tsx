@@ -102,9 +102,9 @@ export function SyncLogsPage() {
             >
               <span className="text-xs">
                 {log.direction === "inbound" ? (
-                  <ArrowRight className="size-4 text-blue-500" />
+                  <ArrowRight className="size-4 text-info-soft-foreground" />
                 ) : (
-                  <ArrowLeft className="size-4 text-purple-500" />
+                  <ArrowLeft className="size-4 text-muted-foreground" />
                 )}
               </span>
               <Badge variant="outline" className="text-xs font-mono">

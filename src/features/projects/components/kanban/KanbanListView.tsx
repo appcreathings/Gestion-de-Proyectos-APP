@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { daysUntil } from "@/domain/compute";
 import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels";
+import { taskUrgency } from "@/domain/taskUrgency";
+import { URGENCY_ARIA, URGENCY_RAIL } from "@/lib/urgencyStyles";
 import type { Area, Person, Task } from "@/domain/schemas";
 import { WorkTypeBadge } from "./WorkTypeBadge";
 
@@ -43,16 +44,16 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
             {tasks.map((task) => {
               const area = areas.find((a) => a.id === task.areaId);
               const assignee = people.find((p) => p.id === task.assigneeId);
-              const d = daysUntil(task.dueDate);
-              const overdue = task.status !== "done" && d !== null && d < 0;
-              const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
+              const urgency = taskUrgency(task);
+              const rail = URGENCY_RAIL[urgency];
+              const urgencyAria = URGENCY_ARIA[urgency];
 
               return (
                 <tr
                   key={task.id}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Abrir detalle de ${task.title}`}
+                  aria-label={`Abrir detalle de ${task.title}${urgencyAria ? ` — ${urgencyAria}` : ""}`}
                   onClick={() => onOpenDetail(task.id)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -62,8 +63,7 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
                   }}
                   className={cn(
                     "cursor-pointer outline-none transition-colors hover:bg-accent/50 focus-visible:bg-accent/50",
-                    overdue && "bg-red-50 dark:bg-red-950/20",
-                    dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
+                    urgency === "done" && "opacity-70",
                   )}
                 >
                   <td className="px-4 py-3">
@@ -71,10 +71,18 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
                       {taskStatusLabel[task.status]}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3">
+                  <td
+                    className={cn(
+                      // Riel de urgencia de 3 px (spec 065 D6): en una tabla
+                      // el borde vive en la celda, no en el tr. Siempre presente
+                      // (transparente sin nivel) para que la columna no baile.
+                      "border-l-[3px] px-4 py-3",
+                      rail ?? "border-l-transparent",
+                    )}
+                  >
                     <div className="flex items-center gap-2">
                       {task.status === "blocked" && (
-                        <span className="text-red-500 text-xs">🔒</span>
+                        <span className="text-muted-foreground text-xs">🔒</span>
                       )}
                       <WorkTypeBadge workType={task.workType} />
                       <span className="text-sm font-medium">{task.title}</span>
@@ -82,7 +90,7 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     {area && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="outline" className="text-xs">
                         {area.name}
                       </Badge>
                     )}
@@ -101,7 +109,16 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     {task.dueDate && (
-                      <Badge variant={overdue ? "destructive" : "outline"} className="text-xs">
+                      <Badge
+                        variant={
+                          urgency === "overdue"
+                            ? "destructive"
+                            : urgency === "soon"
+                              ? "warning"
+                              : "outline"
+                        }
+                        className="text-xs"
+                      >
                         {task.dueDate}
                       </Badge>
                     )}

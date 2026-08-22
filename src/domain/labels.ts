@@ -16,8 +16,10 @@ type BadgeVariant =
   | "secondary"
   | "destructive"
   | "outline"
+  | "neutral"
   | "success"
-  | "warning";
+  | "warning"
+  | "info";
 
 export const projectStatusLabel: Record<ProjectStatus, string> = {
   backlog: "Backlog",
@@ -51,11 +53,13 @@ export const priorityLabel: Record<Priority, string> = {
   critical: "Crítica",
 };
 
+/** Spec 065 D7: la prioridad deja de tener color — la urgencia ya la pinta el
+ * riel. `low` queda `outline` (hueco) para que "sin urgencia" no pese. */
 export const priorityVariant: Record<Priority, BadgeVariant> = {
   low: "outline",
-  medium: "secondary",
-  high: "warning",
-  critical: "destructive",
+  medium: "neutral",
+  high: "neutral",
+  critical: "neutral",
 };
 
 /** Tipos de trabajo (spec 062). `task` no se pinta como badge (D5). */
@@ -69,14 +73,22 @@ export const workTypeLabel: Record<WorkType, string> = {
   prd: "PRD",
 };
 
-export const workTypeVariant: Record<WorkType, BadgeVariant> = {
-  task: "outline",
-  story: "secondary",
-  enabler: "outline",
-  spike: "warning",
-  key_result: "default",
-  bug: "destructive",
-  prd: "outline",
+/** Tono de pastilla por tipo de trabajo (spec 065 D9). Son claves de la tabla
+ * `TONES` de `src/lib/urgencyStyles.ts` (+ "neutral"), no clases: el dominio
+ * no conoce Tailwind (D13). `teal` = resultado, `sky` = exploración,
+ * `neutral` = ni lo uno ni lo otro (`bug` deja de ser rojo: un bug no es
+ * urgente por ser bug). `rose`/`amber`/`violet`/`blue` quedan reservados a
+ * urgencia. `task` nunca se pinta como badge (062 D5). */
+export type WorkTypeTone = "teal" | "sky" | "neutral";
+
+export const workTypeTone: Record<WorkType, WorkTypeTone> = {
+  task: "neutral",
+  story: "teal",
+  enabler: "sky",
+  spike: "sky",
+  key_result: "teal",
+  bug: "neutral",
+  prd: "neutral",
 };
 
 /** Orden del <select> de tipo (spec 062 §5): Tarea al final — es el default,

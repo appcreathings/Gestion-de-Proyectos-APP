@@ -9,6 +9,7 @@ import {
   formatDay,
   formatRange,
   monthRangeContaining,
+  parseDayKey,
   shiftRange,
   todayKey,
   weekRangeContaining,
@@ -16,6 +17,14 @@ import {
 } from "@/lib/dates";
 import type { Project, Task } from "@/domain/schemas";
 import { priorityVariant, taskStatusLabel } from "@/domain/labels";
+import { taskUrgency } from "@/domain/taskUrgency";
+import {
+  TONE_BARS,
+  TONES,
+  TONE_KEYS,
+  URGENCY_ARIA,
+  URGENCY_RAIL,
+} from "@/lib/urgencyStyles";
 import type { SprintScope } from "../components/SprintSwitcher";
 import {
   buildCalendarModel,
@@ -39,19 +48,9 @@ interface Props {
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 
-const SPRINT_COLORS = [
-  "border-blue-300 bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-100",
-  "border-violet-300 bg-violet-50 text-violet-900 dark:bg-violet-950/40 dark:text-violet-100",
-  "border-teal-300 bg-teal-50 text-teal-900 dark:bg-teal-950/40 dark:text-teal-100",
-  "border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-];
-
-const SPRINT_BAR = [
-  "border-blue-400",
-  "border-violet-400",
-  "border-teal-400",
-  "border-amber-400",
-];
+/* Los tonos de sprint vienen de la familia única de `urgencyStyles.ts`
+   (spec 065 D12): antes había aquí una copia con 4 tonos contra los 6 del
+   calendario de portafolio. */
 
 export function TaskCalendarView({
   project,
@@ -285,7 +284,7 @@ export function TaskCalendarView({
 }
 
 function sprintColor(i: number): string {
-  return SPRINT_COLORS[i % SPRINT_COLORS.length];
+  return TONES[TONE_KEYS[i % TONE_KEYS.length]];
 }
 
 function sprintTooltip(s: Pick<CalendarSprintItem, "name" | "start" | "end" | "goal">): string {
@@ -434,7 +433,7 @@ function MonthGrid({
           const covering = sprintsCoveringDay(model.sprints, day);
           const firstSprint = covering[0];
           const barColor = firstSprint
-            ? SPRINT_BAR[(sprintColorById.get(firstSprint.id) ?? 0) % SPRINT_BAR.length]
+            ? TONE_BARS[TONE_KEYS[(sprintColorById.get(firstSprint.id) ?? 0) % TONE_KEYS.length]]
             : null;
           return (
             <div
@@ -490,7 +489,14 @@ function TaskChip({
   onOpen: () => void;
   compact?: boolean;
 }) {
-  const overdue = Boolean(task.day) && task.day < today && task.status !== "done";
+  // Urgencia por la regla única (spec 065 D5): el chip es una superficie de
+  // tarea más, no una regla propia. `now` sale del `today` del calendario.
+  const urgency = taskUrgency(
+    { status: task.status, priority: task.priority, dueDate: task.day },
+    parseDayKey(today),
+  );
+  const rail = URGENCY_RAIL[urgency];
+  const urgencyAria = URGENCY_ARIA[urgency];
   return (
     <button
       type="button"
@@ -499,13 +505,11 @@ function TaskChip({
         onOpen();
       }}
       className={cn(
-        "flex w-full items-start gap-1 rounded border border-border/60 bg-background text-left hover:border-border",
+        "flex w-full items-start gap-1 rounded border border-border/60 border-l-2 bg-background text-left hover:border-border",
         compact ? "px-1 py-0 text-[10px] leading-4" : "px-1.5 py-1 text-[11px] leading-snug",
-        task.status === "blocked" && "border-l-2 border-l-red-500",
-        task.status === "doing" && "border-l-2 border-l-blue-500",
-        overdue && "border-destructive/50 bg-destructive/5",
+        rail ?? "border-l-border/60",
       )}
-      aria-label={`${task.title}, vence ${formatDay(task.day)}, ${taskStatusLabel[task.status]}`}
+      aria-label={`${task.title}, vence ${formatDay(task.day)}, ${taskStatusLabel[task.status]}${urgencyAria ? `, ${urgencyAria}` : ""}`}
     >
       {!compact && (
         <Badge variant={priorityVariant[task.priority]} className="mt-0.5 h-4 shrink-0 px-1 text-[9px]">

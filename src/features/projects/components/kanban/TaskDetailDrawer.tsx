@@ -14,6 +14,8 @@ import { RichTextField } from "@/components/forms/RichTextField";
 import { priorityLabel, taskStatusLabel, TASK_COLUMNS, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
 import { daysUntil } from "@/domain/compute";
 import { krProgress } from "@/domain/krProgress";
+import { taskUrgency } from "@/domain/taskUrgency";
+import { TONES, URGENCY_RAIL } from "@/lib/urgencyStyles";
 import { uuid, nowIso, cn } from "@/lib/utils";
 import {
   MAX_TASK_LINKS,
@@ -40,15 +42,15 @@ import { dueLabel, dueSuffix, metaLabel, relativeSince } from "./taskDetailLabel
 
 /** Pastilla de estado de la cabecera (spec 064 D5, design §5).
  *
- * `blocked` y `done` llevan pareja clara/oscura explícita en vez de
- * `bg-destructive/10 text-destructive`: en tema oscuro ese token es un rojo
- * apagado (#bb2a2a) que sobre el fondo casi negro del panel no llegaba a AA.
- * Es el mismo patrón que ya usa el chip ámbar de "vence pronto". */
+ * Los tonos pastel salen de la familia única de `urgencyStyles.ts`
+ * (spec 065 D12/E3). Es el patrón de pareja clara/oscura explícita que
+ * reemplazó al `bg-destructive/10` que no llegaba a AA en tema oscuro
+ * (spec 064 D15). */
 const STATUS_PILL: Record<TaskStatus, string> = {
   todo: "bg-muted text-muted-foreground",
   doing: "bg-accent text-accent-foreground",
-  blocked: "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100",
-  done: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100",
+  blocked: TONES.rose,
+  done: TONES.teal,
 };
 
 const STATUS_DOT: Record<TaskStatus, string> = {
@@ -58,12 +60,14 @@ const STATUS_DOT: Record<TaskStatus, string> = {
   done: "bg-success",
 };
 
-/** Punto de prioridad: `low` va hueco para que "sin urgencia" no pese. */
+/** Punto de prioridad (spec 065 D7): sin tono — la prioridad ya no tiene
+ * color, se distingue por peso (crítica es el más oscuro) y el texto dice
+ * el nivel. `low` va hueco para que "sin urgencia" no pese. */
 const PRIORITY_DOT: Record<Priority, string> = {
-  low: "border border-muted-foreground",
+  low: "border border-muted-foreground/60",
   medium: "bg-muted-foreground",
-  high: "bg-warning",
-  critical: "bg-destructive",
+  high: "bg-foreground/70",
+  critical: "bg-foreground",
 };
 
 /** Ancho de panel a partir del cual las propiedades caben en dos columnas.
@@ -543,9 +547,10 @@ export function TaskDetailDrawer({
   if (!task) return null;
 
   const d = daysUntil(task.dueDate);
-  const overdue = task.status !== "done" && d !== null && d < 0;
-  const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
-  const isBlocked = task.status === "blocked";
+  // Urgencia por la regla única (spec 065 D5/HU-05): nada de overdue/dueSoon
+  // recalculados aquí. `d` queda para los textos ("Vence en N d").
+  const urgency = taskUrgency(task);
+  const rail = URGENCY_RAIL[urgency];
 
   // Dos columnas solo cuando el panel da de sí. En móvil ocupa el viewport
   // completo y los controles necesitan el ancho entero (CA-05, CA-06).
@@ -592,9 +597,10 @@ export function TaskDetailDrawer({
           isMobile
             ? "inset-0 w-full max-w-none border-0"
             : "inset-y-0 w-full max-w-[800px] border-l md:max-w-none",
-          isBlocked && "border-l-4 border-l-red-500",
-          !isBlocked && overdue && "border-l-4 border-l-red-500",
-          !isBlocked && dueSoon && !overdue && "border-l-4 border-l-amber-500",
+          // Riel de urgencia (spec 065 D6/D10): mismo tono que la tarjeta y
+          // el badge de fecha; los lavados de fondo quedaron fuera.
+          rail && "border-l-4",
+          rail,
         )}
       >
         <div
@@ -635,16 +641,13 @@ export function TaskDetailDrawer({
               </Select>
             </div>
 
-            {overdue && (
+            {urgency === "overdue" && (
               <Badge variant="destructive" className="text-[11px] leading-tight px-2 py-0.5">
                 {dueLabel(d)}
               </Badge>
             )}
-            {dueSoon && !overdue && (
-              <Badge
-                variant="outline"
-                className="border-amber-500/50 bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100 text-[11px] leading-tight px-2 py-0.5"
-              >
+            {urgency === "soon" && (
+              <Badge variant="warning" className="text-[11px] leading-tight px-2 py-0.5">
                 {dueLabel(d)}
               </Badge>
             )}
@@ -891,10 +894,10 @@ export function TaskDetailDrawer({
                     <span
                       className={cn(
                         "shrink-0 text-xs",
-                        overdue
-                          ? "text-destructive"
-                          : dueSoon
-                            ? "text-amber-700 dark:text-amber-400"
+                        urgency === "overdue"
+                          ? "text-destructive-soft-foreground"
+                          : urgency === "soon"
+                            ? "text-warning-soft-foreground"
                             : "text-muted-foreground",
                       )}
                     >

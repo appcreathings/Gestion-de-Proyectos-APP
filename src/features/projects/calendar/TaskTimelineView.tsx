@@ -9,6 +9,8 @@ import {
   type DayRange,
 } from "@/lib/dates";
 import type { Project } from "@/domain/schemas";
+import { taskUrgency } from "@/domain/taskUrgency";
+import { TONES, TONE_KEYS, URGENCY_DOT } from "@/lib/urgencyStyles";
 import { buildCalendarModel, type CalendarTaskItem } from "./buildCalendarItems";
 import { cn } from "@/lib/utils";
 
@@ -108,9 +110,7 @@ export function TaskTimelineView({
                 key={s.id}
                 className={cn(
                   "absolute h-5 truncate rounded px-2 text-[10px] font-medium leading-5",
-                  i % 2 === 0
-                    ? "bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
-                    : "bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100",
+                  TONES[TONE_KEYS[i % TONE_KEYS.length]],
                 )}
                 style={{
                   top: 22 + i * 26,
@@ -139,11 +139,10 @@ export function TaskTimelineView({
                   onClick={() => onOpenTask(t.id)}
                   className={cn(
                     "absolute size-2.5 -translate-x-1/2 rounded-full border border-background",
-                    t.status === "blocked"
-                      ? "bg-red-500"
-                      : t.status === "doing"
-                        ? "bg-blue-500"
-                        : "bg-foreground/70",
+                    // Color = urgencia (spec 065 D1): la regla única decide el tono.
+                    URGENCY_DOT[
+                      taskUrgency({ status: t.status, priority: t.priority, dueDate: t.day })
+                    ],
                   )}
                   style={{
                     left: `${((off + 0.5) / totalDays) * 100}%`,

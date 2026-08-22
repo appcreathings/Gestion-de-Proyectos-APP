@@ -485,15 +485,16 @@ export function TriggerStep({
               : `Para conectar con ${providerLabel} necesitas crear un proxy en Google Apps Script.`;
             return (
               <div className="space-y-6">
-                {/* Setup Guide */}
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                {/* Setup Guide — pastilla informativa con el par soft de
+                    `info` (spec 065 E5: sin azules sueltos). */}
+                <div className="rounded-lg border border-info-soft bg-info-soft p-4">
                   <div className="flex items-start gap-3">
-                    <BookOpen className="mt-0.5 size-5 text-blue-600" />
+                    <BookOpen className="mt-0.5 size-5 text-info-soft-foreground" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-blue-900">
+                      <p className="text-sm font-medium text-info-soft-foreground">
                         Configuración requerida
                       </p>
-                      <p className="mt-1 text-xs text-blue-700">{setupText}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{setupText}</p>
                       <Button
                         size="sm"
                         variant="outline"

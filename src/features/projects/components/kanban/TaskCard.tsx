@@ -27,9 +27,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn, highlightText } from "@/lib/utils";
-import { daysUntil } from "@/domain/compute";
 import { krProgress } from "@/domain/krProgress";
 import { priorityLabel, priorityVariant } from "@/domain/labels";
+import { taskUrgency } from "@/domain/taskUrgency";
+import { URGENCY_ARIA, URGENCY_RAIL } from "@/lib/urgencyStyles";
 import type { Area, Person, Sprint, Task } from "@/domain/schemas";
 import { WorkTypeBadge } from "./WorkTypeBadge";
 
@@ -89,9 +90,11 @@ export function TaskCard({
   // `isDragging: true` — `isPlaceholder` isolates "this is the dimmed origin slot" from that.
   const isPlaceholder = isDragging && !isOverlay;
 
-  const d = daysUntil(task.dueDate);
-  const overdue = task.status !== "done" && d !== null && d < 0;
-  const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
+  // La urgencia se decide una sola vez (spec 065 D5) y el riel es su único
+  // portador cromático (D6): nada de fondos lavados ni segundos colores.
+  const urgency = taskUrgency(task);
+  const rail = URGENCY_RAIL[urgency];
+  const urgencyAria = URGENCY_ARIA[urgency];
   const isBlocked = task.status === "blocked";
 
   return (
@@ -104,7 +107,9 @@ export function TaskCard({
       }}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "relative group flex flex-col rounded-lg border p-3 transition-colors",
+        // Riel izquierdo de SIEMPRE 3 px (spec 065 D6): con color cuando hay
+        // nivel, neutro cuando no — así nada se desplaza al cambiar de nivel.
+        "relative group flex flex-col rounded-lg border border-l-[3px] p-3 transition-colors",
         isOverlay
           ? "cursor-grabbing border-border/70 bg-background shadow-2xl ring-2 ring-foreground/30 scale-[1.02]"
           : isPlaceholder
@@ -112,16 +117,18 @@ export function TaskCard({
               // dashed placeholder instead of a translucent duplicate of the full card.
               "border-dashed border-border/50 bg-foreground/[0.02]"
             : "border-border/70 bg-background hover:border-border cursor-pointer",
+        !isPlaceholder && !isOverlay && (rail ?? "border-l-border/70"),
+        !isPlaceholder && !isOverlay && urgency === "done" && "opacity-70",
         focused && !isPlaceholder && !isOverlay && "ring-2 ring-foreground/60",
         // Spec 017 HU-13: Visual indicator for selected tasks
         selected && selectionMode && !isPlaceholder && !isOverlay && "ring-2 ring-blue-400 ring-offset-2",
-        // Spec 017: Visual indicators for blocked, overdue, and due-soon tasks
-        !isPlaceholder && !isOverlay && isBlocked && "border-l-4 border-l-red-500",
-        !isPlaceholder && !isOverlay && overdue && "bg-red-50 dark:bg-red-950/20",
-        !isPlaceholder && !isOverlay && dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
       )}
       onActivate={!isOverlay && !isPlaceholder ? onOpenDetail : undefined}
-      aria-label={!isOverlay && !isPlaceholder ? `Abrir detalle de ${task.title}` : undefined}
+      aria-label={
+        !isOverlay && !isPlaceholder
+          ? `Abrir detalle de ${task.title}${urgencyAria ? ` — ${urgencyAria}` : ""}`
+          : undefined
+      }
     >
       <div className="flex min-w-0 items-start gap-1.5 mb-1.5">
         {/* Spec 017 HU-13: Checkbox in flow before drag handle (only in selection mode) */}
@@ -149,7 +156,7 @@ export function TaskCard({
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             {isBlocked && !isPlaceholder && (
-              <Lock className="size-3.5 text-red-500 shrink-0" />
+              <Lock className="size-3.5 text-muted-foreground shrink-0" />
             )}
             <p className="text-sm font-medium leading-tight break-words line-clamp-2">
               {searchQuery ? highlightText(task.title, searchQuery) : task.title}
@@ -171,7 +178,7 @@ export function TaskCard({
             {priorityLabel[task.priority]}
           </Badge>
           {area && (
-            <Badge variant="secondary" className="text-[11px] leading-tight px-1.5 py-0.5 truncate max-w-[130px]">
+            <Badge variant="outline" className="text-[11px] leading-tight px-1.5 py-0.5 truncate max-w-[130px]">
               {area.name}
             </Badge>
           )}
@@ -187,10 +194,18 @@ export function TaskCard({
           )}
           {task.dueDate && (
             <Badge
-              variant={overdue ? "destructive" : "outline"}
+              // Spec 065 D10: el tono del badge sigue al riel cuando la
+              // urgencia viene de la fecha (rosa=vencida, ámbar=vence pronto).
+              variant={
+                urgency === "overdue"
+                  ? "destructive"
+                  : urgency === "soon"
+                    ? "warning"
+                    : "outline"
+              }
               className="gap-1 text-[11px] leading-tight px-1.5 py-0.5"
             >
-              {overdue ? (
+              {urgency === "overdue" ? (
                 <AlertCircle className="size-3" />
               ) : (
                 <CalendarClock className="size-3" />

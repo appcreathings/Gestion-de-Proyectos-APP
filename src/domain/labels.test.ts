@@ -1,16 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { WorkType } from "./schemas/common";
-import { workTypeLabel, workTypeVariant, WORK_TYPE_OPTIONS } from "./labels";
+import { workTypeLabel, workTypeTone, WORK_TYPE_OPTIONS } from "./labels";
 
 describe("workType labels (spec 062 §5)", () => {
-  it("los 7 valores del enum tienen label y variant", () => {
+  it("los 7 valores del enum tienen label y tono", () => {
     for (const value of WorkType.options) {
       expect(typeof workTypeLabel[value]).toBe("string");
       expect(workTypeLabel[value].length).toBeGreaterThan(0);
-      expect(workTypeVariant[value]).toBeDefined();
+      expect(workTypeTone[value]).toBeDefined();
     }
     expect(workTypeLabel.task).toBe("Tarea");
     expect(workTypeLabel.key_result).toBe("Key result");
+  });
+
+  it("ningún tipo de trabajo usa un tono reservado a urgencia (spec 065 D9)", () => {
+    for (const value of WorkType.options) {
+      expect(["teal", "sky", "neutral"]).toContain(workTypeTone[value]);
+    }
+    expect(workTypeTone.bug).toBe("neutral");
   });
 
   it("WORK_TYPE_OPTIONS contiene los 7 valores, con task al final", () => {

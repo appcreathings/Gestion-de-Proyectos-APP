@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { daysUntil } from "@/domain/compute";
 import { priorityLabel, priorityVariant, taskStatusLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { taskUrgency } from "@/domain/taskUrgency";
+import { URGENCY_ARIA, URGENCY_RAIL } from "@/lib/urgencyStyles";
 import { useDataStore } from "@/store/useDataStore";
 import type { Project, Task } from "@/domain/schemas";
 import { TaskDetailDrawer } from "@/features/projects/components/kanban/TaskDetailDrawer";
@@ -347,17 +348,19 @@ function TaskRow({
   onClick: () => void;
   showProjectName: boolean;
 }) {
-  const d = daysUntil(task.dueDate);
-  const overdue = task.status !== "done" && d !== null && d < 0;
-  const dueSoon = task.status !== "done" && d !== null && d >= 0 && d <= 3;
+  const urgency = taskUrgency(task);
+  const rail = URGENCY_RAIL[urgency];
+  const urgencyAria = URGENCY_ARIA[urgency];
 
   return (
     <button
       onClick={onClick}
+      aria-label={`Abrir detalle de ${task.title}${urgencyAria ? ` — ${urgencyAria}` : ""}`}
       className={cn(
-        "flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-accent/50",
-        overdue && "bg-red-50 dark:bg-red-950/20",
-        dueSoon && !overdue && "bg-amber-50 dark:bg-amber-950/20",
+        // Riel de urgencia de 3 px (spec 065 D6), sin fondos lavados.
+        "flex w-full items-center gap-3 border-l-[3px] p-4 text-left transition-colors hover:bg-accent/50",
+        rail ?? "border-l-transparent",
+        urgency === "done" && "opacity-70",
       )}
     >
       <WorkTypeBadge workType={task.workType} />
@@ -375,7 +378,16 @@ function TaskRow({
         )}
       </div>
       {task.dueDate && (
-        <Badge variant={overdue ? "destructive" : "outline"} className="text-xs">
+        <Badge
+          variant={
+            urgency === "overdue"
+              ? "destructive"
+              : urgency === "soon"
+                ? "warning"
+                : "outline"
+          }
+          className="text-xs"
+        >
           {task.dueDate}
         </Badge>
       )}

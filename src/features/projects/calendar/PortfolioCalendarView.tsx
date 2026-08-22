@@ -12,6 +12,7 @@ import {
   formatDay,
   formatRange,
   monthRangeContaining,
+  parseDayKey,
   shiftRange,
   todayKey,
   weekRangeContaining,
@@ -19,6 +20,14 @@ import {
 } from "@/lib/dates";
 import type { Project, Quarter } from "@/domain/schemas";
 import { taskStatusLabel } from "@/domain/labels";
+import { taskUrgency } from "@/domain/taskUrgency";
+import {
+  TONES,
+  TONE_KEYS,
+  URGENCY_ARIA,
+  URGENCY_DOT,
+  URGENCY_RAIL,
+} from "@/lib/urgencyStyles";
 import { ROUTES } from "@/routes/paths";
 import {
   bandsCoveringDay,
@@ -39,14 +48,8 @@ type Density = "week" | "month" | "quarter";
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 
-const PROJECT_COLORS = [
-  "border-blue-300 bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-100",
-  "border-violet-300 bg-violet-50 text-violet-900 dark:bg-violet-950/40 dark:text-violet-100",
-  "border-teal-300 bg-teal-50 text-teal-900 dark:bg-teal-950/40 dark:text-teal-100",
-  "border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-  "border-rose-300 bg-rose-50 text-rose-900 dark:bg-rose-950/40 dark:text-rose-100",
-  "border-sky-300 bg-sky-50 text-sky-900 dark:bg-sky-950/40 dark:text-sky-100",
-];
+/* Los tonos pastel vienen de la familia única de `urgencyStyles.ts`
+   (spec 065 D12): esta era una de las dos copias que existían. */
 
 const QUARTER_COLOR =
   "border-foreground/30 bg-muted/60 text-foreground dark:bg-muted/40";
@@ -467,11 +470,11 @@ function timelineRangeFrom(anchor: string): DayRange {
 function colorIndex(id: string): number {
   let h = 0;
   for (let i = 0; i < id.length; i += 1) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return h % PROJECT_COLORS.length;
+  return h % TONE_KEYS.length;
 }
 
 function bandColor(b: CalendarRangeBand): string {
-  return b.kind === "quarter" ? QUARTER_COLOR : PROJECT_COLORS[colorIndex(b.projectId ?? b.id)];
+  return b.kind === "quarter" ? QUARTER_COLOR : TONES[TONE_KEYS[colorIndex(b.projectId ?? b.id)]];
 }
 
 function bandTooltip(b: CalendarRangeBand): string {
@@ -821,11 +824,10 @@ function PortfolioTimeline({
                   onClick={() => onOpenTask(t.id, t.projectId)}
                   className={cn(
                     "absolute size-2.5 -translate-x-1/2 rounded-full border border-background",
-                    t.status === "blocked"
-                      ? "bg-red-500"
-                      : t.status === "doing"
-                        ? "bg-blue-500"
-                        : "bg-foreground/70",
+                    // Color = urgencia (spec 065 D1): la regla única decide el tono.
+                    URGENCY_DOT[
+                      taskUrgency({ status: t.status, priority: t.priority, dueDate: t.day })
+                    ],
                   )}
                   style={{
                     left: `${((off + 0.5) / totalDays) * 100}%`,
@@ -856,7 +858,14 @@ function TaskChip({
   onOpen: () => void;
   compact?: boolean;
 }) {
-  const overdue = Boolean(task.day) && task.day < today && task.status !== "done";
+  // Urgencia por la regla única (spec 065 D5): el chip es una superficie de
+  // tarea más, no una regla propia. `now` sale del `today` del calendario.
+  const urgency = taskUrgency(
+    { status: task.status, priority: task.priority, dueDate: task.day },
+    parseDayKey(today),
+  );
+  const rail = URGENCY_RAIL[urgency];
+  const urgencyAria = URGENCY_ARIA[urgency];
   return (
     <button
       type="button"
@@ -865,13 +874,11 @@ function TaskChip({
         onOpen();
       }}
       className={cn(
-        "flex w-full flex-col rounded border border-border/60 bg-background text-left hover:border-border",
+        "flex w-full flex-col rounded border border-border/60 border-l-2 bg-background text-left hover:border-border",
         compact ? "px-1 py-0 text-[10px] leading-4" : "px-1.5 py-1 text-[11px] leading-snug",
-        task.status === "blocked" && "border-l-2 border-l-red-500",
-        task.status === "doing" && "border-l-2 border-l-blue-500",
-        overdue && "border-destructive/50 bg-destructive/5",
+        rail ?? "border-l-border/60",
       )}
-      aria-label={`${task.title}, ${task.projectName}, vence ${formatDay(task.day)}, ${taskStatusLabel[task.status]}`}
+      aria-label={`${task.title}, ${task.projectName}, vence ${formatDay(task.day)}, ${taskStatusLabel[task.status]}${urgencyAria ? `, ${urgencyAria}` : ""}`}
     >
       <span className="truncate">{task.title}</span>
       <span className="truncate text-[9px] text-muted-foreground">{task.projectName}</span>
