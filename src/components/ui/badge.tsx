@@ -7,13 +7,18 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
+        // Spec 065 D4: los badges pintan con la familia `soft` — un badge no
+        // es una acción, nunca necesitó el peso de un botón. El relleno
+        // sólido sobrevive solo en `default` (primario).
         default: "border-transparent bg-primary text-primary-foreground",
         secondary: "border-transparent bg-secondary text-secondary-foreground",
+        neutral: "border-transparent bg-muted text-muted-foreground",
+        outline: "border-border text-muted-foreground",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground",
-        outline: "text-foreground",
-        success: "border-transparent bg-success text-success-foreground",
-        warning: "border-transparent bg-warning text-warning-foreground",
+          "border-transparent bg-destructive-soft text-destructive-soft-foreground",
+        success: "border-transparent bg-success-soft text-success-soft-foreground",
+        warning: "border-transparent bg-warning-soft text-warning-soft-foreground",
+        info: "border-transparent bg-info-soft text-info-soft-foreground",
       },
     },
     defaultVariants: { variant: "default" },
