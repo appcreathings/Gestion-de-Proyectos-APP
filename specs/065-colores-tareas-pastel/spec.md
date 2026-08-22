@@ -1,6 +1,6 @@
 # Spec 065 — Color de tareas: escala de urgencia en pastel
 
-> Estado: **PENDIENTE**
+> Estado: **IMPLEMENTADO** (rama `feat/065-colores-tareas-pastel`, 2026-08-21)
 > Feature dir: `specs/065-colores-tareas-pastel/` · Fecha: 2026-08-21
 > Baseline al empezar: `SCHEMA_VERSION` **23** (sin cambio) · 1333 tests en 141 archivos
 > Depende de: 017 (indicadores de vencimiento), 054 (móvil), 061 (Mis tareas),
