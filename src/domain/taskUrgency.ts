@@ -18,8 +18,14 @@ export const SOON_WINDOW_DAYS = 3;
 
 /** Nivel de urgencia de una tarea: la única fuente de esta regla en la app
  * (spec 065 D5). Primera condición que aplica gana:
- * `done` → `overdue` → `blocked` → `soon` → `priority` → `calm`. */
-export function taskUrgency(task: Task, now: Date = new Date()): UrgencyLevel {
+ * `done` → `overdue` → `blocked` → `soon` → `priority` → `calm`.
+ *
+ * Toma solo los tres campos que decide — `Pick` estructural para que chips
+ * de calendario (que no son un `Task` completo) también puedan usarla. */
+export function taskUrgency(
+  task: Pick<Task, "status" | "priority" | "dueDate">,
+  now: Date = new Date(),
+): UrgencyLevel {
   if (task.status === "done") return "done";
 
   const d = daysUntil(task.dueDate, now);

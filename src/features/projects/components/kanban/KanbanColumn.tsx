@@ -39,7 +39,9 @@ export function KanbanColumn({ status, count, wipLimit, taskIds, onAdd, selectio
       className={cn(
         "flex min-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors sm:min-w-0 sm:shrink sm:border-border/70",
         isOver && "border-foreground/40 bg-foreground/[0.06]",
-        isOverLimit && "bg-amber-50 dark:bg-amber-950/20",
+        // Lavado pastel de WIP excedido con token (spec 065 E5): es un aviso
+        // de columna, no de tarjeta — el conteo grande lleva el peso.
+        isOverLimit && "bg-warning-soft",
       )}
     >
       <div className="mb-3 flex items-center justify-between px-0.5">

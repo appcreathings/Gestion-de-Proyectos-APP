@@ -4,7 +4,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { useDataStore } from "@/store/useDataStore";
 import { priorityLabel, priorityVariant } from "@/domain/labels";
-import { daysUntil } from "@/domain/compute";
+import { taskUrgency } from "@/domain/taskUrgency";
+import { URGENCY_RAIL } from "@/lib/urgencyStyles";
+import { cn } from "@/lib/utils";
 import type { Task, Project } from "@/domain/schemas";
 
 interface TaskWithProject extends Task {
@@ -62,7 +64,7 @@ export function DailyStandupPage() {
       <div className="grid gap-6 md:grid-cols-3">
         <div className="rounded-lg border bg-card p-6">
           <div className="mb-4 flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <CheckCircle2 className="h-5 w-5 text-success" />
             <h2 className="text-lg font-semibold">Hecho recientemente</h2>
           </div>
           <p className="mb-4 text-sm text-muted-foreground">Últimas 24 horas</p>
@@ -79,7 +81,7 @@ export function DailyStandupPage() {
 
         <div className="rounded-lg border bg-card p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-600" />
+            <Calendar className="h-5 w-5 text-info-soft-foreground" />
             <h2 className="text-lg font-semibold">Para hoy</h2>
           </div>
           <p className="mb-4 text-sm text-muted-foreground">
@@ -98,7 +100,7 @@ export function DailyStandupPage() {
 
         <div className="rounded-lg border bg-card p-6">
           <div className="mb-4 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-red-600" />
+            <AlertCircle className="h-5 w-5 text-destructive" />
             <h2 className="text-lg font-semibold">Bloqueado</h2>
           </div>
           <p className="mb-4 text-sm text-muted-foreground">Tareas que necesitan atención</p>
@@ -118,11 +120,18 @@ export function DailyStandupPage() {
 }
 
 function TaskItem({ task }: { task: TaskWithProject }) {
-  const d = daysUntil(task.dueDate);
-  const overdue = task.status !== "done" && d !== null && d < 0;
+  // Regla única de urgencia (spec 065 D5/HU-05) + riel de 3 px (D6).
+  const urgency = taskUrgency(task);
+  const rail = URGENCY_RAIL[urgency];
 
   return (
-    <li className="rounded-lg border p-3 hover:bg-accent/50 transition-colors">
+    <li
+      className={cn(
+        "rounded-lg border border-l-[3px] p-3 hover:bg-accent/50 transition-colors",
+        rail ?? "border-l-border/70",
+        urgency === "done" && "opacity-70",
+      )}
+    >
       <div className="mb-2 flex items-start justify-between gap-2">
         <p className="text-sm font-medium leading-tight">{task.title}</p>
         <Badge variant={priorityVariant[task.priority]} className="text-xs">
@@ -142,7 +151,11 @@ function TaskItem({ task }: { task: TaskWithProject }) {
         {task.dueDate && (
           <>
             <span>•</span>
-            <span className={overdue ? "text-red-600 font-medium" : ""}>
+            <span
+              className={cn(
+                urgency === "overdue" && "font-medium text-destructive-soft-foreground",
+              )}
+            >
               {task.dueDate}
             </span>
           </>

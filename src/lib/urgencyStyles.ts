@@ -21,6 +21,18 @@ export type ToneKey = keyof typeof TONES;
 
 export const TONE_KEYS = Object.keys(TONES) as ToneKey[];
 
+/** Mismo tono como borde de barra fina (p. ej. borde superior del día con
+ * sprint en TaskCalendarView). Mantiene una sola fuente del orden de la
+ * familia (spec 065 D12, principio V). */
+export const TONE_BARS: Record<ToneKey, string> = {
+  blue: "border-t-blue-400",
+  violet: "border-t-violet-400",
+  teal: "border-t-teal-400",
+  amber: "border-t-amber-400",
+  rose: "border-t-rose-400",
+  sky: "border-t-sky-400",
+};
+
 /** Riel de urgencia de 3 px por nivel (spec 065 D6). `null` = sin riel.
  * El riel usa -400/-500 y no el pastel de fondo: a 3 px de ancho, un -100
  * desaparece (design §1). */
@@ -43,4 +55,16 @@ export const URGENCY_ARIA: Record<UrgencyLevel, string | null> = {
   soon: "vence pronto",
   priority: "prioridad alta",
   calm: null,
+};
+
+/** Punto sólido por nivel (marcadores de vencimiento en los timelines de
+ * calendario). Sólido — no pastel — porque son rellenos de 10 px, como el
+ * riel: a ese tamaño el pastel de fondo desaparece. */
+export const URGENCY_DOT: Record<UrgencyLevel, string> = {
+  done: "bg-foreground/40",
+  overdue: "bg-rose-500",
+  blocked: "bg-violet-500",
+  soon: "bg-amber-500",
+  priority: "bg-blue-500",
+  calm: "bg-foreground/70",
 };
