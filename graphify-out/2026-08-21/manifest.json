@@ -105,7 +105,7 @@
     "semantic_hash": ""
   },
   "src/ai/rag/indexer.test.ts": {
-    "mtime": 1787289871.0103302,
+    "mtime": 1787346258.350598,
     "ast_hash": "62df29478f4c9b4fe405014195897cfc",
     "semantic_hash": ""
   },
@@ -450,13 +450,13 @@
     "semantic_hash": ""
   },
   "src/components/forms/DateFieldPreview.tsx": {
-    "mtime": 1787288564.800496,
-    "ast_hash": "1fb6ab2b37be7257a83f848a8ad09853",
+    "mtime": 1787346258.350598,
+    "ast_hash": "7106fca87e762c272032d1618687aa40",
     "semantic_hash": ""
   },
   "src/components/forms/EntitySelect.tsx": {
-    "mtime": 1787288528.9235213,
-    "ast_hash": "6d0805976addc1180c57603a28dc09f8",
+    "mtime": 1787346258.351598,
+    "ast_hash": "a2a26bbf6abd0be51685472d5698010d",
     "semantic_hash": ""
   },
   "src/components/forms/IconPicker.tsx": {
@@ -465,8 +465,8 @@
     "semantic_hash": ""
   },
   "src/components/forms/PersonSelect.tsx": {
-    "mtime": 1787288535.6961079,
-    "ast_hash": "8b1b5f3c5de90348ae3c2a92ee106ce7",
+    "mtime": 1787346258.351598,
+    "ast_hash": "951deb19f79b43ccb21f1048052e2f38",
     "semantic_hash": ""
   },
   "src/components/forms/QuickAddInput.tsx": {
@@ -610,7 +610,7 @@
     "semantic_hash": ""
   },
   "src/domain/factories.ts": {
-    "mtime": 1787289721.81368,
+    "mtime": 1787346258.3525984,
     "ast_hash": "5bdf6b8567cda62c5f9189dfcad04037",
     "semantic_hash": ""
   },
@@ -635,12 +635,12 @@
     "semantic_hash": ""
   },
   "src/domain/migrations.test.ts": {
-    "mtime": 1787289941.106258,
+    "mtime": 1787346258.3535967,
     "ast_hash": "3354b20c0fde61d95e9c254940d47042",
     "semantic_hash": ""
   },
   "src/domain/migrations.ts": {
-    "mtime": 1787289739.2829816,
+    "mtime": 1787346258.3535967,
     "ast_hash": "6756b32312fe981077085dfccf3f4daf",
     "semantic_hash": ""
   },
@@ -670,7 +670,7 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/common.ts": {
-    "mtime": 1787289720.397396,
+    "mtime": 1787346258.354597,
     "ast_hash": "f9aec349a83fb93686d159e9001283a0",
     "semantic_hash": ""
   },
@@ -700,7 +700,7 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/project.ts": {
-    "mtime": 1787289716.2442307,
+    "mtime": 1787346258.354597,
     "ast_hash": "c9ce0b37f0d7030cd703bd924fe8f0d5",
     "semantic_hash": ""
   },
@@ -925,8 +925,8 @@
     "semantic_hash": ""
   },
   "src/features/dashboard/DashboardPage.tsx": {
-    "mtime": 1786494476.5604928,
-    "ast_hash": "ebd82b40361e0f3507cd9d664c73f1fd",
+    "mtime": 1787346769.561976,
+    "ast_hash": "fac51c3d47f6ff7726e9c054ff65ec79",
     "semantic_hash": ""
   },
   "src/features/dashboard/portfolio.ts": {
@@ -1415,8 +1415,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/ProjectsPage.tsx": {
-    "mtime": 1783244955.1315403,
-    "ast_hash": "d41d5ac13d335afaa485a2351fc621df",
+    "mtime": 1787346769.575991,
+    "ast_hash": "e0ab00058a988b806c82fab676300a4a",
     "semantic_hash": ""
   },
   "src/features/projects/components/ActivityTab.tsx": {
@@ -1510,7 +1510,7 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1787290200.1773007,
+    "mtime": 1787346258.3555987,
     "ast_hash": "17e82749787f5df45f02c2e413441cd7",
     "semantic_hash": ""
   },
@@ -1605,7 +1605,7 @@
     "semantic_hash": ""
   },
   "src/flows/dry-run.test.ts": {
-    "mtime": 1787289871.0113297,
+    "mtime": 1787346258.3565981,
     "ast_hash": "cee2da71ad101e873177fc002af4be3f",
     "semantic_hash": ""
   },
@@ -1630,7 +1630,7 @@
     "semantic_hash": ""
   },
   "src/flows/event-record.test.ts": {
-    "mtime": 1787289871.01233,
+    "mtime": 1787346258.3575988,
     "ast_hash": "4eba78e4f380003697fc7b6198495704",
     "semantic_hash": ""
   },
@@ -1690,7 +1690,7 @@
     "semantic_hash": ""
   },
   "src/flows/synthetic-event.test.ts": {
-    "mtime": 1787289871.01233,
+    "mtime": 1787346258.3575988,
     "ast_hash": "6355bedccfcfe8373fddbf47269b25bc",
     "semantic_hash": ""
   },
@@ -2955,8 +2955,8 @@
     "semantic_hash": ""
   },
   "src/components/attachments/AttachmentsSection.tsx": {
-    "mtime": 1787289821.1995227,
-    "ast_hash": "0df528d06d2e3dd2eb8cb71038406dbb",
+    "mtime": 1787346258.350598,
+    "ast_hash": "26ae6512fd10f913ba638eabbd30dc02",
     "semantic_hash": ""
   },
   "src/domain/attachments/allowlist.test.ts": {
@@ -2990,7 +2990,7 @@
     "semantic_hash": ""
   },
   "src/domain/attachments/ops.test.ts": {
-    "mtime": 1787289871.0103302,
+    "mtime": 1787346258.3525984,
     "ast_hash": "2a994d5482541902abd74303c6d6667e",
     "semantic_hash": ""
   },
@@ -3305,7 +3305,7 @@
     "semantic_hash": ""
   },
   "src/ai/keys-never-exported.test.ts": {
-    "mtime": 1787289942.3920345,
+    "mtime": 1787346258.3495984,
     "ast_hash": "f4e10e8eec50b6da1b10fe16239d287c",
     "semantic_hash": ""
   },
@@ -3910,7 +3910,7 @@
     "semantic_hash": ""
   },
   "src/integrations/github-repo-sync.test.ts": {
-    "mtime": 1787289871.013329,
+    "mtime": 1787346258.3585968,
     "ast_hash": "ab3f2e4f984851cd0259bdc348f0f590",
     "semantic_hash": ""
   },
@@ -4235,28 +4235,73 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/PropertyRow.tsx": {
-    "mtime": 1787289755.5044963,
-    "ast_hash": "1a66e303f5b3f149eb5dad407527369e",
+    "mtime": 1787346258.354597,
+    "ast_hash": "06ad58262a3d5dedf2f091de57962866",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/taskDetailLabels.test.ts": {
-    "mtime": 1787288496.7586024,
-    "ast_hash": "b8d08833af94a50173f679fcc61fd2b5",
+    "mtime": 1787346258.3565981,
+    "ast_hash": "70cd53590a37667adbab2c221de18913",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/taskDetailLabels.ts": {
-    "mtime": 1787288482.9595754,
-    "ast_hash": "78dde8b63ee1cece533d3732af24c66f",
+    "mtime": 1787346258.3565981,
+    "ast_hash": "e361c4f21e14ed1a1a29eb9b84dd6552",
     "semantic_hash": ""
   },
   "specs/064-tarjeta-tarea-redisenio/design.md": {
-    "mtime": 1787288991.973845,
-    "ast_hash": "d35f16b3052d6a5e1632c8d5141e932a",
+    "mtime": 1787346258.3485966,
+    "ast_hash": "9e272d43b5ba3750c02e2f70d1a03181",
     "semantic_hash": ""
   },
   "specs/064-tarjeta-tarea-redisenio/spec.md": {
-    "mtime": 1787290286.3351047,
-    "ast_hash": "4e7cc31b20bbe0a62045a520ce584652",
+    "mtime": 1787346258.3495984,
+    "ast_hash": "d8ad3c33fffea67bc287da5f68b65b9d",
+    "semantic_hash": ""
+  },
+  "src/features/dashboard/dashboardHrefs.test.ts": {
+    "mtime": 1787346769.561976,
+    "ast_hash": "cb227956a4bebaf1622545f9f217b855",
+    "semantic_hash": ""
+  },
+  "src/features/dashboard/dashboardHrefs.ts": {
+    "mtime": 1787346769.5629766,
+    "ast_hash": "a250521fed03464f9ab6105321331118",
+    "semantic_hash": ""
+  },
+  "src/features/projects/filterProjects.test.ts": {
+    "mtime": 1787346769.5899928,
+    "ast_hash": "9a3713f6f3f231c4d88854662593abfd",
+    "semantic_hash": ""
+  },
+  "src/features/projects/filterProjects.ts": {
+    "mtime": 1787346769.6010108,
+    "ast_hash": "ec390dd996ddeedd392e8bb1ef4b4b35",
+    "semantic_hash": ""
+  },
+  "specs/063-dashboard-drill-down/PROMPT-EJECUCION.md": {
+    "mtime": 1787346769.4967167,
+    "ast_hash": "597c2c3747fbd6e3d6599b786e1f56b4",
+    "semantic_hash": ""
+  },
+  "specs/063-dashboard-drill-down/design.md": {
+    "mtime": 1787346769.512215,
+    "ast_hash": "c1a64bf6937a3958430b721c409eefb7",
+    "semantic_hash": ""
+  },
+  "specs/063-dashboard-drill-down/smoke.md": {
+    "mtime": 1787346769.513225,
+    "ast_hash": "035b11aa881f82695969496002d6cb94",
+    "semantic_hash": ""
+  },
+  "specs/063-dashboard-drill-down/spec.md": {
+    "mtime": 1787346769.5267284,
+    "ast_hash": "79c6ffad9ac501bc024c6cc3904b4ad4",
+    "semantic_hash": ""
+  },
+  "specs/063-dashboard-drill-down/tasks.md": {
+    "mtime": 1787346769.5267284,
+    "ast_hash": "c03ddf5a998c99a64434c387e9b30007",
     "semantic_hash": ""
   }
 }

@@ -520,8 +520,8 @@
     "semantic_hash": ""
   },
   "src/components/ui/badge.tsx": {
-    "mtime": 1782447972.4019816,
-    "ast_hash": "5efa48bd8826a810ac5f09aa02eec404",
+    "mtime": 1787358323.0132577,
+    "ast_hash": "dc87c83faa1c9b458d09b4cd9cc13669",
     "semantic_hash": ""
   },
   "src/components/ui/button.tsx": {
@@ -630,8 +630,8 @@
     "semantic_hash": ""
   },
   "src/domain/labels.ts": {
-    "mtime": 1787283004.5924566,
-    "ast_hash": "6b743c5e78add0442cf164eafe155273",
+    "mtime": 1787358557.4385962,
+    "ast_hash": "d4e211d0d90fbc2e23f2e6b53a9dbeca",
     "semantic_hash": ""
   },
   "src/domain/migrations.test.ts": {
@@ -920,8 +920,8 @@
     "semantic_hash": "db763fe2768ec8c0329b2b6b7262f475"
   },
   "src/features/daily/DailyStandupPage.tsx": {
-    "mtime": 1783393403.132756,
-    "ast_hash": "9847bb6329512f32395ceedfcd2f0b95",
+    "mtime": 1787358834.346251,
+    "ast_hash": "d425c3ac795839bd589b61ca258e144f",
     "semantic_hash": ""
   },
   "src/features/dashboard/DashboardPage.tsx": {
@@ -1195,8 +1195,8 @@
     "semantic_hash": ""
   },
   "src/features/flows/steps/TriggerStep.tsx": {
-    "mtime": 1786493509.7439969,
-    "ast_hash": "8324430645ba98081fc001f70b9fae56",
+    "mtime": 1787358918.4993598,
+    "ast_hash": "0632e1fe75ccb88b3a089023f32bef3b",
     "semantic_hash": ""
   },
   "src/features/integrations/DeliveryDetailDrawer.tsx": {
@@ -1210,8 +1210,8 @@
     "semantic_hash": ""
   },
   "src/features/integrations/SyncLogsPage.tsx": {
-    "mtime": 1784696124.2829688,
-    "ast_hash": "3cecdf20e230d9556e241483d7d4d242",
+    "mtime": 1787358921.9789288,
+    "ast_hash": "b400bd7af51c7ef079e8656d22df656d",
     "semantic_hash": ""
   },
   "src/features/integrations/VaultSecuritySettings.tsx": {
@@ -1360,8 +1360,8 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/MyTasksPage.tsx": {
-    "mtime": 1787283004.5974681,
-    "ast_hash": "0e28fb02518c4600263c0dd18d743368",
+    "mtime": 1787358522.178285,
+    "ast_hash": "53896b1a696f1576c3e00fb35ae1f50f",
     "semantic_hash": ""
   },
   "src/features/not-found/NotFoundPage.tsx": {
@@ -1495,23 +1495,23 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanColumn.tsx": {
-    "mtime": 1786495229.8121555,
-    "ast_hash": "080b97b221b002adaab52a4ed71473f9",
+    "mtime": 1787358926.7587893,
+    "ast_hash": "221b4302f7bd8e277df561c7ea816584",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanListView.tsx": {
-    "mtime": 1787283004.5999706,
-    "ast_hash": "488b60f15bb50445dcb1ebfa4ea1f2ef",
+    "mtime": 1787358504.2712953,
+    "ast_hash": "63bb88f0042b5939e0c2186cd1b8f2af",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskCard.tsx": {
-    "mtime": 1787283004.5999706,
-    "ast_hash": "935aacf5c401dbe5a3211589a96c4126",
+    "mtime": 1787358472.134312,
+    "ast_hash": "7b8aef522de9d39ae5ae95eeec3a23d1",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1787346258.3555987,
-    "ast_hash": "17e82749787f5df45f02c2e413441cd7",
+    "mtime": 1787358796.064738,
+    "ast_hash": "eef18de0719ec96daa4dc5045949e154",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -2145,8 +2145,8 @@
     "semantic_hash": ""
   },
   "tailwind.config.js": {
-    "mtime": 1783246223.1164095,
-    "ast_hash": "91b87d6ebbe937ce032236e778a5016e",
+    "mtime": 1787358244.5137653,
+    "ast_hash": "d5d4925695b7c67fef108580ef2bcac8",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -3740,13 +3740,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/calendar/TaskCalendarView.tsx": {
-    "mtime": 1786550725.1392958,
-    "ast_hash": "6b5f96dcddf809f17ea364deb724d633",
+    "mtime": 1787358760.4851444,
+    "ast_hash": "fa4d0f845c508bed6ab60714f16e20bb",
     "semantic_hash": ""
   },
   "src/features/projects/calendar/TaskTimelineView.tsx": {
-    "mtime": 1786550845.3311872,
-    "ast_hash": "da3f7cb90a373f3b4e5e65d013ef591f",
+    "mtime": 1787358902.2740743,
+    "ast_hash": "8b14110a6784e44a894dd1ff91897ce5",
     "semantic_hash": ""
   },
   "src/features/projects/calendar/buildCalendarItems.test.ts": {
@@ -3925,8 +3925,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/calendar/PortfolioCalendarView.tsx": {
-    "mtime": 1786553157.131356,
-    "ast_hash": "66d64409a12f58623b64080f014dc5ee",
+    "mtime": 1787358910.2296877,
+    "ast_hash": "f62af426501ac3183e1360fcb522863f",
     "semantic_hash": ""
   },
   "specs/058-blog-seo-roadmap-gsc/spec.md": {
@@ -4190,8 +4190,8 @@
     "semantic_hash": ""
   },
   "src/domain/labels.test.ts": {
-    "mtime": 1787283004.5924566,
-    "ast_hash": "4d250ef4741b2db22a69e54bfe4a1a57",
+    "mtime": 1787358567.1781676,
+    "ast_hash": "97345eff9c6e30f789ce58db05d33818",
     "semantic_hash": ""
   },
   "src/domain/workType.test.ts": {
@@ -4210,8 +4210,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WorkTypeBadge.tsx": {
-    "mtime": 1787283004.6010127,
-    "ast_hash": "30e8b1eebf4afa869f6da20ba784e0ab",
+    "mtime": 1787358561.8502848,
+    "ast_hash": "4c14bdc6d84458fc11bd2ef76e9896b0",
     "semantic_hash": ""
   },
   "specs/062-tipos-de-trabajo/PROMPT-EJECUCION.md": {
@@ -4302,6 +4302,46 @@
   "specs/063-dashboard-drill-down/tasks.md": {
     "mtime": 1787346769.5267284,
     "ast_hash": "c03ddf5a998c99a64434c387e9b30007",
+    "semantic_hash": ""
+  },
+  "src/domain/taskUrgency.test.ts": {
+    "mtime": 1787358390.8204002,
+    "ast_hash": "14f6afeee2186bd1216abd4d8d71f5fd",
+    "semantic_hash": ""
+  },
+  "src/domain/taskUrgency.ts": {
+    "mtime": 1787358689.9760952,
+    "ast_hash": "33d71a44662ed2bd98a85a1abeaf0d09",
+    "semantic_hash": ""
+  },
+  "src/lib/contrast.test.ts": {
+    "mtime": 1787358279.3957932,
+    "ast_hash": "f80be408e3312295ea5408d7a2a759bc",
+    "semantic_hash": ""
+  },
+  "src/lib/urgencyStyles.ts": {
+    "mtime": 1787358887.3787227,
+    "ast_hash": "a8c594d443809d4d484de11aece94928",
+    "semantic_hash": ""
+  },
+  "specs/065-colores-tareas-pastel/PROMPT-EJECUCION.md": {
+    "mtime": 1787357819.636557,
+    "ast_hash": "363c9cef41336a8b71cbcbd6dad96da3",
+    "semantic_hash": ""
+  },
+  "specs/065-colores-tareas-pastel/design.md": {
+    "mtime": 1787358303.1748989,
+    "ast_hash": "59fc9e9a065838d6b60b810c09c851b3",
+    "semantic_hash": ""
+  },
+  "specs/065-colores-tareas-pastel/spec.md": {
+    "mtime": 1787358356.9003606,
+    "ast_hash": "1523aef950231195bdc86893c45acf14",
+    "semantic_hash": ""
+  },
+  "specs/065-colores-tareas-pastel/tasks.md": {
+    "mtime": 1787357781.9613333,
+    "ast_hash": "669417c5b170b8a9add0bbc4c5413380",
     "semantic_hash": ""
   }
 }
