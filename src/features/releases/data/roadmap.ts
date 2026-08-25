@@ -8,8 +8,9 @@ import type { RoadmapHorizon, RoadmapItem } from "../types";
  * - Spec 052 export informe estado (export-status-pack)
  * - Spec 053 timeline/calendario (timeline-calendar)
  * - Spec 054 kanban móvil táctil (mobile-kanban)
- * - ROADMAP_BLOG.md (clusters 2–5 pendientes)
+ * - ROADMAP_BLOG.md (clusters 1–5 + mini-cluster MCP completos)
  * - Spec 017 HU-15 (tendencias de dashboard — no está en código)
+ * - Spec 057 GitHub App sync (github-app-sync)
  * - Follow-ups naturales de 042 (anexos) y del producto local-first
  *
  * «Ahora» = en curso o siguiente tanda realista.
@@ -27,7 +28,7 @@ export const ROADMAP: RoadmapItem[] = [
     description:
       "Sprint planning que se cumple, daily que no sea pérdida de tiempo, retrospectivas con 5 formatos y Waterfall vs Agile — los 4 satélites que faltan del cluster 2 (ROADMAP_BLOG).",
     horizon: "now",
-    status: "in_progress",
+    status: "shipped",
     area: "Contenido",
   },
   {
@@ -83,7 +84,7 @@ export const ROADMAP: RoadmapItem[] = [
     description:
       "Cómo gestionar varios proyectos a la vez, qué hacer si vas atrasado, delegar sin ser cuello de botella, cerrar proyectos y bajar el WIP del equipo.",
     horizon: "next",
-    status: "planned",
+    status: "shipped",
     area: "Contenido",
   },
   {
@@ -130,8 +131,17 @@ export const ROADMAP: RoadmapItem[] = [
     description:
       "Clusters 4 y 5 del blog: plantilla de plan, charter, informe semanal, y guías para freelancers y agencias — el contenido que se busca y se guarda.",
     horizon: "later",
-    status: "planned",
+    status: "shipped",
     area: "Contenido",
+  },
+  {
+    id: "github-app-sync",
+    title: "Proyectos sincronizados con GitHub",
+    description:
+      "GitHub App (OAuth + instalación) para vincular proyectos a un repositorio y sincronizarlos como JSON en `.hito/` en ambos sentidos, con niveles de sync y detección de conflictos — spec 057.",
+    horizon: "later",
+    status: "planned",
+    area: "Integraciones",
   },
   {
     id: "inbox-signature-verify",

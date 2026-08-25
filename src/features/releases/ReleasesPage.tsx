@@ -97,7 +97,7 @@ export function ReleasesPage() {
           </h1>
           <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
             Un mapa honesto del producto: lo que ya está en producción (anclado
-            a las specs 001–042), lo que viene en el roadmap, y el historial
+            a las specs 001–067), lo que viene en el roadmap, y el historial
             release a release. Sin humo retroactivo.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">

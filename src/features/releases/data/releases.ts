@@ -4,7 +4,7 @@ import type { ReleaseEntry } from "../types";
  * Historial público de releases (más reciente primero).
  *
  * Fuente de verdad cruzada:
- * - Specs 001-042 (specs/.../spec.md y tasks)
+ * - Specs 001-067 (specs/.../spec.md y tasks)
  * - Codigo en src/ (rutas, schemas, features)
  * - Commits de producto
  *
@@ -12,6 +12,170 @@ import type { ReleaseEntry } from "../types";
  * No inventar features que no esten en el codigo.
  */
 export const RELEASES: ReleaseEntry[] = [
+  {
+    id: "2026-08-dashboard-legible",
+    version: "2026.08",
+    date: "2026-08-25",
+    title: "Un dashboard que se lee de un vistazo",
+    summary:
+      "Specs 066 y 067: avance dual ponderado, tiles de atención, «ver N más» in situ y barras comparativas de trabajo restante en el ranking y la carga.",
+    changes: [
+      {
+        kind: "feature",
+        text: "Hero de avance dual: completadas vs. restante ponderado por estimación, en el dashboard, el informe y las tools de IA.",
+      },
+      {
+        kind: "feature",
+        text: "Ranking de proyectos con barras comparativas sobre un eje compartido: se ve de un vistazo quién concentra el trabajo restante.",
+      },
+      {
+        kind: "feature",
+        text: "Card de carga con la misma gramática visual y ExpandableList con «ver N más» in situ en todas las listas largas.",
+      },
+      {
+        kind: "improvement",
+        text: "Tiles de atención con vencidos desanidados, frase de salud, composición del portafolio y mini-barra por producto.",
+      },
+    ],
+  },
+  {
+    id: "2026-08-blog-gsc",
+    version: "2026.08",
+    date: "2026-08-24",
+    title: "El blog, guiado por datos de Search Console",
+    summary:
+      "Spec 058: parche SEO de posts existentes con export real de GSC, clusters 4 y 5 cerrados y un mini-cluster MCP para la demanda detectada.",
+    changes: [
+      {
+        kind: "improvement",
+        text: "Parche SEO (lotes 1–2) sobre artículos existentes, priorizado por impresiones y posición real de búsqueda.",
+      },
+      {
+        kind: "feature",
+        text: "12 artículos nuevos: cluster de plantillas completo (8 plantillas descargables) y guías para freelancers y agencias.",
+      },
+      {
+        kind: "feature",
+        text: "Mini-cluster MCP cerrado: qué es, cómo funciona paso a paso y MCP vs. function calling vs. RAG.",
+      },
+    ],
+  },
+  {
+    id: "2026-08-tareas-color-y-drilldown",
+    version: "2026.08",
+    date: "2026-08-21",
+    title: "Tareas que se escanean, dashboard que se cruza",
+    summary:
+      "Specs 063–065: drill-down del dashboard a listas filtradas, drawer de tarea rediseñado y color de urgencia en pastel con contraste AA.",
+    changes: [
+      {
+        kind: "feature",
+        text: "Drill-down real: cada tile, fila y vencido del dashboard abre la lista filtrada que promete, con la URL como fuente de verdad.",
+      },
+      {
+        kind: "feature",
+        text: "Drawer de tarea rediseñado: jerarquía clara, tema oscuro cuidado y todo el contexto a un toque.",
+      },
+      {
+        kind: "feature",
+        text: "Escala de urgencia (prioridad + vencimiento) como franja de color pastel consistente en Kanban, Mis tareas, Daily, calendario y timeline.",
+      },
+      {
+        kind: "improvement",
+        text: "Badges neutros para prioridad y tipo de trabajo: un hecho, una señal — sin colores que griten.",
+      },
+      {
+        kind: "improvement",
+        text: "Familia de tokens suaves en todo el sistema de diseño, verificado con test de contraste AA.",
+      },
+    ],
+  },
+  {
+    id: "2026-08-asistente-medido",
+    version: "2026.08",
+    date: "2026-08-20",
+    title: "Asistente que gasta menos, tareas con tipo",
+    summary:
+      "Specs 060–062: auditoría de tokens por turno con recortes RAG-aware, Mis tareas con filtros y vistas, y tipos de trabajo (historia, spike, key result, bug…).",
+    changes: [
+      {
+        kind: "feature",
+        text: "Chip de consumo (tokens y requests) por turno del asistente y card de uso acumulado en Configuración.",
+      },
+      {
+        kind: "improvement",
+        text: "Menos tokens por pedido: índice recortado al foco, tools compactadas en el historial y caché LRU de embeddings.",
+      },
+      {
+        kind: "improvement",
+        text: "RAG fresco recorta el índice; si está desactualizado no embebe de nuevo — menos requests contra la cuota diaria.",
+      },
+      {
+        kind: "feature",
+        text: "Mis tareas de verdad: ocultar hechas, filtros de triaje y vistas por prioridad o proyecto, todo en la URL.",
+      },
+      {
+        kind: "feature",
+        text: "Tipos de trabajo en cada tarea (historia, enabler, spike, key result, bug, PRD), con badge, filtro y progreso medible para key results.",
+      },
+    ],
+  },
+  {
+    id: "2026-08-blog-lectura",
+    version: "2026.08",
+    date: "2026-08-17",
+    title: "Artículos que se leen bien (y se ven bien)",
+    summary:
+      "Spec 059: experiencia de lectura del blog con jerarquía tipográfica, TOC responsiva y verificación visual en light/dark y 4 breakpoints.",
+    changes: [
+      {
+        kind: "improvement",
+        text: "Tipografía y ritmo del artículo repensados para leer largo sin cansarse.",
+      },
+      {
+        kind: "feature",
+        text: "Tabla de contenidos responsiva que acompaña la lectura en desktop y móvil.",
+      },
+      {
+        kind: "fix",
+        text: "Corrección del bug de fechas de publicación y header del artículo unificado con SeoArticle.",
+      },
+    ],
+  },
+  {
+    id: "2026-08-flujos-tiempo-export",
+    version: "2026.08",
+    date: "2026-08-12",
+    title: "Flujos maduros, informes exportables y el tiempo a la vista",
+    summary:
+      "Specs 051–056: trigger programado con catch-up, guardas por salida, webhooks con método y headers propios, informe Markdown/PDF, calendario + timeline y Kanban táctil.",
+    changes: [
+      {
+        kind: "feature",
+        text: "Flujos que corren solos: cadencias nombradas (cada día / cada semana a las 9:00) con catch-up al reabrir Hito — spec 051.",
+      },
+      {
+        kind: "feature",
+        text: "Guardas por salida: cada output corre solo si su condición pasa, sin clonar el flujo — spec 055.",
+      },
+      {
+        kind: "feature",
+        text: "Webhook saliente con método HTTP (PUT/PATCH…) y headers custom interpolables — spec 056.",
+      },
+      {
+        kind: "feature",
+        text: "Informe de estado de proyecto o portafolio exportable a Markdown y PDF, generado en el cliente — spec 052.",
+      },
+      {
+        kind: "feature",
+        text: "Vista calendario y línea de tiempo para ver vencimientos y sprints en un eje temporal — spec 053.",
+      },
+      {
+        kind: "improvement",
+        text: "Kanban usable en el teléfono: revisar, comentar y mover tareas con el pulgar — spec 054.",
+      },
+    ],
+  },
   {
     id: "2026-08-chat-context",
     version: "2026.08",
@@ -36,6 +200,32 @@ export const RELEASES: ReleaseEntry[] = [
       { kind: "improvement", text: "Al cambiar la clave activa, se conservan el modelo y el grupo de respaldo que configuraste." },
       { kind: "fix", text: "Mensajes claros cuando no has elegido un modelo y protección ante argumentos inválidos en las herramientas." },
       { kind: "fix", text: "Mejor manejo de cancelaciones, rondas excedidas y llamadas incompletas durante la respuesta." },
+    ],
+  },
+  {
+    id: "2026-08-tareas-ricas-proveedores",
+    version: "2026.08",
+    date: "2026-08-11",
+    title: "Tareas con contexto y el IA que vos elijas",
+    summary:
+      "Specs 043–047: links clickeables en tareas, descripciones con Markdown y toolbar, sidebar que scrollea y se minimiza, y proveedores de IA intercambiables.",
+    changes: [
+      {
+        kind: "feature",
+        text: "Links como botones en cada tarea: Figma, Jira, Notion o el PR — a un toque y en pestaña nueva (spec 043).",
+      },
+      {
+        kind: "feature",
+        text: "Descripciones con formato: toolbar Markdown, modo Ver por defecto y enlaces que se abren bien (specs 044–045).",
+      },
+      {
+        kind: "feature",
+        text: "Sidebar con scroll propio y modo minimizado a rail de íconos para ganar foco (spec 046).",
+      },
+      {
+        kind: "feature",
+        text: "Asistente desacoplado de Gemini: proveedores intercambiables compatibles con OpenAI — OpenCode Zen, Z.ai, NVIDIA NIM y más (spec 047).",
+      },
     ],
   },
   // ── 2026.08 ──────────────────────────────────────────────────────────
