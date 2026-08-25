@@ -925,8 +925,8 @@
     "semantic_hash": ""
   },
   "src/features/dashboard/DashboardPage.tsx": {
-    "mtime": 1787629876.634959,
-    "ast_hash": "ddb1a3febab1af3f9aa003040fce900e",
+    "mtime": 1787633500.4102986,
+    "ast_hash": "730129c2ec59bb5c5fa1809395422171",
     "semantic_hash": ""
   },
   "src/features/dashboard/portfolio.ts": {
@@ -4445,13 +4445,48 @@
     "semantic_hash": ""
   },
   "specs/066-dashboard-avance-legible/spec.md": {
-    "mtime": 1787627330.7783103,
-    "ast_hash": "c2be3ec402eaf0bc49b0ed479caa44e9",
+    "mtime": 1787630065.3514972,
+    "ast_hash": "f5bfc726999988cb9192e4c7add23443",
     "semantic_hash": ""
   },
   "specs/066-dashboard-avance-legible/tasks.md": {
-    "mtime": 1787627493.4209983,
-    "ast_hash": "9edd69d15a542ba7d4ed928f22bf3f3e",
+    "mtime": 1787630070.4399488,
+    "ast_hash": "bce916381e79f372dd2d2340992dc25d",
+    "semantic_hash": ""
+  },
+  "src/components/MagnitudeBar.test.ts": {
+    "mtime": 1787633462.952247,
+    "ast_hash": "e4b9014f95098425a060bf1e978d1fa1",
+    "semantic_hash": ""
+  },
+  "src/components/MagnitudeBar.tsx": {
+    "mtime": 1787633500.3364244,
+    "ast_hash": "8d7be0aa911a6775cd93e1dae4571c43",
+    "semantic_hash": ""
+  },
+  "specs/067-dashboard-barras-comparativas/PROMPT-EJECUCION.md": {
+    "mtime": 1787632523.8285584,
+    "ast_hash": "dc4a71db8e35f3877bf38cdd931862ec",
+    "semantic_hash": ""
+  },
+  "specs/067-dashboard-barras-comparativas/design.md": {
+    "mtime": 1787632491.3304646,
+    "ast_hash": "8ad804536abaf8a21cfbaa15052b367d",
+    "semantic_hash": ""
+  },
+  "specs/067-dashboard-barras-comparativas/smoke.md": {
+    "mtime": 1787632523.827559,
+    "ast_hash": "1ac42f2edbe224e1fa76f4307c2015a2",
+    "semantic_hash": ""
+  },
+  "specs/067-dashboard-barras-comparativas/spec.md": {
+    "mtime": 1787633566.011363,
+    "ast_hash": "ade5978f6990ecfe48aa6709fbb88dc7",
+    "semantic_hash": ""
+  },
+  "specs/067-dashboard-barras-comparativas/tasks.md": {
+    "mtime": 1787633566.0193956,
+    "ast_hash": "9da9862e693803ea6d9e18f76a67e9d5",
     "semantic_hash": ""
   }
 }

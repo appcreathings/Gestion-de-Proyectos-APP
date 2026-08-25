@@ -21,6 +21,7 @@ import { HierarchyLegend } from "@/components/HierarchyLegend";
 import { ScrollToHash } from "@/components/ScrollToHash";
 import { HealthBadge, HealthDot, healthColorClass } from "@/components/HealthBadge";
 import { ExpandableList } from "@/components/ExpandableList";
+import { MagnitudeBar } from "@/components/MagnitudeBar";
 import { ProgressRow } from "@/components/ProgressRow";
 import { useDataStore } from "@/store/useDataStore";
 import { useAppStore } from "@/store/useAppStore";
@@ -183,7 +184,7 @@ export function DashboardPage() {
         )}
       </Panel>
 
-      <Panel label="Proyectos" title="Avance por proyecto" className="mt-6">
+      <Panel label="Proyectos" title="Qué falta por proyecto" className="mt-6">
         <RankingCard rows={stats.projectRows} />
       </Panel>
 
@@ -207,48 +208,48 @@ export function DashboardPage() {
   );
 }
 
-/* ---- Ranking por proyecto (spec 066 HU-03) ---- */
+/* ---- Ranking por proyecto (spec 067 HU-01) ---- */
 function RankingCard({ rows }: { rows: ProjectRankingRow[] }) {
   if (rows.length === 0) {
     return <p className="text-sm text-muted-foreground">No hay proyectos abiertos.</p>;
   }
+  const maxRemaining = Math.max(0, ...rows.map((r) => r.remainingWork));
   return (
     <ExpandableList
       items={rows}
       getKey={(row) => row.id}
       renderItem={(row) => (
-        <Link
-          to={ROUTES.project(row.id)}
-          className={cn(ROW_LINK_CLASS, "flex-col items-stretch sm:flex-row sm:items-center")}
-        >
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+        <Link to={ROUTES.project(row.id)} className={cn(ROW_LINK_CLASS, "flex-col items-stretch")}>
+          <div className="flex min-w-0 items-center gap-3">
             <HealthDot health={row.health} />
             <span className="min-w-0 flex-1 truncate text-sm">{row.name}</span>
+            <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+              {row.remainingWork === 1 ? "1 restante" : `${row.remainingWork} restantes`}
+            </span>
           </div>
-          <div className="flex w-full shrink-0 flex-col gap-1 sm:w-36">
-            {row.checklist.total > 0 && (
-              <div
-                className="flex items-center gap-2"
-                title={`Checklists ${row.checklist.done}/${row.checklist.total}`}
-              >
-                <Progress value={row.checklist.pct} className="h-1.5" />
-                <span className="min-w-[2.25rem] text-right font-mono text-[10px] tabular-nums text-muted-foreground">
-                  {row.checklist.pct}%
-                </span>
-              </div>
-            )}
-            {row.tasks.total > 0 && (
-              <div
-                className="flex items-center gap-2"
-                title={`Tareas ${row.tasks.done}/${row.tasks.total}`}
-              >
-                <Progress value={row.tasks.pct} className="h-1.5" indicatorClassName="bg-success" />
-                <span className="min-w-[2.25rem] text-right font-mono text-[10px] tabular-nums text-muted-foreground">
-                  {row.tasks.pct}%
-                </span>
-              </div>
-            )}
-          </div>
+          {(row.checklist.total > 0 || row.tasks.total > 0) && (
+            <div className="mt-1.5 flex w-full flex-col gap-1">
+              {row.checklist.total > 0 && (
+                <div title={`Checklists ${row.checklist.done}/${row.checklist.total}`}>
+                  <MagnitudeBar
+                    value={row.checklist.total - row.checklist.done}
+                    max={maxRemaining}
+                    label={`${row.checklist.total - row.checklist.done} de checklist restantes de un máximo de ${maxRemaining}`}
+                  />
+                </div>
+              )}
+              {row.tasks.total > 0 && (
+                <div title={`Tareas ${row.tasks.done}/${row.tasks.total}`}>
+                  <MagnitudeBar
+                    value={row.tasks.total - row.tasks.done}
+                    max={maxRemaining}
+                    indicatorClassName="bg-success"
+                    label={`${row.tasks.total - row.tasks.done} tareas restantes de un máximo de ${maxRemaining}`}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </Link>
       )}
     />
@@ -598,9 +599,11 @@ function WorkloadCard({
         items={workload}
         listClassName="space-y-3"
         getKey={(entry) => entry.personId}
-        renderItem={(entry) => (
-          <div>
-            <div className="mb-1.5 flex items-center justify-between text-sm">
+        renderItem={(entry) => {
+          const tareas = entry.taskCount === 1 ? "1 tarea" : `${entry.taskCount} tareas`;
+          const meta = entry.totalEstimate > 0 ? `${tareas} · ${entry.totalEstimate}h` : tareas;
+          return (
+            <div>
               {knownPersonIds.has(entry.personId) ? (
                 <Link
                   to={dashboardHrefs.personTasks(entry.personId)}
@@ -611,18 +614,20 @@ function WorkloadCard({
               ) : (
                 <span className="font-medium">{entry.personName}</span>
               )}
-              <span className="font-mono text-xs text-muted-foreground">
-                {entry.taskCount} tareas · {entry.totalEstimate}h
-              </span>
+              <div className="mt-1.5 flex items-center gap-2">
+                <MagnitudeBar
+                  value={entry.taskCount}
+                  max={maxTasks}
+                  className="min-w-0 flex-1"
+                  label={`${meta} de un máximo de ${maxTasks}`}
+                />
+                <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                  {meta}
+                </span>
+              </div>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${(entry.taskCount / maxTasks) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
+          );
+        }}
       />
     </Panel>
   );
