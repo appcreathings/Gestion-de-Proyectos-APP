@@ -27,8 +27,10 @@ import { useAppStore } from "@/store/useAppStore";
 import { isDemoCleared } from "@/storage/mode";
 import { projectStatusLabel } from "@/domain/labels";
 import { cn } from "@/lib/utils";
+import type { ProgressStat } from "@/domain/compute";
 import {
   computePortfolio,
+  healthSentence,
   type DueRow,
   type ProductRollup,
   type ProjectRankingRow,
@@ -262,7 +264,7 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
         <p className="text-sm text-muted-foreground">No hay proyectos activos.</p>
       ) : (
         <>
-          <div className="mb-6 flex h-2 overflow-hidden rounded-full bg-muted">
+          <div className="mb-4 flex h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
             {HEALTH_ORDER.map((h) =>
               byHealth[h] > 0 ? (
                 <div
@@ -273,6 +275,7 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
               ) : null,
             )}
           </div>
+          <p className="mb-4 text-sm text-foreground">{healthSentence(byHealth)}</p>
           <ul className="space-y-3">
             {HEALTH_ORDER.map((h) => {
               const row = (
@@ -301,6 +304,15 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
 }
 
 /* ---- Distribución por estado ---- */
+const STATUS_COMPOSITION_CLASS: Record<ProjectStatus, string> = {
+  backlog: "bg-muted-foreground/40",
+  active: "bg-primary",
+  paused: "bg-warning",
+  blocked: "bg-destructive",
+  done: "bg-success",
+  archived: "bg-muted-foreground/20",
+};
+
 function StatusCard({
   byStatus,
   total,
@@ -314,36 +326,66 @@ function StatusCard({
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">Sin proyectos activos.</p>
       ) : (
-        <ul className="space-y-4">
-          {rows.map((s) => (
-            <li key={s}>
-              <Link
-                to={dashboardHrefs.byStatus(s)}
-                className="block rounded-md px-1 transition-colors hover:bg-accent"
-              >
-                <div className="mb-1.5 flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{projectStatusLabel[s]}</span>
-                  <span className="font-mono text-sm font-semibold">{byStatus[s]}</span>
-                </div>
-                <Progress value={total === 0 ? 0 : (byStatus[s] / total) * 100} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div
+            className="mb-4 flex h-2 overflow-hidden rounded-full bg-muted"
+            role="img"
+            aria-label={
+              rows.map((s) => `${byStatus[s]} ${projectStatusLabel[s]}`).join(", ") +
+              ` de ${total}`
+            }
+          >
+            {rows.map((s) => (
+              <div
+                key={s}
+                className={STATUS_COMPOSITION_CLASS[s]}
+                style={{ width: `${total === 0 ? 0 : (byStatus[s] / total) * 100}%` }}
+              />
+            ))}
+          </div>
+          <ul className="space-y-4">
+            {rows.map((s) => (
+              <li key={s}>
+                <Link
+                  to={dashboardHrefs.byStatus(s)}
+                  className="block rounded-md px-1 transition-colors hover:bg-accent"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{projectStatusLabel[s]}</span>
+                    <span className="font-mono text-sm font-semibold">
+                      {byStatus[s]} de {total}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </Panel>
   );
 }
 
 /* ---- Salud por producto ---- */
+function productBarMetric(r: ProductRollup): ProgressStat | null {
+  if (r.checklistProgress.total > 0) return r.checklistProgress;
+  if (r.taskProgress.total > 0) return r.taskProgress;
+  return null;
+}
+
 function ProductCard({ rollups }: { rollups: ProductRollup[] }) {
   return (
     <Panel label="Producto" title="Por producto">
       {rollups.length === 0 ? (
         <p className="text-sm text-muted-foreground">No hay proyectos activos.</p>
       ) : (
-        <ul className="space-y-2">
-          {rollups.map((r) => {
+        <ExpandableList
+          items={rollups}
+          listClassName="space-y-2"
+          getKey={(r) => r.id ?? "none"}
+          renderItem={(r) => {
+            const metric = productBarMetric(r);
+            const metricIsTasks = metric !== null && r.checklistProgress.total === 0;
             const row = (
               <>
                 <div className="min-w-0 flex-1">
@@ -351,6 +393,22 @@ function ProductCard({ rollups }: { rollups: ProductRollup[] }) {
                   <p className="text-xs text-muted-foreground">
                     {r.total} proyecto{r.total === 1 ? "" : "s"}
                   </p>
+                  {metric && (
+                    <div
+                      className="mt-1.5"
+                      title={
+                        metricIsTasks
+                          ? `Tareas ${metric.done}/${metric.total}`
+                          : `Checklists ${metric.done}/${metric.total}`
+                      }
+                    >
+                      <Progress
+                        value={metric.pct}
+                        className="h-1.5"
+                        indicatorClassName={metricIsTasks ? "bg-success" : undefined}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {HEALTH_ORDER.map((h) =>
@@ -364,19 +422,15 @@ function ProductCard({ rollups }: { rollups: ProductRollup[] }) {
                 </div>
               </>
             );
-            return (
-              <li key={r.id ?? "none"}>
-                {r.id === null ? (
-                  <div className={ROW_CLASS}>{row}</div>
-                ) : (
-                  <Link to={dashboardHrefs.byProduct(r.id)} className={ROW_LINK_CLASS}>
-                    {row}
-                  </Link>
-                )}
-              </li>
+            return r.id === null ? (
+              <div className={ROW_CLASS}>{row}</div>
+            ) : (
+              <Link to={dashboardHrefs.byProduct(r.id)} className={ROW_LINK_CLASS}>
+                {row}
+              </Link>
             );
-          })}
-        </ul>
+          }}
+        />
       )}
     </Panel>
   );
