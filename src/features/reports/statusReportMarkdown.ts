@@ -130,7 +130,14 @@ function portfolioMarkdown(r: PortfolioStatusReport): string {
   lines.push("## Cifras");
   lines.push(`- **Proyectos (total):** ${r.totals.projects}`);
   lines.push(`- **Abiertos:** ${r.totals.open}`);
-  lines.push(`- **Avance medio:** ${r.totals.avgProgress}%`);
+  if (r.totals.checklist.total > 0) {
+    const c = r.totals.checklist;
+    lines.push(`- **Avance de checklists:** ${c.done}/${c.total} · ${c.pct}%`);
+  }
+  if (r.totals.tasks.total > 0) {
+    const t = r.totals.tasks;
+    lines.push(`- **Tareas completadas:** ${t.done}/${t.total} · ${t.pct}%`);
+  }
   lines.push("");
 
   lines.push("## Salud y estado");
@@ -155,7 +162,7 @@ function portfolioMarkdown(r: PortfolioStatusReport): string {
   } else {
     lines.push(
       table(
-        ["Producto", "Proyectos", "Avance medio", "Salud"],
+        ["Producto", "Proyectos", "Avance", "Salud"],
         r.byProduct.map((p) => [
           p.name,
           String(p.total),
