@@ -51,6 +51,19 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "gestionar-proyectos-con-clientes": () => import("./gestionar-proyectos-con-clientes"),
   "como-funciona-mcp-paso-a-paso": () => import("./como-funciona-mcp-paso-a-paso"),
   "mcp-vs-function-calling-vs-rag": () => import("./mcp-vs-function-calling-vs-rag"),
+  "plantillas-gestion-proyectos": () => import("./plantillas-gestion-proyectos"),
+  "plantilla-plan-de-proyecto": () => import("./plantilla-plan-de-proyecto"),
+  "acta-constitucion-proyecto": () => import("./acta-constitucion-proyecto"),
+  "informe-de-estado-semanal": () => import("./informe-de-estado-semanal"),
+  "gestion-proyectos-excel": () => import("./gestion-proyectos-excel"),
+  "herramientas-gestion-proyectos-gratis": () =>
+    import("./herramientas-gestion-proyectos-gratis"),
+  "kickoff-de-proyecto": () => import("./kickoff-de-proyecto"),
+  "wbs-estructura-desglose-trabajo": () => import("./wbs-estructura-desglose-trabajo"),
+  "plantilla-cronograma-proyecto": () => import("./plantilla-cronograma-proyecto"),
+  "gestion-proyectos-freelancers": () => import("./gestion-proyectos-freelancers"),
+  "gestion-proyectos-agencias": () => import("./gestion-proyectos-agencias"),
+  "servidores-mcp-para-que-sirven": () => import("./servidores-mcp-para-que-sirven"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

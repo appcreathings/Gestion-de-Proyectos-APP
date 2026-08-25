@@ -14,7 +14,7 @@ export const article: BlogArticle = {
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "que-es-mcp",
-  related: ["que-es-mcp", "mcp-vs-function-calling-vs-rag", "rag-local-explicado"],
+  related: ["que-es-mcp", "mcp-vs-function-calling-vs-rag", "servidores-mcp-para-que-sirven"],
   seo: {
     title: "MCP paso a paso: sesión e Introducing MCP | Hito",
     description:

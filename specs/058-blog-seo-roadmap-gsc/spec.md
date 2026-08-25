@@ -2,7 +2,7 @@
 
 ## Progreso
 
-- **Estado general: 🟨 EN CURSO.** Nace de un export de Google Search Console (últimos 3 meses,
+- **Estado general: 🟩 IMPLEMENTADO (2026-08-24).** Nace de un export de Google Search Console (últimos 3 meses,
   búsqueda Web) aportado por el usuario: 6 CSV (Consultas, Páginas, Países, Dispositivos, Gráfico,
   Aparición en búsquedas). El sitio tiene tráfico real (1.886 impresiones/3 meses, 6 clics, CTR
   ~0.32%) pero la mayoría de páginas rankean en posición 30-90, fuera de los 3 primeros resultados
@@ -38,15 +38,36 @@ Parche Track A restante + inicio del mini-cluster MCP. Tuteo neutro; voseo resid
 | **nuevo** `mcp-vs-function-calling-vs-rag` | Satélite de `que-es-mcp`. Comparativa a fondo + tabla. Cross-link con `rag-local-explicado`. `publishedAt`: 2027-04-05. |
 | `que-es-mcp` (related) | `related` ahora apunta a los 2 satélites + `rag-local-explicado`. Links nuevos en el cuerpo a ambos satélites. |
 
-### Pendiente (no va en este commit)
+### Lote 3 — 🟩 hecho (Cluster 4 + 3 plantillas extra)
 
-Track A (mejora de posts existentes) quedó cerrado en Lotes 1–2. Falta Track B
-completo y el satélite de cierre de MCP. **Siguiente paso: Lote 3.**
+Seis artículos del Cluster 4 original más tres satélites extra (`kickoff-de-proyecto`,
+`wbs-estructura-desglose-trabajo`, `plantilla-cronograma-proyecto`) para cubrir las 8
+plantillas que el pilar promete. Category `plantillas`. Comparativas existentes enlazadas
+al pilar vía `related`.
 
-| Lote | Estado | Qué falta |
-|---|---|---|
-| **3** | ⬜ | Cluster 4 de `ROADMAP_BLOG.md`: 6 artículos **nuevos** — pilar `plantillas-gestion-proyectos` + satélites `plantilla-plan-de-proyecto`, `acta-constitucion-proyecto`, `informe-de-estado-semanal`, `gestion-proyectos-excel`, `herramientas-gestion-proyectos-gratis`. Patrón B (3 archivos). Category `plantillas`. Enlazar satélites existentes del Cluster 4 (`hito-vs-trello`, `alternativas-a-notion`, `migrar-trello-a-hito`, `hito-vs-clickup`, `hito-para-estudio-juridico`) hacia el pilar. Marcar Cluster 4 🟩 en `ROADMAP_BLOG.md`. Cadencia: siguiente lunes después de `2027-04-05` → empezar en `2027-04-12`. |
-| **4** | ⬜ | Cluster 5 (2 nuevos, sin pilar propio): `gestion-proyectos-freelancers`, `gestion-proyectos-agencias`. Cierre MCP: `servidores-mcp-para-que-sirven` (pillar `que-es-mcp`, related a los 2 satélites del Lote 2, casos de uso no técnicos). Marcar Cluster 5 🟩. Cerrar este spec como IMPLEMENTADO (10 mejoras + 11 artículos nuevos). |
+| Slug | `publishedAt` |
+|---|---|
+| `plantillas-gestion-proyectos` (pilar, featured) | 2027-04-12 |
+| `plantilla-plan-de-proyecto` | 2027-04-19 |
+| `acta-constitucion-proyecto` | 2027-04-26 |
+| `informe-de-estado-semanal` | 2027-05-03 |
+| `gestion-proyectos-excel` | 2027-05-10 |
+| `herramientas-gestion-proyectos-gratis` | 2027-05-17 |
+| `kickoff-de-proyecto` | 2027-05-24 |
+| `wbs-estructura-desglose-trabajo` | 2027-05-31 |
+| `plantilla-cronograma-proyecto` | 2027-06-07 |
+
+### Lote 4 — 🟩 hecho (Cluster 5 + cierre MCP)
+
+| Slug | `publishedAt` |
+|---|---|
+| `gestion-proyectos-freelancers` | 2027-06-14 |
+| `gestion-proyectos-agencias` | 2027-06-21 |
+| `servidores-mcp-para-que-sirven` | 2027-06-28 |
+
+`que-es-mcp` queda como pilar de facto del mini-cluster MCP (3 satélites en `related`).
+Cluster 4 y 5 marcados 🟩 en `ROADMAP_BLOG.md`. Total del spec: 10 mejoras + 14 artículos
+nuevos (11 del plan original + 3 plantillas extra).
 
 Al retomar: el prompt autocontenido de cada lote está más abajo en «Prompts de ejecución».
 Estilo: español latino neutro, tuteo (tú), sin voseo ni marcas de España. Gates del Lote 3/4:

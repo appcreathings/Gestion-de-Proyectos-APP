@@ -14,7 +14,7 @@ export const article: BlogArticle = {
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "que-es-mcp",
-  related: ["que-es-mcp", "como-funciona-mcp-paso-a-paso", "rag-local-explicado"],
+  related: ["que-es-mcp", "como-funciona-mcp-paso-a-paso", "servidores-mcp-para-que-sirven"],
   seo: {
     title: "MCP vs function calling vs RAG: cuándo usar cada uno | Hito",
     description:

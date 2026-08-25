@@ -14,6 +14,7 @@ export const article: BlogArticle = {
   related: [
     "como-funciona-mcp-paso-a-paso",
     "mcp-vs-function-calling-vs-rag",
+    "servidores-mcp-para-que-sirven",
     "rag-local-explicado",
   ],
   seo: {
@@ -205,6 +206,14 @@ export const article: BlogArticle = {
                 className="underline underline-offset-2"
               >
                 cómo funciona MCP paso a paso
+              </Link>
+              . Los casos de uso no técnicos —para qué sirve un servidor, qué es un
+              mcp-handler— están en{" "}
+              <Link
+                to="/blogs/servidores-mcp-para-que-sirven"
+                className="underline underline-offset-2"
+              >
+                servidores MCP: para qué sirven
               </Link>
               .
             </p>

@@ -143,6 +143,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-12",
     readingTime: "9 min",
     featured: false,
+    related: [
+      "plantillas-gestion-proyectos",
+      "herramientas-gestion-proyectos-gratis",
+      "migrar-trello-a-hito",
+    ],
     seo: {
       title: "Hito vs Trello: cuál elegir en 2026 — Comparativa honesta",
       description:
@@ -160,6 +165,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-13",
     readingTime: "10 min",
     featured: false,
+    related: [
+      "plantillas-gestion-proyectos",
+      "herramientas-gestion-proyectos-gratis",
+      "hito-vs-clickup",
+    ],
     seo: {
       title: "Las 7 mejores alternativas a Notion en 2026 — Comparativa honesta",
       description:
@@ -177,6 +187,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-15",
     readingTime: "9 min",
     featured: false,
+    related: ["hito-vs-trello", "plantillas-gestion-proyectos", "herramientas-gestion-proyectos-gratis"],
     seo: {
       title: "Cómo migrar de Trello a Hito (guía honesta, paso a paso) — Hito",
       description:
@@ -197,6 +208,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     related: [
       "como-funciona-mcp-paso-a-paso",
       "mcp-vs-function-calling-vs-rag",
+      "servidores-mcp-para-que-sirven",
       "rag-local-explicado",
     ],
     seo: {
@@ -250,6 +262,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-31",
     readingTime: "14 min",
     featured: false,
+    related: [
+      "plantillas-gestion-proyectos",
+      "herramientas-gestion-proyectos-gratis",
+      "hito-vs-trello",
+    ],
     seo: {
       title: "Hito vs ClickUp: comparativa honesta (2026) | Hito",
       description:
@@ -320,6 +337,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-10-05",
     readingTime: "11 min",
     featured: false,
+    related: ["gestion-proyectos-agencias", "plantillas-gestion-proyectos"],
     seo: {
       title: "Cómo configurar Hito para un estudio jurídico | Hito",
       description:
@@ -408,7 +426,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "8 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+    related: [
+      "como-estimar-tiempos-proyecto",
+      "alcance-de-proyecto-scope-creep",
+      "plantillas-gestion-proyectos",
+    ],
     seo: {
       title: "Matriz RACI: qué es, ejemplo y diferencia con RASCI | Hito",
       description:
@@ -742,7 +764,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "gestionar-varios-proyectos-a-la-vez",
       "daily-standup-util",
       "seguimiento-de-tareas-equipo",
-      "reducir-trabajo-en-curso",
+      "informe-de-estado-semanal",
     ],
     seo: {
       title: "Reemplazar reuniones de status por un tablero | Hito",
@@ -837,7 +859,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     related: [
       "fases-de-un-proyecto",
       "retrospectivas-formatos",
-      "gestion-de-proyectos-guia-completa",
+      "plantillas-gestion-proyectos",
       "gestion-de-riesgos-simple",
     ],
     seo: {
@@ -882,7 +904,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "que-es-mcp",
-    related: ["que-es-mcp", "mcp-vs-function-calling-vs-rag", "rag-local-explicado"],
+    related: [
+      "que-es-mcp",
+      "mcp-vs-function-calling-vs-rag",
+      "servidores-mcp-para-que-sirven",
+    ],
     seo: {
       title: "MCP paso a paso: sesión e Introducing MCP | Hito",
       description:
@@ -901,12 +927,289 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "11 min",
     featured: false,
     pillar: "que-es-mcp",
-    related: ["que-es-mcp", "como-funciona-mcp-paso-a-paso", "rag-local-explicado"],
+    related: [
+      "que-es-mcp",
+      "como-funciona-mcp-paso-a-paso",
+      "servidores-mcp-para-que-sirven",
+    ],
     seo: {
       title: "MCP vs function calling vs RAG: cuándo usar cada uno | Hito",
       description:
         "MCP vs function calling vs RAG: qué problema resuelve cada uno, cómo se combinan y cuándo no necesitas los tres. Con tabla y ejemplo.",
       ogImageAlt: "MCP vs function calling vs RAG: tres capas, no tres alternativas.",
+    },
+  },
+  {
+    slug: "plantillas-gestion-proyectos",
+    title: "Las 8 plantillas de gestión de proyectos que sí se usan",
+    excerpt:
+      "Ocho plantillas que un equipo pequeño realmente llena: plan, acta, informe, RACI, riesgos, kickoff, WBS y cronograma. Cuáles saltarte.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-04-12",
+    readingTime: "12 min",
+    featured: true,
+    related: [
+      "plantilla-plan-de-proyecto",
+      "acta-constitucion-proyecto",
+      "informe-de-estado-semanal",
+      "gestion-proyectos-excel",
+      "herramientas-gestion-proyectos-gratis",
+    ],
+    seo: {
+      title: "8 plantillas de gestión de proyectos que sí se usan | Hito",
+      description:
+        "Ocho plantillas de gestión de proyectos que un equipo pequeño sí llena: plan, acta, WBS, cronograma, RACI, informe, riesgos y cierre. Cuáles saltar.",
+      ogImageAlt:
+        "Ocho plantillas de gestión de proyectos que un equipo pequeño sí llena, y cuáles saltarse.",
+    },
+  },
+  {
+    slug: "plantilla-plan-de-proyecto",
+    title: "Plantilla de plan de proyecto y cómo llenarla",
+    excerpt:
+      "Un plan de proyecto no es un Gantt de 40 páginas. Qué secciones llenar, en qué orden, y un ejemplo corto que cabe en una página.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-04-19",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: [
+      "plantillas-gestion-proyectos",
+      "acta-constitucion-proyecto",
+      "fases-de-un-proyecto",
+    ],
+    seo: {
+      title: "Plantilla de plan de proyecto: cómo llenarla | Hito",
+      description:
+        "Plantilla de plan de proyecto: qué secciones llenar, en qué orden, y un ejemplo de una página. Qué dejar en blanco y cómo se diferencia del acta.",
+      ogImageAlt:
+        "Plantilla de plan de proyecto con las secciones que sí se llenan y un ejemplo de una página.",
+    },
+  },
+  {
+    slug: "acta-constitucion-proyecto",
+    title: "Acta de constitución de proyecto (project charter): plantilla",
+    excerpt:
+      "El project charter autoriza el proyecto y da autoridad a quien lo dirige. Plantilla corta, qué no meter, y cómo se diferencia del plan.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-04-26",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: [
+      "plantillas-gestion-proyectos",
+      "plantilla-plan-de-proyecto",
+      "alcance-de-proyecto-scope-creep",
+    ],
+    seo: {
+      title: "Acta de constitución de proyecto (project charter) | Hito",
+      description:
+        "El acta de constitución de proyecto (project charter) autoriza el trabajo y da autoridad a quien lo dirige. Plantilla de una página y qué no meter.",
+      ogImageAlt:
+        "Acta de constitución de proyecto (project charter): plantilla corta y diferencia con el plan.",
+    },
+  },
+  {
+    slug: "informe-de-estado-semanal",
+    title: "Informe de estado semanal en 5 líneas",
+    excerpt:
+      "Un informe de estado de proyecto no necesita una reunión ni un PowerPoint. Cinco líneas, una vez por semana, y el tablero ya no hace falta explicarlo.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-05-03",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: [
+      "plantillas-gestion-proyectos",
+      "reuniones-de-status-eliminar",
+      "seguimiento-de-tareas-equipo",
+    ],
+    seo: {
+      title: "Informe de estado semanal de proyecto en 5 líneas | Hito",
+      description:
+        "Cómo escribir un informe de estado de proyecto en 5 líneas, una vez por semana, y dejar de usar la reunión de status para repetir el tablero.",
+      ogImageAlt: "Plantilla de informe de estado semanal de proyecto en 5 líneas.",
+    },
+  },
+  {
+    slug: "gestion-proyectos-excel",
+    title: "Gestión de proyectos en Excel: cuándo alcanza y cuándo no",
+    excerpt:
+      "Excel alcanza para un proyecto chico con un dueño. Deja de alcanzar cuando hay dependencias, varias personas actualizando, o el archivo se vuelve la fuente de verdad.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-05-10",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: [
+      "plantillas-gestion-proyectos",
+      "herramientas-gestion-proyectos-gratis",
+      "gestionar-varios-proyectos-a-la-vez",
+    ],
+    seo: {
+      title: "Gestión de proyectos en Excel: cuándo sí y cuándo no | Hito",
+      description:
+        "Gestión de proyectos en Excel: cuándo una hoja alcanza (un dueño, un proyecto) y cuándo falla (versiones, dependencias, WIP, varios editores).",
+      ogImageAlt: "Gestión de proyectos en Excel: cuándo sí alcanza y cuándo ya no.",
+    },
+  },
+  {
+    slug: "herramientas-gestion-proyectos-gratis",
+    title: "Herramientas gratis de gestión de proyectos (con límites reales)",
+    excerpt:
+      "“Gratis” casi nunca es gratis de verdad. Comparativa honesta de herramientas de gestión de proyectos gratis: qué incluye el plan free, dónde te empujan a pagar, y cuándo conviene local-first.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-05-17",
+    readingTime: "11 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: [
+      "plantillas-gestion-proyectos",
+      "hito-vs-trello",
+      "alternativas-a-notion",
+      "hito-vs-clickup",
+    ],
+    seo: {
+      title: "Herramientas gratis de gestión de proyectos | Hito",
+      description:
+        "Herramientas gratis de gestión de proyectos con límites reales: Trello, Asana, ClickUp, Jira, Notion, OpenProject, Excel y local-first.",
+      ogImageAlt:
+        "Comparativa de herramientas gratis de gestión de proyectos y los límites del plan free.",
+    },
+  },
+  {
+    slug: "kickoff-de-proyecto",
+    title: "Kickoff de proyecto: agenda, plantilla y errores",
+    excerpt:
+      "El kickoff no es un discurso de lanzamiento. Es la reunión donde se confirma alcance, roles y la primera semana. Agenda de 45 minutos y plantilla.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-05-24",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: ["plantillas-gestion-proyectos", "acta-constitucion-proyecto", "fases-de-un-proyecto"],
+    seo: {
+      title: "Kickoff de proyecto: agenda y plantilla | Hito",
+      description:
+        "Kickoff de proyecto: agenda de 45 minutos, plantilla y errores. La reunión de kickoff confirma alcance, roles y la primera semana.",
+      ogImageAlt: "Agenda de kickoff de proyecto de 45 minutos, con plantilla.",
+    },
+  },
+  {
+    slug: "wbs-estructura-desglose-trabajo",
+    title: "WBS: estructura de desglose de trabajo, con ejemplo",
+    excerpt:
+      "El WBS parte el proyecto en entregables, no en tareas sueltas. Cómo armarlo en una tarde, hasta qué nivel bajar, y un ejemplo completo.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-05-31",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: [
+      "plantillas-gestion-proyectos",
+      "plantilla-plan-de-proyecto",
+      "alcance-de-proyecto-scope-creep",
+    ],
+    seo: {
+      title: "WBS: estructura de desglose de trabajo con ejemplo | Hito",
+      description:
+        "WBS (estructura de desglose de trabajo): cómo armarlo en una tarde, hasta qué nivel bajar, y un ejemplo completo de 3 niveles.",
+      ogImageAlt: "WBS: estructura de desglose de trabajo con ejemplo de 3 niveles.",
+    },
+  },
+  {
+    slug: "plantilla-cronograma-proyecto",
+    title: "Plantilla de cronograma de proyecto (sin Gantt eterno)",
+    excerpt:
+      "Un cronograma útil cabe en hitos y dependencias, no en 200 barras. Plantilla simple, relación con la ruta crítica, y cuándo un Gantt miente.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-06-07",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "plantillas-gestion-proyectos",
+    related: ["plantillas-gestion-proyectos", "ruta-critica-proyecto", "como-estimar-tiempos-proyecto"],
+    seo: {
+      title: "Plantilla de cronograma de proyecto | Hito",
+      description:
+        "Plantilla de cronograma de proyecto por hitos y dependencias, sin un Gantt de 200 barras. Relación con la ruta crítica y cuándo un Gantt miente.",
+      ogImageAlt: "Plantilla de cronograma de proyecto por hitos, sin Gantt eterno.",
+    },
+  },
+  {
+    slug: "gestion-proyectos-freelancers",
+    title: "Gestión de proyectos para freelancers",
+    excerpt:
+      "Un freelancer no necesita un PMO. Necesita alcance cerrado, un canal con el cliente y un tope de trabajo en curso. El sistema mínimo que evita el caos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-06-14",
+    readingTime: "10 min",
+    featured: false,
+    related: [
+      "gestionar-varios-proyectos-a-la-vez",
+      "gestionar-proyectos-con-clientes",
+      "plantillas-gestion-proyectos",
+      "gestion-de-proyectos-guia-completa",
+    ],
+    seo: {
+      title: "Gestión de proyectos para freelancers | Hito",
+      description:
+        "Gestión de proyectos para freelancers: alcance escrito, un canal con el cliente y un tope de WIP. El sistema mínimo para varios clientes sin caos.",
+      ogImageAlt:
+        "Gestión de proyectos para freelancers: alcance, canal único y tope de WIP.",
+    },
+  },
+  {
+    slug: "gestion-proyectos-agencias",
+    title: "Gestión de proyectos para agencias y estudios",
+    excerpt:
+      "Una agencia no falla por falta de talento: falla por demasiados proyectos abiertos, kickoffs flojos y un solo PM como cuello de botella. Cómo ordenarlo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-06-21",
+    readingTime: "11 min",
+    featured: false,
+    related: [
+      "gestionar-varios-proyectos-a-la-vez",
+      "gestion-proyectos-freelancers",
+      "metodologias-gestion-proyectos",
+      "plantillas-gestion-proyectos",
+    ],
+    seo: {
+      title: "Gestión de proyectos para agencias y estudios | Hito",
+      description:
+        "Gestión de proyectos para agencias y estudios: WIP por disciplina, RACI por cuenta y una vista semanal de portafolio. Cómo ordenar kickoffs y status.",
+      ogImageAlt:
+        "Gestión de proyectos para agencias: WIP por disciplina, RACI y portafolio semanal.",
+    },
+  },
+  {
+    slug: "servidores-mcp-para-que-sirven",
+    title: "Servidores MCP: para qué sirven (sin ser developer)",
+    excerpt:
+      "Un servidor MCP no es un chatbot. Es el adaptador que deja a un asistente de IA leer archivos, APIs o tu tablero con un protocolo común. Casos de uso reales.",
+    category: "inteligencia-artificial",
+    categoryLabel: "Inteligencia artificial",
+    publishedAt: "2027-06-28",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "que-es-mcp",
+    related: ["que-es-mcp", "como-funciona-mcp-paso-a-paso", "mcp-vs-function-calling-vs-rag"],
+    seo: {
+      title: "Servidores MCP: para qué sirven, sin jerga | Hito",
+      description:
+        "Para qué sirven los servidores MCP y qué es un mcp-handler: el adaptador que deja a un asistente leer archivos, APIs o tu tablero, sin ser developer.",
+      ogImageAlt:
+        "Servidores MCP: para qué sirven, casos de uso y qué es un mcp-handler.",
     },
   },
 ];

@@ -1,10 +1,10 @@
-# Roadmap de blog — 32 artículos de gestión de proyectos (spec 040)
+# Roadmap de blog — 35 artículos de gestión de proyectos (spec 040 + 058)
 
 > Nace de una auditoría del blog existente (18 artículos, ver `specs/035-blog-performance-organizacion/`):
 > 14 de 18 hablan de Hito/local-first/privacidad — contenido de fondo de embudo. Falta cobertura de
 > búsquedas informacionales puras de gestión de proyectos, que es el público que después necesita una
-> app como Hito. Este documento planea 32 artículos nuevos en 5 clusters con estructura pilar→satélite,
-> y se tacha a medida que se publica.
+> app como Hito. Este documento planea 32 artículos en 5 clusters con estructura pilar→satélite
+> (más 3 plantillas extra del Cluster 4 en spec 058), y se tacha a medida que se publica.
 
 ## Cómo leer esta tabla
 
@@ -67,16 +67,19 @@
 
 | Estado | Slug | Título | Intención de búsqueda |
 |---|---|---|---|
-| ⬜ | `plantillas-gestion-proyectos` | **PILAR** — Las 8 plantillas de gestión de proyectos que sí se usan | "plantillas gestión de proyectos" |
-| ⬜ | `plantilla-plan-de-proyecto` | Plantilla de plan de proyecto y cómo llenarla | "plantilla plan de proyecto" |
-| ⬜ | `acta-constitucion-proyecto` | Acta de constitución (project charter): plantilla | "acta de constitución de proyecto", "project charter" |
-| ⬜ | `informe-de-estado-semanal` | Informe de estado semanal en 5 líneas | "informe de estado de proyecto" |
-| ⬜ | `gestion-proyectos-excel` | Gestión de proyectos en Excel: cuándo alcanza y cuándo no | "gestión de proyectos excel" |
-| ⬜ | `herramientas-gestion-proyectos-gratis` | Herramientas gratis de gestión de proyectos | "herramientas gratis gestión de proyectos" |
+| 🟩 | `plantillas-gestion-proyectos` | **PILAR** — Las 8 plantillas de gestión de proyectos que sí se usan | "plantillas gestión de proyectos" |
+| 🟩 | `plantilla-plan-de-proyecto` | Plantilla de plan de proyecto y cómo llenarla | "plantilla plan de proyecto" |
+| 🟩 | `acta-constitucion-proyecto` | Acta de constitución (project charter): plantilla | "acta de constitución de proyecto", "project charter" |
+| 🟩 | `informe-de-estado-semanal` | Informe de estado semanal en 5 líneas | "informe de estado de proyecto" |
+| 🟩 | `gestion-proyectos-excel` | Gestión de proyectos en Excel: cuándo alcanza y cuándo no | "gestión de proyectos excel" |
+| 🟩 | `herramientas-gestion-proyectos-gratis` | Herramientas gratis de gestión de proyectos | "herramientas gratis gestión de proyectos" |
+| 🟩 | `kickoff-de-proyecto` | Kickoff de proyecto: agenda, plantilla y errores | "kickoff de proyecto" |
+| 🟩 | `wbs-estructura-desglose-trabajo` | WBS: estructura de desglose de trabajo, con ejemplo | "WBS", "estructura de desglose de trabajo" |
+| 🟩 | `plantilla-cronograma-proyecto` | Plantilla de cronograma de proyecto (sin Gantt eterno) | "cronograma de proyecto", "plantilla cronograma" |
 
 *(Los satélites existentes `hito-vs-trello`, `alternativas-a-notion`, `migrar-trello-a-hito`,
-`hito-vs-clickup` y `hito-para-estudio-juridico` — categoría `comparativas`/`implementacion` — se
-enlazarán a este pilar cuando se publique.)*
+`hito-vs-clickup` y `hito-para-estudio-juridico` — categoría `comparativas`/`implementacion` —
+quedan enlazados a este pilar.)*
 
 ## Cluster 5 — Por rol
 
@@ -84,8 +87,8 @@ enlazarán a este pilar cuando se publique.)*
 
 | Estado | Slug | Título | Intención de búsqueda |
 |---|---|---|---|
-| ⬜ | `gestion-proyectos-freelancers` | Gestión de proyectos para freelancers | "gestión de proyectos para freelancers" |
-| ⬜ | `gestion-proyectos-agencias` | Gestión de proyectos para agencias y estudios | "gestión de proyectos agencias" |
+| 🟩 | `gestion-proyectos-freelancers` | Gestión de proyectos para freelancers | "gestión de proyectos para freelancers" |
+| 🟩 | `gestion-proyectos-agencias` | Gestión de proyectos para agencias y estudios | "gestión de proyectos agencias" |
 
 ---
 
@@ -110,9 +113,19 @@ enlazarán a este pilar cuando se publique.)*
   Interlinking: dead links del cuerpo del pilar (`gestionar-varios-proyectos-a-la-vez`) hacia
   "reuniones de status" y "delegar decisiones RACI" resueltos; `reducir-trabajo-en-curso` sumado
   al `related` de `kanban-limites-wip`.
-- **Siguiente (Fase 5):** Cluster 4 — Plantillas y herramientas, empezando por su pilar
-  `plantillas-gestion-proyectos` y luego los 5 satélites. Cluster 5 (por rol) queda para después,
-  sin pilar propio.
+- **Fase 5 (2026-08-24, spec 058 Lotes 3–4):** 12 artículos publicados —
+  - **Cluster 4 cerrado** (9): pilar `plantillas-gestion-proyectos` (2027-04-12, featured) +
+    5 satélites del roadmap original + 3 satélites extra que completan las 8 plantillas del
+    pilar (`kickoff-de-proyecto`, `wbs-estructura-desglose-trabajo`,
+    `plantilla-cronograma-proyecto`).
+  - **Cluster 5 cerrado** (2): `gestion-proyectos-freelancers` (2027-06-14),
+    `gestion-proyectos-agencias` (2027-06-21).
+  - **Mini-cluster MCP cerrado:** `servidores-mcp-para-que-sirven` (2027-06-28).
+  - Interlinking: `related` de comparativas (`hito-vs-trello`, `alternativas-a-notion`,
+    `migrar-trello-a-hito`, `hito-vs-clickup`, `hito-para-estudio-juridico`) hacia el pilar
+    de plantillas; `que-es-mcp` y sus satélites hacia el cierre MCP.
+- **Siguiente:** el roadmap de 32 artículos de spec 040 está completo (más 3 plantillas extra
+  y el mini-cluster MCP de spec 058). Medir en Search Console 4–6 semanas después de indexar.
 
 ## Cadencia
 
@@ -141,3 +154,20 @@ bien como un cluster completo.
 | 2027-03-08 | `seguimiento-de-tareas-equipo` |
 | 2027-03-15 | `cierre-de-proyecto-checklist` |
 | 2027-03-22 | `gestionar-proyectos-con-clientes` |
+
+### Calendario editorial Fase 5
+
+| `publishedAt` | Slug |
+|---|---|
+| 2027-04-12 | `plantillas-gestion-proyectos` |
+| 2027-04-19 | `plantilla-plan-de-proyecto` |
+| 2027-04-26 | `acta-constitucion-proyecto` |
+| 2027-05-03 | `informe-de-estado-semanal` |
+| 2027-05-10 | `gestion-proyectos-excel` |
+| 2027-05-17 | `herramientas-gestion-proyectos-gratis` |
+| 2027-05-24 | `kickoff-de-proyecto` |
+| 2027-05-31 | `wbs-estructura-desglose-trabajo` |
+| 2027-06-07 | `plantilla-cronograma-proyecto` |
+| 2027-06-14 | `gestion-proyectos-freelancers` |
+| 2027-06-21 | `gestion-proyectos-agencias` |
+| 2027-06-28 | `servidores-mcp-para-que-sirven` |
