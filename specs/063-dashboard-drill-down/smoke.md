@@ -12,6 +12,8 @@ Con datos (demo o workspace con varios estados/salud/personas).
 5. Tile **Vencidos** no sale de `/app`; scroll a `#vencimientos`. Filas de esa
    card siguen abriendo el proyecto.
 6. Tile **Avance medio**: no es enlace (cursor normal).
+   > Nota (spec 066): este tile fue **reemplazado** por «Por vencer» → `#vencimientos`.
+   > El hero de avance (no enlace) vive ahora debajo de los tiles.
 7. Nombre en **Carga** → `/app/my-tasks?person=<id>` sin `done=1`.
 8. Combinación: pegar `/app/projects?status=active&stalled=1` y recargar.
 9. Basura: `/app/projects?health=purple&stalled=yes` no recorta.

@@ -14,6 +14,11 @@ describe("dashboardHrefs (mapa de clicks, spec 063 §5)", () => {
     expect(dashboardHrefs.overdueAnchor()).toBe("/app#vencimientos");
   });
 
+  it("tile Por vencer → misma ancla #vencimientos que Vencidos (spec 066 D20)", () => {
+    expect(dashboardHrefs.dueSoonAnchor()).toBe("/app#vencimientos");
+    expect(dashboardHrefs.dueSoonAnchor()).toBe(dashboardHrefs.overdueAnchor());
+  });
+
   it("filas de salud y estado → projects con el param correspondiente", () => {
     expect(dashboardHrefs.byHealth("red")).toBe("/app/projects?health=red");
     expect(dashboardHrefs.byStatus("blocked")).toBe("/app/projects?status=blocked");

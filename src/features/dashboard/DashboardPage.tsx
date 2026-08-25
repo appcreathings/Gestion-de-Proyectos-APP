@@ -6,7 +6,6 @@ import {
   CalendarClock,
   Hourglass,
   CheckCircle2,
-  Gauge,
   ArrowRight,
   Library,
   Sparkles,
@@ -21,11 +20,19 @@ import { StatTile } from "@/components/ui/StatTile";
 import { HierarchyLegend } from "@/components/HierarchyLegend";
 import { ScrollToHash } from "@/components/ScrollToHash";
 import { HealthBadge, HealthDot, healthColorClass } from "@/components/HealthBadge";
+import { ExpandableList } from "@/components/ExpandableList";
+import { ProgressRow } from "@/components/ProgressRow";
 import { useDataStore } from "@/store/useDataStore";
 import { useAppStore } from "@/store/useAppStore";
 import { isDemoCleared } from "@/storage/mode";
 import { projectStatusLabel } from "@/domain/labels";
-import { computePortfolio, type DueRow, type ProductRollup } from "./portfolio";
+import { cn } from "@/lib/utils";
+import {
+  computePortfolio,
+  type DueRow,
+  type ProductRollup,
+  type ProjectRankingRow,
+} from "./portfolio";
 import { dashboardHrefs } from "./dashboardHrefs";
 import type { Health, Project, ProjectStatus } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
@@ -121,18 +128,20 @@ export function DashboardPage() {
             tone="default"
           />
         </Link>
-        <StatTile
-          value={`${stats.checklistProgress.pct}%`}
-          label="Avance medio"
-          icon={Gauge}
-          tone="default"
-        />
         <Link to={dashboardHrefs.overdueAnchor()} className="block">
           <StatTile
             value={stats.overdue.length}
             label="Vencidos"
             icon={AlertTriangle}
             tone="destructive"
+          />
+        </Link>
+        <Link to={dashboardHrefs.dueSoonAnchor()} className="block">
+          <StatTile
+            value={stats.dueSoon.length}
+            label="Por vencer"
+            icon={CalendarClock}
+            tone="warning"
           />
         </Link>
         <Link to={dashboardHrefs.stalledProjects()} className="block">
@@ -145,21 +154,102 @@ export function DashboardPage() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <Panel label="Avance" title="Avance del portafolio" className="mt-8">
+        {stats.checklistProgress.total > 0 && (
+          <ProgressRow
+            label="Avance de checklists"
+            done={stats.checklistProgress.done}
+            total={stats.checklistProgress.total}
+            pct={stats.checklistProgress.pct}
+          />
+        )}
+        {stats.taskProgress.total > 0 && (
+          <ProgressRow
+            label="Tareas completadas"
+            done={stats.taskProgress.done}
+            total={stats.taskProgress.total}
+            pct={stats.taskProgress.pct}
+            indicatorClassName="bg-success"
+          />
+        )}
+        {stats.checklistProgress.total === 0 && stats.taskProgress.total === 0 && (
+          <p className="text-sm text-muted-foreground">
+            {stats.active > 0
+              ? "Todavía no hay checklists ni tareas en los proyectos abiertos."
+              : "No hay proyectos abiertos."}
+          </p>
+        )}
+      </Panel>
+
+      <Panel label="Proyectos" title="Avance por proyecto" className="mt-6">
+        <RankingCard rows={stats.projectRows} />
+      </Panel>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div id="vencimientos" className="scroll-mt-6 col-span-full">
+          <DueCard overdue={stats.overdue} dueSoon={stats.dueSoon} />
+        </div>
+        <StalledCard projects={stats.stalled} stalledAfterDays={settings.stalledAfterDays} />
+        <WorkloadCard workload={stats.workload} knownPersonIds={personIds} />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <HealthCard byHealth={stats.byHealth} />
         <StatusCard byStatus={stats.byStatus} total={stats.total} />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
         <ProductCard rollups={stats.byProduct} />
-        <StalledCard projects={stats.stalled} stalledAfterDays={settings.stalledAfterDays} />
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <DueCard overdue={stats.overdue} dueSoon={stats.dueSoon} />
-        <WorkloadCard workload={stats.workload} knownPersonIds={personIds} />
       </div>
     </div>
+  );
+}
+
+/* ---- Ranking por proyecto (spec 066 HU-03) ---- */
+function RankingCard({ rows }: { rows: ProjectRankingRow[] }) {
+  if (rows.length === 0) {
+    return <p className="text-sm text-muted-foreground">No hay proyectos abiertos.</p>;
+  }
+  return (
+    <ExpandableList
+      items={rows}
+      getKey={(row) => row.id}
+      renderItem={(row) => (
+        <Link
+          to={ROUTES.project(row.id)}
+          className={cn(ROW_LINK_CLASS, "flex-col items-stretch sm:flex-row sm:items-center")}
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <HealthDot health={row.health} />
+            <span className="min-w-0 flex-1 truncate text-sm">{row.name}</span>
+          </div>
+          <div className="flex w-full shrink-0 flex-col gap-1 sm:w-36">
+            {row.checklist.total > 0 && (
+              <div
+                className="flex items-center gap-2"
+                title={`Checklists ${row.checklist.done}/${row.checklist.total}`}
+              >
+                <Progress value={row.checklist.pct} className="h-1.5" />
+                <span className="min-w-[2.25rem] text-right font-mono text-[10px] tabular-nums text-muted-foreground">
+                  {row.checklist.pct}%
+                </span>
+              </div>
+            )}
+            {row.tasks.total > 0 && (
+              <div
+                className="flex items-center gap-2"
+                title={`Tareas ${row.tasks.done}/${row.tasks.total}`}
+              >
+                <Progress value={row.tasks.pct} className="h-1.5" indicatorClassName="bg-success" />
+                <span className="min-w-[2.25rem] text-right font-mono text-[10px] tabular-nums text-muted-foreground">
+                  {row.tasks.pct}%
+                </span>
+              </div>
+            )}
+          </div>
+        </Link>
+      )}
+    />
   );
 }
 
@@ -333,18 +423,16 @@ function StalledCard({
 function DueCard({ overdue, dueSoon }: { overdue: DueRow[]; dueSoon: DueRow[] }) {
   if (overdue.length === 0 && dueSoon.length === 0) {
     return (
-      <div id="vencimientos" className="scroll-mt-6">
-        <Panel label="Vencimientos" title="Sin fechas urgentes">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <CheckCircle2 className="size-5 text-success" />
-            No hay fechas vencidas ni próximos vencimientos.
-          </div>
-        </Panel>
-      </div>
+      <Panel label="Vencimientos" title="Sin fechas urgentes">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <CheckCircle2 className="size-5 text-success" />
+          No hay fechas vencidas ni próximos vencimientos.
+        </div>
+      </Panel>
     );
   }
   return (
-    <div id="vencimientos" className="grid scroll-mt-6 gap-6 lg:grid-cols-2">
+    <div className="grid gap-6 lg:grid-cols-2">
       <DueSection
         title="Vencidos"
         icon={AlertTriangle}
