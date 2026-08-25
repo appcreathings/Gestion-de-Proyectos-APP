@@ -1,6 +1,6 @@
 # Spec 066 — Dashboard: avance legible y listas con «ver más»
 
-> Estado: **BORRADOR**
+> Estado: **IMPLEMENTADO**
 > Feature dir: `specs/066-dashboard-avance-legible/` · Fecha: 2026-08-24
 > Baseline: `SCHEMA_VERSION` **23, sin bump** (solo UI + agregación pura)
 > Depende de: Spec 063 (drill-down, IMPLEMENTADO), Overview dual (`ProgressRow` + `ProgressStat`), tokens 065
@@ -210,15 +210,15 @@ Ver `design.md` §10 para fixtures. Resumen:
 
 ## 10. Definición de hecho
 
-- [ ] Spec revisado por el usuario
-- [ ] `design.md` + `tasks.md` + `smoke.md` + `PROMPT-EJECUCION.md`
-- [ ] Fases A–F en `tasks.md`
-- [ ] HU-01…HU-08
-- [ ] Tests §9 verdes
-- [ ] `typecheck` + suite `--exclude ".worktrees/**"`
-- [ ] `graphify update .`
-- [ ] spec.md → **IMPLEMENTADO**
-- [ ] Smoke `smoke.md`
+- [x] Spec revisado por el usuario
+- [x] `design.md` + `tasks.md` + `smoke.md` + `PROMPT-EJECUCION.md`
+- [x] Fases A–F en `tasks.md`
+- [x] HU-01…HU-08
+- [x] Tests §9 verdes
+- [x] `typecheck` + suite `--exclude ".worktrees/**"`
+- [x] `graphify update .`
+- [x] spec.md → **IMPLEMENTADO**
+- [x] Smoke `smoke.md` (pasos 1–8 verificados por código/tests; clickeable queda pendiente de browser)
 
 ## 11. Documentos
 
