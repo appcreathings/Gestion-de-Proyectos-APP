@@ -1,4 +1,12 @@
-import { daysUntil, isStalled, projectChecklistProgress } from "@/domain/compute";
+import {
+  daysUntil,
+  isStalled,
+  projectChecklistProgress,
+  projectLiveTaskProgress,
+  aggregateChecklistProgress,
+  aggregateTaskProgress,
+  type ProgressStat,
+} from "@/domain/compute";
 import { effectiveHealth } from "@/domain/health";
 import { collectDatedEntities, type DatedEntity } from "@/lib/dates";
 import type { Health, Person, Product, Project, ProjectStatus, Settings } from "@/domain/schemas";
@@ -23,7 +31,17 @@ export interface ProductRollup {
   name: string;
   total: number;
   byHealth: Record<Health, number>;
-  avgProgress: number;
+  checklistProgress: ProgressStat;
+  taskProgress: ProgressStat;
+}
+
+export interface ProjectRankingRow {
+  id: string;
+  name: string;
+  health: Health;
+  checklist: ProgressStat;
+  tasks: ProgressStat;
+  remainingWork: number;
 }
 
 export interface WorkloadEntry {
@@ -35,8 +53,10 @@ export interface WorkloadEntry {
 
 export interface PortfolioStats {
   total: number;
-  active: number;
-  avgProgress: number;
+  active: number; // = open.length (063 D13)
+  checklistProgress: ProgressStat;
+  taskProgress: ProgressStat;
+  projectRows: ProjectRankingRow[];
   overdue: DueRow[];
   dueSoon: DueRow[];
   stalled: Project[];
@@ -46,11 +66,32 @@ export interface PortfolioStats {
   workload: WorkloadEntry[];
 }
 
+const HEALTH_RANK: Record<Health, number> = { red: 0, amber: 1, green: 2 };
+
+export function remainingWorkOf(cl: ProgressStat, tk: ProgressStat): number {
+  return cl.total - cl.done + (tk.total - tk.done);
+}
+
+export function compareProjectRankingRows(
+  a: ProjectRankingRow,
+  b: ProjectRankingRow,
+): number {
+  const healthDelta = HEALTH_RANK[a.health] - HEALTH_RANK[b.health];
+  if (healthDelta !== 0) return healthDelta;
+  if (b.remainingWork !== a.remainingWork) return b.remainingWork - a.remainingWork;
+  return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+}
+
+export function healthSentence(byHealth: Record<Health, number>): string {
+  const verdes = byHealth.green === 1 ? "verde" : "verdes";
+  return `${byHealth.red} en rojo · ${byHealth.amber} ámbar · ${byHealth.green} ${verdes}`;
+}
+
 function zero<T extends string>(keys: T[]): Record<T, number> {
   return keys.reduce((acc, k) => ((acc[k] = 0), acc), {} as Record<T, number>);
 }
 
-/** Pure portfolio aggregation for the CEO dashboard (M5). */
+/** Pure portfolio aggregation for the CEO dashboard (M5, spec 066). */
 export function computePortfolio(
   projects: Project[],
   products: Product[],
@@ -71,23 +112,33 @@ export function computePortfolio(
       .filter((r): r is DueRow => r.d !== null),
   );
 
-  const avgProgress =
-    open.length === 0
-      ? 0
-      : Math.round(
-          open.reduce((sum, p) => sum + projectChecklistProgress(p).pct, 0) / open.length,
-        );
+  const checklistProgress = aggregateChecklistProgress(open);
+  const taskProgress = aggregateTaskProgress(open);
 
-  // Calculate workload by person
+  const projectRows: ProjectRankingRow[] = open
+    .map((p) => {
+      const checklist = projectChecklistProgress(p);
+      const tasks = projectLiveTaskProgress(p);
+      return {
+        id: p.id,
+        name: p.name,
+        health: effectiveHealth(p, settings, now),
+        checklist,
+        tasks,
+        remainingWork: remainingWorkOf(checklist, tasks),
+      };
+    })
+    .sort(compareProjectRankingRows);
+
+  // Workload by person: live, non-done tasks only (spec 066 D10)
   const workloadMap = new Map<string, { taskCount: number; totalEstimate: number }>();
   for (const project of open) {
     for (const task of project.tasks) {
-      if (task.assigneeId) {
-        const entry = workloadMap.get(task.assigneeId) ?? { taskCount: 0, totalEstimate: 0 };
-        entry.taskCount++;
-        entry.totalEstimate += task.estimate ?? 0;
-        workloadMap.set(task.assigneeId, entry);
-      }
+      if (!task.assigneeId || task.archived || task.status === "done") continue;
+      const entry = workloadMap.get(task.assigneeId) ?? { taskCount: 0, totalEstimate: 0 };
+      entry.taskCount++;
+      entry.totalEstimate += task.estimate ?? 0;
+      workloadMap.set(task.assigneeId, entry);
     }
   }
 
@@ -107,10 +158,14 @@ export function computePortfolio(
   return {
     total: projects.length,
     active: open.length,
-    avgProgress,
+    checklistProgress,
+    taskProgress,
+    projectRows,
     overdue: rows.filter((r) => r.d < 0).sort((a, b) => a.d - b.d),
     dueSoon: rows.filter((r) => r.d >= 0 && r.d <= settings.dueSoonDays).sort((a, b) => a.d - b.d),
-    stalled: projects.filter((p) => isStalled(p, settings.stalledAfterDays, now)),
+    stalled: projects
+      .filter((p) => isStalled(p, settings.stalledAfterDays, now))
+      .sort((a, b) => Date.parse(a.updatedAt) - Date.parse(b.updatedAt)),
     byStatus,
     byHealth,
     byProduct: rollupByProduct(open, products, settings, now),
@@ -138,17 +193,16 @@ function rollupByProduct(
   const rollups: ProductRollup[] = [];
   for (const [id, list] of groups) {
     const byHealth = zero(HEALTHS);
-    let progressSum = 0;
     for (const p of list) {
       byHealth[effectiveHealth(p, settings, now)]++;
-      progressSum += projectChecklistProgress(p).pct;
     }
     rollups.push({
       id,
       name: nameOf(id),
       total: list.length,
       byHealth,
-      avgProgress: Math.round(progressSum / list.length),
+      checklistProgress: aggregateChecklistProgress(list),
+      taskProgress: aggregateTaskProgress(list),
     });
   }
 

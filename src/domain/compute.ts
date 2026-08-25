@@ -42,6 +42,13 @@ export function projectTaskProgress(p: Project): ProgressStat {
   return stat(done, p.tasks.length);
 }
 
+/** Task progress excluding archived tasks. Dashboard / portfolio ranking use this (spec 066 D18). */
+export function projectLiveTaskProgress(p: Project): ProgressStat {
+  const live = p.tasks.filter((t) => !t.archived);
+  const done = live.filter((t) => t.status === "done").length;
+  return stat(done, live.length);
+}
+
 export function isStalled(
   p: Project,
   stalledAfterDays: number,
@@ -67,6 +74,18 @@ export function aggregateChecklistProgress(projects: Project[]): ProgressStat {
   let total = 0;
   for (const p of projects) {
     const s = projectChecklistProgress(p);
+    done += s.done;
+    total += s.total;
+  }
+  return stat(done, total);
+}
+
+/** Aggregate live (non-archived) task progress across a set of projects (spec 066 D18). */
+export function aggregateTaskProgress(projects: Project[]): ProgressStat {
+  let done = 0;
+  let total = 0;
+  for (const p of projects) {
+    const s = projectLiveTaskProgress(p);
     done += s.done;
     total += s.total;
   }

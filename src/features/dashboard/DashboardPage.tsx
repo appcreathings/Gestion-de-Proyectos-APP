@@ -6,7 +6,6 @@ import {
   CalendarClock,
   Hourglass,
   CheckCircle2,
-  Gauge,
   ArrowRight,
   Library,
   Sparkles,
@@ -21,11 +20,22 @@ import { StatTile } from "@/components/ui/StatTile";
 import { HierarchyLegend } from "@/components/HierarchyLegend";
 import { ScrollToHash } from "@/components/ScrollToHash";
 import { HealthBadge, HealthDot, healthColorClass } from "@/components/HealthBadge";
+import { ExpandableList } from "@/components/ExpandableList";
+import { MagnitudeBar } from "@/components/MagnitudeBar";
+import { ProgressRow } from "@/components/ProgressRow";
 import { useDataStore } from "@/store/useDataStore";
 import { useAppStore } from "@/store/useAppStore";
 import { isDemoCleared } from "@/storage/mode";
 import { projectStatusLabel } from "@/domain/labels";
-import { computePortfolio, type DueRow, type ProductRollup } from "./portfolio";
+import { cn } from "@/lib/utils";
+import type { ProgressStat } from "@/domain/compute";
+import {
+  computePortfolio,
+  healthSentence,
+  type DueRow,
+  type ProductRollup,
+  type ProjectRankingRow,
+} from "./portfolio";
 import { dashboardHrefs } from "./dashboardHrefs";
 import type { Health, Project, ProjectStatus } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
@@ -121,18 +131,20 @@ export function DashboardPage() {
             tone="default"
           />
         </Link>
-        <StatTile
-          value={`${stats.avgProgress}%`}
-          label="Avance medio"
-          icon={Gauge}
-          tone="default"
-        />
         <Link to={dashboardHrefs.overdueAnchor()} className="block">
           <StatTile
             value={stats.overdue.length}
             label="Vencidos"
             icon={AlertTriangle}
             tone="destructive"
+          />
+        </Link>
+        <Link to={dashboardHrefs.dueSoonAnchor()} className="block">
+          <StatTile
+            value={stats.dueSoon.length}
+            label="Por vencer"
+            icon={CalendarClock}
+            tone="warning"
           />
         </Link>
         <Link to={dashboardHrefs.stalledProjects()} className="block">
@@ -145,21 +157,102 @@ export function DashboardPage() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <Panel label="Avance" title="Avance del portafolio" className="mt-8">
+        {stats.checklistProgress.total > 0 && (
+          <ProgressRow
+            label="Avance de checklists"
+            done={stats.checklistProgress.done}
+            total={stats.checklistProgress.total}
+            pct={stats.checklistProgress.pct}
+          />
+        )}
+        {stats.taskProgress.total > 0 && (
+          <ProgressRow
+            label="Tareas completadas"
+            done={stats.taskProgress.done}
+            total={stats.taskProgress.total}
+            pct={stats.taskProgress.pct}
+            indicatorClassName="bg-success"
+          />
+        )}
+        {stats.checklistProgress.total === 0 && stats.taskProgress.total === 0 && (
+          <p className="text-sm text-muted-foreground">
+            {stats.active > 0
+              ? "Todavía no hay checklists ni tareas en los proyectos abiertos."
+              : "No hay proyectos abiertos."}
+          </p>
+        )}
+      </Panel>
+
+      <Panel label="Proyectos" title="Qué falta por proyecto" className="mt-6">
+        <RankingCard rows={stats.projectRows} />
+      </Panel>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div id="vencimientos" className="scroll-mt-6 col-span-full">
+          <DueCard overdue={stats.overdue} dueSoon={stats.dueSoon} />
+        </div>
+        <StalledCard projects={stats.stalled} stalledAfterDays={settings.stalledAfterDays} />
+        <WorkloadCard workload={stats.workload} knownPersonIds={personIds} />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <HealthCard byHealth={stats.byHealth} />
         <StatusCard byStatus={stats.byStatus} total={stats.total} />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
         <ProductCard rollups={stats.byProduct} />
-        <StalledCard projects={stats.stalled} stalledAfterDays={settings.stalledAfterDays} />
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <DueCard overdue={stats.overdue} dueSoon={stats.dueSoon} />
-        <WorkloadCard workload={stats.workload} knownPersonIds={personIds} />
       </div>
     </div>
+  );
+}
+
+/* ---- Ranking por proyecto (spec 067 HU-01) ---- */
+function RankingCard({ rows }: { rows: ProjectRankingRow[] }) {
+  if (rows.length === 0) {
+    return <p className="text-sm text-muted-foreground">No hay proyectos abiertos.</p>;
+  }
+  const maxRemaining = Math.max(0, ...rows.map((r) => r.remainingWork));
+  return (
+    <ExpandableList
+      items={rows}
+      getKey={(row) => row.id}
+      renderItem={(row) => (
+        <Link to={ROUTES.project(row.id)} className={cn(ROW_LINK_CLASS, "flex-col items-stretch")}>
+          <div className="flex min-w-0 items-center gap-3">
+            <HealthDot health={row.health} />
+            <span className="min-w-0 flex-1 truncate text-sm">{row.name}</span>
+            <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+              {row.remainingWork === 1 ? "1 restante" : `${row.remainingWork} restantes`}
+            </span>
+          </div>
+          {(row.checklist.total > 0 || row.tasks.total > 0) && (
+            <div className="mt-1.5 flex w-full flex-col gap-1">
+              {row.checklist.total > 0 && (
+                <div title={`Checklists ${row.checklist.done}/${row.checklist.total}`}>
+                  <MagnitudeBar
+                    value={row.checklist.total - row.checklist.done}
+                    max={maxRemaining}
+                    label={`${row.checklist.total - row.checklist.done} de checklist restantes de un máximo de ${maxRemaining}`}
+                  />
+                </div>
+              )}
+              {row.tasks.total > 0 && (
+                <div title={`Tareas ${row.tasks.done}/${row.tasks.total}`}>
+                  <MagnitudeBar
+                    value={row.tasks.total - row.tasks.done}
+                    max={maxRemaining}
+                    indicatorClassName="bg-success"
+                    label={`${row.tasks.total - row.tasks.done} tareas restantes de un máximo de ${maxRemaining}`}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </Link>
+      )}
+    />
   );
 }
 
@@ -172,7 +265,7 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
         <p className="text-sm text-muted-foreground">No hay proyectos activos.</p>
       ) : (
         <>
-          <div className="mb-6 flex h-2 overflow-hidden rounded-full bg-muted">
+          <div className="mb-4 flex h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
             {HEALTH_ORDER.map((h) =>
               byHealth[h] > 0 ? (
                 <div
@@ -183,6 +276,7 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
               ) : null,
             )}
           </div>
+          <p className="mb-4 text-sm text-foreground">{healthSentence(byHealth)}</p>
           <ul className="space-y-3">
             {HEALTH_ORDER.map((h) => {
               const row = (
@@ -211,6 +305,15 @@ function HealthCard({ byHealth }: { byHealth: Record<Health, number> }) {
 }
 
 /* ---- Distribución por estado ---- */
+const STATUS_COMPOSITION_CLASS: Record<ProjectStatus, string> = {
+  backlog: "bg-muted-foreground/40",
+  active: "bg-primary",
+  paused: "bg-warning",
+  blocked: "bg-destructive",
+  done: "bg-success",
+  archived: "bg-muted-foreground/20",
+};
+
 function StatusCard({
   byStatus,
   total,
@@ -224,43 +327,89 @@ function StatusCard({
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">Sin proyectos activos.</p>
       ) : (
-        <ul className="space-y-4">
-          {rows.map((s) => (
-            <li key={s}>
-              <Link
-                to={dashboardHrefs.byStatus(s)}
-                className="block rounded-md px-1 transition-colors hover:bg-accent"
-              >
-                <div className="mb-1.5 flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{projectStatusLabel[s]}</span>
-                  <span className="font-mono text-sm font-semibold">{byStatus[s]}</span>
-                </div>
-                <Progress value={total === 0 ? 0 : (byStatus[s] / total) * 100} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div
+            className="mb-4 flex h-2 overflow-hidden rounded-full bg-muted"
+            role="img"
+            aria-label={
+              rows.map((s) => `${byStatus[s]} ${projectStatusLabel[s]}`).join(", ") +
+              ` de ${total}`
+            }
+          >
+            {rows.map((s) => (
+              <div
+                key={s}
+                className={STATUS_COMPOSITION_CLASS[s]}
+                style={{ width: `${total === 0 ? 0 : (byStatus[s] / total) * 100}%` }}
+              />
+            ))}
+          </div>
+          <ul className="space-y-4">
+            {rows.map((s) => (
+              <li key={s}>
+                <Link
+                  to={dashboardHrefs.byStatus(s)}
+                  className="block rounded-md px-1 transition-colors hover:bg-accent"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{projectStatusLabel[s]}</span>
+                    <span className="font-mono text-sm font-semibold">
+                      {byStatus[s]} de {total}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </Panel>
   );
 }
 
 /* ---- Salud por producto ---- */
+function productBarMetric(r: ProductRollup): ProgressStat | null {
+  if (r.checklistProgress.total > 0) return r.checklistProgress;
+  if (r.taskProgress.total > 0) return r.taskProgress;
+  return null;
+}
+
 function ProductCard({ rollups }: { rollups: ProductRollup[] }) {
   return (
     <Panel label="Producto" title="Por producto">
       {rollups.length === 0 ? (
         <p className="text-sm text-muted-foreground">No hay proyectos activos.</p>
       ) : (
-        <ul className="space-y-2">
-          {rollups.map((r) => {
+        <ExpandableList
+          items={rollups}
+          listClassName="space-y-2"
+          getKey={(r) => r.id ?? "none"}
+          renderItem={(r) => {
+            const metric = productBarMetric(r);
+            const metricIsTasks = metric !== null && r.checklistProgress.total === 0;
             const row = (
               <>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{r.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {r.total} proyecto{r.total === 1 ? "" : "s"} · {r.avgProgress}% avance
+                    {r.total} proyecto{r.total === 1 ? "" : "s"}
                   </p>
+                  {metric && (
+                    <div
+                      className="mt-1.5"
+                      title={
+                        metricIsTasks
+                          ? `Tareas ${metric.done}/${metric.total}`
+                          : `Checklists ${metric.done}/${metric.total}`
+                      }
+                    >
+                      <Progress
+                        value={metric.pct}
+                        className="h-1.5"
+                        indicatorClassName={metricIsTasks ? "bg-success" : undefined}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {HEALTH_ORDER.map((h) =>
@@ -274,19 +423,15 @@ function ProductCard({ rollups }: { rollups: ProductRollup[] }) {
                 </div>
               </>
             );
-            return (
-              <li key={r.id ?? "none"}>
-                {r.id === null ? (
-                  <div className={ROW_CLASS}>{row}</div>
-                ) : (
-                  <Link to={dashboardHrefs.byProduct(r.id)} className={ROW_LINK_CLASS}>
-                    {row}
-                  </Link>
-                )}
-              </li>
+            return r.id === null ? (
+              <div className={ROW_CLASS}>{row}</div>
+            ) : (
+              <Link to={dashboardHrefs.byProduct(r.id)} className={ROW_LINK_CLASS}>
+                {row}
+              </Link>
             );
-          })}
-        </ul>
+          }}
+        />
       )}
     </Panel>
   );
@@ -305,25 +450,22 @@ function StalledCard({
       {projects.length === 0 ? (
         <p className="text-sm text-muted-foreground">👌 Todo se mueve.</p>
       ) : (
-        <ul className="space-y-1.5">
-          {projects
-            .slice()
-            .sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime())
-            .map((p) => (
-              <li key={p.id}>
-                <Link
-                  to={ROUTES.project(p.id)}
-                  className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm transition-colors hover:bg-accent"
-                >
-                  <span className="min-w-0 truncate">{p.name}</span>
-                  <span className="flex shrink-0 items-center gap-1 font-mono text-xs font-medium text-warning">
-                    {daysSince(p.updatedAt)} días
-                    <ArrowRight className="size-3.5" />
-                  </span>
-                </Link>
-              </li>
-            ))}
-        </ul>
+        <ExpandableList
+          items={projects}
+          getKey={(p) => p.id}
+          renderItem={(p) => (
+            <Link
+              to={ROUTES.project(p.id)}
+              className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm transition-colors hover:bg-accent"
+            >
+              <span className="min-w-0 truncate">{p.name}</span>
+              <span className="flex shrink-0 items-center gap-1 font-mono text-xs font-medium text-warning">
+                {daysSince(p.updatedAt)} días
+                <ArrowRight className="size-3.5" />
+              </span>
+            </Link>
+          )}
+        />
       )}
     </Panel>
   );
@@ -333,23 +475,22 @@ function StalledCard({
 function DueCard({ overdue, dueSoon }: { overdue: DueRow[]; dueSoon: DueRow[] }) {
   if (overdue.length === 0 && dueSoon.length === 0) {
     return (
-      <div id="vencimientos" className="scroll-mt-6">
-        <Panel label="Vencimientos" title="Sin fechas urgentes">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <CheckCircle2 className="size-5 text-success" />
-            No hay fechas vencidas ni próximos vencimientos.
-          </div>
-        </Panel>
-      </div>
+      <Panel label="Vencimientos" title="Sin fechas urgentes">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <CheckCircle2 className="size-5 text-success" />
+          No hay fechas vencidas ni próximos vencimientos.
+        </div>
+      </Panel>
     );
   }
   return (
-    <div id="vencimientos" className="grid scroll-mt-6 gap-6 lg:grid-cols-2">
+    <div className="grid gap-6 lg:grid-cols-2">
       <DueSection
         title="Vencidos"
         icon={AlertTriangle}
         tone="destructive"
         rows={overdue}
+        emptyCopy="No hay fechas vencidas."
         format={(r) => `hace ${-r.d} día${r.d === -1 ? "" : "s"}`}
       />
       <DueSection
@@ -357,6 +498,7 @@ function DueCard({ overdue, dueSoon }: { overdue: DueRow[]; dueSoon: DueRow[] })
         icon={CalendarClock}
         tone="warning"
         rows={dueSoon}
+        emptyCopy="No hay próximos vencimientos."
         format={(r) => (r.d === 0 ? "vence hoy" : `en ${r.d} día${r.d === 1 ? "" : "s"}`)}
       />
     </div>
@@ -368,15 +510,16 @@ function DueSection({
   icon: Icon,
   tone,
   rows,
+  emptyCopy,
   format,
 }: {
   title: string;
   icon: typeof AlertTriangle;
   tone: "destructive" | "warning";
   rows: DueRow[];
+  emptyCopy: string;
   format: (r: DueRow) => string;
 }) {
-  if (rows.length === 0) return null;
   const toneText = tone === "destructive" ? "text-destructive" : "text-warning";
   return (
     <Panel
@@ -393,20 +536,24 @@ function DueSection({
         </span>
       }
     >
-      <ul className="space-y-1.5">
-        {rows.map((r) => {
-          const params = new URLSearchParams();
-          if (r.ref.kind === "task") {
-            params.set("tab", "tasks");
-            if (r.ref.taskId) params.set("focus", r.ref.taskId);
-          } else if (r.ref.kind === "checklistItem") {
-            params.set("tab", "areas");
-            if (r.ref.itemId) params.set("focus", r.ref.itemId);
-          } else {
-            params.set("tab", "overview");
-          }
-          return (
-            <li key={`${r.ref.kind}-${r.ref.itemId ?? r.ref.taskId ?? r.ref.projectId}`}>
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{emptyCopy}</p>
+      ) : (
+        <ExpandableList
+          items={rows}
+          getKey={(r) => `${r.ref.kind}-${r.ref.itemId ?? r.ref.taskId ?? r.ref.projectId}`}
+          renderItem={(r) => {
+            const params = new URLSearchParams();
+            if (r.ref.kind === "task") {
+              params.set("tab", "tasks");
+              if (r.ref.taskId) params.set("focus", r.ref.taskId);
+            } else if (r.ref.kind === "checklistItem") {
+              params.set("tab", "areas");
+              if (r.ref.itemId) params.set("focus", r.ref.itemId);
+            } else {
+              params.set("tab", "overview");
+            }
+            return (
               <Link
                 to={`${ROUTES.project(r.projectId)}?${params.toString()}`}
                 className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm transition-colors hover:bg-accent"
@@ -416,10 +563,10 @@ function DueSection({
                   {format(r)}
                 </span>
               </Link>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          }}
+        />
+      )}
     </Panel>
   );
 }
@@ -439,19 +586,24 @@ function WorkloadCard({
   if (workload.length === 0) {
     return (
       <Panel label="Carga" title="Carga de trabajo">
-        <p className="text-sm text-muted-foreground">No hay tareas asignadas.</p>
+        <p className="text-sm text-muted-foreground">No hay tareas abiertas asignadas.</p>
       </Panel>
     );
   }
 
-  const maxTasks = Math.max(...workload.map((w) => w.taskCount));
+  const maxTasks = Math.max(0, ...workload.map((w) => w.taskCount));
 
   return (
     <Panel label="Carga" title="Carga de trabajo por persona">
-      <ul className="space-y-3">
-        {workload.map((entry) => (
-          <li key={entry.personId}>
-            <div className="mb-1.5 flex items-center justify-between text-sm">
+      <ExpandableList
+        items={workload}
+        listClassName="space-y-3"
+        getKey={(entry) => entry.personId}
+        renderItem={(entry) => {
+          const tareas = entry.taskCount === 1 ? "1 tarea" : `${entry.taskCount} tareas`;
+          const meta = entry.totalEstimate > 0 ? `${tareas} · ${entry.totalEstimate}h` : tareas;
+          return (
+            <div>
               {knownPersonIds.has(entry.personId) ? (
                 <Link
                   to={dashboardHrefs.personTasks(entry.personId)}
@@ -462,19 +614,21 @@ function WorkloadCard({
               ) : (
                 <span className="font-medium">{entry.personName}</span>
               )}
-              <span className="font-mono text-xs text-muted-foreground">
-                {entry.taskCount} tareas · {entry.totalEstimate}h
-              </span>
+              <div className="mt-1.5 flex items-center gap-2">
+                <MagnitudeBar
+                  value={entry.taskCount}
+                  max={maxTasks}
+                  className="min-w-0 flex-1"
+                  label={`${meta} de un máximo de ${maxTasks}`}
+                />
+                <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                  {meta}
+                </span>
+              </div>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${(entry.taskCount / maxTasks) * 100}%` }}
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
+          );
+        }}
+      />
     </Panel>
   );
 }

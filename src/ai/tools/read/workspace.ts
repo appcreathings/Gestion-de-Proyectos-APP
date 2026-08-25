@@ -10,7 +10,7 @@ export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
     defineTool({
       name: "get_workspace_overview",
       description:
-        "Resumen del portafolio: KPIs (proyectos activos, avance medio, vencidos, por vencer, estancados), distribución por estado y salud, y rollup por producto. Úsalo para preguntas generales tipo '¿cómo va todo?'.",
+        "Resumen del portafolio: KPIs (proyectos activos, avance ponderado de checklists y tareas, vencidos, por vencer, estancados), distribución por estado y salud, y rollup por producto. Úsalo para preguntas generales tipo '¿cómo va todo?'.",
       mode: "read",
       input: z.object({}),
       execute: () => {
@@ -32,7 +32,9 @@ export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
           org: ws?.org.name ?? null,
           totalProjects: stats.total,
           openProjects: stats.active,
-          avgChecklistProgressPct: stats.avgProgress,
+          avgChecklistProgressPct: stats.checklistProgress.pct,
+          checklistProgress: stats.checklistProgress,
+          taskProgress: stats.taskProgress,
           byStatus: stats.byStatus,
           byHealth: stats.byHealth,
           overdue: stats.overdue.map((r) => ({
@@ -51,7 +53,15 @@ export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
             id: p.id,
             name: p.name,
           })),
-          byProduct: stats.byProduct,
+          byProduct: stats.byProduct.map((p) => ({
+            id: p.id,
+            name: p.name,
+            total: p.total,
+            byHealth: p.byHealth,
+            checklistProgress: p.checklistProgress,
+            taskProgress: p.taskProgress,
+            avgProgress: p.checklistProgress.pct,
+          })),
         };
       },
     }),

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Panel } from "@/components/ui/Panel";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Markdown } from "@/components/Markdown";
@@ -20,6 +19,7 @@ import type { Health, Project } from "@/domain/schemas";
 import { ROUTES } from "@/routes/paths";
 import { AttachmentsSection } from "@/components/attachments/AttachmentsSection";
 import { GitHubProjectSyncButton } from "@/features/integrations/GitHubProjectSyncButton";
+import { ProgressRow } from "@/components/ProgressRow";
 
 interface Props {
   project: Project;
@@ -126,34 +126,6 @@ export function OverviewTab({ project, productName, productId, onChangeHealth }:
       </Panel>
       <GitHubProjectSyncButton project={project} />
       </div>
-    </div>
-  );
-}
-
-function ProgressRow({
-  label,
-  done,
-  total,
-  pct,
-  indicatorClassName,
-  tooltip,
-}: {
-  label: string;
-  done: number;
-  total: number;
-  pct: number;
-  indicatorClassName?: string;
-  tooltip?: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-mono text-foreground" title={tooltip}>
-          {done}/{total} · {pct}%
-        </span>
-      </div>
-      <Progress value={pct} indicatorClassName={indicatorClassName} />
     </div>
   );
 }

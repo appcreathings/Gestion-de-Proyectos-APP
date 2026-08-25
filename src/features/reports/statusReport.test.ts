@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { newProject, newTask, newPerson, newArea } from "@/domain/factories";
+import { newProject, newTask, newPerson, newArea, newChecklist, newItem } from "@/domain/factories";
 import { buildProjectReport, buildPortfolioReport } from "./statusReport";
 import { reportToMarkdown, reportFilename, slugify } from "./statusReportMarkdown";
 import { reportToPrintableHtml } from "./statusReportHtml";
@@ -84,6 +84,47 @@ describe("status reports (spec 052)", () => {
     expect(report.totals.projects).toBe(2);
     expect(report.totals.open).toBe(1);
     expect(report.openProjects).toHaveLength(1);
+  });
+
+  it("portfolio sin ítems: sin «Avance medio» ni 0/0; dto ponderado (spec 066 D22)", () => {
+    const a = newProject("A");
+    a.status = "active";
+    const report = buildPortfolioReport(
+      [a],
+      [],
+      [],
+      settings,
+      { includePeople: false, now: new Date(), dueSoonDays: 7 },
+    );
+    const md = reportToMarkdown(report);
+    expect(md).not.toContain("Avance medio");
+    expect(md).not.toContain("0/0");
+    expect(report.totals.avgProgress).toBe(0);
+    expect(report.totals.checklist).toEqual({ done: 0, total: 0, pct: 0 });
+    expect(report.totals.tasks).toEqual({ done: 0, total: 0, pct: 0 });
+  });
+
+  it("portfolio con checklists: markdown dual ponderado (spec 066 D22)", () => {
+    const a = newProject("A");
+    a.status = "active";
+    const area = newArea("Área");
+    const doneItem = newItem("Hecho");
+    doneItem.done = true;
+    const pendingItem = newItem("Pendiente");
+    const checklist = newChecklist("Checklist");
+    checklist.items = [doneItem, pendingItem];
+    area.checklists = [checklist];
+    a.areas = [area];
+    const report = buildPortfolioReport(
+      [a],
+      [],
+      [],
+      settings,
+      { includePeople: false, now: new Date(), dueSoonDays: 7 },
+    );
+    const md = reportToMarkdown(report);
+    expect(md).toContain("**Avance de checklists:** 1/2 · 50%");
+    expect(report.totals.avgProgress).toBe(50);
   });
 
   it("slugify and filename", () => {

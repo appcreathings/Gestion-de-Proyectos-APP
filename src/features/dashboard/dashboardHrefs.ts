@@ -6,6 +6,7 @@ export const dashboardHrefs = {
   activeProjects: () => `${ROUTES.projects}?status=active`,
   stalledProjects: () => `${ROUTES.projects}?stalled=1`,
   overdueAnchor: () => `${ROUTES.dashboard}#vencimientos`,
+  dueSoonAnchor: () => `${ROUTES.dashboard}#vencimientos`,
   byHealth: (h: Health) => `${ROUTES.projects}?health=${h}`,
   byStatus: (s: ProjectStatus) => `${ROUTES.projects}?status=${s}`,
   byProduct: (productId: string) => ROUTES.projectsByProduct(productId),

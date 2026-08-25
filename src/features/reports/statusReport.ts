@@ -7,6 +7,7 @@ import {
   daysUntil,
   projectChecklistProgress,
   projectTaskProgress,
+  type ProgressStat,
 } from "@/domain/compute";
 import { effectiveHealth } from "@/domain/health";
 import {
@@ -85,13 +86,19 @@ export interface PortfolioStatusReport {
   title: string;
   includePeople: boolean;
   dueSoonDays: number;
-  totals: { projects: number; open: number; avgProgress: number };
+  totals: {
+    projects: number;
+    open: number;
+    avgProgress: number; // alias ponderado = checklistProgress.pct (spec 066 D22)
+    checklist: ProgressStat;
+    tasks: ProgressStat;
+  };
   byStatus: { label: string; count: number }[];
   byHealth: { label: string; count: number }[];
   byProduct: {
     name: string;
     total: number;
-    avgProgress: number;
+    avgProgress: number; // alias ponderado del grupo (spec 066 D22)
     healthSummary: string;
   }[];
   overdue: ReportDueItem[];
@@ -343,7 +350,9 @@ export function buildPortfolioReport(
     totals: {
       projects: stats.total,
       open: stats.active,
-      avgProgress: stats.avgProgress,
+      avgProgress: stats.checklistProgress.pct,
+      checklist: stats.checklistProgress,
+      tasks: stats.taskProgress,
     },
     byStatus: (Object.entries(stats.byStatus) as [keyof typeof projectStatusLabel, number][])
       .filter(([, n]) => n > 0)
@@ -354,7 +363,7 @@ export function buildPortfolioReport(
     byProduct: stats.byProduct.map((p) => ({
       name: p.name,
       total: p.total,
-      avgProgress: p.avgProgress,
+      avgProgress: p.checklistProgress.pct,
       healthSummary: `🔴 ${p.byHealth.red} · 🟡 ${p.byHealth.amber} · 🟢 ${p.byHealth.green}`,
     })),
     overdue: overdueCapped.items,
