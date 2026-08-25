@@ -395,25 +395,22 @@ function StalledCard({
       {projects.length === 0 ? (
         <p className="text-sm text-muted-foreground">👌 Todo se mueve.</p>
       ) : (
-        <ul className="space-y-1.5">
-          {projects
-            .slice()
-            .sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime())
-            .map((p) => (
-              <li key={p.id}>
-                <Link
-                  to={ROUTES.project(p.id)}
-                  className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm transition-colors hover:bg-accent"
-                >
-                  <span className="min-w-0 truncate">{p.name}</span>
-                  <span className="flex shrink-0 items-center gap-1 font-mono text-xs font-medium text-warning">
-                    {daysSince(p.updatedAt)} días
-                    <ArrowRight className="size-3.5" />
-                  </span>
-                </Link>
-              </li>
-            ))}
-        </ul>
+        <ExpandableList
+          items={projects}
+          getKey={(p) => p.id}
+          renderItem={(p) => (
+            <Link
+              to={ROUTES.project(p.id)}
+              className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm transition-colors hover:bg-accent"
+            >
+              <span className="min-w-0 truncate">{p.name}</span>
+              <span className="flex shrink-0 items-center gap-1 font-mono text-xs font-medium text-warning">
+                {daysSince(p.updatedAt)} días
+                <ArrowRight className="size-3.5" />
+              </span>
+            </Link>
+          )}
+        />
       )}
     </Panel>
   );
@@ -438,6 +435,7 @@ function DueCard({ overdue, dueSoon }: { overdue: DueRow[]; dueSoon: DueRow[] })
         icon={AlertTriangle}
         tone="destructive"
         rows={overdue}
+        emptyCopy="No hay fechas vencidas."
         format={(r) => `hace ${-r.d} día${r.d === -1 ? "" : "s"}`}
       />
       <DueSection
@@ -445,6 +443,7 @@ function DueCard({ overdue, dueSoon }: { overdue: DueRow[]; dueSoon: DueRow[] })
         icon={CalendarClock}
         tone="warning"
         rows={dueSoon}
+        emptyCopy="No hay próximos vencimientos."
         format={(r) => (r.d === 0 ? "vence hoy" : `en ${r.d} día${r.d === 1 ? "" : "s"}`)}
       />
     </div>
@@ -456,15 +455,16 @@ function DueSection({
   icon: Icon,
   tone,
   rows,
+  emptyCopy,
   format,
 }: {
   title: string;
   icon: typeof AlertTriangle;
   tone: "destructive" | "warning";
   rows: DueRow[];
+  emptyCopy: string;
   format: (r: DueRow) => string;
 }) {
-  if (rows.length === 0) return null;
   const toneText = tone === "destructive" ? "text-destructive" : "text-warning";
   return (
     <Panel
@@ -481,20 +481,24 @@ function DueSection({
         </span>
       }
     >
-      <ul className="space-y-1.5">
-        {rows.map((r) => {
-          const params = new URLSearchParams();
-          if (r.ref.kind === "task") {
-            params.set("tab", "tasks");
-            if (r.ref.taskId) params.set("focus", r.ref.taskId);
-          } else if (r.ref.kind === "checklistItem") {
-            params.set("tab", "areas");
-            if (r.ref.itemId) params.set("focus", r.ref.itemId);
-          } else {
-            params.set("tab", "overview");
-          }
-          return (
-            <li key={`${r.ref.kind}-${r.ref.itemId ?? r.ref.taskId ?? r.ref.projectId}`}>
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{emptyCopy}</p>
+      ) : (
+        <ExpandableList
+          items={rows}
+          getKey={(r) => `${r.ref.kind}-${r.ref.itemId ?? r.ref.taskId ?? r.ref.projectId}`}
+          renderItem={(r) => {
+            const params = new URLSearchParams();
+            if (r.ref.kind === "task") {
+              params.set("tab", "tasks");
+              if (r.ref.taskId) params.set("focus", r.ref.taskId);
+            } else if (r.ref.kind === "checklistItem") {
+              params.set("tab", "areas");
+              if (r.ref.itemId) params.set("focus", r.ref.itemId);
+            } else {
+              params.set("tab", "overview");
+            }
+            return (
               <Link
                 to={`${ROUTES.project(r.projectId)}?${params.toString()}`}
                 className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm transition-colors hover:bg-accent"
@@ -504,10 +508,10 @@ function DueSection({
                   {format(r)}
                 </span>
               </Link>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          }}
+        />
+      )}
     </Panel>
   );
 }
@@ -527,18 +531,21 @@ function WorkloadCard({
   if (workload.length === 0) {
     return (
       <Panel label="Carga" title="Carga de trabajo">
-        <p className="text-sm text-muted-foreground">No hay tareas asignadas.</p>
+        <p className="text-sm text-muted-foreground">No hay tareas abiertas asignadas.</p>
       </Panel>
     );
   }
 
-  const maxTasks = Math.max(...workload.map((w) => w.taskCount));
+  const maxTasks = Math.max(0, ...workload.map((w) => w.taskCount));
 
   return (
     <Panel label="Carga" title="Carga de trabajo por persona">
-      <ul className="space-y-3">
-        {workload.map((entry) => (
-          <li key={entry.personId}>
+      <ExpandableList
+        items={workload}
+        listClassName="space-y-3"
+        getKey={(entry) => entry.personId}
+        renderItem={(entry) => (
+          <div>
             <div className="mb-1.5 flex items-center justify-between text-sm">
               {knownPersonIds.has(entry.personId) ? (
                 <Link
@@ -560,9 +567,9 @@ function WorkloadCard({
                 style={{ width: `${(entry.taskCount / maxTasks) * 100}%` }}
               />
             </div>
-          </li>
-        ))}
-      </ul>
+          </div>
+        )}
+      />
     </Panel>
   );
 }
