@@ -859,7 +859,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     related: [
       "fases-de-un-proyecto",
       "retrospectivas-formatos",
-      "plantillas-gestion-proyectos",
+      "lecciones-aprendidas-proyecto",
       "gestion-de-riesgos-simple",
     ],
     seo: {
@@ -1136,7 +1136,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "plantillas-gestion-proyectos",
-    related: ["plantillas-gestion-proyectos", "ruta-critica-proyecto", "como-estimar-tiempos-proyecto"],
+    related: ["plantillas-gestion-proyectos", "ruta-critica-proyecto", "diagrama-de-gantt"],
     seo: {
       title: "Plantilla de cronograma de proyecto | Hito",
       description:
@@ -1210,6 +1210,233 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
         "Para qué sirven los servidores MCP y qué es un mcp-handler: el adaptador que deja a un asistente leer archivos, APIs o tu tablero, sin ser developer.",
       ogImageAlt:
         "Servidores MCP: para qué sirven, casos de uso y qué es un mcp-handler.",
+    },
+  },
+  {
+    slug: "kpis-gestion-proyectos",
+    title: "KPIs de gestión de proyectos: los que sí importan",
+    excerpt:
+      "La fecha proyectada de fin, el WIP y la desviación de presupuesto cambian decisiones. Los KPIs que caben en un informe semanal y los que solo decoran.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-07-05",
+    readingTime: "10 min",
+    featured: true,
+    related: ["diagrama-de-gantt", "burndown-chart", "valor-ganado-evm", "informe-de-estado-semanal"],
+    seo: {
+      title: "KPIs de gestión de proyectos: los que importan | Hito",
+      description:
+        "KPIs de gestión de proyectos que sí cambian decisiones: fecha proyectada de fin, WIP, desviación de costo y alcance. Los 8 indicadores del informe semanal.",
+      ogImageAlt:
+        "Los 8 KPIs de gestión de proyectos que caben en un informe semanal, en una tabla.",
+    },
+  },
+  {
+    slug: "diagrama-de-gantt",
+    title: "Diagrama de Gantt: qué es, cómo hacerlo y cuándo sobra",
+    excerpt:
+      "Qué es un diagrama de Gantt, cómo hacerlo paso a paso con o sin Excel, y el error de las 200 barras que esconde la ruta crítica. Cuándo ayuda y cuándo estorba.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-07-12",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "kpis-gestion-proyectos",
+    related: ["kpis-gestion-proyectos", "ruta-critica-proyecto", "plantilla-cronograma-proyecto"],
+    seo: {
+      title: "Diagrama de Gantt: qué es y cómo hacerlo | Hito",
+      description:
+        "Qué es un diagrama de Gantt, cómo hacerlo paso a paso (con o sin Excel) y cuándo ayuda de verdad. El error de las 200 barras y cómo evitarlo.",
+      ogImageAlt: "Diagrama de Gantt simplificado con hitos, dependencias y ruta crítica.",
+    },
+  },
+  {
+    slug: "burndown-chart",
+    title: "Burndown chart: qué es y cómo leerlo (sin jerga)",
+    excerpt:
+      "Cómo leer un burndown chart en 10 segundos: línea ideal vs. real, los 4 patrones que delatan un sprint en problemas, y cuándo un burnup cuenta mejor la historia.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-07-19",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "kpis-gestion-proyectos",
+    related: ["kpis-gestion-proyectos", "kanban-limites-wip", "sprint-planning-como-hacerlo"],
+    seo: {
+      title: "Burndown chart: qué es y cómo leerlo | Hito",
+      description:
+        "Qué es un burndown chart, cómo leerlo en 10 segundos (línea ideal vs. real), los patrones que delatan problemas y cuándo un burnup es mejor opción.",
+      ogImageAlt: "Burndown chart con línea ideal y línea real divergiendo a mitad de sprint.",
+    },
+  },
+  {
+    slug: "lecciones-aprendidas-proyecto",
+    title: "Lecciones aprendidas de un proyecto: formato y ejemplo",
+    excerpt:
+      "La mayoría de las lecciones aprendidas mueren en un documento que nadie abre. Formato de 4 columnas, reunión de 45 minutos y el truco para que el siguiente proyecto las use.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-07-26",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "kpis-gestion-proyectos",
+    related: ["kpis-gestion-proyectos", "cierre-de-proyecto-checklist", "retrospectivas-formatos"],
+    seo: {
+      title: "Lecciones aprendidas de un proyecto | Hito",
+      description:
+        "Cómo documentar lecciones aprendidas de un proyecto: reunión de 45 minutos, formato de 4 columnas con ejemplos y cómo hacer que el siguiente proyecto las lea.",
+      ogImageAlt: "Formato de lecciones aprendidas de un proyecto en tabla de 4 columnas.",
+    },
+  },
+  {
+    slug: "que-son-stakeholders",
+    title: "Stakeholders: qué son y cómo gestionarlos en un proyecto",
+    excerpt:
+      "Un stakeholder es cualquiera que puede decir “no” a tu proyecto o lo que este afecta. Quiénes son, ejemplos internos y externos, y cómo gestionarlos por interés e influencia.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-08-02",
+    readingTime: "10 min",
+    featured: true,
+    related: ["matriz-de-stakeholders", "matriz-raci", "gestionar-proyectos-con-clientes"],
+    seo: {
+      title: "Stakeholders: qué son y cómo gestionarlos | Hito",
+      description:
+        "Qué es un stakeholder, ejemplos internos y externos, diferencia con shareholders y cómo gestionar cada tipo según su interés e influencia en el proyecto.",
+      ogImageAlt: "Tipos de stakeholders de un proyecto: internos, externos y su nivel de influencia.",
+    },
+  },
+  {
+    slug: "matriz-de-stakeholders",
+    title: "Matriz de stakeholders: plantilla poder-interés con ejemplo",
+    excerpt:
+      "La matriz de stakeholders clasifica a los interesados en 4 cuadrantes según poder e interés. Plantilla con ejemplo, cómo llenarla en 30 minutos y qué hacer con cada cuadrante.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2027-08-09",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "que-son-stakeholders",
+    related: ["que-son-stakeholders", "matriz-raci", "plantillas-gestion-proyectos"],
+    seo: {
+      title: "Matriz de stakeholders: plantilla y ejemplo | Hito",
+      description:
+        "Matriz de stakeholders (poder-interés): plantilla de 4 cuadrantes con ejemplo, cómo llenarla en 30 minutos y la estrategia de comunicación para cada cuadrante.",
+      ogImageAlt: "Matriz de stakeholders poder-interés con los 4 cuadrantes y ejemplos.",
+    },
+  },
+  {
+    slug: "gestion-de-recursos-proyecto",
+    title: "Gestión de recursos en proyectos: asignar sin sobrecargar",
+    excerpt:
+      "Gestión de recursos en proyectos: tipos de recursos, cómo asignar según capacidad real (no nominal) y las señales de que tu equipo está sobrecargado antes de que explote.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-08-16",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "que-son-stakeholders",
+    related: ["que-son-stakeholders", "como-delegar-tareas", "reducir-trabajo-en-curso"],
+    seo: {
+      title: "Gestión de recursos en proyectos | Hito",
+      description:
+        "Gestión de recursos en proyectos: tipos de recursos, cómo asignar por capacidad real y no nominal, y las señales tempranas de sobrecarga del equipo.",
+      ogImageAlt: "Planificación de recursos: capacidad real del equipo contra asignaciones del proyecto.",
+    },
+  },
+  {
+    slug: "que-hace-un-project-manager",
+    title: "Qué hace un project manager: el rol, sin humo",
+    excerpt:
+      "Qué hace un project manager día a día: responsabilidades reales, qué NO es su trabajo, cómo se diferencia de un product manager o scrum master y cuándo lo necesita un equipo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-08-23",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "que-son-stakeholders",
+    related: ["que-son-stakeholders", "gestion-proyectos-agencias", "metodologias-gestion-proyectos"],
+    seo: {
+      title: "Qué hace un project manager (sin humo) | Hito",
+      description:
+        "Qué hace un project manager día a día: responsabilidades reales, qué no es su trabajo, diferencias con product manager y scrum master, y cuándo contratar uno.",
+      ogImageAlt: "Qué hace un project manager: responsabilidades, día a día y límites del rol.",
+    },
+  },
+  {
+    slug: "presupuesto-de-proyecto",
+    title: "Presupuesto de un proyecto: cómo armarlo y controlarlo",
+    excerpt:
+      "Cómo hacer el presupuesto de un proyecto paso a paso: costos directos e indirectos, reserva de contingencia, margen y el control mensual que detecta el sobrecosto a tiempo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-08-30",
+    readingTime: "11 min",
+    featured: true,
+    related: ["costos-directos-e-indirectos", "valor-ganado-evm", "como-estimar-tiempos-proyecto"],
+    seo: {
+      title: "Presupuesto de un proyecto: guía y ejemplo | Hito",
+      description:
+        "Cómo hacer el presupuesto de un proyecto paso a paso: costos directos e indirectos, contingencia y margen, con ejemplo completo y control mensual anti-sobrecosto.",
+      ogImageAlt:
+        "Estructura del presupuesto de un proyecto: costos directos, indirectos, contingencia y margen.",
+    },
+  },
+  {
+    slug: "costos-directos-e-indirectos",
+    title: "Costos directos e indirectos de un proyecto (con ejemplos)",
+    excerpt:
+      "Qué son los costos directos e indirectos en un proyecto, cómo clasificarlos con una pregunta simple, ejemplos reales y por qué equivocarse revienta el margen.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-09-06",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "presupuesto-de-proyecto",
+    related: ["presupuesto-de-proyecto", "sobrecosto-de-proyecto", "plantilla-plan-de-proyecto"],
+    seo: {
+      title: "Costos directos e indirectos: ejemplos | Hito",
+      description:
+        "Costos directos e indirectos en un proyecto: qué son, cómo clasificarlos con una pregunta simple, ejemplos reales y el efecto de confundirlos en tu margen.",
+      ogImageAlt: "Tabla de costos directos e indirectos de un proyecto con ejemplos.",
+    },
+  },
+  {
+    slug: "valor-ganado-evm",
+    title: "Valor ganado (EVM): si tu proyecto va bien, en 3 números",
+    excerpt:
+      "Valor ganado (EVM) sin jerga: PV, EV y AC, las fórmulas de CPI y SPI, un ejemplo numérico completo y hasta dónde vale la pena aplicarlo en equipos pequeños.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-09-13",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "presupuesto-de-proyecto",
+    related: ["presupuesto-de-proyecto", "kpis-gestion-proyectos", "ruta-critica-proyecto"],
+    seo: {
+      title: "Valor ganado EVM: CPI, SPI y ejemplo | Hito",
+      description:
+        "Valor ganado (EVM) sin jerga: qué son PV, EV y AC, cómo calcular CPI y SPI, un ejemplo numérico completo y cómo usarlo en proyectos pequeños sin burocracia.",
+      ogImageAlt: "Valor ganado EVM: PV, EV y AC con fórmulas de CPI y SPI y ejemplo numérico.",
+    },
+  },
+  {
+    slug: "sobrecosto-de-proyecto",
+    title: "Sobrecosto en proyectos: 7 causas y cómo frenarlo",
+    excerpt:
+      "Por qué se dispara el costo de un proyecto: 7 causas reales (estimación optimista, scope creep, indirectos ocultos) y el control mensual que lo detecta antes de que sea irreversible.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2027-09-20",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "presupuesto-de-proyecto",
+    related: ["presupuesto-de-proyecto", "alcance-de-proyecto-scope-creep", "proyecto-atrasado-que-hacer"],
+    seo: {
+      title: "Sobrecosto en proyectos: causas y solución | Hito",
+      description:
+        "Por qué se dispara el costo de un proyecto: 7 causas reales y cómo detectar el sobrecosto a tiempo con control mensual, umbrales de cambio y contingencia.",
+      ogImageAlt: "Sobrecosto en proyectos: causas frecuentes y control mensual de costos.",
     },
   },
 ];

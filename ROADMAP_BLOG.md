@@ -1,10 +1,12 @@
-# Roadmap de blog — 35 artículos de gestión de proyectos (spec 040 + 058)
+# Roadmap de blog — 68 artículos de gestión de proyectos (specs 040, 058 y 068)
 
 > Nace de una auditoría del blog existente (18 artículos, ver `specs/035-blog-performance-organizacion/`):
 > 14 de 18 hablan de Hito/local-first/privacidad — contenido de fondo de embudo. Falta cobertura de
 > búsquedas informacionales puras de gestión de proyectos, que es el público que después necesita una
-> app como Hito. Este documento planea 32 artículos en 5 clusters con estructura pilar→satélite
-> (más 3 plantillas extra del Cluster 4 en spec 058), y se tacha a medida que se publica.
+> app como Hito. Este documento planeó 32 artículos en 5 clusters con estructura pilar→satélite
+> (más 3 plantillas extra del Cluster 4 en spec 058), a los que spec 068 sumó 12 artículos en 3
+> clusters nuevos (control y métricas, stakeholders y equipo, dinero del proyecto) detectados por
+> demanda de búsqueda. Se tacha a medida que se publica.
 
 ## Cómo leer esta tabla
 
@@ -90,6 +92,39 @@ quedan enlazados a este pilar.)*
 | 🟩 | `gestion-proyectos-freelancers` | Gestión de proyectos para freelancers | "gestión de proyectos para freelancers" |
 | 🟩 | `gestion-proyectos-agencias` | Gestión de proyectos para agencias y estudios | "gestión de proyectos agencias" |
 
+## Cluster 6 — Control y métricas
+
+*Pilar: `kpis-gestion-proyectos`. Temas validados con demanda de búsqueda (spec 068).*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `kpis-gestion-proyectos` | **PILAR** — KPIs de gestión de proyectos: los que sí importan | "kpi gestión de proyectos", "indicadores de un proyecto" |
+| 🟩 | `diagrama-de-gantt` | Diagrama de Gantt: qué es, cómo hacerlo y cuándo sobra | "diagrama de gantt", "diagrama de gantt para qué sirve", "gantt ejemplo" |
+| 🟩 | `burndown-chart` | Burndown chart: qué es y cómo leerlo (sin jerga) | "burndown chart", "burndown scrum que es", "burndown vs burnup" |
+| 🟩 | `lecciones-aprendidas-proyecto` | Lecciones aprendidas de un proyecto: formato y ejemplo | "lecciones aprendidas de un proyecto", "lecciones aprendidas ejemplo", "formato" |
+
+## Cluster 7 — Stakeholders y equipo
+
+*Pilar: `que-son-stakeholders`.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `que-son-stakeholders` | **PILAR** — Stakeholders: qué son y cómo gestionarlos en un proyecto | "que son stakeholders", "stakeholders en un proyecto", "stakeholders ejemplos" |
+| 🟩 | `matriz-de-stakeholders` | Matriz de stakeholders: plantilla poder-interés con ejemplo | "matriz de stakeholders", "matriz stakeholders plantilla", "poder interés" |
+| 🟩 | `gestion-de-recursos-proyecto` | Gestión de recursos en proyectos: asignar sin sobrecargar | "gestión de recursos en proyectos", "asignación de recursos", "sobrecarga equipo" |
+| 🟩 | `que-hace-un-project-manager` | Qué hace un project manager: el rol, sin humo | "que hace un project manager", "rol project manager", "project manager vs product manager" |
+
+## Cluster 8 — Dinero del proyecto
+
+*Pilar: `presupuesto-de-proyecto`. Gap de cobertura total: el blog no tenía ni un artículo de costos.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `presupuesto-de-proyecto` | **PILAR** — Presupuesto de un proyecto: cómo armarlo y controlarlo | "presupuesto de un proyecto", "cómo hacer un presupuesto de proyecto" |
+| 🟩 | `costos-directos-e-indirectos` | Costos directos e indirectos de un proyecto (con ejemplos) | "costos directos e indirectos", "costos directos ejemplos" |
+| 🟩 | `valor-ganado-evm` | Valor ganado (EVM): si tu proyecto va bien, en 3 números | "valor ganado", "evm", "cpi spi", "valor ganado fórmula" |
+| 🟩 | `sobrecosto-de-proyecto` | Sobrecosto en proyectos: 7 causas y cómo frenarlo | "sobrecosto", "desviación de costos proyecto", "costos de un proyecto" |
+
 ---
 
 ## Progreso
@@ -124,8 +159,19 @@ quedan enlazados a este pilar.)*
   - Interlinking: `related` de comparativas (`hito-vs-trello`, `alternativas-a-notion`,
     `migrar-trello-a-hito`, `hito-vs-clickup`, `hito-para-estudio-juridico`) hacia el pilar
     de plantillas; `que-es-mcp` y sus satélites hacia el cierre MCP.
-- **Siguiente:** el roadmap de 32 artículos de spec 040 está completo (más 3 plantillas extra
-  y el mini-cluster MCP de spec 058). Medir en Search Console 4–6 semanas después de indexar.
+- **Fase 6 (2026-08-29, spec 068):** 12 artículos publicados — 3 clusters nuevos detectados por
+  demanda de búsqueda (autocomplete de Google) y gaps de cobertura:
+  - **Cluster 6 — Control y métricas (4):** pilar `kpis-gestion-proyectos` (2027-07-05, featured) +
+    `diagrama-de-gantt`, `burndown-chart`, `lecciones-aprendidas-proyecto`.
+  - **Cluster 7 — Stakeholders y equipo (4):** pilar `que-son-stakeholders` (2027-08-02, featured) +
+    `matriz-de-stakeholders`, `gestion-de-recursos-proyecto`, `que-hace-un-project-manager`.
+  - **Cluster 8 — Dinero del proyecto (4):** pilar `presupuesto-de-proyecto` (2027-08-30, featured) +
+    `costos-directos-e-indirectos`, `valor-ganado-evm`, `sobrecosto-de-proyecto`.
+  - Interlinking: `plantilla-cronograma-proyecto` ↔ `diagrama-de-gantt` (related recíproco) y
+    `cierre-de-proyecto-checklist` ↔ `lecciones-aprendidas-proyecto`.
+- **Siguiente:** el roadmap de 68 artículos está completo. Medir en Search Console 4–6 semanas
+  después de indexar cada cluster; si aparece un export nuevo de GSC, priorizar mejoras Track A
+  sobre estos 12.
 
 ## Cadencia
 
@@ -171,3 +217,20 @@ bien como un cluster completo.
 | 2027-06-14 | `gestion-proyectos-freelancers` |
 | 2027-06-21 | `gestion-proyectos-agencias` |
 | 2027-06-28 | `servidores-mcp-para-que-sirven` |
+
+### Calendario editorial Fase 6
+
+| `publishedAt` | Slug |
+|---|---|
+| 2027-07-05 | `kpis-gestion-proyectos` |
+| 2027-07-12 | `diagrama-de-gantt` |
+| 2027-07-19 | `burndown-chart` |
+| 2027-07-26 | `lecciones-aprendidas-proyecto` |
+| 2027-08-02 | `que-son-stakeholders` |
+| 2027-08-09 | `matriz-de-stakeholders` |
+| 2027-08-16 | `gestion-de-recursos-proyecto` |
+| 2027-08-23 | `que-hace-un-project-manager` |
+| 2027-08-30 | `presupuesto-de-proyecto` |
+| 2027-09-06 | `costos-directos-e-indirectos` |
+| 2027-09-13 | `valor-ganado-evm` |
+| 2027-09-20 | `sobrecosto-de-proyecto` |

@@ -64,6 +64,18 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "gestion-proyectos-freelancers": () => import("./gestion-proyectos-freelancers"),
   "gestion-proyectos-agencias": () => import("./gestion-proyectos-agencias"),
   "servidores-mcp-para-que-sirven": () => import("./servidores-mcp-para-que-sirven"),
+  "kpis-gestion-proyectos": () => import("./kpis-gestion-proyectos"),
+  "diagrama-de-gantt": () => import("./diagrama-de-gantt"),
+  "burndown-chart": () => import("./burndown-chart"),
+  "lecciones-aprendidas-proyecto": () => import("./lecciones-aprendidas-proyecto"),
+  "que-son-stakeholders": () => import("./que-son-stakeholders"),
+  "matriz-de-stakeholders": () => import("./matriz-de-stakeholders"),
+  "gestion-de-recursos-proyecto": () => import("./gestion-de-recursos-proyecto"),
+  "que-hace-un-project-manager": () => import("./que-hace-un-project-manager"),
+  "presupuesto-de-proyecto": () => import("./presupuesto-de-proyecto"),
+  "costos-directos-e-indirectos": () => import("./costos-directos-e-indirectos"),
+  "valor-ganado-evm": () => import("./valor-ganado-evm"),
+  "sobrecosto-de-proyecto": () => import("./sobrecosto-de-proyecto"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

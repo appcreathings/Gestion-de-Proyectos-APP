@@ -17,7 +17,7 @@ export const article: BlogArticle = {
   related: [
     "fases-de-un-proyecto",
     "retrospectivas-formatos",
-    "gestion-de-proyectos-guia-completa",
+    "lecciones-aprendidas-proyecto",
     "gestion-de-riesgos-simple",
   ],
   seo: {

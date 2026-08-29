@@ -14,7 +14,7 @@ export const article: BlogArticle = {
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "plantillas-gestion-proyectos",
-  related: ["plantillas-gestion-proyectos", "ruta-critica-proyecto", "como-estimar-tiempos-proyecto"],
+  related: ["plantillas-gestion-proyectos", "ruta-critica-proyecto", "diagrama-de-gantt"],
   seo: {
     title: "Plantilla de cronograma de proyecto | Hito",
     description:
