@@ -76,6 +76,18 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "costos-directos-e-indirectos": () => import("./costos-directos-e-indirectos"),
   "valor-ganado-evm": () => import("./valor-ganado-evm"),
   "sobrecosto-de-proyecto": () => import("./sobrecosto-de-proyecto"),
+  "software-gestion-proyectos": () => import("./software-gestion-proyectos"),
+  "app-gestion-tareas": () => import("./app-gestion-tareas"),
+  "software-gestion-proyectos-pymes": () => import("./software-gestion-proyectos-pymes"),
+  "alternativa-a-asana": () => import("./alternativa-a-asana"),
+  "alternativa-a-monday": () => import("./alternativa-a-monday"),
+  "alternativa-a-jira": () => import("./alternativa-a-jira"),
+  "como-elegir-software-gestion-proyectos": () =>
+    import("./como-elegir-software-gestion-proyectos"),
+  "lista-tareas-vs-gestion-proyectos": () => import("./lista-tareas-vs-gestion-proyectos"),
+  "gestor-tareas-equipo": () => import("./gestor-tareas-equipo"),
+  "programa-organizar-tareas": () => import("./programa-organizar-tareas"),
+  "app-kanban": () => import("./app-kanban"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

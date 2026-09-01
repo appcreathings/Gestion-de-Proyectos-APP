@@ -1,4 +1,4 @@
-# Roadmap de blog — 68 artículos de gestión de proyectos (specs 040, 058 y 068)
+# Roadmap de blog — 100 artículos de gestión de proyectos (specs 040, 058, 068 y 069)
 
 > Nace de una auditoría del blog existente (18 artículos, ver `specs/035-blog-performance-organizacion/`):
 > 14 de 18 hablan de Hito/local-first/privacidad — contenido de fondo de embudo. Falta cobertura de
@@ -6,7 +6,9 @@
 > app como Hito. Este documento planeó 32 artículos en 5 clusters con estructura pilar→satélite
 > (más 3 plantillas extra del Cluster 4 en spec 058), a los que spec 068 sumó 12 artículos en 3
 > clusters nuevos (control y métricas, stakeholders y equipo, dinero del proyecto) detectados por
-> demanda de búsqueda. Se tacha a medida que se publica.
+> demanda de búsqueda. Spec 069 suma **32 artículos más en 3 fases** para posicionar keywords de
+> *app / software de gestión de tareas y proyectos* (el hueco comercial que GSC 2026-08-31 dejó
+> en evidencia). Se tacha a medida que se publica.
 
 ## Cómo leer esta tabla
 
@@ -125,6 +127,59 @@ quedan enlazados a este pilar.)*
 | 🟩 | `valor-ganado-evm` | Valor ganado (EVM): si tu proyecto va bien, en 3 números | "valor ganado", "evm", "cpi spi", "valor ganado fórmula" |
 | 🟩 | `sobrecosto-de-proyecto` | Sobrecosto en proyectos: 7 causas y cómo frenarlo | "sobrecosto", "desviación de costos proyecto", "costos de un proyecto" |
 
+## Cluster 9 — Software y apps de gestión (spec 069 · Fase 1)
+
+*Pilar: `software-gestion-proyectos`. Intención comercial: quien busca una herramienta.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `software-gestion-proyectos` | **PILAR** — Software de gestión de proyectos: cómo elegir uno que sí uses | "software de gestión de proyectos" |
+| 🟩 | `app-gestion-tareas` | App de gestión de tareas: lo que tiene que tener (y lo que sobra) | "app de gestión de tareas", "gestor de tareas" |
+| 🟩 | `software-gestion-proyectos-pymes` | Software de gestión de proyectos para pymes: criterios reales | "software de gestión de proyectos para pymes" |
+| 🟩 | `alternativa-a-asana` | Alternativas a Asana en 2026 (con techos reales) | "alternativa a asana" |
+| 🟩 | `alternativa-a-monday` | Alternativas a monday.com: cuándo dejar los tableros de colores | "alternativa a monday", "alternativas a monday.com" |
+| 🟩 | `alternativa-a-jira` | Alternativas a Jira para equipos que no son de 50 | "alternativa a jira" |
+| 🟩 | `como-elegir-software-gestion-proyectos` | Cómo elegir un software de gestión de proyectos (checklist) | "cómo elegir software de gestión de proyectos" |
+| 🟩 | `lista-tareas-vs-gestion-proyectos` | Lista de tareas vs gestión de proyectos: cuándo cada una | "lista de tareas vs gestión de proyectos" |
+| 🟩 | `gestor-tareas-equipo` | Gestor de tareas para equipos: de la lista compartida al tablero | "gestor de tareas para equipos" |
+| 🟩 | `programa-organizar-tareas` | Programa para organizar tareas: 7 criterios que importan | "programa para organizar tareas" |
+| 🟩 | `app-kanban` | App kanban: cuándo un tablero alcanza (y cuándo no) | "app kanban", "tablero kanban online" |
+
+## Cluster 10 — Organizar el trabajo diario (spec 069 · Fase 2)
+
+*Pilar: `tablero-kanban`. No implementar hasta que el usuario pida Fase 2. Prompt en `specs/069-blog-keywords-app-gestion/spec.md`.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| ⬜ | `tablero-kanban` | **PILAR** — Tablero kanban: qué es, columnas y cómo usarlo | "tablero kanban", "qué es un tablero kanban" |
+| ⬜ | `como-hacer-tablero-kanban` | Cómo hacer un tablero kanban (con 3 ejemplos) | "cómo hacer un tablero kanban" |
+| ⬜ | `que-es-un-backlog` | Qué es un backlog (y qué no es) | "backlog", "qué es un backlog" |
+| ⬜ | `dependencias-entre-tareas` | Dependencias entre tareas, sin jerga de Gantt | "dependencias entre tareas" |
+| ⬜ | `asignar-tareas-equipo` | Cómo asignar tareas en un equipo sin cuellos de botella | "asignar tareas", "asignación de tareas" |
+| ⬜ | `historias-de-usuario` | Historias de usuario: formato y cómo cortarlas | "historias de usuario", "user story" |
+| ⬜ | `definition-of-done` | Definition of done: el checklist que cierra el trabajo | "definition of done", "definición de hecho" |
+| ⬜ | `plan-de-trabajo` | Plan de trabajo: el operativo de la semana | "plan de trabajo", "cómo hacer un plan de trabajo" |
+| ⬜ | `matriz-eisenhower` | Matriz de Eisenhower: urgente vs importante, en la práctica | "matriz eisenhower", "matriz de eisenhower" |
+| ⬜ | `tareas-recurrentes` | Tareas recurrentes: recurrencia vs plantilla vs SOP | "tareas recurrentes", "tareas repetitivas" |
+| ⬜ | `calendario-de-proyecto` | Calendario de proyecto: la vista día/semana del equipo | "calendario de proyecto" |
+
+## Cluster 11 — Control operativo e híbridos (spec 069 · Fase 3)
+
+*Pilar: `scrumban`. Rescata queries GSC sin URL propia. Prompt en el spec 069.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| ⬜ | `scrumban` | **PILAR** — Scrumban: mezclar Kanban y Scrum sin inventar un Frankenstein | "scrumban", "mezclar kanban y scrum" |
+| ⬜ | `formula-tiempo-esperado-pert` | Fórmula de tiempo esperado (PERT) para estimar sin adivinar | "fórmula de tiempo esperado", "PERT" |
+| ⬜ | `control-de-cambios-proyecto` | Control de cambios en un proyecto: el proceso, no el drama | "control de cambios", "change request" |
+| ⬜ | `linea-base-proyecto` | Línea base de un proyecto: alcance, cronograma y costo | "línea base", "baseline de proyecto" |
+| ⬜ | `plan-de-comunicacion-proyecto` | Plan de comunicación de un proyecto (que sí se usa) | "plan de comunicación de un proyecto" |
+| ⬜ | `priorizacion-moscow` | Priorización MoSCoW: Must, Should, Could, Won't | "MoSCoW", "priorización moscow" |
+| ⬜ | `dashboard-de-proyectos` | Dashboard de proyectos: la vista, no los 40 KPIs | "dashboard de proyectos", "tablero de control" |
+| ⬜ | `gestion-proyectos-software` | Gestión de proyectos de software (sin clon de Jira) | "gestión de proyectos de software" |
+| ⬜ | `portafolio-de-proyectos` | Portafolio de proyectos: ver varios sin perder el hilo | "portafolio de proyectos", "gestión de portafolio" |
+| ⬜ | `triple-restriccion-proyecto` | Triple restricción: alcance, tiempo y costo | "triple restricción", "triángulo de hierro" |
+
 ---
 
 ## Progreso
@@ -169,9 +224,16 @@ quedan enlazados a este pilar.)*
     `costos-directos-e-indirectos`, `valor-ganado-evm`, `sobrecosto-de-proyecto`.
   - Interlinking: `plantilla-cronograma-proyecto` ↔ `diagrama-de-gantt` (related recíproco) y
     `cierre-de-proyecto-checklist` ↔ `lecciones-aprendidas-proyecto`.
-- **Siguiente:** el roadmap de 68 artículos está completo. Medir en Search Console 4–6 semanas
-  después de indexar cada cluster; si aparece un export nuevo de GSC, priorizar mejoras Track A
-  sobre estos 12.
+- **Fase 7 (2026-08-31, spec 069 Fase 1):** 11 artículos publicados — **Cluster 9 cerrado**
+  (software y apps de gestión): pilar `software-gestion-proyectos` (2026-08-18, featured) +
+  10 satélites comerciales (app de tareas, pymes, alternativas Asana/Monday/Jira, cómo elegir,
+  lista vs proyectos, gestor de equipo, programa para organizar, app kanban).
+  Interlinking: `related` de `herramientas-gestion-proyectos-gratis`, `hito-vs-trello`,
+  `hito-vs-clickup`, `alternativas-a-notion`, `gestion-proyectos-excel` y `como-priorizar-tareas`.
+- **Siguiente:** ejecutar **Fase 2 (Cluster 10)** o **Fase 3 (Cluster 11)** del spec 069 cuando
+  el usuario lo pida (prompts autocontenidos en `specs/069-blog-keywords-app-gestion/spec.md`).
+  Medir GSC 4–6 semanas después de indexar Cluster 9; Track A de spec 058 sigue pendiente de
+  medición, no de más reescrituras.
 
 ## Cadencia
 
@@ -234,3 +296,21 @@ bien como un cluster completo.
 | 2027-09-06 | `costos-directos-e-indirectos` |
 | 2027-09-13 | `valor-ganado-evm` |
 | 2027-09-20 | `sobrecosto-de-proyecto` |
+
+### Calendario editorial Fase 7 (spec 069 · Cluster 9)
+
+Fechas **antes de hoy (2026-08-31)** para que `datePublished` no quede en el futuro.
+
+| `publishedAt` | Slug |
+|---|---|
+| 2026-08-18 | `software-gestion-proyectos` |
+| 2026-08-19 | `app-gestion-tareas` |
+| 2026-08-20 | `software-gestion-proyectos-pymes` |
+| 2026-08-21 | `alternativa-a-asana` |
+| 2026-08-22 | `alternativa-a-monday` |
+| 2026-08-23 | `alternativa-a-jira` |
+| 2026-08-25 | `como-elegir-software-gestion-proyectos` |
+| 2026-08-26 | `lista-tareas-vs-gestion-proyectos` |
+| 2026-08-27 | `gestor-tareas-equipo` |
+| 2026-08-28 | `programa-organizar-tareas` |
+| 2026-08-29 | `app-kanban` |

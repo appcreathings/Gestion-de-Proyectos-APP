@@ -147,6 +147,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "plantillas-gestion-proyectos",
       "herramientas-gestion-proyectos-gratis",
       "migrar-trello-a-hito",
+      "alternativa-a-asana",
     ],
     seo: {
       title: "Hito vs Trello: cuál elegir en 2026 — Comparativa honesta",
@@ -169,6 +170,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "plantillas-gestion-proyectos",
       "herramientas-gestion-proyectos-gratis",
       "hito-vs-clickup",
+      "alternativa-a-asana",
     ],
     seo: {
       title: "Las 7 mejores alternativas a Notion en 2026 — Comparativa honesta",
@@ -266,6 +268,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "plantillas-gestion-proyectos",
       "herramientas-gestion-proyectos-gratis",
       "hito-vs-trello",
+      "software-gestion-proyectos",
     ],
     seo: {
       title: "Hito vs ClickUp: comparativa honesta (2026) | Hito",
@@ -285,7 +288,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["alcance-de-proyecto-scope-creep", "fases-de-un-proyecto"],
+    related: ["alcance-de-proyecto-scope-creep", "fases-de-un-proyecto", "app-gestion-tareas"],
     seo: {
       title: "Cómo priorizar tareas: 4 métodos de priorización | Hito",
       description:
@@ -1050,6 +1053,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "plantillas-gestion-proyectos",
       "herramientas-gestion-proyectos-gratis",
       "gestionar-varios-proyectos-a-la-vez",
+      "software-gestion-proyectos",
     ],
     seo: {
       title: "Gestión de proyectos en Excel: cuándo sí y cuándo no | Hito",
@@ -1074,6 +1078,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "hito-vs-trello",
       "alternativas-a-notion",
       "hito-vs-clickup",
+      "software-gestion-proyectos",
     ],
     seo: {
       title: "Herramientas gratis de gestión de proyectos | Hito",
@@ -1437,6 +1442,251 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Por qué se dispara el costo de un proyecto: 7 causas reales y cómo detectar el sobrecosto a tiempo con control mensual, umbrales de cambio y contingencia.",
       ogImageAlt: "Sobrecosto en proyectos: causas frecuentes y control mensual de costos.",
+    },
+  },
+  {
+    slug: "software-gestion-proyectos",
+    title: "Software de gestión de proyectos: cómo elegir uno que sí uses",
+    excerpt:
+      "Qué es un software de gestión de proyectos, qué tiene que hacer de verdad y cómo elegir entre lista, kanban, Gantt y local-first sin comprar vistas que nadie abre.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-18",
+    readingTime: "12 min",
+    featured: true,
+    related: [
+      "app-gestion-tareas",
+      "como-elegir-software-gestion-proyectos",
+      "herramientas-gestion-proyectos-gratis",
+      "alternativa-a-asana",
+    ],
+    seo: {
+      title: "Software de gestión de proyectos: cómo elegir | Hito",
+      description:
+        "Software de gestión de proyectos: qué es, qué debe hacer y cómo elegir entre Asana, Trello, Jira, ClickUp y opciones local-first sin comprar vistas de más.",
+      ogImageAlt:
+        "Comparativa de software de gestión de proyectos: lista, kanban, Gantt y local-first.",
+    },
+  },
+  {
+    slug: "app-gestion-tareas",
+    title: "App de gestión de tareas: lo que tiene que tener (y lo que sobra)",
+    excerpt:
+      "Una app de gestión de tareas no es una lista infinita. Las 8 funciones que importan, cuándo la lista personal se queda chica y cuándo pasar a gestión de proyectos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-19",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "como-priorizar-tareas",
+      "seguimiento-de-tareas-equipo",
+      "lista-tareas-vs-gestion-proyectos",
+    ],
+    seo: {
+      title: "App de gestión de tareas: lo que sí importa | Hito",
+      description:
+        "App de gestión de tareas: 8 funciones que importan (captura, responsable, tablero, recurrencia), cuándo se queda chica y cuándo pasar a gestión de proyectos.",
+      ogImageAlt: "App de gestión de tareas: funciones que importan frente a las que sobran.",
+    },
+  },
+  {
+    slug: "software-gestion-proyectos-pymes",
+    title: "Software de gestión de proyectos para pymes: criterios reales",
+    excerpt:
+      "Una pyme no necesita un PPM. Criterios de costo a 12 meses, adopción y datos de clientes para elegir software de gestión de proyectos sin inflar asientos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-20",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "gestion-proyectos-agencias",
+      "gestion-proyectos-freelancers",
+    ],
+    seo: {
+      title: "Software de gestión de proyectos para pymes | Hito",
+      description:
+        "Software de gestión de proyectos para pymes: costo real a 12 meses, curva de adopción, datos de clientes y lo que una pyme de 5–30 personas no necesita.",
+      ogImageAlt: "Criterios para elegir software de gestión de proyectos en una pyme.",
+    },
+  },
+  {
+    slug: "alternativa-a-asana",
+    title: "Alternativas a Asana en 2026 (con techos reales)",
+    excerpt:
+      "Por qué se busca una alternativa a Asana (precio por usuario, free de 2 asientos) y qué encaja según el motivo: ClickUp, Monday, Trello, Notion, Jira, OpenProject o local-first.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-08-21",
+    readingTime: "11 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "hito-vs-clickup",
+      "hito-vs-trello",
+      "alternativas-a-notion",
+    ],
+    seo: {
+      title: "Alternativas a Asana en 2026 | Hito",
+      description:
+        "Alternativas a Asana con techos reales: ClickUp, Monday, Trello, Notion, Jira, OpenProject y local-first. Elige por el motivo de salida, no por el ranking.",
+      ogImageAlt: "Tabla de alternativas a Asana según precio, simplicidad y privacidad.",
+    },
+  },
+  {
+    slug: "alternativa-a-monday",
+    title: "Alternativas a monday.com: cuándo dejar los tableros de colores",
+    excerpt:
+      "Monday empuja al plan Pro con asientos mínimos y automatizaciones. Alternativas según el motivo: precio, simplicidad, ingeniería o datos que no salen de tu equipo.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-08-22",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "alternativa-a-asana", "hito-vs-clickup"],
+    seo: {
+      title: "Alternativas a monday.com (2026) | Hito",
+      description:
+        "Alternativas a monday.com según el motivo de salida: precio por asiento, simplicidad, equipos de ingeniería o datos locales. Tabla honesta, sin ranking comprado.",
+      ogImageAlt: "Alternativas a monday.com por precio, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-jira",
+    title: "Alternativas a Jira para equipos que no son de 50",
+    excerpt:
+      "Jira gana en issues y sprints; se vuelve caro de operar en pymes no-software. Alternativas reales para ingeniería liviana y para equipos de servicios.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-08-23",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "scrum-vs-kanban", "alternativa-a-asana"],
+    seo: {
+      title: "Alternativas a Jira para equipos chicos | Hito",
+      description:
+        "Alternativas a Jira para equipos que no son de 50: cuándo Jira sí vale, cuándo una pyme se ahoga y qué usar en ingeniería liviana o servicios.",
+      ogImageAlt: "Alternativas a Jira para pymes y equipos que no viven de tickets.",
+    },
+  },
+  {
+    slug: "como-elegir-software-gestion-proyectos",
+    title: "Cómo elegir un software de gestión de proyectos (checklist)",
+    excerpt:
+      "Checklist de 6 pasos para elegir software de gestión de proyectos: mapear el flujo real, un tablero piloto, techos a 90 días, datos, precio a 12 meses y prueba con trabajo de verdad.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-25",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "software-gestion-proyectos-pymes",
+      "herramientas-gestion-proyectos-gratis",
+    ],
+    seo: {
+      title: "Cómo elegir software de gestión de proyectos | Hito",
+      description:
+        "Cómo elegir un software de gestión de proyectos en 6 pasos: flujo real, piloto, techos a 90 días, datos, costo a 12 meses y prueba con trabajo real.",
+      ogImageAlt: "Checklist de 6 pasos para elegir software de gestión de proyectos.",
+    },
+  },
+  {
+    slug: "lista-tareas-vs-gestion-proyectos",
+    title: "Lista de tareas vs gestión de proyectos: cuándo cada una",
+    excerpt:
+      "Una lista de tareas no es un fracaso de gestión de proyectos: es otra capa. Cuatro señales de que ya necesitas proyectos, dependencias y un dueño de alcance.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-26",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "app-gestion-tareas",
+      "gestion-de-proyectos-guia-completa",
+    ],
+    seo: {
+      title: "Lista de tareas vs gestión de proyectos | Hito",
+      description:
+        "Lista de tareas vs gestión de proyectos: cuándo alcanza el to-do y cuándo hacen falta alcance, dependencias, varios dueños y presupuesto.",
+      ogImageAlt: "Tabla: lista de tareas frente a gestión de proyectos y cuándo saltar de capa.",
+    },
+  },
+  {
+    slug: "gestor-tareas-equipo",
+    title: "Gestor de tareas para equipos: de la lista compartida al tablero",
+    excerpt:
+      "Un gestor de tareas para equipos no es un Excel con nombres. Asignación, WIP, visibilidad y el daily que deja de ser un interrogatorio.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-27",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "como-delegar-tareas",
+      "seguimiento-de-tareas-equipo",
+      "app-gestion-tareas",
+    ],
+    seo: {
+      title: "Gestor de tareas para equipos | Hito",
+      description:
+        "Gestor de tareas para equipos: cómo pasar de la lista compartida al tablero con asignación, límites WIP y visibilidad sin microgestionar.",
+      ogImageAlt: "Gestor de tareas para equipos: de la lista compartida al tablero kanban.",
+    },
+  },
+  {
+    slug: "programa-organizar-tareas",
+    title: "Programa para organizar tareas: 7 criterios que importan",
+    excerpt:
+      "Un programa para organizar tareas se elige por captura, dueño, fecha y visibilidad — no por el recuento de vistas. Siete criterios y cómo aplicarlos hoy.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-28",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos",
+      "app-gestion-tareas",
+      "como-elegir-software-gestion-proyectos",
+    ],
+    seo: {
+      title: "Programa para organizar tareas: 7 criterios | Hito",
+      description:
+        "Programa para organizar tareas: 7 criterios que importan (captura, dueño, fecha, tablero, techos, datos, costo) sin rankings comprados.",
+      ogImageAlt: "Siete criterios para elegir un programa para organizar tareas.",
+    },
+  },
+  {
+    slug: "app-kanban",
+    title: "App kanban: cuándo un tablero alcanza (y cuándo no)",
+    excerpt:
+      "Una app kanban resuelve flujo visual. No resuelve presupuesto, ruta crítica ni 40 personas. Cuándo el tablero alcanza y cuándo hace falta otra capa.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-29",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "scrum-vs-kanban", "kanban-limites-wip"],
+    seo: {
+      title: "App kanban: cuándo el tablero alcanza | Hito",
+      description:
+        "App kanban: qué tiene que tener un tablero digital, cuándo alcanza para el equipo y cuándo hace falta Gantt, sprints o gestión de proyectos completa.",
+      ogImageAlt: "App kanban: tablero digital con columnas, tarjetas y límite WIP.",
     },
   },
 ];
