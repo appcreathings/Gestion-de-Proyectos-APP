@@ -62,7 +62,11 @@ export const article: BlogArticle = {
             <p>
               Cómo armar las columnas —cuántas, con qué nombres, dónde va el límite— es el
               diseño del tablero, no la elección de la app. Es un segundo paso: primero decides
-              si un tablero te basta; después lo diseñas. Acá nos quedamos en la herramienta.
+              si un tablero te basta; después{" "}
+              <Link to="/blogs/tablero-kanban" className="underline underline-offset-2">
+                lo diseñas
+              </Link>
+              . Acá nos quedamos en la herramienta.
             </p>
           </>
         ),

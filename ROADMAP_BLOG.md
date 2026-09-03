@@ -151,12 +151,12 @@ quedan enlazados a este pilar.)*
 
 | Estado | Slug | Título | Intención de búsqueda |
 |---|---|---|---|
-| ⬜ | `tablero-kanban` | **PILAR** — Tablero kanban: qué es, columnas y cómo usarlo | "tablero kanban", "qué es un tablero kanban" |
-| ⬜ | `como-hacer-tablero-kanban` | Cómo hacer un tablero kanban (con 3 ejemplos) | "cómo hacer un tablero kanban" |
-| ⬜ | `que-es-un-backlog` | Qué es un backlog (y qué no es) | "backlog", "qué es un backlog" |
-| ⬜ | `dependencias-entre-tareas` | Dependencias entre tareas, sin jerga de Gantt | "dependencias entre tareas" |
-| ⬜ | `asignar-tareas-equipo` | Cómo asignar tareas en un equipo sin cuellos de botella | "asignar tareas", "asignación de tareas" |
-| ⬜ | `historias-de-usuario` | Historias de usuario: formato y cómo cortarlas | "historias de usuario", "user story" |
+| 🟩 | `tablero-kanban` | **PILAR** — Tablero kanban: qué es, columnas y cómo usarlo | "tablero kanban", "qué es un tablero kanban" |
+| 🟩 | `como-hacer-tablero-kanban` | Cómo hacer un tablero kanban (con 3 ejemplos) | "cómo hacer un tablero kanban" |
+| 🟩 | `que-es-un-backlog` | Qué es un backlog (y qué no es) | "backlog", "qué es un backlog" |
+| 🟩 | `dependencias-entre-tareas` | Dependencias entre tareas, sin jerga de Gantt | "dependencias entre tareas" |
+| 🟩 | `asignar-tareas-equipo` | Cómo asignar tareas en un equipo sin cuellos de botella | "asignar tareas", "asignación de tareas" |
+| 🟩 | `historias-de-usuario` | Historias de usuario: formato y cómo cortarlas | "historias de usuario", "user story" |
 | ⬜ | `definition-of-done` | Definition of done: el checklist que cierra el trabajo | "definition of done", "definición de hecho" |
 | ⬜ | `plan-de-trabajo` | Plan de trabajo: el operativo de la semana | "plan de trabajo", "cómo hacer un plan de trabajo" |
 | ⬜ | `matriz-eisenhower` | Matriz de Eisenhower: urgente vs importante, en la práctica | "matriz eisenhower", "matriz de eisenhower" |
@@ -230,10 +230,17 @@ quedan enlazados a este pilar.)*
   lista vs proyectos, gestor de equipo, programa para organizar, app kanban).
   Interlinking: `related` de `herramientas-gestion-proyectos-gratis`, `hito-vs-trello`,
   `hito-vs-clickup`, `alternativas-a-notion`, `gestion-proyectos-excel` y `como-priorizar-tareas`.
-- **Siguiente:** ejecutar **Fase 2 (Cluster 10)** o **Fase 3 (Cluster 11)** del spec 069 cuando
-  el usuario lo pida (prompts autocontenidos en `specs/069-blog-keywords-app-gestion/spec.md`).
-  Medir GSC 4–6 semanas después de indexar Cluster 9; Track A de spec 058 sigue pendiente de
-  medición, no de más reescrituras.
+- **Fase 8, lote 1 (2026-09-03, spec 069 Fase 2 · 6 de 11):** publicados los slugs 12–17 del
+  Cluster 10 — pilar `tablero-kanban` (2026-08-29, featured) + `como-hacer-tablero-kanban`,
+  `que-es-un-backlog`, `dependencias-entre-tareas`, `asignar-tareas-equipo`,
+  `historias-de-usuario` (calendario 2026-08-29 → 2026-09-03, todos ≤ día de deploy).
+  Interlinking: `related` de `app-kanban` (teaser del cuerpo resuelto con link al pilar),
+  `kanban-limites-wip` y `scrum-vs-kanban` hacia `tablero-kanban`.
+- **Siguiente:** cerrar **Cluster 10** con los slugs 18–22 (`definition-of-done`,
+  `plan-de-trabajo`, `matriz-eisenhower`, `tareas-recurrentes`, `calendario-de-proyecto`),
+  o ejecutar **Fase 3 (Cluster 11)** del spec 069 cuando el usuario lo pida (prompt en
+  `specs/069-blog-keywords-app-gestion/spec.md`). Medir GSC 4–6 semanas después de indexar
+  Cluster 9; Track A de spec 058 sigue pendiente de medición, no de más reescrituras.
 
 ## Cadencia
 
@@ -314,3 +321,16 @@ Fechas **antes de hoy (2026-08-31)** para que `datePublished` no quede en el fut
 | 2026-08-27 | `gestor-tareas-equipo` |
 | 2026-08-28 | `programa-organizar-tareas` |
 | 2026-08-29 | `app-kanban` |
+
+### Calendario editorial Fase 8 · lote 1 (spec 069 · Cluster 10, slugs 12–17)
+
+Fechas **antes de hoy (2026-09-03)** para que `datePublished` no quede en el futuro.
+
+| `publishedAt` | Slug |
+|---|---|
+| 2026-08-29 | `tablero-kanban` |
+| 2026-08-30 | `como-hacer-tablero-kanban` |
+| 2026-08-31 | `que-es-un-backlog` |
+| 2026-09-01 | `dependencias-entre-tareas` |
+| 2026-09-02 | `asignar-tareas-equipo` |
+| 2026-09-03 | `historias-de-usuario` |

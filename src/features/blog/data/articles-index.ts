@@ -453,7 +453,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   readingTime: "10 min",
   featured: false,
   pillar: "metodologias-gestion-proyectos",
-    related: ["fases-de-un-proyecto", "matriz-raci", "kanban-limites-wip"],
+    related: ["fases-de-un-proyecto", "matriz-raci", "kanban-limites-wip", "tablero-kanban"],
     seo: {
       title: "Kanban vs Scrum (y Scrum vs Kanban): cuál elegir | Hito",
       description:
@@ -604,6 +604,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "que-es-scrum-equipos-pequenos",
       "gestionar-varios-proyectos-a-la-vez",
       "reducir-trabajo-en-curso",
+      "tablero-kanban",
     ],
     seo: {
       title: "Kanban WIP: qué significa y cómo limitar el trabajo | Hito",
@@ -1681,12 +1682,154 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "software-gestion-proyectos",
-    related: ["software-gestion-proyectos", "scrum-vs-kanban", "kanban-limites-wip"],
+    related: ["software-gestion-proyectos", "tablero-kanban", "scrum-vs-kanban", "kanban-limites-wip"],
     seo: {
       title: "App kanban: cuándo el tablero alcanza | Hito",
       description:
         "App kanban: qué tiene que tener un tablero digital, cuándo alcanza para el equipo y cuándo hace falta Gantt, sprints o gestión de proyectos completa.",
       ogImageAlt: "App kanban: tablero digital con columnas, tarjetas y límite WIP.",
+    },
+  },
+  // --- Cluster 10 "Organizar el trabajo diario" (spec 069, Fase 2) — lote 1 de 2
+  // (slugs 12–17). Pilar + 5 satélites; el resto del cluster (definition of done
+  // → calendario) entra con el segundo lote. Ver ROADMAP_BLOG.md.
+  {
+    slug: "tablero-kanban",
+    title: "Tablero kanban: qué es, columnas y cómo usarlo",
+    excerpt:
+      "Qué es un tablero kanban, qué columnas tiene, qué lleva cada tarjeta y por qué sin límite de trabajo en curso es solo una lista tumbada. Cómo usarlo desde el lunes.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-29",
+    readingTime: "10 min",
+    featured: true,
+    related: [
+      "como-hacer-tablero-kanban",
+      "que-es-un-backlog",
+      "kanban-limites-wip",
+      "app-kanban",
+      "dependencias-entre-tareas",
+    ],
+    seo: {
+      title: "Tablero kanban: qué es y cómo usarlo | Hito",
+      description:
+        "Qué es un tablero kanban, qué columnas tiene, qué va en cada tarjeta y cómo usarlo día a día. La guía práctica, sin jerga, para equipos pequeños.",
+      ogImageAlt: "Tablero kanban con columnas Por hacer, En curso, Revisión y Hecho.",
+    },
+  },
+  {
+    slug: "como-hacer-tablero-kanban",
+    title: "Cómo hacer un tablero kanban (con 3 ejemplos)",
+    excerpt:
+      "Cómo hacer un tablero kanban desde cero en 6 pasos, con 3 ejemplos completos: equipo de contenido, equipo de software y agencia. Pared, pizarra o app.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-30",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: ["tablero-kanban", "kanban-limites-wip", "app-kanban"],
+    seo: {
+      title: "Cómo hacer un tablero kanban en 6 pasos | Hito",
+      description:
+        "Cómo hacer un tablero kanban paso a paso: columnas, tarjetas, límite WIP y 3 ejemplos completos (contenido, software, agencia). Físico o digital.",
+      ogImageAlt: "Cómo hacer un tablero kanban: columnas, tarjetas y límite WIP.",
+    },
+  },
+  {
+    slug: "que-es-un-backlog",
+    title: "Qué es un backlog (y qué no es)",
+    excerpt:
+      "Qué es un backlog de trabajo: la cola ordenada por prioridad de todo lo que falta hacer. Tipos (product, sprint, kanban), qué entra y qué no, y cómo podarlo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-08-31",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: [
+      "tablero-kanban",
+      "historias-de-usuario",
+      "sprint-planning-como-hacerlo",
+      "lista-tareas-vs-gestion-proyectos",
+    ],
+    seo: {
+      title: "Qué es un backlog (y qué no es) | Hito",
+      description:
+        "Qué es un backlog: la cola priorizada de trabajo pendiente. Product backlog vs sprint backlog, qué entra y qué no, y cómo evitar el backlog cementerio.",
+      ogImageAlt: "Qué es un backlog: cola priorizada frente a caja de ideas sin orden.",
+    },
+  },
+  {
+    slug: "dependencias-entre-tareas",
+    title: "Dependencias entre tareas, sin jerga de Gantt",
+    excerpt:
+      "Qué son las dependencias entre tareas y los 4 tipos (FS, SS, FF, SF) explicados con ejemplos. Cómo marcarlas en un tablero y cuándo necesitas un Gantt de verdad.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-01",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: [
+      "tablero-kanban",
+      "diagrama-de-gantt",
+      "ruta-critica-proyecto",
+      "plantilla-cronograma-proyecto",
+    ],
+    seo: {
+      title: "Dependencias entre tareas: tipos y ejemplos | Hito",
+      description:
+        "Dependencias entre tareas: qué son, los 4 tipos (fin-inicio, inicio-inicio, fin-fin, inicio-fin) con ejemplos, cómo gestionarlas sin Gantt y cuándo sí necesitas uno.",
+      ogImageAlt: "Dependencias entre tareas: tipos FS, SS, FF y SF con ejemplos simples.",
+    },
+  },
+  {
+    slug: "asignar-tareas-equipo",
+    title: "Cómo asignar tareas en un equipo sin crear cuellos de botella",
+    excerpt:
+      "Cómo asignar tareas en un equipo: un dueño por tarea, capacidad real (no nominal), el límite de trabajo en curso y el criterio de cuándo no asignar la fecha.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-02",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: [
+      "tablero-kanban",
+      "como-delegar-tareas",
+      "gestion-de-recursos-proyecto",
+      "seguimiento-de-tareas-equipo",
+    ],
+    seo: {
+      title: "Cómo asignar tareas en un equipo sin cuellos de botella | Hito",
+      description:
+        "Asignación de tareas en equipos: un responsable por tarjeta, capacidad real, WIP visible y seguimiento pull. Los errores que crean cuellos de botella.",
+      ogImageAlt: "Asignación de tareas en equipo: un dueño por tarjeta y WIP visible.",
+    },
+  },
+  {
+    slug: "historias-de-usuario",
+    title: "Historias de usuario: formato y cómo cortarlas",
+    excerpt:
+      "Qué es una historia de usuario, el formato «como X quiero Y para Z», los criterios de aceptación y cómo cortar historias grandes. Con ejemplos dentro y fuera de software.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-03",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: [
+      "tablero-kanban",
+      "que-es-un-backlog",
+      "sprint-planning-como-hacerlo",
+      "matriz-raci",
+    ],
+    seo: {
+      title: "Historias de usuario: formato y ejemplos | Hito",
+      description:
+        "Historias de usuario: qué son, el formato ‘como… quiero… para…’, criterios de aceptación, cómo cortar historias grandes y el error del épico eterno. Con ejemplos.",
+      ogImageAlt: "Formato de historias de usuario: como X quiero Y para Z, con criterios.",
     },
   },
 ];

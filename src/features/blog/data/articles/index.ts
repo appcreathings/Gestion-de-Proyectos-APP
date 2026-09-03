@@ -88,6 +88,12 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "gestor-tareas-equipo": () => import("./gestor-tareas-equipo"),
   "programa-organizar-tareas": () => import("./programa-organizar-tareas"),
   "app-kanban": () => import("./app-kanban"),
+  "tablero-kanban": () => import("./tablero-kanban"),
+  "como-hacer-tablero-kanban": () => import("./como-hacer-tablero-kanban"),
+  "que-es-un-backlog": () => import("./que-es-un-backlog"),
+  "dependencias-entre-tareas": () => import("./dependencias-entre-tareas"),
+  "asignar-tareas-equipo": () => import("./asignar-tareas-equipo"),
+  "historias-de-usuario": () => import("./historias-de-usuario"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

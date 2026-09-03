@@ -8,7 +8,9 @@
   gestión de tareas y proyectos**.
 - **Fase 1 (Cluster 9, 11 artículos):** 🟩 implementada y lista para publicar (calendario
   2026-08-18 → 2026-08-29, siempre ≤ hoy).
-- **Fase 2 (Cluster 10, 11 artículos):** ⬜ documentada; se genera cuando el usuario lo pida.
+- **Fase 2 (Cluster 10, 11 artículos):** 🟨 lote 1 implementado (2026-09-03): slugs 12–17
+  (`tablero-kanban` pilar + 5 satélites). Faltan slugs 18–22 (`definition-of-done` →
+  `calendario-de-proyecto`), se generan cuando el usuario lo pida.
 - **Fase 3 (Cluster 11, 10 artículos):** ⬜ documentada; se genera cuando el usuario lo pida.
 
 Fuente de datos: export GSC `hito.autos` del 2026-08-31
