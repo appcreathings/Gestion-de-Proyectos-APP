@@ -2,16 +2,19 @@
 
 ## Progreso
 
-- **Estado general: 🟩 FASE 1 IMPLEMENTADA (2026-08-31).** Continúa `ROADMAP_BLOG.md`
+- **Estado general: 🟩 IMPLEMENTADO COMPLETO (fases 1–3, cerrado 2026-09-08).** Continúa
+  `ROADMAP_BLOG.md`
   (specs 040, 058 y 068: 68 artículos; este spec suma 32). Abre **3 clusters nuevos** (9–11)
   para capturar las búsquedas de quien está eligiendo o aprendiendo a usar **una app de
   gestión de tareas y proyectos**.
 - **Fase 1 (Cluster 9, 11 artículos):** 🟩 implementada y lista para publicar (calendario
   2026-08-18 → 2026-08-29, siempre ≤ hoy).
-- **Fase 2 (Cluster 10, 11 artículos):** 🟨 lote 1 implementado (2026-09-03): slugs 12–17
-  (`tablero-kanban` pilar + 5 satélites). Faltan slugs 18–22 (`definition-of-done` →
-  `calendario-de-proyecto`), se generan cuando el usuario lo pida.
-- **Fase 3 (Cluster 11, 10 artículos):** ⬜ documentada; se genera cuando el usuario lo pida.
+- **Fase 2 (Cluster 10, 11 artículos):** 🟩 IMPLEMENTADA. Lote 1 (2026-09-03): slugs 12–17
+  (`tablero-kanban` pilar + 5 satélites). Lote 2 (2026-09-08, ver spec 070): slugs 18–22
+  (`definition-of-done`, `plan-de-trabajo`, `matriz-eisenhower`, `tareas-recurrentes`,
+  `calendario-de-proyecto`). Cluster cerrado.
+- **Fase 3 (Cluster 11, 10 artículos):** 🟩 IMPLEMENTADA (2026-09-08, ver spec 070). Pilar
+  `scrumban` + 9 satélites (PERT → triple restricción). Cluster cerrado.
 
 Fuente de datos: export GSC `hito.autos` del 2026-08-31
 (`d:\Downloads\hito.autos-Performance-on-Search-2026-08-31\`), búsqueda Web, últimos 3 meses

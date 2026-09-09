@@ -108,6 +108,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "6 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
+    related: [
+      "hitos-de-un-proyecto-ejemplos",
+      "hito-vs-entregable",
+      "hito-project-gestion-por-hitos",
+    ],
     seo: {
       title: "Qué es un hito en gestión de proyectos: guía práctica — Hito",
       description:
@@ -126,6 +131,17 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "7 min",
     featured: true,
     pillar: "gestion-de-proyectos-guia-completa",
+    related: [
+      "hitos-de-un-proyecto-ejemplos",
+      "diagrama-de-hitos",
+      "hito-en-ms-project",
+      "cronograma-de-hitos",
+      "hito-vs-entregable",
+      "hitos-en-construccion",
+      "hitos-en-metodologias-agiles",
+      "software-de-gestion-por-hitos",
+      "alternativa-a-ms-project",
+    ],
     seo: {
       title: "Hito Project: gestión de proyectos por hitos, sin nube — Hito",
       description:
@@ -288,7 +304,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["alcance-de-proyecto-scope-creep", "fases-de-un-proyecto", "app-gestion-tareas"],
+    related: ["matriz-eisenhower", "priorizacion-moscow", "app-gestion-tareas"],
     seo: {
       title: "Cómo priorizar tareas: 4 métodos de priorización | Hito",
       description:
@@ -340,7 +356,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-10-05",
     readingTime: "11 min",
     featured: false,
-    related: ["gestion-proyectos-agencias", "plantillas-gestion-proyectos"],
+    related: ["gestion-proyectos-agencias", "plantillas-gestion-proyectos", "hitos-en-construccion"],
     seo: {
       title: "Cómo configurar Hito para un estudio jurídico | Hito",
       description:
@@ -410,7 +426,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["fases-de-un-proyecto", "matriz-raci"],
+    related: ["formula-tiempo-esperado-pert", "matriz-raci", "fases-de-un-proyecto"],
     seo: {
       title: "Cómo estimar tiempos de un proyecto sin fallar siempre | Hito",
       description:
@@ -453,7 +469,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   readingTime: "10 min",
   featured: false,
   pillar: "metodologias-gestion-proyectos",
-    related: ["fases-de-un-proyecto", "matriz-raci", "kanban-limites-wip", "tablero-kanban"],
+    related: ["scrumban", "kanban-limites-wip", "tablero-kanban"],
     seo: {
       title: "Kanban vs Scrum (y Scrum vs Kanban): cuál elegir | Hito",
       description:
@@ -472,7 +488,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "8 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["fases-de-un-proyecto", "matriz-raci"],
+    related: ["control-de-cambios-proyecto", "matriz-raci", "fases-de-un-proyecto"],
     seo: {
       title: "Scope creep: qué es (corrupción del alcance) | Hito",
       description:
@@ -600,6 +616,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     featured: false,
     pillar: "metodologias-gestion-proyectos",
     related: [
+      "scrumban",
       "scrum-vs-kanban",
       "que-es-scrum-equipos-pequenos",
       "gestionar-varios-proyectos-a-la-vez",
@@ -717,6 +734,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "13 min",
     featured: true,
     related: [
+      "portafolio-de-proyectos",
       "proyecto-atrasado-que-hacer",
       "como-priorizar-tareas",
       "organizar-proyectos-tareas-jerarquia",
@@ -979,11 +997,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "plantillas-gestion-proyectos",
-    related: [
-      "plantillas-gestion-proyectos",
-      "acta-constitucion-proyecto",
-      "fases-de-un-proyecto",
-    ],
+    related: ["plan-de-trabajo", "plantillas-gestion-proyectos", "acta-constitucion-proyecto"],
     seo: {
       title: "Plantilla de plan de proyecto: cómo llenarla | Hito",
       description:
@@ -1142,7 +1156,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "plantillas-gestion-proyectos",
-    related: ["plantillas-gestion-proyectos", "ruta-critica-proyecto", "diagrama-de-gantt"],
+    related: ["cronograma-de-hitos", "diagrama-de-gantt", "plantillas-gestion-proyectos"],
     seo: {
       title: "Plantilla de cronograma de proyecto | Hito",
       description:
@@ -1228,7 +1242,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2027-07-05",
     readingTime: "10 min",
     featured: true,
-    related: ["diagrama-de-gantt", "burndown-chart", "valor-ganado-evm", "informe-de-estado-semanal"],
+    related: ["dashboard-de-proyectos", "diagrama-de-gantt", "burndown-chart", "valor-ganado-evm"],
     seo: {
       title: "KPIs de gestión de proyectos: los que importan | Hito",
       description:
@@ -1248,7 +1262,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "kpis-gestion-proyectos",
-    related: ["kpis-gestion-proyectos", "ruta-critica-proyecto", "plantilla-cronograma-proyecto"],
+    related: ["diagrama-de-hitos", "plantilla-cronograma-proyecto", "kpis-gestion-proyectos"],
     seo: {
       title: "Diagrama de Gantt: qué es y cómo hacerlo | Hito",
       description:
@@ -1304,7 +1318,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2027-08-02",
     readingTime: "10 min",
     featured: true,
-    related: ["matriz-de-stakeholders", "matriz-raci", "gestionar-proyectos-con-clientes"],
+    related: ["plan-de-comunicacion-proyecto", "matriz-de-stakeholders", "matriz-raci"],
     seo: {
       title: "Stakeholders: qué son y cómo gestionarlos | Hito",
       description:
@@ -1379,7 +1393,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2027-08-30",
     readingTime: "11 min",
     featured: true,
-    related: ["costos-directos-e-indirectos", "valor-ganado-evm", "como-estimar-tiempos-proyecto"],
+    related: ["linea-base-proyecto", "triple-restriccion-proyecto", "valor-ganado-evm"],
     seo: {
       title: "Presupuesto de un proyecto: guía y ejemplo | Hito",
       description:
@@ -1830,6 +1844,496 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Historias de usuario: qué son, el formato ‘como… quiero… para…’, criterios de aceptación, cómo cortar historias grandes y el error del épico eterno. Con ejemplos.",
       ogImageAlt: "Formato de historias de usuario: como X quiero Y para Z, con criterios.",
+    },
+  },
+  {
+    slug: "definition-of-done",
+    title: "Definition of done: el checklist que cierra el trabajo",
+    excerpt:
+      "Definition of done: la lista compartida que declara una tarea terminada de verdad. Qué la diferencia del DoR y de los criterios de aceptación, y un checklist de 8 ítems copiable.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-04",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: ["tablero-kanban", "historias-de-usuario", "que-es-un-backlog"],
+    seo: {
+      title: "Definition of done: el checklist que cierra el trabajo | Hito",
+      description:
+        "Definition of done: qué es, diferencia con DoR y con los criterios de aceptación, y un checklist DoD copiable para tu equipo. Deja de reabrir trabajo «terminado».",
+      ogImageAlt: "Checklist de definition of done marcado en un tablero.",
+    },
+  },
+  {
+    slug: "plan-de-trabajo",
+    title: "Plan de trabajo: cómo hacer el operativo de la semana",
+    excerpt:
+      "Plan de trabajo: el operativo de la semana en 6 bloques y 4 pasos. Qué incluye, en qué se diferencia del plan de proyecto y del backlog, y los errores que lo vuelven papel mojado.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-05",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: ["tablero-kanban", "plantilla-plan-de-proyecto", "sprint-planning-como-hacerlo"],
+    seo: {
+      title: "Plan de trabajo: cómo hacer el operativo de la semana | Hito",
+      description:
+        "Cómo hacer un plan de trabajo semanal: qué incluye, plantilla de 6 bloques y la diferencia con el plan de proyecto y el backlog. Para equipos pequeños.",
+      ogImageAlt: "Plan de trabajo semanal con objetivos, tareas y responsables.",
+    },
+  },
+  {
+    slug: "matriz-eisenhower",
+    title: "Matriz de Eisenhower: urgente vs importante, en la práctica",
+    excerpt:
+      "Matriz de Eisenhower: los 4 cuadrantes con ejemplos reales, cómo decidir qué eliminar o delegar y la trampa de vivir en lo urgente. Guía práctica para equipos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-06",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: ["tablero-kanban", "como-priorizar-tareas", "priorizacion-moscow"],
+    seo: {
+      title: "Matriz de Eisenhower: urgente vs importante, en la práctica | Hito",
+      description:
+        "Matriz de Eisenhower: los 4 cuadrantes con ejemplos reales, cómo decidir qué eliminar o delegar y la trampa de vivir en lo urgente. Guía práctica.",
+      ogImageAlt:
+        "Matriz de Eisenhower con cuatro cuadrantes: hacer, planificar, delegar, eliminar.",
+    },
+  },
+  {
+    slug: "tareas-recurrentes",
+    title: "Tareas recurrentes: recurrencia vs plantilla vs SOP",
+    excerpt:
+      "Tareas recurrentes: cuándo usar una recurrencia, una plantilla o un SOP, cómo elegir la periodicidad sin fabricar ruido y cuándo matar la repetición.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-07",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: ["tablero-kanban", "como-documentar-procesos-equipos", "plan-de-trabajo"],
+    seo: {
+      title: "Tareas recurrentes: recurrencia vs plantilla vs SOP | Hito",
+      description:
+        "Tareas recurrentes: cuándo usar una recurrencia, una plantilla o un SOP, cómo elegir la periodicidad sin fabricar ruido y cuándo matar la repetición.",
+      ogImageAlt: "Tareas recurrentes en un tablero: recurrencia, plantilla y SOP.",
+    },
+  },
+  {
+    slug: "calendario-de-proyecto",
+    title: "Calendario de proyecto: la vista día y semana del equipo",
+    excerpt:
+      "Calendario de proyecto: qué es, en qué se diferencia del Gantt y del cronograma, qué poner (y qué no) y cómo evitar que se vuelva un museo de fechas.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-08",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "tablero-kanban",
+    related: ["tablero-kanban", "plantilla-cronograma-proyecto", "diagrama-de-gantt"],
+    seo: {
+      title: "Calendario de proyecto: la vista día y semana del equipo | Hito",
+      description:
+        "Calendario de proyecto: qué es, en qué se diferencia del Gantt y del cronograma, qué poner (y qué no) y cómo evitar que se vuelva un museo de fechas.",
+      ogImageAlt: "Calendario de proyecto semanal con entregas y hitos del equipo.",
+    },
+  },
+  {
+    slug: "scrumban",
+    title: "Scrumban: mezclar Scrum y Kanban sin crear un Frankenstein",
+    excerpt:
+      "Scrumban explicado: qué toma de Scrum (sprints con objetivo, retrospectivas, backlog) y qué de Kanban (límites WIP, flujo pull, lead time), cómo migrar en 5 pasos y los errores del híbrido.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-04",
+    readingTime: "10 min",
+    featured: true,
+    related: ["scrum-vs-kanban", "kanban-limites-wip", "tablero-kanban"],
+    seo: {
+      title: "Scrumban: mezclar Scrum y Kanban sin Frankenstein | Hito",
+      description:
+        "Scrumban: qué es, qué toma de Scrum y qué de Kanban, cómo migrar paso a paso y los errores del híbrido. Para equipos que necesitan estructura y flujo.",
+      ogImageAlt: "Tablero scrumban: sprints de Scrum con límites WIP de Kanban.",
+    },
+  },
+  {
+    slug: "formula-tiempo-esperado-pert",
+    title: "Fórmula de tiempo esperado (PERT): estimar sin adivinar",
+    excerpt:
+      "La fórmula de tiempo esperado del PERT: TE = (O + 4M + P) / 6, con ejemplo numérico paso a paso, desviación estándar y cuándo conviene usarla (y cuándo es humo).",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-05",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "como-estimar-tiempos-proyecto", "ruta-critica-proyecto"],
+    seo: {
+      title: "Fórmula de tiempo esperado (PERT): estimar sin adivinar | Hito",
+      description:
+        "Fórmula de tiempo esperado del PERT: (O + 4M + P) / 6, con ejemplo numérico, desviación estándar y cuándo conviene usarla (y cuándo es humo).",
+      ogImageAlt:
+        "Fórmula PERT: tiempo esperado con estimación optimista, más probable y pesimista.",
+    },
+  },
+  {
+    slug: "control-de-cambios-proyecto",
+    title: "Control de cambios en un proyecto: el proceso, no el drama",
+    excerpt:
+      "Control de cambios: el proceso de 5 pasos para gestionar un change request sin drama —registrar, impactar, decidir, actualizar la línea base y comunicar— y el formulario mínimo que lo hace posible.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-06",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "alcance-de-proyecto-scope-creep", "linea-base-proyecto"],
+    seo: {
+      title: "Control de cambios en un proyecto: el proceso, no el drama | Hito",
+      description:
+        "Control de cambios: el proceso de 5 pasos para gestionar change requests sin drama, el formulario mínimo y cómo proteger alcance, plazo y presupuesto.",
+      ogImageAlt:
+        "Flujo de control de cambios: solicitud, análisis, decisión, plan, comunicación.",
+    },
+  },
+  {
+    slug: "linea-base-proyecto",
+    title: "Línea base de un proyecto: alcance, cronograma y costo",
+    excerpt:
+      "La línea base de un proyecto es la versión congelada del plan aprobado: alcance, cronograma y costo. Cómo fijarla sin burocracia, medir desvíos contra ella y cuándo re-baselinear.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-07",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "presupuesto-de-proyecto", "plantilla-cronograma-proyecto"],
+    seo: {
+      title: "Línea base de un proyecto: alcance, cronograma y costo | Hito",
+      description:
+        "Línea base de un proyecto: qué es, sus 3 componentes (alcance, cronograma, costo), cómo fijarla y usarla para medir desvíos sin burocracia.",
+      ogImageAlt: "Línea base del proyecto comparada con el avance real en tres ejes.",
+    },
+  },
+  {
+    slug: "plan-de-comunicacion-proyecto",
+    title: "Plan de comunicación de un proyecto (que sí se usa)",
+    excerpt:
+      "Un plan de comunicación de un proyecto que sí se usa: matriz de audiencia, mensaje, canal y frecuencia, plantilla de una página y los errores que lo convierten en papel muerto.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-08",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "que-son-stakeholders", "informe-de-estado-semanal"],
+    seo: {
+      title: "Plan de comunicación de un proyecto (que sí se usa) | Hito",
+      description:
+        "Plan de comunicación de un proyecto: matriz audiencia-mensaje-canal-frecuencia, plantilla mínima y los errores que lo convierten en documento muerto.",
+      ogImageAlt:
+        "Matriz de plan de comunicación: audiencia, mensaje, canal y frecuencia.",
+    },
+  },
+  {
+    slug: "priorizacion-moscow",
+    title: "Priorización MoSCoW: Must, Should, Could y Won't",
+    excerpt:
+      "Priorización MoSCoW: qué significa cada categoría, cómo ejecutar la sesión de 45 minutos y los tres errores que convierten el framework en una lista de deseos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-04",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "como-priorizar-tareas", "matriz-eisenhower"],
+    seo: {
+      title: "Priorización MoSCoW: Must, Should, Could y Won't | Hito",
+      description:
+        "Priorización MoSCoW: qué significa Must/Should/Could/Won't, cómo aplicarla en una sesión de 45 minutos y los 3 errores que la vuelven inútil.",
+      ogImageAlt: "Cuatro columnas MoSCoW: Must have, Should have, Could have, Won't have.",
+    },
+  },
+  {
+    slug: "dashboard-de-proyectos",
+    title: "Dashboard de proyectos: la vista, no los 40 KPIs",
+    excerpt:
+      "Dashboard de proyectos: qué debe mostrar un tablero de control real, las cinco vistas mínimas y cómo mantenerlo sin convertirlo en un trabajo manual más.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-05",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "kpis-gestion-proyectos", "portafolio-de-proyectos"],
+    seo: {
+      title: "Dashboard de proyectos: la vista, no los 40 KPIs | Hito",
+      description:
+        "Dashboard de proyectos: qué debe mostrar un tablero de control (y qué sobra), las 5 vistas mínimas y cómo armarlo sin convertirlo en un trabajo más.",
+      ogImageAlt: "Dashboard de proyectos con avance, riesgo y próximas entregas.",
+    },
+  },
+  {
+    slug: "gestion-proyectos-software",
+    title: "Gestión de proyectos de software: la guía sin humo",
+    excerpt:
+      "Gestión de proyectos de software: qué la hace distinta, el proceso mínimo que funciona en equipos de 2 a 15 personas y las métricas de flujo que sí predicen entrega.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-06",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "software-gestion-proyectos", "alternativa-a-jira"],
+    seo: {
+      title: "Gestión de proyectos de software: guía sin humo | Hito",
+      description:
+        "Gestión de proyectos de software: qué la hace distinta, el proceso mínimo (backlog, sprints, releases, QA) y las métricas que sí importan. Sin clonar Jira.",
+      ogImageAlt: "Ciclo de gestión de proyectos de software: backlog, sprint, release, QA.",
+    },
+  },
+  {
+    slug: "portafolio-de-proyectos",
+    title: "Portafolio de proyectos: ver varios sin perder el hilo",
+    excerpt:
+      "Portafolio de proyectos: qué es, cómo se diferencia de gestionar varios a la vez, las tres decisiones que resuelve y el ritual mensual de 30 minutos para priorizar con datos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-07",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "gestionar-varios-proyectos-a-la-vez", "dashboard-de-proyectos"],
+    seo: {
+      title: "Portafolio de proyectos: ver varios sin perder el hilo | Hito",
+      description:
+        "Portafolio de proyectos: qué es, cómo se diferencia de gestionar varios proyectos y qué vistas y rituales necesita para priorizar con datos, no con intuición.",
+      ogImageAlt: "Vista de portafolio con varios proyectos, estado y capacidad.",
+    },
+  },
+  {
+    slug: "triple-restriccion-proyecto",
+    title: "Triple restricción: alcance, tiempo y costo",
+    excerpt:
+      "Triple restricción del proyecto: alcance, tiempo y costo con la calidad al centro —cómo usar el triángulo de hierro para negociar cambios y decidir qué cede cuando algo se mueve.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-08",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "scrumban",
+    related: ["scrumban", "presupuesto-de-proyecto", "alcance-de-proyecto-scope-creep"],
+    seo: {
+      title: "Triple restricción: alcance, tiempo y costo | Hito",
+      description:
+        "Triple restricción del proyecto (alcance, tiempo, costo y la calidad al centro): cómo usarla para negociar cambios y decidir qué cede cuando algo se mueve.",
+      ogImageAlt: "Triángulo de hierro: alcance, tiempo y costo con calidad al centro.",
+    },
+  },
+  {
+    slug: "hitos-de-un-proyecto-ejemplos",
+    title: "Hitos de un proyecto: los que sí o sí se marcan",
+    excerpt:
+      "Los hitos de un proyecto que casi todo plan serio marca —kickoff, plan aprobado, beta, entrega, aceptación— con ejemplos por industria y tres filtros para elegir los tuyos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-04",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "que-es-un-hito-gestion-proyectos",
+      "hito-vs-entregable",
+    ],
+    seo: {
+      title: "Hitos de un proyecto: los que sí o sí se marcan | Hito",
+      description:
+        "Hitos de un proyecto: los típicos por fase (kickoff, plan aprobado, beta, entrega, aceptación) con ejemplos por industria y cómo elegir los tuyos.",
+      ogImageAlt: "Línea de tiempo con los hitos típicos de un proyecto por fase.",
+    },
+  },
+  {
+    slug: "diagrama-de-hitos",
+    title: "Diagrama de hitos: qué es y cómo hacerlo (con ejemplo)",
+    excerpt:
+      "Qué es un diagrama de hitos, en qué se diferencia del Gantt, cómo hacerlo en 5 pasos y un ejemplo completo. La vista mínima que tu cliente sí entiende.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-05",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: ["hito-project-gestion-por-hitos", "diagrama-de-gantt", "cronograma-de-hitos"],
+    seo: {
+      title: "Diagrama de hitos: qué es y cómo hacerlo (con ejemplo) | Hito",
+      description:
+        "Diagrama de hitos: qué es, en qué se diferencia del Gantt, cómo hacer uno en 5 pasos y un ejemplo completo. La vista mínima que tu cliente sí entiende.",
+      ogImageAlt:
+        "Diagrama de hitos en línea de tiempo: kickoff, plan, beta y lanzamiento.",
+    },
+  },
+  {
+    slug: "cronograma-de-hitos",
+    title: "Cronograma de hitos: plantilla y ejemplo práctico",
+    excerpt:
+      "Qué columnas lleva un cronograma de hitos, una plantilla copiable con ejemplo de agencia de diseño y la diferencia con el cronograma de actividades y el diagrama de hitos.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2026-09-06",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "plantilla-cronograma-proyecto",
+      "diagrama-de-hitos",
+    ],
+    seo: {
+      title: "Cronograma de hitos: plantilla y ejemplo práctico | Hito",
+      description:
+        "Cronograma de hitos: qué es, qué columnas lleva, plantilla copiable con ejemplo y diferencia con el cronograma de actividades y el diagrama de hitos.",
+      ogImageAlt:
+        "Tabla de cronograma de hitos con fechas, responsables y criterios.",
+    },
+  },
+  {
+    slug: "hito-en-ms-project",
+    title: "Hito en MS Project: qué es y cómo crearlo paso a paso",
+    excerpt:
+      "Qué es un hito en MS Project (duración cero, rombo en el Gantt), cómo crearlo en 6 pasos, el truco del «Marcar como hito» y los límites de la herramienta para equipos pequeños.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-07",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "diagrama-de-hitos",
+      "alternativa-a-ms-project",
+    ],
+    seo: {
+      title: "Hito en MS Project: qué es y cómo crearlo paso a paso | Hito",
+      description:
+        "Hito en MS Project: qué es (duración cero, símbolo rombo), cómo crearlo y marcarlo en 6 pasos, hitos periódicos y límites de la herramienta.",
+      ogImageAlt:
+        "Hito con símbolo de rombo en el diagrama de Gantt de MS Project.",
+    },
+  },
+  {
+    slug: "hito-vs-entregable",
+    title: "Hito vs entregable: la diferencia que evita planes inflados",
+    excerpt:
+      "La diferencia entre hito y entregable con tabla comparativa y ejemplos: el entregable es la cosa que se entrega; el hito, el punto de control que certifica que fue aceptada.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-08",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "que-es-un-hito-gestion-proyectos",
+      "wbs-estructura-desglose-trabajo",
+    ],
+    seo: {
+      title: "Hito vs entregable: diferencia clara, con ejemplos | Hito",
+      description:
+        "Hito vs entregable: qué es cada uno, tabla comparativa con la tarea, cómo se relacionan (entregable → hito de aceptación) y errores comunes de planificación.",
+      ogImageAlt: "Comparación de hito, entregable y tarea con ejemplos.",
+    },
+  },
+  {
+    slug: "hitos-en-construccion",
+    title: "Hitos en construcción: los 10 que toda obra debería marcar",
+    excerpt:
+      "Los hitos en construcción que toda obra debería marcar: permiso aprobado, movimiento de tierras, cimentación, estructura, cierre de techo, inspección y acta de recepción, con criterio de cumplido verificable.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-04",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "hitos-de-un-proyecto-ejemplos",
+      "cronograma-de-hitos",
+    ],
+    seo: {
+      title: "Hitos en construcción: los 10 que toda obra marca | Hito",
+      description:
+        "Hitos en construcción: los 10 mojones de una obra (permiso, cimentación, estructura, cierre de techo, entrega) y cómo llevarlos sin software enterprise.",
+      ogImageAlt: "Hitos de una obra: permiso, cimentación, estructura y entrega.",
+    },
+  },
+  {
+    slug: "hitos-en-metodologias-agiles",
+    title: "¿Los proyectos ágiles tienen hitos? Sí: estos son los que cuentan",
+    excerpt:
+      "Hitos en metodologías ágiles: el MVP, las releases y el onboarding como hitos reales (el fin de sprint no lo es), y cómo marcarlos sin traicionar la iteración.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-05",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: ["hito-project-gestion-por-hitos", "scrumban", "historias-de-usuario"],
+    seo: {
+      title: "¿Hitos en Scrum y Agile? Sí: estos son los que cuentan | Hito",
+      description:
+        "Hitos en metodologías ágiles: MVP, releases y onboarding como hitos reales (el fin de sprint no lo es), y cómo marcarlos sin traicionar la iteración.",
+      ogImageAlt: "Roadmap ágil con hitos: MVP, release y onboarding entre sprints.",
+    },
+  },
+  {
+    slug: "software-de-gestion-por-hitos",
+    title: "Software de gestión por hitos: qué debe tener y 6 opciones",
+    excerpt:
+      "Software de gestión por hitos: los 4 requisitos que debe cumplir (fecha, criterio verificable, estado visible, línea de tiempo), una tabla honesta de 6 opciones y los errores al elegir.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-06",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "software-gestion-proyectos",
+      "hito-en-ms-project",
+    ],
+    seo: {
+      title: "Software de gestión por hitos: qué debe tener y 6 opciones | Hito",
+      description:
+        "Software de gestión por hitos: los 4 requisitos (fecha, criterio, estado, línea de tiempo), tabla honesta de 6 opciones y los errores al elegir.",
+      ogImageAlt: "Comparativa de software de gestión por hitos: seis opciones y sus techos.",
+    },
+  },
+  {
+    slug: "alternativa-a-ms-project",
+    title: "Alternativas a MS Project en 2026: 7 opciones según tu caso",
+    excerpt:
+      "Alternativas a MS Project: tabla honesta de 7 opciones con sus techos reales, cuál elegir según tu equipo y qué funciones vas a perder al salir del estándar.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-09-07",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "hito-project-gestion-por-hitos",
+    related: [
+      "hito-project-gestion-por-hitos",
+      "software-gestion-proyectos",
+      "alternativa-a-jira",
+    ],
+    seo: {
+      title: "Alternativas a MS Project en 2026: 7 según tu caso | Hito",
+      description:
+        "Alternativas a MS Project: tabla honesta de 7 opciones con techos reales, cuál según tu equipo y qué pierdes al salir (recursos, nivelación, EVM).",
+      ogImageAlt: "Siete alternativas a MS Project comparadas por caso de uso.",
     },
   },
 ];

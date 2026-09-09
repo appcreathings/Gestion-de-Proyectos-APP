@@ -1,4 +1,4 @@
-# Roadmap de blog — 100 artículos de gestión de proyectos (specs 040, 058, 068 y 069)
+# Roadmap de blog — 100 artículos de gestión de proyectos (specs 040, 058, 068, 069 y 070)
 
 > Nace de una auditoría del blog existente (18 artículos, ver `specs/035-blog-performance-organizacion/`):
 > 14 de 18 hablan de Hito/local-first/privacidad — contenido de fondo de embudo. Falta cobertura de
@@ -157,11 +157,11 @@ quedan enlazados a este pilar.)*
 | 🟩 | `dependencias-entre-tareas` | Dependencias entre tareas, sin jerga de Gantt | "dependencias entre tareas" |
 | 🟩 | `asignar-tareas-equipo` | Cómo asignar tareas en un equipo sin cuellos de botella | "asignar tareas", "asignación de tareas" |
 | 🟩 | `historias-de-usuario` | Historias de usuario: formato y cómo cortarlas | "historias de usuario", "user story" |
-| ⬜ | `definition-of-done` | Definition of done: el checklist que cierra el trabajo | "definition of done", "definición de hecho" |
-| ⬜ | `plan-de-trabajo` | Plan de trabajo: el operativo de la semana | "plan de trabajo", "cómo hacer un plan de trabajo" |
-| ⬜ | `matriz-eisenhower` | Matriz de Eisenhower: urgente vs importante, en la práctica | "matriz eisenhower", "matriz de eisenhower" |
-| ⬜ | `tareas-recurrentes` | Tareas recurrentes: recurrencia vs plantilla vs SOP | "tareas recurrentes", "tareas repetitivas" |
-| ⬜ | `calendario-de-proyecto` | Calendario de proyecto: la vista día/semana del equipo | "calendario de proyecto" |
+| 🟩 | `definition-of-done` | Definition of done: el checklist que cierra el trabajo | "definition of done", "definición de hecho" |
+| 🟩 | `plan-de-trabajo` | Plan de trabajo: el operativo de la semana | "plan de trabajo", "cómo hacer un plan de trabajo" |
+| 🟩 | `matriz-eisenhower` | Matriz de Eisenhower: urgente vs importante, en la práctica | "matriz eisenhower", "matriz de eisenhower" |
+| 🟩 | `tareas-recurrentes` | Tareas recurrentes: recurrencia vs plantilla vs SOP | "tareas recurrentes", "tareas repetitivas" |
+| 🟩 | `calendario-de-proyecto` | Calendario de proyecto: la vista día/semana del equipo | "calendario de proyecto" |
 
 ## Cluster 11 — Control operativo e híbridos (spec 069 · Fase 3)
 
@@ -169,16 +169,35 @@ quedan enlazados a este pilar.)*
 
 | Estado | Slug | Título | Intención de búsqueda |
 |---|---|---|---|
-| ⬜ | `scrumban` | **PILAR** — Scrumban: mezclar Kanban y Scrum sin inventar un Frankenstein | "scrumban", "mezclar kanban y scrum" |
-| ⬜ | `formula-tiempo-esperado-pert` | Fórmula de tiempo esperado (PERT) para estimar sin adivinar | "fórmula de tiempo esperado", "PERT" |
-| ⬜ | `control-de-cambios-proyecto` | Control de cambios en un proyecto: el proceso, no el drama | "control de cambios", "change request" |
-| ⬜ | `linea-base-proyecto` | Línea base de un proyecto: alcance, cronograma y costo | "línea base", "baseline de proyecto" |
-| ⬜ | `plan-de-comunicacion-proyecto` | Plan de comunicación de un proyecto (que sí se usa) | "plan de comunicación de un proyecto" |
-| ⬜ | `priorizacion-moscow` | Priorización MoSCoW: Must, Should, Could, Won't | "MoSCoW", "priorización moscow" |
-| ⬜ | `dashboard-de-proyectos` | Dashboard de proyectos: la vista, no los 40 KPIs | "dashboard de proyectos", "tablero de control" |
-| ⬜ | `gestion-proyectos-software` | Gestión de proyectos de software (sin clon de Jira) | "gestión de proyectos de software" |
-| ⬜ | `portafolio-de-proyectos` | Portafolio de proyectos: ver varios sin perder el hilo | "portafolio de proyectos", "gestión de portafolio" |
-| ⬜ | `triple-restriccion-proyecto` | Triple restricción: alcance, tiempo y costo | "triple restricción", "triángulo de hierro" |
+| 🟩 | `scrumban` | **PILAR** — Scrumban: mezclar Kanban y Scrum sin inventar un Frankenstein | "scrumban", "mezclar kanban y scrum" |
+| 🟩 | `formula-tiempo-esperado-pert` | Fórmula de tiempo esperado (PERT) para estimar sin adivinar | "fórmula de tiempo esperado", "PERT" |
+| 🟩 | `control-de-cambios-proyecto` | Control de cambios en un proyecto: el proceso, no el drama | "control de cambios", "change request" |
+| 🟩 | `linea-base-proyecto` | Línea base de un proyecto: alcance, cronograma y costo | "línea base", "baseline de proyecto" |
+| 🟩 | `plan-de-comunicacion-proyecto` | Plan de comunicación de un proyecto (que sí se usa) | "plan de comunicación de un proyecto" |
+| 🟩 | `priorizacion-moscow` | Priorización MoSCoW: Must, Should, Could, Won't | "MoSCoW", "priorización moscow" |
+| 🟩 | `dashboard-de-proyectos` | Dashboard de proyectos: la vista, no los 40 KPIs | "dashboard de proyectos", "tablero de control" |
+| 🟩 | `gestion-proyectos-software` | Gestión de proyectos de software (sin clon de Jira) | "gestión de proyectos de software" |
+| 🟩 | `portafolio-de-proyectos` | Portafolio de proyectos: ver varios sin perder el hilo | "portafolio de proyectos", "gestión de portafolio" |
+| 🟩 | `triple-restriccion-proyecto` | Triple restricción: alcance, tiempo y costo | "triple restricción", "triángulo de hierro" |
+
+## Cluster 12 — Hitos (spec 070)
+
+*Pilar: `hito-project-gestion-por-hitos` (ya publicado, featured — el cluster refuerza la
+familia `hito`/`que es un hito`, la de mayor volumen del sitio en GSC 2026-09-08, y rescata
+queries sin URL: `diagrama de hitos` pos 75,93, `cronograma de hitos` pos 68,33, familia
+MS Project).*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `hitos-de-un-proyecto-ejemplos` | Hitos de un proyecto: los que sí o sí se marcan (con ejemplos) | "hitos de un proyecto", "ejemplos de hitos" |
+| 🟩 | `diagrama-de-hitos` | Diagrama de hitos: qué es y cómo hacerlo (con ejemplo) | "diagrama de hitos" |
+| 🟩 | `cronograma-de-hitos` | Cronograma de hitos: el calendario mínimo que tu cliente sí lee | "cronograma de hitos" |
+| 🟩 | `hito-en-ms-project` | Hito en MS Project: qué es y cómo crearlo paso a paso | "hito en project", "hito project" |
+| 🟩 | `hito-vs-entregable` | Hito vs entregable: la diferencia que evita planes inflados | "diferencia entre hito y entregable", "hito vs" |
+| 🟩 | `hitos-en-construccion` | Hitos en construcción: los 10 que toda obra debería marcar | "hitos en construcción", "hito en construccion" |
+| 🟩 | `hitos-en-metodologias-agiles` | ¿Los proyectos ágiles tienen hitos? Sí: estos son los que cuentan | "hitos en scrum", "hito en agile" |
+| 🟩 | `software-de-gestion-por-hitos` | Software de gestión por hitos: qué debe tener y 6 opciones | "software de gestión por hitos", "hito app" |
+| 🟩 | `alternativa-a-ms-project` | Alternativas a MS Project en 2026: 7 opciones según tu caso | "alternativa a ms project" |
 
 ---
 
@@ -236,11 +255,33 @@ quedan enlazados a este pilar.)*
   `historias-de-usuario` (calendario 2026-08-29 → 2026-09-03, todos ≤ día de deploy).
   Interlinking: `related` de `app-kanban` (teaser del cuerpo resuelto con link al pilar),
   `kanban-limites-wip` y `scrum-vs-kanban` hacia `tablero-kanban`.
-- **Siguiente:** cerrar **Cluster 10** con los slugs 18–22 (`definition-of-done`,
-  `plan-de-trabajo`, `matriz-eisenhower`, `tareas-recurrentes`, `calendario-de-proyecto`),
-  o ejecutar **Fase 3 (Cluster 11)** del spec 069 cuando el usuario lo pida (prompt en
-  `specs/069-blog-keywords-app-gestion/spec.md`). Medir GSC 4–6 semanas después de indexar
-  Cluster 9; Track A de spec 058 sigue pendiente de medición, no de más reescrituras.
+- **Fase 8, lote 2 (2026-09-08, spec 069 Fase 2 · cierre):** **Cluster 10 cerrado** (11/11) —
+  `definition-of-done`, `plan-de-trabajo`, `matriz-eisenhower`, `tareas-recurrentes`,
+  `calendario-de-proyecto` (2026-09-04 → 2026-09-08). Interlinking: `related` de
+  `plantilla-plan-de-proyecto` → `plan-de-trabajo`; `como-priorizar-tareas` →
+  `matriz-eisenhower` + `priorizacion-moscow`; `como-documentar-procesos-equipos` →
+  `tareas-recurrentes`.
+- **Fase 9 (2026-09-08, spec 069 Fase 3):** **Cluster 11 cerrado** (10) — pilar `scrumban`
+  (2026-09-04, featured) + `formula-tiempo-esperado-pert`, `control-de-cambios-proyecto`,
+  `linea-base-proyecto`, `plan-de-comunicacion-proyecto`, `priorizacion-moscow`,
+  `dashboard-de-proyectos`, `gestion-proyectos-software`, `portafolio-de-proyectos`,
+  `triple-restriccion-proyecto`. Interlinking: `related` de `scrum-vs-kanban` y
+  `kanban-limites-wip` → `scrumban`; `como-estimar-tiempos-proyecto` → PERT;
+  `alcance-de-proyecto-scope-creep` → `control-de-cambios-proyecto`; `presupuesto-de-proyecto`
+  → `linea-base-proyecto` + `triple-restriccion-proyecto`; `que-son-stakeholders` →
+  `plan-de-comunicacion-proyecto`; `kpis-gestion-proyectos` → `dashboard-de-proyectos`;
+  `gestionar-varios-proyectos-a-la-vez` → `portafolio-de-proyectos`.
+- **Fase 10 (2026-09-08, spec 070):** **Cluster 12 "Hitos" cerrado** (9 satélites, pilar de
+  facto `hito-project-gestion-por-hitos` ya publicado) — definido por demanda del export GSC
+  2026-09-08: `hitos-de-un-proyecto-ejemplos`, `diagrama-de-hitos` (rescata pos 75,93),
+  `cronograma-de-hitos` (pos 68,33), `hito-en-ms-project` (familia `hito project`, 38 impr),
+  `hito-vs-entregable`, `hitos-en-construccion`, `hitos-en-metodologias-agiles`,
+  `software-de-gestion-por-hitos`, `alternativa-a-ms-project`. Interlinking: `related` de
+  `hito-project-gestion-por-hitos` (los 9 satélites), `que-es-un-hito-gestion-proyectos`,
+  `diagrama-de-gantt`, `plantilla-cronograma-proyecto`, `hito-para-estudio-juridico`.
+- **Siguiente:** medir GSC 4–6 semanas después del deploy (Clusters 9–12 + Track A de 058).
+  El roadmap de 100 artículos queda **completo**: 107/107 slugs publicados. Reescribir solo
+  si el próximo export muestra quick wins de snippet (pos 8–15 con CTR 0), no posts nuevos.
 
 ## Cadencia
 
@@ -334,3 +375,15 @@ Fechas **antes de hoy (2026-09-03)** para que `datePublished` no quede en el fut
 | 2026-09-01 | `dependencias-entre-tareas` |
 | 2026-09-02 | `asignar-tareas-equipo` |
 | 2026-09-03 | `historias-de-usuario` |
+
+### Calendario editorial Fases 8·2 + 9 + 10 (spec 069 Fases 2–3 y spec 070)
+
+Sprint de publicación del 2026-09-08: 24 URLs escalonadas en 5 días (todas ≤ hoy).
+
+| `publishedAt` | Slugs |
+|---|---|
+| 2026-09-04 | `definition-of-done` · `scrumban` · `priorizacion-moscow` · `hitos-de-un-proyecto-ejemplos` · `hitos-en-construccion` |
+| 2026-09-05 | `plan-de-trabajo` · `formula-tiempo-esperado-pert` · `dashboard-de-proyectos` · `diagrama-de-hitos` · `hitos-en-metodologias-agiles` |
+| 2026-09-06 | `matriz-eisenhower` · `control-de-cambios-proyecto` · `gestion-proyectos-software` · `cronograma-de-hitos` · `software-de-gestion-por-hitos` |
+| 2026-09-07 | `tareas-recurrentes` · `linea-base-proyecto` · `portafolio-de-proyectos` · `hito-en-ms-project` · `alternativa-a-ms-project` |
+| 2026-09-08 | `calendario-de-proyecto` · `plan-de-comunicacion-proyecto` · `triple-restriccion-proyecto` · `hito-vs-entregable` |
