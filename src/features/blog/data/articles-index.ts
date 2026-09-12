@@ -426,7 +426,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["formula-tiempo-esperado-pert", "matriz-raci", "fases-de-un-proyecto"],
+    related: ["formula-tiempo-esperado-pert", "matriz-raci", "fases-de-un-proyecto", "registro-de-horas"],
     seo: {
       title: "Cómo estimar tiempos de un proyecto sin fallar siempre | Hito",
       description:
@@ -545,7 +545,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "8 min",
     featured: false,
     pillar: "gestion-de-proyectos-guia-completa",
-    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep"],
+    related: ["como-estimar-tiempos-proyecto", "alcance-de-proyecto-scope-creep", "matriz-de-riesgos", "plan-de-contingencia"],
     seo: {
       title: "Gestión de riesgos para equipos pequeños | Hito",
       description:
@@ -883,6 +883,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "retrospectivas-formatos",
       "lecciones-aprendidas-proyecto",
       "gestion-de-riesgos-simple",
+      "acta-de-cierre-proyecto",
     ],
     seo: {
       title: "Cierre de proyecto: el checklist que casi nadie hace | Hito",
@@ -907,6 +908,8 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "matriz-raci",
       "alcance-de-proyecto-scope-creep",
       "hito-para-estudio-juridico",
+      "onboarding-de-clientes",
+      "cliente-que-no-responde",
     ],
     seo: {
       title: "Proyectos con clientes externos | Hito",
@@ -1021,6 +1024,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "plantillas-gestion-proyectos",
       "plantilla-plan-de-proyecto",
       "alcance-de-proyecto-scope-creep",
+      "acta-de-cierre-proyecto",
     ],
     seo: {
       title: "Acta de constitución de proyecto (project charter) | Hito",
@@ -1045,6 +1049,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "plantillas-gestion-proyectos",
       "reuniones-de-status-eliminar",
       "seguimiento-de-tareas-equipo",
+      "revision-semanal",
     ],
     seo: {
       title: "Informe de estado semanal de proyecto en 5 líneas | Hito",
@@ -1114,7 +1119,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "plantillas-gestion-proyectos",
-    related: ["plantillas-gestion-proyectos", "acta-constitucion-proyecto", "fases-de-un-proyecto"],
+    related: ["plantillas-gestion-proyectos", "acta-constitucion-proyecto", "fases-de-un-proyecto", "onboarding-de-clientes"],
     seo: {
       title: "Kickoff de proyecto: agenda y plantilla | Hito",
       description:
@@ -1356,7 +1361,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "que-son-stakeholders",
-    related: ["que-son-stakeholders", "como-delegar-tareas", "reducir-trabajo-en-curso"],
+    related: ["que-son-stakeholders", "como-delegar-tareas", "reducir-trabajo-en-curso", "planificacion-de-capacidad"],
     seo: {
       title: "Gestión de recursos en proyectos | Hito",
       description:
@@ -1375,7 +1380,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "10 min",
     featured: false,
     pillar: "que-son-stakeholders",
-    related: ["que-son-stakeholders", "gestion-proyectos-agencias", "metodologias-gestion-proyectos"],
+    related: ["que-son-stakeholders", "gestion-proyectos-agencias", "metodologias-gestion-proyectos", "reuniones-1a1"],
     seo: {
       title: "Qué hace un project manager (sin humo) | Hito",
       description:
@@ -1393,7 +1398,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2027-08-30",
     readingTime: "11 min",
     featured: true,
-    related: ["linea-base-proyecto", "triple-restriccion-proyecto", "valor-ganado-evm"],
+    related: ["linea-base-proyecto", "triple-restriccion-proyecto", "valor-ganado-evm", "cuanto-cobrar-por-un-proyecto", "anticipos-y-pagos-por-hitos"],
     seo: {
       title: "Presupuesto de un proyecto: guía y ejemplo | Hito",
       description:
@@ -1857,7 +1862,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     readingTime: "9 min",
     featured: false,
     pillar: "tablero-kanban",
-    related: ["tablero-kanban", "historias-de-usuario", "que-es-un-backlog"],
+    related: ["tablero-kanban", "historias-de-usuario", "que-es-un-backlog", "gestion-de-la-calidad-proyecto"],
     seo: {
       title: "Definition of done: el checklist que cierra el trabajo | Hito",
       description:
@@ -2149,6 +2154,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "hito-project-gestion-por-hitos",
       "que-es-un-hito-gestion-proyectos",
       "hito-vs-entregable",
+      "anticipos-y-pagos-por-hitos",
     ],
     seo: {
       title: "Hitos de un proyecto: los que sí o sí se marcan | Hito",
@@ -2334,6 +2340,278 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Alternativas a MS Project: tabla honesta de 7 opciones con techos reales, cuál según tu equipo y qué pierdes al salir (recursos, nivelación, EVM).",
       ogImageAlt: "Siete alternativas a MS Project comparadas por caso de uso.",
+    },
+  },
+  {
+    slug: "registro-de-horas",
+    title: "Registro de horas: por qué hacerlo y cómo sin odiarlo",
+    excerpt:
+      "El registro de horas bien usado no es vigilancia: es la materia prima para estimar mejor, facturar con datos y ver la capacidad real de tu equipo. Cómo implementarlo en 5 pasos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-09",
+    readingTime: "9 min",
+    featured: true,
+    related: [
+      "como-estimar-tiempos-proyecto",
+      "planificacion-de-capacidad",
+      "gestion-de-recursos-proyecto",
+    ],
+    seo: {
+      title: "Registro de horas: cómo hacerlo sin odiarlo | Hito",
+      description:
+        "Registro de horas: para qué sirve de verdad (estimar, facturar, capacidad), cómo implementarlo en 5 pasos y qué granularidad elegir sin volverse loco.",
+      ogImageAlt: "Registro de horas semanal de un equipo de proyecto.",
+    },
+  },
+  {
+    slug: "planificacion-de-capacidad",
+    title: "Planificación de capacidad: cuánto trabajo puede aceptar tu equipo",
+    excerpt:
+      "Planificación de capacidad: cómo convertir las horas reales de tu equipo en compromisos que se cumplen, con el cálculo de 5 pasos y el factor de foco que todos ignoran.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-09",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "registro-de-horas",
+    related: ["registro-de-horas", "gestion-de-recursos-proyecto", "reducir-trabajo-en-curso"],
+    seo: {
+      title: "Planificación de capacidad: cuánto puede tu equipo | Hito",
+      description:
+        "Planificación de capacidad: qué es, cómo calcular la capacidad real de tu equipo en 5 pasos, el factor de foco y qué hacer cuando la demanda supera la capacidad.",
+      ogImageAlt: "Cálculo de capacidad de equipo: horas disponibles contra demanda de proyectos.",
+    },
+  },
+  {
+    slug: "revision-semanal",
+    title: "La revisión semanal: 30 minutos que ordenan tu semana",
+    excerpt:
+      "La revisión semanal es la cita de 30 minutos contigo mismo que evita que la semana te maneje a ti: agenda de 5 pasos, diferencia con el informe de estado y los 3 errores clásicos.",
+    category: "productividad",
+    categoryLabel: "Productividad",
+    publishedAt: "2026-09-09",
+    readingTime: "7 min",
+    featured: false,
+    pillar: "registro-de-horas",
+    related: [
+      "registro-de-horas",
+      "informe-de-estado-semanal",
+      "plan-de-trabajo",
+      "matriz-eisenhower",
+    ],
+    seo: {
+      title: "Revisión semanal: 30 minutos que ordenan tu semana | Hito",
+      description:
+        "Cómo hacer una revisión semanal en 30 minutos: la agenda de 5 pasos, en qué se diferencia del informe de estado y los errores que la hacen abandonar.",
+      ogImageAlt: "Agenda de revisión semanal: proyectos, fechas y prioridades de la semana.",
+    },
+  },
+  {
+    slug: "reuniones-1a1",
+    title: "Reuniones 1:1 con tu equipo: la agenda mínima y los errores",
+    excerpt:
+      "Las reuniones 1:1 bien hechas son el detector temprano de problemas de tu equipo: agenda de 30 minutos, banco de preguntas y los 5 errores que las convierten en un status incómodo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-09",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "registro-de-horas",
+    related: ["que-hace-un-project-manager", "como-delegar-tareas", "daily-standup-util"],
+    seo: {
+      title: "Reuniones 1:1: agenda mínima y errores a evitar | Hito",
+      description:
+        "Reuniones 1:1 con tu equipo: para qué sirven de verdad, la agenda de 30 minutos, qué preguntar y los 5 errores que las convierten en un status incómodo.",
+      ogImageAlt: "Agenda de reunión 1:1 entre líder y colaborador de equipo.",
+    },
+  },
+  {
+    slug: "cuanto-cobrar-por-un-proyecto",
+    title: "Cuánto cobrar por un proyecto: 4 métodos y los errores que te hacen perder dinero",
+    excerpt:
+      "Cuánto cobrar por un proyecto: los 4 métodos de pricing con sus techos, el cálculo de tu tarifa mínima paso a paso y los 6 errores clásicos que se comen tu margen.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-10",
+    readingTime: "10 min",
+    featured: true,
+    related: [
+      "presupuesto-de-proyecto",
+      "anticipos-y-pagos-por-hitos",
+      "control-de-cambios-proyecto",
+    ],
+    seo: {
+      title: "Cuánto cobrar por un proyecto: métodos y errores | Hito",
+      description:
+        "Cuánto cobrar por un proyecto: los 4 métodos (hora, día, precio cerrado, valor), cómo calcular tu tarifa mínima con ejemplo numérico y los 6 errores de pricing.",
+      ogImageAlt: "Cuatro métodos de pricing de proyectos comparados con sus pros y techos.",
+    },
+  },
+  {
+    slug: "anticipos-y-pagos-por-hitos",
+    title: "Anticipos y pagos por hitos: ata el dinero al avance",
+    excerpt:
+      "Los pagos por hitos convierten el calendario de cobros en el calendario de avances: cuánto anticipo pedir, cómo estructurar los porcentajes y qué hacer cuando un pago no llega.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-10",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "cuanto-cobrar-por-un-proyecto",
+    related: [
+      "cuanto-cobrar-por-un-proyecto",
+      "hitos-de-un-proyecto-ejemplos",
+      "hito-project-gestion-por-hitos",
+      "presupuesto-de-proyecto",
+    ],
+    seo: {
+      title: "Pagos por hitos y anticipos: el dinero y el avance | Hito",
+      description:
+        "Pagos por hitos: cuánto anticipo pedir, cómo repartir porcentajes por avance, qué hito es cobrable y qué hacer cuando el cliente no paga. Con tabla de ejemplo.",
+      ogImageAlt: "Calendario de pagos por hitos: anticipo, avances intermedios y entrega final.",
+    },
+  },
+  {
+    slug: "onboarding-de-clientes",
+    title: "Onboarding de clientes: las dos semanas que definen el proyecto",
+    excerpt:
+      "El onboarding de clientes es el proceso que convierte una firma en un proyecto que arranca bien: qué recolectar antes de empezar, la agenda de la primera semana y los 4 errores clásicos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-10",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "cuanto-cobrar-por-un-proyecto",
+    related: [
+      "cuanto-cobrar-por-un-proyecto",
+      "kickoff-de-proyecto",
+      "gestionar-proyectos-con-clientes",
+      "acta-constitucion-proyecto",
+    ],
+    seo: {
+      title: "Onboarding de clientes: las 2 primeras semanas | Hito",
+      description:
+        "Onboarding de clientes en proyectos: qué es, qué recolectar antes de arrancar, la agenda de la primera semana en 5 pasos y los errores que cuestan meses.",
+      ogImageAlt: "Checklist de onboarding de cliente para el inicio de un proyecto.",
+    },
+  },
+  {
+    slug: "cliente-que-no-responde",
+    title: "El cliente no responde: cómo desbloquear el proyecto sin quemar la relación",
+    excerpt:
+      "Cuando el cliente no responde, el proyecto se congela y las fechas se comen las aprobaciones: por qué callan, la plantilla de mensaje que sí funciona y el protocolo de escalamiento en 5 pasos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-10",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "cuanto-cobrar-por-un-proyecto",
+    related: [
+      "cuanto-cobrar-por-un-proyecto",
+      "gestionar-proyectos-con-clientes",
+      "proyecto-atrasado-que-hacer",
+      "plan-de-comunicacion-proyecto",
+    ],
+    seo: {
+      title: "Cliente que no responde: cómo desbloquear el proyecto | Hito",
+      description:
+        "El cliente no responde: por qué callan los clientes, cómo redactar un recordatorio que sí funciona y el protocolo de escalamiento en 5 pasos sin quemar la relación.",
+      ogImageAlt: "Protocolo de escalamiento ante la falta de respuesta de un cliente.",
+    },
+  },
+  {
+    slug: "matriz-de-riesgos",
+    title: "Matriz de riesgos: probabilidad e impacto, con ejemplo",
+    excerpt:
+      "La matriz de riesgos ordena tus riesgos por probabilidad e impacto para que sepas qué mirar primero: cómo armarla en 5 pasos, qué hacer en cada zona y un ejemplo completo.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-11",
+    readingTime: "9 min",
+    featured: true,
+    related: [
+      "gestion-de-riesgos-simple",
+      "plan-de-contingencia",
+      "matriz-de-stakeholders",
+    ],
+    seo: {
+      title: "Matriz de riesgos: probabilidad e impacto | Hito",
+      description:
+        "Matriz de riesgos: qué es, cómo armarla en 5 pasos, qué escala usar (3×3 o 5×5), qué hacer en cada zona y un ejemplo completo con proyecto real.",
+      ogImageAlt: "Matriz de riesgos 3x3 con riesgos ubicados por probabilidad e impacto.",
+    },
+  },
+  {
+    slug: "plan-de-contingencia",
+    title: "Plan de contingencia: qué harás cuando el riesgo se haga realidad",
+    excerpt:
+      "El plan de contingencia es la respuesta que se escribe antes del problema: qué riesgos merecen plan B, cómo escribirlo en 5 pasos y cuánto reservar de tiempo y dinero.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-11",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "matriz-de-riesgos",
+    related: [
+      "matriz-de-riesgos",
+      "gestion-de-riesgos-simple",
+      "linea-base-proyecto",
+      "proyecto-atrasado-que-hacer",
+    ],
+    seo: {
+      title: "Plan de contingencia: qué hacer si el riesgo ocurre | Hito",
+      description:
+        "Plan de contingencia en proyectos: qué es, en qué se diferencia de la mitigación, qué riesgos merecen plan B, cómo escribirlo en 5 pasos y cuánta reserva dejar.",
+      ogImageAlt: "Estructura de un plan de contingencia: disparador, respuesta y responsable.",
+    },
+  },
+  {
+    slug: "gestion-de-la-calidad-proyecto",
+    title: "Gestión de la calidad en proyectos: criterios, checklists y una pizca de QA",
+    excerpt:
+      "Gestión de la calidad en proyectos: qué es (cumplir los criterios acordados, no perfección), cómo definir criterios de aceptación, qué inspección usar en cada caso y los errores clásicos.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-09-11",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "matriz-de-riesgos",
+    related: [
+      "matriz-de-riesgos",
+      "definition-of-done",
+      "lecciones-aprendidas-proyecto",
+      "cierre-de-proyecto-checklist",
+    ],
+    seo: {
+      title: "Gestión de la calidad en proyectos: guía práctica | Hito",
+      description:
+        "Gestión de la calidad en proyectos: criterios de aceptación verificables, métodos de inspección (revisión, checklist, demo, QA) y los errores que la arruinan.",
+      ogImageAlt: "Ciclo de gestión de calidad: criterios, inspección temprana y defectos.",
+    },
+  },
+  {
+    slug: "acta-de-cierre-proyecto",
+    title: "Acta de cierre de proyecto: plantilla, ejemplo y para qué sirve",
+    excerpt:
+      "El acta de cierre certifica el fin formal del proyecto y evita el proyecto zombi: qué contiene, plantilla de 7 secciones, ejemplo completo y cómo firmarla sin papeleo eterno.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2026-09-11",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "matriz-de-riesgos",
+    related: [
+      "matriz-de-riesgos",
+      "cierre-de-proyecto-checklist",
+      "acta-constitucion-proyecto",
+      "lecciones-aprendidas-proyecto",
+    ],
+    seo: {
+      title: "Acta de cierre de proyecto: plantilla y ejemplo | Hito",
+      description:
+        "Acta de cierre de proyecto: qué es, las 7 secciones que contiene, plantilla copiable con ejemplo, quién la firma y cómo evita el proyecto zombi.",
+      ogImageAlt: "Plantilla de acta de cierre de proyecto con sus siete secciones.",
     },
   },
 ];

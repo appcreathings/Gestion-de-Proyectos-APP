@@ -118,6 +118,18 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "hitos-en-metodologias-agiles": () => import("./hitos-en-metodologias-agiles"),
   "software-de-gestion-por-hitos": () => import("./software-de-gestion-por-hitos"),
   "alternativa-a-ms-project": () => import("./alternativa-a-ms-project"),
+  "registro-de-horas": () => import("./registro-de-horas"),
+  "planificacion-de-capacidad": () => import("./planificacion-de-capacidad"),
+  "revision-semanal": () => import("./revision-semanal"),
+  "reuniones-1a1": () => import("./reuniones-1a1"),
+  "cuanto-cobrar-por-un-proyecto": () => import("./cuanto-cobrar-por-un-proyecto"),
+  "anticipos-y-pagos-por-hitos": () => import("./anticipos-y-pagos-por-hitos"),
+  "onboarding-de-clientes": () => import("./onboarding-de-clientes"),
+  "cliente-que-no-responde": () => import("./cliente-que-no-responde"),
+  "matriz-de-riesgos": () => import("./matriz-de-riesgos"),
+  "plan-de-contingencia": () => import("./plan-de-contingencia"),
+  "gestion-de-la-calidad-proyecto": () => import("./gestion-de-la-calidad-proyecto"),
+  "acta-de-cierre-proyecto": () => import("./acta-de-cierre-proyecto"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

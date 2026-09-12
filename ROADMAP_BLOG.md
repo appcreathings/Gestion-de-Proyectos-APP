@@ -1,4 +1,4 @@
-# Roadmap de blog — 100 artículos de gestión de proyectos (specs 040, 058, 068, 069 y 070)
+# Roadmap de blog — 100 artículos de gestión de proyectos (specs 040, 058, 068, 069, 070 y 071)
 
 > Nace de una auditoría del blog existente (18 artículos, ver `specs/035-blog-performance-organizacion/`):
 > 14 de 18 hablan de Hito/local-first/privacidad — contenido de fondo de embudo. Falta cobertura de
@@ -8,7 +8,9 @@
 > clusters nuevos (control y métricas, stakeholders y equipo, dinero del proyecto) detectados por
 > demanda de búsqueda. Spec 069 suma **32 artículos más en 3 fases** para posicionar keywords de
 > *app / software de gestión de tareas y proyectos* (el hueco comercial que GSC 2026-08-31 dejó
-> en evidencia). Se tacha a medida que se publica.
+> en evidencia). Spec 071 abre la **Fase 11** con 12 artículos más en 3 clusters (tiempo y
+> capacidad, dinero y clientes, riesgo y calidad) definidos por huecos de cobertura. Se tacha a
+> medida que se publica.
 
 ## Cómo leer esta tabla
 
@@ -199,6 +201,42 @@ MS Project).*
 | 🟩 | `software-de-gestion-por-hitos` | Software de gestión por hitos: qué debe tener y 6 opciones | "software de gestión por hitos", "hito app" |
 | 🟩 | `alternativa-a-ms-project` | Alternativas a MS Project en 2026: 7 opciones según tu caso | "alternativa a ms project" |
 
+## Cluster 13 — Tiempo y capacidad (spec 071)
+
+*Pilar: `registro-de-horas`. Gap de cobertura: el blog no cubría el time tracking ni la
+planificación de capacidad. Complementa los clusters 6 (métricas) y 7 (equipo).*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `registro-de-horas` | **PILAR** — Registro de horas: por qué hacerlo y cómo sin odiarlo | "registro de horas", "control de horas trabajadas" |
+| 🟩 | `planificacion-de-capacidad` | Planificación de capacidad: cuánto trabajo puede aceptar tu equipo | "planificación de capacidad", "capacity planning" |
+| 🟩 | `revision-semanal` | La revisión semanal: 30 minutos que ordenan tu semana | "revisión semanal", "weekly review" |
+| 🟩 | `reuniones-1a1` | Reuniones 1:1 con tu equipo: la agenda mínima y los errores | "reuniones 1 a 1", "one on one" |
+
+## Cluster 14 — Dinero y clientes (spec 071)
+
+*Pilar: `cuanto-cobrar-por-un-proyecto`. Profundiza el Cluster 8 (dinero) hacia el lado
+comercial: el blog cubría costos internos pero no el precio de venta ni la relación comercial.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `cuanto-cobrar-por-un-proyecto` | **PILAR** — Cuánto cobrar por un proyecto: 4 métodos y los errores | "cuánto cobrar por un proyecto" |
+| 🟩 | `anticipos-y-pagos-por-hitos` | Anticipos y pagos por hitos: ata el dinero al avance | "pagos por hitos", "anticipo de un proyecto" |
+| 🟩 | `onboarding-de-clientes` | Onboarding de clientes: las dos semanas que definen el proyecto | "onboarding de clientes" |
+| 🟩 | `cliente-que-no-responde` | El cliente no responde: cómo desbloquear el proyecto | "cliente no responde", "aprobación retrasada" |
+
+## Cluster 15 — Riesgo y calidad (spec 071)
+
+*Pilar: `matriz-de-riesgos`. Profundiza `gestion-de-riesgos-simple` (Cluster 1) con el
+vocabulario que la gente busca por separado y cierra el ciclo nace/muere del acta.*
+
+| Estado | Slug | Título | Intención de búsqueda |
+|---|---|---|---|
+| 🟩 | `matriz-de-riesgos` | **PILAR** — Matriz de riesgos: probabilidad e impacto, con ejemplo | "matriz de riesgos", "matriz probabilidad impacto" |
+| 🟩 | `plan-de-contingencia` | Plan de contingencia: qué harás cuando el riesgo se haga realidad | "plan de contingencia" |
+| 🟩 | `gestion-de-la-calidad-proyecto` | Gestión de la calidad en proyectos: criterios, checklists y QA | "gestión de la calidad en proyectos" |
+| 🟩 | `acta-de-cierre-proyecto` | Acta de cierre de proyecto: plantilla, ejemplo y para qué sirve | "acta de cierre de proyecto" |
+
 ---
 
 ## Progreso
@@ -279,15 +317,40 @@ MS Project).*
   `software-de-gestion-por-hitos`, `alternativa-a-ms-project`. Interlinking: `related` de
   `hito-project-gestion-por-hitos` (los 9 satélites), `que-es-un-hito-gestion-proyectos`,
   `diagrama-de-gantt`, `plantilla-cronograma-proyecto`, `hito-para-estudio-juridico`.
-- **Siguiente:** medir GSC 4–6 semanas después del deploy (Clusters 9–12 + Track A de 058).
-  El roadmap de 100 artículos queda **completo**: 107/107 slugs publicados. Reescribir solo
-  si el próximo export muestra quick wins de snippet (pos 8–15 con CTR 0), no posts nuevos.
+- **Fase 11 (2026-09-11, spec 071):** 12 artículos publicados — 3 clusters nuevos definidos por
+  huecos de cobertura (ningún slug pisa los 109 anteriores):
+  - **Cluster 13 — Tiempo y capacidad (4):** pilar `registro-de-horas` (2026-09-09, featured) +
+    `planificacion-de-capacidad`, `revision-semanal`, `reuniones-1a1`.
+  - **Cluster 14 — Dinero y clientes (4):** pilar `cuanto-cobrar-por-un-proyecto` (2026-09-10,
+    featured) + `anticipos-y-pagos-por-hitos` (ata el dinero a la familia `hito`),
+    `onboarding-de-clientes`, `cliente-que-no-responde`.
+  - **Cluster 15 — Riesgo y calidad (4):** pilar `matriz-de-riesgos` (2026-09-11, featured) +
+    `plan-de-contingencia`, `gestion-de-la-calidad-proyecto`, `acta-de-cierre-proyecto`
+    (espejo del acta de constitución).
+  - Interlinking: `related` actualizado en 12 posts existentes (`como-estimar-tiempos-proyecto`,
+    `gestion-de-recursos-proyecto`, `informe-de-estado-semanal`, `que-hace-un-project-manager`,
+    `presupuesto-de-proyecto`, `kickoff-de-proyecto`, `gestionar-proyectos-con-clientes`,
+    `gestion-de-riesgos-simple`, `cierre-de-proyecto-checklist`, `acta-constitucion-proyecto`,
+    `hitos-de-un-proyecto-ejemplos`, `definition-of-done`).
+- **Siguiente:** medir GSC 4–6 semanas después del deploy (Clusters 9–15 + Track A de 058).
+  El blog queda en **121 artículos publicados** (109 + 12 de esta fase). Reescribir solo si el
+  próximo export muestra quick wins de snippet (pos 8–15 con CTR 0), no posts nuevos.
 
 ## Cadencia
 
 Un artículo semanal aproximadamente (ver `publishedAt` en `articles-index.ts`), priorizando terminar
 un cluster (incluido su pilar) antes de saltar al siguiente — un pilar sin satélites no compite tan
 bien como un cluster completo.
+
+### Calendario editorial Fase 11 (spec 071)
+
+Sprint de publicación del 2026-09-11: 12 URLs escalonadas en 3 días (todas ≤ hoy).
+
+| `publishedAt` | Slugs |
+|---|---|
+| 2026-09-09 | `registro-de-horas` · `planificacion-de-capacidad` · `revision-semanal` · `reuniones-1a1` |
+| 2026-09-10 | `cuanto-cobrar-por-un-proyecto` · `anticipos-y-pagos-por-hitos` · `onboarding-de-clientes` · `cliente-que-no-responde` |
+| 2026-09-11 | `matriz-de-riesgos` · `plan-de-contingencia` · `gestion-de-la-calidad-proyecto` · `acta-de-cierre-proyecto` |
 
 ### Calendario editorial Fase 3
 
