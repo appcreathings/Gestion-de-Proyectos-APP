@@ -49,6 +49,7 @@ function ProjectsContent() {
   const projects = useDataStore((s) => s.projects);
   const products = useDataStore((s) => s.products);
   const quarters = useDataStore((s) => s.quarters);
+  const people = useDataStore((s) => s.people);
   const createProject = useDataStore((s) => s.createProject);
   const settings = useAppStore((s) => s.workspace?.settings);
 
@@ -59,11 +60,18 @@ function ProjectsContent() {
 
   // URL es la fuente de verdad de los filtros (spec 063 D2).
   const query = useMemo(() => parseProjectsQuery(searchParams), [searchParams]);
-  const knownProductIds = useMemo(() => new Set(products.map((p) => p.id)), [products]);
+  const known = useMemo(
+    () => ({
+      productIds: new Set(products.map((p) => p.id)),
+      quarterIds: new Set(quarters.map((q) => q.id)),
+      ownerIds: new Set(people.map((p) => p.id)),
+    }),
+    [products, quarters, people],
+  );
 
   const filtered = useMemo(
-    () => filterProjectsByQuery(projects, query, settings ?? null, new Date(), knownProductIds),
-    [projects, query, settings, knownProductIds],
+    () => filterProjectsByQuery(projects, query, settings ?? null, new Date(), known),
+    [projects, query, settings, known],
   );
 
   function commit(next: URLSearchParams) {
@@ -117,7 +125,7 @@ function ProjectsContent() {
             <div className="flex flex-wrap items-center gap-3">
               <Select
                 className="w-full sm:w-48"
-                value={query.productId && knownProductIds.has(query.productId) ? query.productId : ""}
+                value={query.productId && known.productIds.has(query.productId) ? query.productId : ""}
                 onChange={(e) => commit(applyProjectsFilter(searchParams, "product", e.target.value || null))}
               >
                 <option value="">Todos los productos</option>
