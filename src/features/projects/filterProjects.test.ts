@@ -1,12 +1,20 @@
 import { describe, it, expect } from "vitest";
 import { newArea, newChecklist, newItem, newProject, newTask } from "@/domain/factories";
 import { isStalled } from "@/domain/compute";
+import { healthSentence } from "@/features/dashboard/portfolio";
 import type { Project, Settings } from "@/domain/schemas";
 import {
   applyProjectsFilter,
+  clearProjectFilters,
   compareProjects,
   filterProjectsByQuery,
+  hasProjectFilters,
+  healthSummaryFragments,
+  overdueLiveTaskCount,
   parseProjectsQuery,
+  projectDueLabel,
+  projectsOfProduct,
+  summarizeProjects,
   type KnownProjectRefs,
   type ProjectsQuery,
 } from "./filterProjects";
@@ -575,5 +583,102 @@ describe("compareProjects", () => {
     const nuevo = project("Nuevo", { updatedAt: "2026-08-19T12:00:00.000Z" });
     const sorted = [viejo, nuevo].sort((a, b) => compareProjects(a, b, "updated", null, NOW));
     expect(sorted.map((p) => p.name)).toEqual(["Nuevo", "Viejo"]);
+  });
+});
+
+describe("projectDueLabel", () => {
+  it("hoy, mañana, N días, ayer, hace N días y sin fecha (D14)", () => {
+    expect(projectDueLabel("2026-08-20", NOW)).toBe("vence hoy");
+    expect(projectDueLabel("2026-08-21", NOW)).toBe("vence en 1 día");
+    expect(projectDueLabel("2026-08-23", NOW)).toBe("vence en 3 días");
+    expect(projectDueLabel("2026-08-19", NOW)).toBe("venció hace 1 día");
+    expect(projectDueLabel("2026-08-01", NOW)).toBe("venció hace 19 días");
+    expect(projectDueLabel(null, NOW)).toBe("Sin fecha");
+  });
+});
+
+describe("overdueLiveTaskCount", () => {
+  it("cuenta tareas vivas no hechas con fecha vencida; ignora archivadas, hechas y sin fecha (D15)", () => {
+    const p = project("P", {
+      tasks: [
+        { ...newTask("Vencida"), dueDate: "2026-08-01" },
+        { ...newTask("En-curso-vencida"), dueDate: "2026-08-10", status: "doing" },
+        { ...newTask("Hecha"), dueDate: "2026-08-01", status: "done" },
+        { ...newTask("Archivada"), dueDate: "2026-08-01", archived: true },
+        { ...newTask("Sin-fecha"), dueDate: null },
+        { ...newTask("Futura"), dueDate: "2026-09-01" },
+      ],
+    });
+    expect(overdueLiveTaskCount(p, NOW)).toBe(2);
+  });
+});
+
+describe("summarizeProjects", () => {
+  it("cuenta por salud y proyectos vencidos del conjunto recibido (D19)", () => {
+    const red = project("R", { health: "red", dueDate: "2026-08-01" });
+    const red2 = project("R2", { health: "red" });
+    const amber = project("A", { health: "amber" });
+    const green = project("V", { health: "green" });
+    const done = project("T", { status: "done", health: "red", dueDate: "2026-08-01" });
+
+    const summary = summarizeProjects([red, red2, amber, green, done], null, NOW);
+    expect(summary.count).toBe(5);
+    expect(summary.byHealth).toEqual({ red: 3, amber: 1, green: 1 });
+    expect(summary.overdueProjects).toBe(2);
+  });
+
+  it("usa effectiveHealth cuando hay settings (D12)", () => {
+    const p = project("P", { health: "green", updatedAt: "2026-07-01T12:00:00.000Z" });
+    const settings = { ...SETTINGS, deriveHealth: true }; // estancado → rojo
+    const summary = summarizeProjects([p], settings, NOW);
+    expect(summary.byHealth.red).toBe(1);
+    expect(summary.byHealth.green).toBe(0);
+  });
+});
+
+describe("healthSummaryFragments", () => {
+  it("unidos con « · » dan healthSentence(byHealth) (D19)", () => {
+    const singular = { red: 2, amber: 1, green: 1 };
+    expect(healthSummaryFragments(singular).join(" · ")).toBe(healthSentence(singular));
+
+    const plural = { red: 0, amber: 2, green: 3 };
+    expect(healthSummaryFragments(plural).join(" · ")).toBe(healthSentence(plural));
+  });
+});
+
+describe("projectsOfProduct", () => {
+  it("incluye done/archived, excluye otro producto y ordena por nombre (D28)", () => {
+    const zeta = project("Zeta", { productId: "p1", status: "done" });
+    const alfa = project("Alfa", { productId: "p1", status: "archived" });
+    const beta = project("Beta", { productId: "p1" });
+    const otro = project("Otro", { productId: "p2" });
+
+    const list = projectsOfProduct([zeta, alfa, otro, beta], "p1");
+    expect(list.map((p) => p.name)).toEqual(["Alfa", "Beta", "Zeta"]);
+    expect(list).toHaveLength(3);
+  });
+});
+
+describe("clearProjectFilters / hasProjectFilters", () => {
+  it("borra los filtros y el orden; deja view (D20)", () => {
+    const params = new URLSearchParams(
+      "product=p1&status=done&closed=1&health=red&stalled=1&priority=high&owner=o1&q=hola&due=overdue&quarter=q1&sort=name&view=list",
+    );
+    expect(hasProjectFilters(params)).toBe(true);
+
+    const cleared = clearProjectFilters(params);
+    expect(cleared.get("view")).toBe("list");
+    for (const key of [
+      "product", "status", "health", "stalled", "priority",
+      "owner", "q", "due", "closed", "quarter", "sort",
+    ]) {
+      expect(cleared.get(key)).toBeNull();
+    }
+  });
+
+  it("hasProjectFilters: false sin params; false con solo view; true con quarter", () => {
+    expect(hasProjectFilters(new URLSearchParams())).toBe(false);
+    expect(hasProjectFilters(new URLSearchParams("view=list"))).toBe(false);
+    expect(hasProjectFilters(new URLSearchParams("quarter=q1"))).toBe(true);
   });
 });

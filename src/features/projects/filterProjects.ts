@@ -260,3 +260,81 @@ export function compareProjects(
   const health = HEALTH_RANK[healthOf(a, settings, now)] - HEALTH_RANK[healthOf(b, settings, now)];
   return health || dueAsc(a, b) || byName(a, b);
 }
+
+/** Vencimiento relativo del proyecto para la fila Plan (D14). */
+export function projectDueLabel(dueDate: string | null, now: Date): string {
+  const d = daysUntil(dueDate, now);
+  if (d === null) return "Sin fecha";
+  if (d === 0) return "vence hoy";
+  if (d === 1) return "vence en 1 día";
+  if (d > 1) return `vence en ${d} días`;
+  if (d === -1) return "venció hace 1 día";
+  return `venció hace ${Math.abs(d)} días`;
+}
+
+/** Tareas vivas no hechas con fecha vencida (D15). No cuenta ítems de checklist. */
+export function overdueLiveTaskCount(p: Project, now: Date): number {
+  return p.tasks.filter((t) => {
+    if (t.archived || t.status === "done") return false;
+    const d = daysUntil(t.dueDate, now);
+    return d !== null && d < 0;
+  }).length;
+}
+
+export type ProjectsSummary = {
+  count: number;
+  byHealth: Record<Health, number>;
+  overdueProjects: number;
+};
+
+/** Resumen del conjunto ya filtrado (D19). */
+export function summarizeProjects(
+  projects: readonly Project[],
+  settings: Settings | null,
+  now: Date,
+): ProjectsSummary {
+  const byHealth: Record<Health, number> = { red: 0, amber: 0, green: 0 };
+  let overdueProjects = 0;
+  for (const p of projects) {
+    byHealth[healthOf(p, settings, now)]++;
+    const d = daysUntil(p.dueDate, now);
+    if (d !== null && d < 0) overdueProjects++;
+  }
+  return { count: projects.length, byHealth, overdueProjects };
+}
+
+/** Los tres fragmentos de salud que pinta la página; unidos con « · »
+ *  equivalen a `healthSentence` (D19). */
+export function healthSummaryFragments(
+  byHealth: Record<Health, number>,
+): [string, string, string] {
+  return [
+    `${byHealth.red} en rojo`,
+    `${byHealth.amber} ámbar`,
+    `${byHealth.green} ${byHealth.green === 1 ? "verde" : "verdes"}`,
+  ];
+}
+
+/** Proyectos de un producto, incluidos done/archived, por nombre (D28).
+ *  No pasa por el filtro de la URL: el conteo y la lista miden lo mismo. */
+export function projectsOfProduct(projects: readonly Project[], productId: string): Project[] {
+  return projects
+    .filter((p) => p.productId === productId)
+    .sort((a, b) => byName(a, b));
+}
+
+const CLEARABLE = [
+  "product", "status", "health", "stalled", "priority",
+  "owner", "q", "due", "closed", "quarter", "sort",
+] as const;
+
+/** «Limpiar filtros» (D20): borra filtros y orden; `view` no se toca. */
+export function clearProjectFilters(params: URLSearchParams): URLSearchParams {
+  const next = new URLSearchParams(params);
+  for (const key of CLEARABLE) next.delete(key);
+  return next;
+}
+
+export function hasProjectFilters(params: URLSearchParams): boolean {
+  return CLEARABLE.some((key) => params.has(key));
+}
