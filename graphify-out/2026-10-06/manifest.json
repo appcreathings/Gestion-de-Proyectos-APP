@@ -375,8 +375,8 @@
     "semantic_hash": ""
   },
   "src/components/HealthBadge.tsx": {
-    "mtime": 1791266582.949688,
-    "ast_hash": "b0b0b72361705d054abae4871745dd82",
+    "mtime": 1783138750.4318554,
+    "ast_hash": "736db7017eabc156a40ed495f8bc2f12",
     "semantic_hash": ""
   },
   "src/components/HierarchyLegend.tsx": {
@@ -1360,8 +1360,8 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/MyTasksPage.tsx": {
-    "mtime": 1791345347.0091062,
-    "ast_hash": "ea45f192c4a0d27ad0ff2cf2847faaaf",
+    "mtime": 1787359553.6104767,
+    "ast_hash": "53896b1a696f1576c3e00fb35ae1f50f",
     "semantic_hash": ""
   },
   "src/features/not-found/NotFoundPage.tsx": {
@@ -1390,9 +1390,9 @@
     "semantic_hash": ""
   },
   "src/features/products/ProductsPage.tsx": {
-    "mtime": 1791345221.008165,
-    "ast_hash": "449360c0aab8a3b245b5e9f5a34e736e",
-    "semantic_hash": ""
+    "mtime": 1783240689.6956532,
+    "ast_hash": "e4734a48799da746ec57a9e590e29a0c",
+    "semantic_hash": "e4734a48799da746ec57a9e590e29a0c"
   },
   "src/features/projects/CreateFromTypeDialog.tsx": {
     "mtime": 1785686485.2596526,
@@ -1415,8 +1415,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/ProjectsPage.tsx": {
-    "mtime": 1791345116.959583,
-    "ast_hash": "fad9e2bc717ac8aa813f7996ae929284",
+    "mtime": 1787346769.575991,
+    "ast_hash": "e0ab00058a988b806c82fab676300a4a",
     "semantic_hash": ""
   },
   "src/features/projects/components/ActivityTab.tsx": {
@@ -4200,13 +4200,13 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/filterMyTasks.test.ts": {
-    "mtime": 1791345448.7325437,
-    "ast_hash": "0cecf7b0d719d5fcfce5112cf16a2115",
+    "mtime": 1787283004.5974681,
+    "ast_hash": "b6e0a8a3ef00a82342754a7ce92b9139",
     "semantic_hash": ""
   },
   "src/features/my-tasks/filterMyTasks.ts": {
-    "mtime": 1791345321.0468686,
-    "ast_hash": "ed4f4738a67ba6037d29e2bb7036f005",
+    "mtime": 1787283004.598468,
+    "ast_hash": "12e2544559c32609290f52d0f61c77b9",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WorkTypeBadge.tsx": {
@@ -4270,13 +4270,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.test.ts": {
-    "mtime": 1791266434.1103384,
-    "ast_hash": "8abaf2ef846fac62635f166b7b97809f",
+    "mtime": 1787346769.5899928,
+    "ast_hash": "9a3713f6f3f231c4d88854662593abfd",
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.ts": {
-    "mtime": 1791266366.97349,
-    "ast_hash": "762eddde2f4d75b7ec41c882635b905d",
+    "mtime": 1787346769.6010108,
+    "ast_hash": "ec390dd996ddeedd392e8bb1ef4b4b35",
     "semantic_hash": ""
   },
   "specs/063-dashboard-drill-down/PROMPT-EJECUCION.md": {
@@ -4837,41 +4837,6 @@
   "specs/071-blog-clusters-13-14-15/spec.md": {
     "mtime": 1789174964.2200522,
     "ast_hash": "b75b8b3e3ebc4efad686aabe058b3875",
-    "semantic_hash": ""
-  },
-  "src/features/projects/components/ProjectPlanRow.tsx": {
-    "mtime": 1791266600.3109639,
-    "ast_hash": "bfb38589428e049e74892d4a604f38f6",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/PROMPT-EJECUCION.md": {
-    "mtime": 1791263674.6998138,
-    "ast_hash": "be633782f9280a0c2a2cde545ac88856",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/PROMPT-SPEC-DESIGN-TASKS.md": {
-    "mtime": 1791263358.3009255,
-    "ast_hash": "8410a3ab929f0283e53948cd0f3181dc",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/design.md": {
-    "mtime": 1791263674.6998138,
-    "ast_hash": "44b2026397da647f45113faa53162003",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/smoke.md": {
-    "mtime": 1791263648.549376,
-    "ast_hash": "305528b9689c3f137679e00fc69de242",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/spec.md": {
-    "mtime": 1791263608.1294382,
-    "ast_hash": "ed2930f62fd3c4bc4bd76f9dc2f6fa47",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/tasks.md": {
-    "mtime": 1791263674.6998138,
-    "ast_hash": "ee491ecba19a4eeed20e862da11eb65b",
     "semantic_hash": ""
   }
 }

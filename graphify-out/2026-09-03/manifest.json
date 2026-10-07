@@ -375,8 +375,8 @@
     "semantic_hash": ""
   },
   "src/components/HealthBadge.tsx": {
-    "mtime": 1791266582.949688,
-    "ast_hash": "b0b0b72361705d054abae4871745dd82",
+    "mtime": 1783138750.4318554,
+    "ast_hash": "736db7017eabc156a40ed495f8bc2f12",
     "semantic_hash": ""
   },
   "src/components/HierarchyLegend.tsx": {
@@ -785,8 +785,8 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles-index.ts": {
-    "mtime": 1789174672.6535494,
-    "ast_hash": "4f4dfd531a011c8b5081767bafdd8c7f",
+    "mtime": 1788220118.9889038,
+    "ast_hash": "713d6a237e1c1d653d1698d5b2d714f9",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/alternativas-a-notion.tsx": {
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/index.ts": {
-    "mtime": 1789174683.291098,
-    "ast_hash": "f90b957dc1c5ea0511d46476e462b112",
+    "mtime": 1788218252.9745808,
+    "ast_hash": "ecfbe356175e2c5655d8b1ef37c766f2",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/local-first-guia-definitiva-2026.tsx": {
@@ -1360,8 +1360,8 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/MyTasksPage.tsx": {
-    "mtime": 1791345347.0091062,
-    "ast_hash": "ea45f192c4a0d27ad0ff2cf2847faaaf",
+    "mtime": 1787359553.6104767,
+    "ast_hash": "53896b1a696f1576c3e00fb35ae1f50f",
     "semantic_hash": ""
   },
   "src/features/not-found/NotFoundPage.tsx": {
@@ -1390,9 +1390,9 @@
     "semantic_hash": ""
   },
   "src/features/products/ProductsPage.tsx": {
-    "mtime": 1791345221.008165,
-    "ast_hash": "449360c0aab8a3b245b5e9f5a34e736e",
-    "semantic_hash": ""
+    "mtime": 1783240689.6956532,
+    "ast_hash": "e4734a48799da746ec57a9e590e29a0c",
+    "semantic_hash": "e4734a48799da746ec57a9e590e29a0c"
   },
   "src/features/projects/CreateFromTypeDialog.tsx": {
     "mtime": 1785686485.2596526,
@@ -1415,8 +1415,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/ProjectsPage.tsx": {
-    "mtime": 1791345116.959583,
-    "ast_hash": "fad9e2bc717ac8aa813f7996ae929284",
+    "mtime": 1787346769.575991,
+    "ast_hash": "e0ab00058a988b806c82fab676300a4a",
     "semantic_hash": ""
   },
   "src/features/projects/components/ActivityTab.tsx": {
@@ -2255,8 +2255,8 @@
     "semantic_hash": ""
   },
   "ROADMAP_BLOG.md": {
-    "mtime": 1789174755.4087095,
-    "ast_hash": "fddcbffcaea52a7d47aae8b7115f7a3d",
+    "mtime": 1788220214.0600305,
+    "ast_hash": "7ff1f0aacfe09818d577a476c6feac96",
     "semantic_hash": ""
   },
   "ROADMAP_BRANDING_SEO.md": {
@@ -4200,13 +4200,13 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/filterMyTasks.test.ts": {
-    "mtime": 1791345448.7325437,
-    "ast_hash": "0cecf7b0d719d5fcfce5112cf16a2115",
+    "mtime": 1787283004.5974681,
+    "ast_hash": "b6e0a8a3ef00a82342754a7ce92b9139",
     "semantic_hash": ""
   },
   "src/features/my-tasks/filterMyTasks.ts": {
-    "mtime": 1791345321.0468686,
-    "ast_hash": "ed4f4738a67ba6037d29e2bb7036f005",
+    "mtime": 1787283004.598468,
+    "ast_hash": "12e2544559c32609290f52d0f61c77b9",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WorkTypeBadge.tsx": {
@@ -4270,13 +4270,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.test.ts": {
-    "mtime": 1791266434.1103384,
-    "ast_hash": "8abaf2ef846fac62635f166b7b97809f",
+    "mtime": 1787346769.5899928,
+    "ast_hash": "9a3713f6f3f231c4d88854662593abfd",
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.ts": {
-    "mtime": 1791266366.97349,
-    "ast_hash": "762eddde2f4d75b7ec41c882635b905d",
+    "mtime": 1787346769.6010108,
+    "ast_hash": "ec390dd996ddeedd392e8bb1ef4b4b35",
     "semantic_hash": ""
   },
   "specs/063-dashboard-drill-down/PROMPT-EJECUCION.md": {
@@ -4600,278 +4600,18 @@
     "semantic_hash": ""
   },
   "specs/069-blog-keywords-app-gestion/spec.md": {
-    "mtime": 1788923913.0629888,
-    "ast_hash": "96972e4b1928d09ec601ad8f3d08edee",
+    "mtime": 1788220214.1400926,
+    "ast_hash": "acff8501fe96994fd2131137666027d1",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/app-kanban.tsx": {
-    "mtime": 1788414436.8088918,
-    "ast_hash": "cde72f05ef1d76f4b17a819a0eb8e6f4",
+    "mtime": 1788220118.7894735,
+    "ast_hash": "66d35b486e419bf071e99a9ec3841816",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/lista-tareas-vs-gestion-proyectos.tsx": {
     "mtime": 1788220118.7894735,
     "ast_hash": "a1a51cdd370241c9c41cafccf96d747f",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/asignar-tareas-equipo.tsx": {
-    "mtime": 1788414238.8593678,
-    "ast_hash": "db4018f83630e0b264d2954f41224f22",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/como-hacer-tablero-kanban.tsx": {
-    "mtime": 1788413982.5435023,
-    "ast_hash": "57843d3e04e8400e0979b6f51a2df571",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/dependencias-entre-tareas.tsx": {
-    "mtime": 1788414154.2703588,
-    "ast_hash": "cba238061e8bf0a3abdea5d48c180341",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/historias-de-usuario.tsx": {
-    "mtime": 1788414358.782922,
-    "ast_hash": "e4aa5cc7c27bcc81e9cd7906237bfaf7",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/que-es-un-backlog.tsx": {
-    "mtime": 1788414065.639894,
-    "ast_hash": "0f6d34f0b533fe241db232b5f49b3caf",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/tablero-kanban.tsx": {
-    "mtime": 1788413868.769544,
-    "ast_hash": "54ce8ff8d35655d77fad1d6af2f00b4c",
-    "semantic_hash": ""
-  },
-  "public/8cc2cca47f1f7b3af0a02ea4eddd11d1.txt": {
-    "mtime": 1788386001.2390783,
-    "ast_hash": "70024eafac7424d2e6d948bb68892515",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/alternativa-a-ms-project.tsx": {
-    "mtime": 1788923175.7288806,
-    "ast_hash": "24221d27e1570c5350462eacf76c8486",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/calendario-de-proyecto.tsx": {
-    "mtime": 1788922624.98962,
-    "ast_hash": "e8670ff44cf624e8b0cf90c9e18e9ab7",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/cronograma-de-hitos.tsx": {
-    "mtime": 1788922538.4244037,
-    "ast_hash": "51012f28eb75fa80d32d3d63cb70ac1e",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/dashboard-de-proyectos.tsx": {
-    "mtime": 1788922297.7867644,
-    "ast_hash": "c649c9496251b871d7f0239dfa53a885",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/definition-of-done.tsx": {
-    "mtime": 1788922484.4267356,
-    "ast_hash": "ee4e6c0504503fde458f6769de678755",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/diagrama-de-hitos.tsx": {
-    "mtime": 1788922470.362774,
-    "ast_hash": "f1fa97b43afc5f35656e81b115b7fa11",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/formula-tiempo-esperado-pert.tsx": {
-    "mtime": 1788922974.3796625,
-    "ast_hash": "efa3b310e2f8c65f0b5f0ea44430ba3b",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/gestion-proyectos-software.tsx": {
-    "mtime": 1788922387.4520302,
-    "ast_hash": "7065162f9fa7b9aaa6e1bd4046ce7b2d",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/hito-en-ms-project.tsx": {
-    "mtime": 1788922615.7894406,
-    "ast_hash": "9d9044b27b6e1ac7a4a4dda6a2375d9c",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/hito-vs-entregable.tsx": {
-    "mtime": 1788922739.017002,
-    "ast_hash": "d6a3f77d0ca0b95fdde3a8c81776b6a3",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/hitos-de-un-proyecto-ejemplos.tsx": {
-    "mtime": 1788922394.6701343,
-    "ast_hash": "958e5688dc43e8587b9722e3758f4307",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/hitos-en-construccion.tsx": {
-    "mtime": 1788922964.0269423,
-    "ast_hash": "cd3351b7751085df9dfa080cfdcbd973",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/hitos-en-metodologias-agiles.tsx": {
-    "mtime": 1788922522.8121643,
-    "ast_hash": "cbe5b00c5f8f9b0749e26a4f4b939c8b",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/matriz-eisenhower.tsx": {
-    "mtime": 1788922576.1913137,
-    "ast_hash": "c7c717f52407af3185e4169bc32c3749",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/plan-de-trabajo.tsx": {
-    "mtime": 1788922484.438737,
-    "ast_hash": "f10f1d45feefc9b84f5ef8a28e9ed779",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/portafolio-de-proyectos.tsx": {
-    "mtime": 1788922486.1019096,
-    "ast_hash": "1cc46542bbfe415350457b4aa3e6150b",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/priorizacion-moscow.tsx": {
-    "mtime": 1788922173.2742417,
-    "ast_hash": "a81665b0a58d6049ecb22fd00013b441",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/scrumban.tsx": {
-    "mtime": 1788922645.0150714,
-    "ast_hash": "1887a7e242e4c945b5368914c5e288af",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/software-de-gestion-por-hitos.tsx": {
-    "mtime": 1788922581.7253683,
-    "ast_hash": "be8b74334d4d351d3c0e6b2bd97e4d41",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/tareas-recurrentes.tsx": {
-    "mtime": 1788922576.2068212,
-    "ast_hash": "55c56ce71c8b8751df8e54d31766dab5",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/triple-restriccion-proyecto.tsx": {
-    "mtime": 1788922586.5903242,
-    "ast_hash": "23b0fb8c26f1b1f87fc832488d4047f2",
-    "semantic_hash": ""
-  },
-  "specs/070-blog-cluster-hitos-cierre-10-11/spec.md": {
-    "mtime": 1788923900.5496478,
-    "ast_hash": "498077dab806a428156b02f9f3c9b4c8",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/control-de-cambios-proyecto.tsx": {
-    "mtime": 1788923089.7309334,
-    "ast_hash": "a04be4acfc2f9a6c34a1fd97b7c48eda",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/linea-base-proyecto.tsx": {
-    "mtime": 1788923125.840741,
-    "ast_hash": "789c5c0d044050fe89bc4523772cc756",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/plan-de-comunicacion-proyecto.tsx": {
-    "mtime": 1788923146.2566516,
-    "ast_hash": "3dc088b6eab67f1c1f3f60ee51d37396",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/acta-de-cierre-proyecto.tsx": {
-    "mtime": 1789174399.8175414,
-    "ast_hash": "22f425dcf1d997e4c1d778a78bead77e",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/anticipos-y-pagos-por-hitos.tsx": {
-    "mtime": 1789174528.283716,
-    "ast_hash": "b1a9ee6eab217bc61975f7f425aeafd4",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/cliente-que-no-responde.tsx": {
-    "mtime": 1789174528.3177478,
-    "ast_hash": "ca1dce06e28006057b55dfbb8e3f05b7",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/cuanto-cobrar-por-un-proyecto.tsx": {
-    "mtime": 1789174543.8819275,
-    "ast_hash": "0b4cb37568caca06cbb242ea6a362968",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/gestion-de-la-calidad-proyecto.tsx": {
-    "mtime": 1789174319.7521129,
-    "ast_hash": "c9f74dc31f6ae97aa0929d78d4ea9b1a",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/matriz-de-riesgos.tsx": {
-    "mtime": 1789174543.8549268,
-    "ast_hash": "bbfe6ad950ad040985483f86cc96a243",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/onboarding-de-clientes.tsx": {
-    "mtime": 1789174543.804742,
-    "ast_hash": "4b5ccb7326e554b76817c6cebfd2bcd6",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/plan-de-contingencia.tsx": {
-    "mtime": 1789174543.8037417,
-    "ast_hash": "5d297fa383274d9dcb2ae656da8dcf71",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/planificacion-de-capacidad.tsx": {
-    "mtime": 1789173613.7969825,
-    "ast_hash": "c6d16e4294d3a6a83725af51e3ada109",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/registro-de-horas.tsx": {
-    "mtime": 1789173540.6208856,
-    "ast_hash": "6d05f3aeb7bed49b5367dcd8d858f6f1",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/reuniones-1a1.tsx": {
-    "mtime": 1789174543.804742,
-    "ast_hash": "520115d053b6ddebce3d08e176dfcc9c",
-    "semantic_hash": ""
-  },
-  "src/features/blog/data/articles/revision-semanal.tsx": {
-    "mtime": 1789174472.5686984,
-    "ast_hash": "85a1884e6be770aed1fc9ff137bd0395",
-    "semantic_hash": ""
-  },
-  "specs/071-blog-clusters-13-14-15/spec.md": {
-    "mtime": 1789174964.2200522,
-    "ast_hash": "b75b8b3e3ebc4efad686aabe058b3875",
-    "semantic_hash": ""
-  },
-  "src/features/projects/components/ProjectPlanRow.tsx": {
-    "mtime": 1791266600.3109639,
-    "ast_hash": "bfb38589428e049e74892d4a604f38f6",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/PROMPT-EJECUCION.md": {
-    "mtime": 1791263674.6998138,
-    "ast_hash": "be633782f9280a0c2a2cde545ac88856",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/PROMPT-SPEC-DESIGN-TASKS.md": {
-    "mtime": 1791263358.3009255,
-    "ast_hash": "8410a3ab929f0283e53948cd0f3181dc",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/design.md": {
-    "mtime": 1791263674.6998138,
-    "ast_hash": "44b2026397da647f45113faa53162003",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/smoke.md": {
-    "mtime": 1791263648.549376,
-    "ast_hash": "305528b9689c3f137679e00fc69de242",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/spec.md": {
-    "mtime": 1791263608.1294382,
-    "ast_hash": "ed2930f62fd3c4bc4bd76f9dc2f6fa47",
-    "semantic_hash": ""
-  },
-  "specs/072-vista-proyectos-planeacion/tasks.md": {
-    "mtime": 1791263674.6998138,
-    "ast_hash": "ee491ecba19a4eeed20e862da11eb65b",
     "semantic_hash": ""
   }
 }
