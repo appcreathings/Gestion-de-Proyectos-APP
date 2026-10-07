@@ -12,12 +12,15 @@ export const healthColorClass: Record<Health, string> = {
 interface HealthDotProps {
   health: Health;
   className?: string;
+  /** Punto decorativo: el estado va en texto al lado (spec 072 D26). */
+  ariaHidden?: boolean;
 }
 
 /** Small colored dot for RAG health (bars, compact lists, icons). */
-export function HealthDot({ health, className }: HealthDotProps) {
+export function HealthDot({ health, className, ariaHidden }: HealthDotProps) {
   return (
     <span
+      aria-hidden={ariaHidden || undefined}
       className={cn("inline-block size-2.5 shrink-0 rounded-full", healthColorClass[health], className)}
     />
   );

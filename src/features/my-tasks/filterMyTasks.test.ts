@@ -2,12 +2,18 @@ import { describe, it, expect } from "vitest";
 import { newArea, newProject, newTask } from "@/domain/factories";
 import type { Project, Task } from "@/domain/schemas";
 import {
-  parseMyTasksQuery,
+  MY_TASKS_MEMORY_KEY,
   applyShowDone,
   applyStatus,
   applyFilter,
+  canonicalMyTasksSearch,
   clearMyTaskFilters,
   filterAndSortMyTasks,
+  myTasksQueryIsEmpty,
+  parseMyTasksQuery,
+  readMyTasksMemory,
+  restoreMyTasksSearch,
+  writeMyTasksMemory,
   type MyTasksQuery,
 } from "./filterMyTasks";
 
@@ -248,5 +254,80 @@ describe("filterAndSortMyTasks filters / groups / options", () => {
 
     const shown = filterAndSortMyTasks([alpha, beta], q({ showDone: true }), NOW);
     expect(shown.projectOptions.map((o) => o.name)).toEqual(["Alpha", "Beta"]);
+  });
+});
+
+describe("memoria de Mis tareas (072 D29)", () => {
+  it("MY_TASKS_MEMORY_KEY es hito.myTasks.lastQuery", () => {
+    expect(MY_TASKS_MEMORY_KEY).toBe("hito.myTasks.lastQuery");
+  });
+
+  it("myTasksQueryIsEmpty: true pelada o con params ajenos; false con cualquiera de las 8 claves", () => {
+    expect(myTasksQueryIsEmpty(new URLSearchParams())).toBe(true);
+    expect(myTasksQueryIsEmpty(new URLSearchParams("otro=1"))).toBe(true);
+    expect(myTasksQueryIsEmpty(new URLSearchParams("person=ana"))).toBe(false);
+    expect(myTasksQueryIsEmpty(new URLSearchParams("view=project"))).toBe(false);
+    expect(myTasksQueryIsEmpty(new URLSearchParams("done=1"))).toBe(false);
+  });
+
+  it("canonicalMyTasksSearch: solo las 8 claves conocidas, en orden", () => {
+    const params = new URLSearchParams("zzz=1&priority=high&person=ana&done=1&view=project&workType=bug");
+    expect(canonicalMyTasksSearch(params)).toBe(
+      "person=ana&priority=high&workType=bug&done=1&view=project",
+    );
+    expect(canonicalMyTasksSearch(new URLSearchParams("status=doing&date=overdue"))).toBe(
+      "status=doing&date=overdue",
+    );
+    expect(canonicalMyTasksSearch(new URLSearchParams())).toBe("");
+  });
+
+  it("restoreMyTasksSearch: null si la URL ya trae una clave (el link gana)", () => {
+    const saved = "person=ana&priority=high";
+    expect(restoreMyTasksSearch(new URLSearchParams("person=otra"), saved)).toBeNull();
+    expect(restoreMyTasksSearch(new URLSearchParams("done=1"), saved)).toBeNull();
+  });
+
+  it("restoreMyTasksSearch: null si lo guardado canoniza a vacío", () => {
+    expect(restoreMyTasksSearch(new URLSearchParams(), "")).toBeNull();
+    expect(restoreMyTasksSearch(new URLSearchParams(), "zzz=1")).toBeNull();
+    expect(restoreMyTasksSearch(new URLSearchParams(), null)).toBeNull();
+  });
+
+  it("restoreMyTasksSearch: URL pelada devuelve los params guardados", () => {
+    const next = restoreMyTasksSearch(new URLSearchParams(), "person=ana&view=project");
+    expect(next).toBeInstanceOf(URLSearchParams);
+    expect(next!.get("person")).toBe("ana");
+    expect(next!.get("view")).toBe("project");
+    expect(next!.get("priority")).toBeNull();
+  });
+
+  class FakeStorage {
+    private map = new Map<string, string>();
+    getItem(k: string) {
+      return this.map.has(k) ? this.map.get(k)! : null;
+    }
+    setItem(k: string, v: string) {
+      this.map.set(k, v);
+    }
+  }
+
+  it("read/write con storage falso: guarda y lee el canónico", () => {
+    const storage = new FakeStorage();
+    expect(readMyTasksMemory(storage)).toBeNull();
+    writeMyTasksMemory(storage, "person=ana&priority=high");
+    expect(storage.getItem(MY_TASKS_MEMORY_KEY)).toBe("person=ana&priority=high");
+    expect(readMyTasksMemory(storage)).toBe("person=ana&priority=high");
+    writeMyTasksMemory(storage, "");
+    expect(readMyTasksMemory(storage)).toBe("");
+  });
+
+  it("write que lanza se traga (modo privado)", () => {
+    const throwing = { setItem: () => { throw new Error("quota"); } };
+    expect(() => writeMyTasksMemory(throwing, "person=ana")).not.toThrow();
+  });
+
+  it("read que lanza se traga", () => {
+    const throwing = { getItem: () => { throw new Error("boom"); } };
+    expect(readMyTasksMemory(throwing)).toBeNull();
   });
 });

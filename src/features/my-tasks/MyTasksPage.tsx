@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { UserCheck, ChevronDown, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -20,9 +20,13 @@ import {
   applyFilter,
   applyShowDone,
   applyStatus,
+  canonicalMyTasksSearch,
   clearMyTaskFilters,
   filterAndSortMyTasks,
   parseMyTasksQuery,
+  readMyTasksMemory,
+  restoreMyTasksSearch,
+  writeMyTasksMemory,
   type MyTaskRow,
 } from "./filterMyTasks";
 
@@ -37,9 +41,21 @@ export function MyTasksPage() {
     ? people.find((p) => p.id === query.personId) ?? null
     : null;
 
+  // Memoria de la última query (072 D29): una sola vez por montaje, solo si la
+  // URL llega pelada. Un link que ya trae params se respeta y no pisa lo guardado.
+  const didRestore = useRef(false);
+  useEffect(() => {
+    if (didRestore.current) return;
+    didRestore.current = true;
+    const next = restoreMyTasksSearch(searchParams, readMyTasksMemory(localStorage));
+    if (next) setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   useEffect(() => {
     if (query.personId && !selectedPerson) {
-      setSearchParams(applyFilter(searchParams, "person", null), { replace: true });
+      const next = applyFilter(searchParams, "person", null);
+      setSearchParams(next, { replace: true });
+      writeMyTasksMemory(localStorage, canonicalMyTasksSearch(next));
     }
   }, [query.personId, selectedPerson, searchParams, setSearchParams]);
 
@@ -54,6 +70,7 @@ export function MyTasksPage() {
 
   function commit(next: URLSearchParams) {
     setSearchParams(next, { replace: true });
+    writeMyTasksMemory(localStorage, canonicalMyTasksSearch(next));
   }
 
   const [detailTask, setDetailTask] = useState<MyTaskRow | null>(null);

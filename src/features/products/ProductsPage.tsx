@@ -5,12 +5,14 @@ import { Package, Plus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { EntityCard } from "@/components/EntityCard";
+import { ExpandableList } from "@/components/ExpandableList";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ProductFormDialog } from "./ProductFormDialog";
 import { useDataStore } from "@/store/useDataStore";
-import { productStatusLabel } from "@/domain/labels";
+import { productStatusLabel, projectStatusLabel } from "@/domain/labels";
+import { projectsOfProduct } from "@/features/projects/filterProjects";
 import { ROUTES } from "@/routes/paths";
 import type { Product } from "@/domain/schemas";
 
@@ -75,7 +77,9 @@ function ProductsContent() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => {
-            const count = projects.filter((pr) => pr.productId === p.id).length;
+            // Mismo conjunto para el conteo y la lista, cerrados incluidos (072 D28).
+            const list = projectsOfProduct(projects, p.id);
+            const count = list.length;
             return (
               <EntityCard
                 key={p.id}
@@ -88,12 +92,31 @@ function ProductsContent() {
                   <p className="line-clamp-2 text-sm text-muted-foreground">{p.vision}</p>
                 )}
                 {count > 0 ? (
-                  <Link
-                    to={ROUTES.projectsByProduct(p.id)}
-                    className="mt-3 block text-xs text-primary hover:underline"
-                  >
-                    {count} {count === 1 ? "proyecto" : "proyectos"} →
-                  </Link>
+                  <>
+                    <Link
+                      to={ROUTES.projectsByProduct(p.id)}
+                      className="mt-3 block text-xs text-primary hover:underline"
+                    >
+                      {count} {count === 1 ? "proyecto" : "proyectos"} →
+                    </Link>
+                    <ExpandableList
+                      items={list}
+                      className="mt-2"
+                      listClassName="space-y-1"
+                      getKey={(pr) => pr.id}
+                      renderItem={(pr) => (
+                        <Link
+                          to={ROUTES.project(pr.id)}
+                          className="flex items-center justify-between gap-2 text-sm hover:underline"
+                        >
+                          <span className="truncate">{pr.name}</span>
+                          <span className="shrink-0 text-xs text-muted-foreground">
+                            {projectStatusLabel[pr.status]}
+                          </span>
+                        </Link>
+                      )}
+                    />
+                  </>
                 ) : (
                   <p className="mt-3 text-xs text-muted-foreground">Sin proyectos aún.</p>
                 )}
