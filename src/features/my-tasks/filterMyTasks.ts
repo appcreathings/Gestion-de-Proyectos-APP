@@ -101,6 +101,62 @@ export function clearMyTaskFilters(params: URLSearchParams): URLSearchParams {
   return next;
 }
 
+// Memoria de la última query (spec 072 D29): la URL sigue siendo la fuente de
+// verdad; `localStorage` solo cubre la vuelta por el menú, que entra a la ruta
+// pelada. Sin schema: un string con la query canónica.
+
+export const MY_TASKS_MEMORY_KEY = "hito.myTasks.lastQuery";
+
+const MY_TASKS_KEYS = [
+  "person", "status", "priority", "date", "project", "workType", "done", "view",
+] as const;
+
+export function myTasksQueryIsEmpty(params: URLSearchParams): boolean {
+  return MY_TASKS_KEYS.every((key) => !params.has(key));
+}
+
+/** Solo las claves conocidas, en el orden de MY_TASKS_KEYS. */
+export function canonicalMyTasksSearch(params: URLSearchParams): string {
+  const next = new URLSearchParams();
+  for (const key of MY_TASKS_KEYS) {
+    const value = params.get(key);
+    if (value !== null) next.set(key, value);
+  }
+  return next.toString();
+}
+
+/**
+ * null = no tocar la URL. Si `current` ya trae alguna clave, gana el link y no
+ * se lee `saved`. Si lo guardado canoniza a vacío, tampoco hay nada que restaurar.
+ */
+export function restoreMyTasksSearch(
+  current: URLSearchParams,
+  saved: string | null,
+): URLSearchParams | null {
+  if (!myTasksQueryIsEmpty(current)) return null;
+  const canonical = saved === null ? "" : canonicalMyTasksSearch(new URLSearchParams(saved));
+  if (!canonical) return null;
+  return new URLSearchParams(canonical);
+}
+
+/** `localStorage` puede lanzar (modo privado): se traga. */
+export function readMyTasksMemory(storage: Pick<Storage, "getItem">): string | null {
+  try {
+    return storage.getItem(MY_TASKS_MEMORY_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/** Guarda el canónico; `""` borra a propósito (la próxima entrada pelada no restaura). */
+export function writeMyTasksMemory(storage: Pick<Storage, "setItem">, search: string): void {
+  try {
+    storage.setItem(MY_TASKS_MEMORY_KEY, search);
+  } catch {
+    // sin memoria disponible: la app sigue funcionando solo por URL
+  }
+}
+
 export type MyTaskRow = Task & {
   projectId: string;
   projectName: string;
