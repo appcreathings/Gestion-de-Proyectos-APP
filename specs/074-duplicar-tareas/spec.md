@@ -1,6 +1,6 @@
 # Spec 074 — Duplicar tareas
 
-> Estado: **BORRADOR** (sin implementar)
+> Estado: **IMPLEMENTADO** (rama `feat/074-duplicar-tareas`)
 > Feature dir: `specs/074-duplicar-tareas/` · Fecha: 2026-10-09
 > Baseline: `SCHEMA_VERSION` **24** → **24** (sin cambio de esquema ni migración)
 > Depende de: 003 (orden = posición en el array), 013 (drawer `?detail=`), 015 (archivado), 017 (selección múltiple), 043 (links), 062 (tipo de trabajo / KR), 064 (horas reales), 073 (etapas)
@@ -80,3 +80,10 @@ Desde la tarjeta, el drawer o la selección múltiple, la persona duplica una o 
 - Tests nuevos de `design.md` §6 verdes; suite completa verde.
 - `vite build` OK.
 - HU-01…07 verificadas en navegador (o anotado qué no se pudo clicar).
+
+## 7. Notas de implementación
+
+- La copia se clona desde `useDataStore.getState()` y no desde el `project` del render: una edición del drawer guardada en el blur justo antes del clic ya está incluida (`withPersist` aplica el estado de forma síncrona).
+- `TaskDetailDrawer` recibe `onDuplicate` / `onDuplicateElsewhere` como opcionales: solo el tablero los pasa. Mis tareas y Trimestres usan el mismo drawer y quedan sin botones (D17).
+- El Escape que cierra el diálogo (Radix lo marca con `preventDefault`) ya no cierra el drawer ni sale del modo selección.
+- Título del diálogo: desde una tarea, «Duplicar en otro proyecto»; desde el lote, «Duplicar 1 tarea» / «Duplicar {N} tareas».

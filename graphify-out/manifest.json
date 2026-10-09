@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "src/automations/events.test.ts": {
-    "mtime": 1783052752.026533,
-    "ast_hash": "1d5eab841f21acba99e612daf952c554",
+    "mtime": 1791561950.7291775,
+    "ast_hash": "4a23751e2ff146a9fa45405e34be5af0",
     "semantic_hash": ""
   },
   "src/automations/events.ts": {
@@ -1485,8 +1485,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/TasksTab.tsx": {
-    "mtime": 1791520411.1269758,
-    "ast_hash": "3d82abd7c2813c2102990523fd3111fd",
+    "mtime": 1791562459.3723052,
+    "ast_hash": "c8318621db0b005a51a76acfd50da3ea",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/ArchivedTasksList.tsx": {
@@ -1505,13 +1505,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskCard.tsx": {
-    "mtime": 1791517883.7760217,
-    "ast_hash": "2db0d460ff03f7d531930d440608e7d8",
+    "mtime": 1791562005.6187515,
+    "ast_hash": "888a5f49b44337e890edf0b0d6040696",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1791517883.791714,
-    "ast_hash": "bdd2491559de504051fd467ed0da6e62",
+    "mtime": 1791562459.371305,
+    "ast_hash": "043ca4af5ed34bb3d05c977a96a2b470",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -4910,18 +4910,33 @@
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/design.md": {
-    "mtime": 1791561657.865194,
-    "ast_hash": "71eb7e37199905eec4ceb7c8a036bf97",
+    "mtime": 1791561724.1059287,
+    "ast_hash": "5f6227fe2fd89f537f2bb768e2d702a4",
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/spec.md": {
-    "mtime": 1791561586.9052966,
-    "ast_hash": "a0b3b09d03fa9dd6e8fb024d37e2f611",
+    "mtime": 1791562560.2970085,
+    "ast_hash": "f92c45fb6f5eb9a031a392e61f542d07",
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/tasks.md": {
-    "mtime": 1791561659.2208917,
-    "ast_hash": "60dc2865dcfaf1abfcffc1096839cdd3",
+    "mtime": 1791562560.2304838,
+    "ast_hash": "9513dc86e92f28d90ee95e6f001903c7",
+    "semantic_hash": ""
+  },
+  "src/domain/duplicateTask.test.ts": {
+    "mtime": 1791561947.945632,
+    "ast_hash": "f8ed2dddcf3ea208f893c8a62e419fa7",
+    "semantic_hash": ""
+  },
+  "src/domain/duplicateTask.ts": {
+    "mtime": 1791561967.0317752,
+    "ast_hash": "7fb6e904e5414f37d8531adf87a6d142",
+    "semantic_hash": ""
+  },
+  "src/features/projects/components/kanban/DuplicateTasksDialog.tsx": {
+    "mtime": 1791562489.4191332,
+    "ast_hash": "a49fc9a21b97acaa2e8ae28f7e43cc94",
     "semantic_hash": ""
   }
 }
