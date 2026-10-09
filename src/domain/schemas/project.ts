@@ -10,10 +10,10 @@ import {
   Recurrence,
   SCHEMA_VERSION,
   SprintStatus,
-  TaskStatus,
   WorkType,
 } from "./common";
 import { AttachmentSchema } from "./attachment";
+import { DEFAULT_STAGES, STAGE_COLORS } from "../kanbanStages";
 
 export const ChecklistItemSchema = z.object({
   id: Id,
@@ -108,7 +108,10 @@ export const TaskSchema = z.object({
   title: z.string(),
   description: z.string().default(""),
   summary: z.string().max(140).default(""),
-  status: TaskStatus.default("todo"),
+  /** Id de la etapa del proyecto (spec 073 D4). Ya no es el enum: una etapa
+   * custom es un string con el id de `Project.stages`. El enum `TaskStatus`
+   * sigue existiendo para flujos e IA, que solo ofrecen los cuatro id base. */
+  status: z.string().min(1).default("todo"),
   priority: Priority.default("medium"),
   /** Tipo de trabajo (spec 062). Default silencioso para lo existente. */
   workType: WorkType.default("task"),
@@ -206,6 +209,18 @@ export const ProjectSchema = z.object({
     blocked: null,
     done: null,
   }),
+  /** Etapas del tablero en orden (spec 073 D3). Las cuatro base tienen id
+   * fijo; una etapa nueva tiene id uuid. Default: copia por parse, nunca el
+   * mismo array — una op que muta una etapa no debe tocar la fábrica. */
+  stages: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1).max(40),
+        color: z.enum(STAGE_COLORS),
+      }),
+    )
+    .default(() => DEFAULT_STAGES.map((s) => ({ ...s }))),
   attachments: z.array(AttachmentSchema).default([]),
   /** Igual que `Task.dedupeKey` — marca de qué registro externo vino este
    * proyecto, para que `createProject` con `dedupeKey` configurado pueda

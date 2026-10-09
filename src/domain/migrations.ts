@@ -1,4 +1,5 @@
 import { SCHEMA_VERSION } from "./schemas/common";
+import { normalizeStages } from "./kanbanStages";
 
 /** Every persisted record kind that carries a top-level `schemaVersion`. */
 export type MigrationKind =
@@ -82,6 +83,17 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     // `actualHours`: an estimate is not recorded time, and seeding it would
     // make every old task look as if it had been measured.
     { to: 23, up: (data) => data },
+    // v23 -> v24 (spec 073 D2): Project.stages. Escribe las cuatro etapas de
+    // fábrica cuando falta o está vacío; si ya hay, las normaliza (done al
+    // final, ids base completos). NO toca `tasks`: el status de cada tarea
+    // queda exactamente como estaba.
+    {
+      to: 24,
+      up(data) {
+        data.stages = normalizeStages(data.stages);
+        return data;
+      },
+    },
   ],
   "checklist-templates": [
     // v1 -> v18: ChecklistTemplate.attachments.

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildSyntheticEvent, EVENT_SEED_REQUIREMENTS } from "./synthetic-event";
+import { DEFAULT_STAGES } from "@/domain/kanbanStages";
 import type { Area, Checklist, ChecklistItem, Project, Task } from "@/domain/schemas";
 
 const now = new Date().toISOString();
@@ -25,6 +26,7 @@ const project: Project = {
   milestones: [],
   sprints: [],
   wipLimits: { todo: null, doing: null, blocked: null, done: null },
+  stages: DEFAULT_STAGES.map((s) => ({ ...s })),
   attachments: [],
   dedupeKey: null,
   createdAt: now,

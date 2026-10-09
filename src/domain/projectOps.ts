@@ -1,4 +1,4 @@
-import { nowIso } from "@/lib/utils";
+import { nowIso, uuid } from "@/lib/utils";
 import type {
   Area,
   Checklist,
@@ -8,8 +8,22 @@ import type {
   Sprint,
   Task,
 } from "./schemas";
+import {
+  STAGE_COLORS,
+  isBuiltinStageId,
+  normalizeStages,
+  stageNameError,
+  type StageColor,
+} from "./kanbanStages";
 
 /** Pure, immutable update helpers for the aggregated Project document. */
+
+/** Longitud máxima del nombre de una etapa (spec 073 D7). */
+const STAGE_NAME_MAX = 40;
+
+function isStageColor(color: unknown): color is StageColor {
+  return (STAGE_COLORS as readonly string[]).includes(color as string);
+}
 
 function touchArea(a: Area): Area {
   return { ...a, updatedAt: nowIso() };
@@ -233,4 +247,92 @@ export function applyProcessToArea(
   process: Process,
 ): Project {
   return mapArea(p, areaId, (a) => ({ ...a, processes: [...a.processes, process] }));
+}
+
+// ── Etapas del kanban (spec 073 §4.2) ────────────────────────────────────────
+// Devuelven un Project nuevo; si el pedido no es válido, devuelven `p` (misma
+// referencia) para que la UI pueda ver que no hubo cambio. El formulario
+// valida antes de llamar: la op es la red de seguridad, no el mensaje.
+
+/** Alta de etapa: nombre válido + color de la paleta. Queda insertada justo
+ * antes de Hecha, con id uuid. */
+export function addStage(
+  p: Project,
+  { name, color }: { name: string; color: StageColor },
+): Project {
+  const trimmed = name.trim();
+  if (
+    stageNameError(p.stages, trimmed) !== null ||
+    trimmed.length > STAGE_NAME_MAX ||
+    !isStageColor(color)
+  ) {
+    return p;
+  }
+  const stages = normalizeStages(p.stages);
+  const doneIndex = stages.findIndex((s) => s.id === "done");
+  const stage = { id: uuid(), name: trimmed, color };
+  stages.splice(doneIndex === -1 ? stages.length : doneIndex, 0, stage);
+  return { ...p, stages };
+}
+
+/** Renombrar: misma validación de nombre, ignorando la propia etapa. */
+export function renameStage(p: Project, id: string, name: string): Project {
+  const trimmed = name.trim();
+  if (
+    stageNameError(p.stages, trimmed, id) !== null ||
+    trimmed.length > STAGE_NAME_MAX ||
+    !p.stages.some((s) => s.id === id)
+  ) {
+    return p;
+  }
+  const stages = normalizeStages(p.stages).map((s) =>
+    s.id === id ? { ...s, name: trimmed } : s,
+  );
+  return { ...p, stages };
+}
+
+/** Recolorar: color fuera de la paleta → no cambia. */
+export function recolorStage(p: Project, id: string, color: StageColor): Project {
+  if (!p.stages.some((s) => s.id === id) || !isStageColor(color)) return p;
+  const stages = normalizeStages(p.stages).map((s) =>
+    s.id === id ? { ...s, color } : s,
+  );
+  return { ...p, stages };
+}
+
+/** Reordenar de a un paso. `done` no se mueve y ninguna etapa puede quedar
+ * después de él; el menú esconde el ítem, la op es la red de seguridad. */
+export function moveStage(p: Project, id: string, direction: -1 | 1): Project {
+  const stages = normalizeStages(p.stages);
+  const index = stages.findIndex((s) => s.id === id);
+  const target = index + direction;
+  if (
+    index === -1 ||
+    id === "done" ||
+    target < 0 ||
+    target > stages.length - 2 // nada puede terminar después de Hecha
+  ) {
+    return p;
+  }
+  const next = [...stages];
+  [next[index], next[target]] = [next[target], next[index]];
+  return { ...p, stages: next };
+}
+
+/** Borrar solo una etapa nueva. TODA tarea con ese status —archivada
+ * incluida— pasa a la etapa vecina (izquierda, o derecha si era la primera):
+ * si quedaran huérfanas, al desarchivar aparecerían en una columna fantasma. */
+export function removeStage(p: Project, id: string): Project {
+  if (isBuiltinStageId(id)) return p;
+  const stages = normalizeStages(p.stages);
+  const index = stages.findIndex((s) => s.id === id);
+  if (index === -1) return p;
+  const destId = stages[index - 1]?.id ?? stages[index + 1].id;
+  return {
+    ...p,
+    stages: stages.filter((s) => s.id !== id),
+    tasks: p.tasks.map((t) =>
+      t.status === id ? { ...t, status: destId, updatedAt: nowIso() } : t,
+    ),
+  };
 }

@@ -1,5 +1,6 @@
 import { nowIso, uuid } from "@/lib/utils";
 import { SCHEMA_VERSION } from "./schemas/common";
+import { DEFAULT_STAGES } from "./kanbanStages";
 import type {
   Area,
   AutomationRule,
@@ -63,6 +64,7 @@ export function newProject(name: string, productId: string | null = null): Proje
       blocked: null,
       done: null,
     },
+    stages: DEFAULT_STAGES.map((s) => ({ ...s })),
     attachments: [],
     dedupeKey: null,
     createdAt: ts,

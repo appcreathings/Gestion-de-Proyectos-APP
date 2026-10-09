@@ -45,11 +45,49 @@ describe("migrateRecord", () => {
     expect(value).toMatchObject({ schemaVersion: 2, priority: "medium" });
   });
 
-  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v23)", () => {
-    const v1 = { id: "p1", schemaVersion: 1, name: "Demo" };
+  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v24)", () => {
+    const v1: Record<string, unknown> = { id: "p1", schemaVersion: 1, name: "Demo" };
     const { value, migrated } = migrateRecord("projects", v1);
     expect(migrated).toBe(true);
-    expect(value.schemaVersion).toBe(23);
+    expect(value.schemaVersion).toBe(24);
+    const stages = (value as { stages: { id: string }[] }).stages;
+    expect(stages.map((s) => s.id)).toEqual(["todo", "doing", "blocked", "done"]);
+  });
+});
+
+describe("projects v23 -> v24 (spec 073: Project.stages)", () => {
+  it("converges a v23 project to v24 with default stages and untouched task statuses", () => {
+    const doc: Record<string, unknown> = {
+      id: "p1",
+      schemaVersion: 23,
+      name: "Demo",
+      tasks: [{ id: "t1", title: "Vieja", status: "doing", priority: "medium" }],
+    };
+    const { value, migrated } = migrateRecord("projects", doc, 24, MIGRATIONS);
+    expect(migrated).toBe(true);
+    expect(value.schemaVersion).toBe(24);
+    const stages = (value as { stages: { id: string }[] }).stages;
+    expect(stages.map((s) => s.id)).toEqual(["todo", "doing", "blocked", "done"]);
+    // La migración no reescribe task.status (spec 073 D2).
+    const task = (value as { tasks: { status: string }[] }).tasks[0];
+    expect(task.status).toBe("doing");
+  });
+
+  it("is idempotent: a v24 project with valid stages is left as-is", () => {
+    const doc = {
+      id: "p1",
+      schemaVersion: 24,
+      name: "Demo",
+      stages: [
+        { id: "todo", name: "Por hacer", color: "slate" },
+        { id: "custom-1", name: "Revisión", color: "violet" },
+        { id: "done", name: "Hecha", color: "green" },
+      ],
+      tasks: [],
+    };
+    const { value, migrated } = migrateRecord("projects", doc, 24, MIGRATIONS);
+    expect(migrated).toBe(false);
+    expect(value).toBe(doc);
   });
 });
 

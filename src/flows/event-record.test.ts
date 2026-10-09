@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { buildEventRecordDeps, eventRecord } from "./event-record";
 import { resolvePath } from "./interpolation";
 import { EVENT_SEED_REQUIREMENTS } from "./synthetic-event";
+import { DEFAULT_STAGES } from "@/domain/kanbanStages";
 import type { DomainEventType } from "@/automations/events";
 import type { Area, Checklist, ChecklistItem, Person, Project, Task } from "@/domain/schemas";
 
@@ -100,6 +101,7 @@ const project: Project = {
   milestones: [],
   sprints: [],
   wipLimits: { todo: null, doing: null, blocked: null, done: null },
+  stages: DEFAULT_STAGES.map((s) => ({ ...s })),
   attachments: [],
   dedupeKey: null,
   createdAt: now,

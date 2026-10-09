@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { collectEntities, makeEntityId } from "./indexer";
+import { DEFAULT_STAGES } from "@/domain/kanbanStages";
 import type { ToolData } from "@/ai/tools/types";
 import type {
   Product,
@@ -131,6 +132,7 @@ const sample: ToolData = {
         blocked: null,
         done: null,
       },
+      stages: DEFAULT_STAGES.map((s) => ({ ...s })),
       attachments: [],
       dedupeKey: null,
       createdAt: NOW,
