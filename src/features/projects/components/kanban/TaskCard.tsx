@@ -16,6 +16,8 @@ import {
   Clock,
   CheckSquare,
   Link2,
+  Copy,
+  CopyPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ClickableCard } from "@/components/ui/ClickableCard";
@@ -62,6 +64,9 @@ interface Props {
   onDelete: () => void;
   onOpenDetail: () => void;
   onArchive: () => void;
+  /** Spec 074: copia en este proyecto / abre el diálogo de destino. */
+  onDuplicate: () => void;
+  onDuplicateElsewhere: () => void;
 }
 
 /** Sortable Kanban card (reorder + cross-column). The "Mover" button remains as keyboard fallback. */
@@ -85,6 +90,8 @@ export function TaskCard({
   onDelete,
   onOpenDetail,
   onArchive,
+  onDuplicate,
+  onDuplicateElsewhere,
 }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id, data: { status: task.status }, disabled });
@@ -340,6 +347,12 @@ export function TaskCard({
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEdit(); }}>
                 <Pencil className="size-4 mr-2" /> Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDuplicate(); }}>
+                <Copy className="size-4 mr-2" /> Duplicar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDuplicateElsewhere(); }}>
+                <CopyPlus className="size-4 mr-2" /> Duplicar en otro proyecto…
               </DropdownMenuItem>
               <DropdownMenuItem onClick={(e: React.MouseEvent) => { e.stopPropagation(); onArchive(); }}>
                 <Archive className="size-4 mr-2" /> {task.archived ? "Desarchivar" : "Archivar"}

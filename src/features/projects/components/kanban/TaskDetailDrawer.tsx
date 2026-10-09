@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Archive, Link2, MessageCircle, Send, X, Plus, Trash2 } from "lucide-react";
+import { Archive, Copy, CopyPlus, Link2, MessageCircle, Send, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +90,10 @@ interface Props {
   stages: KanbanStage[];
   onUpdate: (updated: Task) => void;
   onClose: () => void;
+  /** Spec 074: copia en este proyecto / abre el diálogo de destino. Solo el
+   * tablero las pasa; sin ellas (Mis tareas, Trimestres) no hay botones (D17). */
+  onDuplicate?: () => void;
+  onDuplicateElsewhere?: () => void;
 }
 
 export function TaskDetailDrawer({
@@ -101,6 +105,8 @@ export function TaskDetailDrawer({
   stages,
   onUpdate,
   onClose,
+  onDuplicate,
+  onDuplicateElsewhere,
 }: Props) {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -1381,20 +1387,44 @@ export function TaskDetailDrawer({
             </div>
           </div>
 
-          {/* Pie: metadatos y archivar en una línea (D9). */}
-          <div className="flex items-center justify-between gap-3 border-t px-5 py-2">
-            <span className="truncate text-[11.5px] text-muted-foreground">
+          {/* Pie: metadatos, duplicar (spec 074) y archivar en una línea (D9). */}
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t px-5 py-2">
+            <span className="min-w-0 flex-1 truncate text-[11.5px] text-muted-foreground">
               {metaLabel(task.createdAt, task.updatedAt)}
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleArchive}
-              className="h-8 shrink-0 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Archive className="size-3.5" />
-              {task.archived ? "Desarchivar" : "Archivar"}
-            </Button>
+            <div className="flex shrink-0 flex-wrap items-center gap-1">
+              {onDuplicate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDuplicate}
+                  className="h-8 shrink-0 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Copy className="size-3.5" />
+                  Duplicar
+                </Button>
+              )}
+              {onDuplicateElsewhere && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDuplicateElsewhere}
+                  className="h-8 shrink-0 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <CopyPlus className="size-3.5" />
+                  Duplicar en otro proyecto…
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleArchive}
+                className="h-8 shrink-0 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Archive className="size-3.5" />
+                {task.archived ? "Desarchivar" : "Archivar"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

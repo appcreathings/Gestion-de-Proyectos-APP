@@ -17,7 +17,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Archive, CalendarDays, CheckSquare, Filter, LayoutGrid, List, MoreHorizontal, Plus, Search, Settings, Trash2, X } from "lucide-react";
+import { Archive, CalendarDays, CheckSquare, Copy, Filter, LayoutGrid, List, MoreHorizontal, Plus, Search, Settings, Trash2, X } from "lucide-react";
 import { TaskCalendarView } from "../calendar/TaskCalendarView";
 import { taskMatchesSearch, taskMatchesSprintScope } from "../calendar/buildCalendarItems";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,9 @@ import {
 import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import * as ops from "@/domain/projectOps";
+import { appendTasks, cloneTask, insertTaskCopies } from "@/domain/duplicateTask";
+import { useDataStore } from "@/store/useDataStore";
+import { useToastStore } from "@/store/useToastStore";
 import { workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
 import {
   STAGE_COLORS,
@@ -65,6 +68,7 @@ import { TaskDetailDrawer } from "./kanban/TaskDetailDrawer";
 import { ArchivedTasksList } from "./kanban/ArchivedTasksList";
 import { KanbanListView } from "./kanban/KanbanListView";
 import { WipLimitConfig } from "./kanban/WipLimitConfig";
+import { DuplicateTasksDialog } from "./kanban/DuplicateTasksDialog";
 import { KanbanColumnPager } from "./kanban/KanbanColumnPager";
 import { pickActiveStatus, scrollBoardToColumn } from "./kanban/columnScroll";
 import { cn } from "@/lib/utils";
@@ -250,6 +254,57 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
       }
     });
     clearSelection();
+  }
+
+  // Duplicar (spec 074). Se lee el proyecto del store y no del render: una
+  // edición del drawer que se guarda en el blur, justo antes del clic, ya
+  // está ahí (withPersist aplica el estado de forma síncrona).
+  const mutateProject = useDataStore((s) => s.mutateProject);
+  const [duplicateIds, setDuplicateIds] = useState<string[] | null>(null);
+  const [duplicateFromSelection, setDuplicateFromSelection] = useState(false);
+
+  function latestTasks(): Task[] {
+    return useDataStore.getState().projects.find((p) => p.id === project.id)?.tasks ?? project.tasks;
+  }
+
+  /** D12: una tarea, mismo proyecto, y se abre el drawer de la copia. */
+  function handleDuplicate(taskId: string) {
+    const source = latestTasks().find((t) => t.id === taskId);
+    if (!source) return;
+    const copy = cloneTask(source, { sameProject: true });
+    mutate((p) => insertTaskCopies(p, [{ sourceId: source.id, task: copy }]));
+    openDetail(copy.id);
+  }
+
+  function openDuplicateDialog(ids: string[], fromSelection: boolean) {
+    // Orden del array, no el del Set de selección (D10).
+    setDuplicateIds(project.tasks.filter((t) => ids.includes(t.id)).map((t) => t.id));
+    setDuplicateFromSelection(fromSelection);
+  }
+
+  /** D15: una sola escritura sobre el destino. */
+  function handleConfirmDuplicate(targetId: string) {
+    if (!duplicateIds) return;
+    const sources = latestTasks().filter((t) => duplicateIds.includes(t.id));
+    if (targetId === project.id) {
+      const copies = sources.map((s) => ({
+        sourceId: s.id,
+        task: cloneTask(s, { sameProject: true }),
+      }));
+      mutate((p) => insertTaskCopies(p, copies));
+    } else {
+      const copies = sources.map((s) => cloneTask(s, { sameProject: false }));
+      void mutateProject(targetId, (p) => appendTasks(p, copies));
+    }
+    const name = useDataStore.getState().projects.find((p) => p.id === targetId)?.name ?? "";
+    const n = sources.length;
+    useToastStore
+      .getState()
+      .toast.success(
+        n === 1 ? `1 tarea duplicada en «${name}»` : `${n} tareas duplicadas en «${name}»`,
+      );
+    setDuplicateIds(null);
+    if (duplicateFromSelection) clearSelection();
   }
 
   function handleBulkDelete() {
@@ -1000,6 +1055,14 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                 </option>
               ))}
             </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => openDuplicateDialog([...selectedTaskIds], true)}
+            >
+              <Copy className="size-3.5 mr-1.5" />
+              Duplicar
+            </Button>
             <Button variant="outline" size="sm" onClick={handleBulkArchive}>
               <Archive className="size-3.5 mr-1.5" />
               Archivar
@@ -1160,6 +1223,8 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                         onArchive={() =>
                           mutate((p) => ops.updateTask(p, { ...t, archived: !t.archived }))
                         }
+                        onDuplicate={() => handleDuplicate(t.id)}
+                        onDuplicateElsewhere={() => openDuplicateDialog([t.id], false)}
                       />
                     );
                   })}
@@ -1200,6 +1265,8 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                   onDelete={() => {}}
                   onOpenDetail={() => {}}
                   onArchive={() => {}}
+                  onDuplicate={() => {}}
+                  onDuplicateElsewhere={() => {}}
                 />
                 {draggedSelectedIds.length > 1 && (
                   <Badge
@@ -1252,6 +1319,19 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         stages={project.stages}
         onUpdate={handleUpdateTask}
         onClose={closeDetail}
+        onDuplicate={() => detailTask && handleDuplicate(detailTask.id)}
+        onDuplicateElsewhere={() => detailTask && openDuplicateDialog([detailTask.id], false)}
+      />
+
+      <DuplicateTasksDialog
+        open={duplicateIds !== null}
+        onOpenChange={(o) => {
+          if (!o) setDuplicateIds(null);
+        }}
+        count={duplicateIds?.length ?? 0}
+        currentProjectId={project.id}
+        includeCurrent={duplicateFromSelection}
+        onConfirm={handleConfirmDuplicate}
       />
 
       <WipLimitConfig
