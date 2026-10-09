@@ -16,7 +16,7 @@ import {
   type DayRange,
 } from "@/lib/dates";
 import type { Project, Task } from "@/domain/schemas";
-import { priorityVariant, taskStatusLabel } from "@/domain/labels";
+import { priorityVariant } from "@/domain/labels";
 import { taskUrgency } from "@/domain/taskUrgency";
 import {
   TONE_BARS,
@@ -269,7 +269,7 @@ export function TaskCalendarView({
                     >
                       {t.title}
                       <span className="ml-2 text-xs text-muted-foreground">
-                        {taskStatusLabel[t.status]}
+                        {t.statusLabel}
                       </span>
                     </button>
                   </li>
@@ -509,7 +509,7 @@ function TaskChip({
         compact ? "px-1 py-0 text-[10px] leading-4" : "px-1.5 py-1 text-[11px] leading-snug",
         rail ?? "border-l-border/60",
       )}
-      aria-label={`${task.title}, vence ${formatDay(task.day)}, ${taskStatusLabel[task.status]}${urgencyAria ? `, ${urgencyAria}` : ""}`}
+      aria-label={`${task.title}, vence ${formatDay(task.day)}, ${task.statusLabel}${urgencyAria ? `, ${urgencyAria}` : ""}`}
     >
       {!compact && (
         <Badge variant={priorityVariant[task.priority]} className="mt-0.5 h-4 shrink-0 px-1 text-[9px]">

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { priorityLabel, priorityVariant, taskStatusLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { priorityLabel, priorityVariant, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { stageLabel } from "@/domain/kanbanStages";
 import { taskUrgency } from "@/domain/taskUrgency";
 import { URGENCY_ARIA, URGENCY_RAIL } from "@/lib/urgencyStyles";
 import { useDataStore } from "@/store/useDataStore";
@@ -63,6 +64,12 @@ export function MyTasksPage() {
     () => filterAndSortMyTasks(projects, query, new Date()),
     [projects, query],
   );
+
+  /** Nombre visible del estado (spec 073 §6): busca el proyecto de la fila;
+   * si no está, «etapa eliminada». */
+  function statusLabelFor(task: MyTaskRow): string {
+    return stageLabel(projects.find((p) => p.id === task.projectId), task.status);
+  }
 
   const hasActiveFilters = Boolean(
     query.status || query.priority || query.date || query.projectId || query.workType,
@@ -147,6 +154,7 @@ export function MyTasksPage() {
               <option value="doing">En curso</option>
               <option value="blocked">Bloqueada</option>
               <option value="done">Hecha</option>
+              <option value="otras">Otras etapas</option>
             </Select>
           </div>
 
@@ -282,6 +290,7 @@ export function MyTasksPage() {
                   key={g.projectId}
                   projectName={g.projectName}
                   tasks={g.tasks}
+                  statusLabelFor={statusLabelFor}
                   onOpenDetail={openDetail}
                 />
               ))
@@ -291,6 +300,7 @@ export function MyTasksPage() {
                     <TaskRow
                       key={row.id}
                       task={row}
+                      statusLabel={statusLabelFor(row)}
                       showProjectName
                       onClick={() => openDetail(row)}
                     />
@@ -307,6 +317,7 @@ export function MyTasksPage() {
           areas={detailProject.areas}
           people={people}
           sprints={detailProject.sprints}
+          stages={detailProject.stages}
           onUpdate={handleUpdateTask}
           onClose={closeDetail}
         />
@@ -318,10 +329,12 @@ export function MyTasksPage() {
 function ProjectTaskGroup({
   projectName,
   tasks,
+  statusLabelFor,
   onOpenDetail,
 }: {
   projectName: string;
   tasks: MyTaskRow[];
+  statusLabelFor: (t: MyTaskRow) => string;
   onOpenDetail: (t: MyTaskRow) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -346,6 +359,7 @@ function ProjectTaskGroup({
             <TaskRow
               key={task.id}
               task={task}
+              statusLabel={statusLabelFor(task)}
               showProjectName={false}
               onClick={() => onOpenDetail(task)}
             />
@@ -360,10 +374,12 @@ function TaskRow({
   task,
   onClick,
   showProjectName,
+  statusLabel,
 }: {
   task: MyTaskRow;
   onClick: () => void;
   showProjectName: boolean;
+  statusLabel: string;
 }) {
   const urgency = taskUrgency(task);
   const rail = URGENCY_RAIL[urgency];
@@ -409,7 +425,7 @@ function TaskRow({
         </Badge>
       )}
       <Badge variant="outline" className="text-xs">
-        {taskStatusLabel[task.status]}
+        {statusLabel}
       </Badge>
     </button>
   );

@@ -1,6 +1,6 @@
 import { nowIso, uuid } from "@/lib/utils";
-import { taskStatusLabel } from "@/domain/labels";
-import type { ActivityDoc, ActivityEntry, Project, TaskStatus } from "@/domain/schemas";
+import { stageLabel } from "@/domain/kanbanStages";
+import type { ActivityDoc, ActivityEntry, Project } from "@/domain/schemas";
 import { ACTIVITY_CAP } from "@/domain/schemas";
 import type { DomainEvent } from "./events";
 
@@ -70,8 +70,10 @@ function describe(event: DomainEvent, project: Project): string | null {
     case "task.statusChanged": {
       const task = project.tasks.find((t) => t.id === event.taskId);
       if (!task) return null;
-      const from = taskStatusLabel[event.from as TaskStatus] ?? event.from;
-      const to = taskStatusLabel[event.to as TaskStatus] ?? event.to;
+      // Nombre visible de la etapa del proyecto (spec 073 §6): un id custom
+      // muestra su nombre; uno desconocido, «etapa eliminada».
+      const from = stageLabel(project, event.from);
+      const to = stageLabel(project, event.to);
       return `Tarea "${task.title}": ${from} → ${to}`;
     }
     case "task.commented": {

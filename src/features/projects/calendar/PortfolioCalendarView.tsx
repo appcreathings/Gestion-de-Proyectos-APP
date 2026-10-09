@@ -19,7 +19,6 @@ import {
   type DayRange,
 } from "@/lib/dates";
 import type { Project, Quarter } from "@/domain/schemas";
-import { taskStatusLabel } from "@/domain/labels";
 import { taskUrgency } from "@/domain/taskUrgency";
 import {
   TONES,
@@ -878,7 +877,7 @@ function TaskChip({
         compact ? "px-1 py-0 text-[10px] leading-4" : "px-1.5 py-1 text-[11px] leading-snug",
         rail ?? "border-l-border/60",
       )}
-      aria-label={`${task.title}, ${task.projectName}, vence ${formatDay(task.day)}, ${taskStatusLabel[task.status]}${urgencyAria ? `, ${urgencyAria}` : ""}`}
+      aria-label={`${task.title}, ${task.projectName}, vence ${formatDay(task.day)}, ${task.statusLabel}${urgencyAria ? `, ${urgencyAria}` : ""}`}
     >
       <span className="truncate">{task.title}</span>
       <span className="truncate text-[9px] text-muted-foreground">{task.projectName}</span>

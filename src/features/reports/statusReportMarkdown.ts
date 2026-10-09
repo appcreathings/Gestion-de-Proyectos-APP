@@ -1,5 +1,4 @@
 import type { PortfolioStatusReport, ProjectStatusReport, StatusReport } from "./statusReport";
-import { taskStatusLabel } from "./statusReport";
 
 function escCell(s: string): string {
   return s.replace(/\|/g, "\\|").replace(/\n/g, " ");
@@ -98,7 +97,7 @@ function projectMarkdown(r: ProjectStatusReport): string {
         r.focusTasks.map((t) => {
           const cells = [
             t.title,
-            taskStatusLabel[t.status],
+            t.statusLabel,
             t.priorityLabel,
             t.dueDate ?? "—",
             t.areaName ?? "—",

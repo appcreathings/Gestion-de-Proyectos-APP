@@ -69,6 +69,13 @@ describe("URL writers (D7, D11)", () => {
     expect(next.get("person")).toBe("ana");
   });
 
+  it("applyStatus(otras) no escribe done=1 (spec 073 D13)", () => {
+    const next = applyStatus(new URLSearchParams("person=ana"), "otras");
+    expect(next.get("status")).toBe("otras");
+    expect(next.get("done")).toBeNull();
+    expect(next.get("person")).toBe("ana");
+  });
+
   it("applyShowDone(false) clears done and status=done", () => {
     const next = applyShowDone(new URLSearchParams("status=done&done=1&priority=high"), false);
     expect(next.get("done")).toBeNull();
@@ -171,6 +178,50 @@ describe("filterAndSortMyTasks hide-done / archive / sort", () => {
     ];
     const titles = filterAndSortMyTasks(projects, q(), NOW).rows.map((r) => r.title);
     expect(titles).toEqual(["C-soon", "C-none", "H-over", "H-later", "M", "L"]);
+  });
+});
+
+describe("status=otras — etapas custom (spec 073 D13)", () => {
+  it("parseMyTasksQuery acepta otras y sigue rechazando un status inválido", () => {
+    expect(parseMyTasksQuery(new URLSearchParams("status=otras")).status).toBe("otras");
+    expect(parseMyTasksQuery(new URLSearchParams("status=no-existe")).status).toBeNull();
+  });
+
+  it("status=otras aísla los status que no son de las cuatro base", () => {
+    const projects = [
+      project("Alpha", [
+        task({ title: "PorHacer", status: "todo" }),
+        task({ title: "EnCurso", status: "doing" }),
+        task({ title: "Bloqueada", status: "blocked" }),
+        task({ title: "Hecha", status: "done" }),
+        task({ title: "Custom", status: "custom-1" }),
+      ]),
+    ];
+    const result = filterAndSortMyTasks(projects, q({ status: "otras", showDone: true }), NOW);
+    expect(result.rows.map((r) => r.title)).toEqual(["Custom"]);
+  });
+
+  it("status=done no incluye una etapa custom", () => {
+    const projects = [
+      project("Alpha", [
+        task({ title: "Custom", status: "custom-1" }),
+        task({ title: "Done", status: "done" }),
+      ]),
+    ];
+    const result = filterAndSortMyTasks(projects, q({ status: "done", showDone: true }), NOW);
+    expect(result.rows.map((r) => r.title)).toEqual(["Done"]);
+  });
+
+  it("sin showDone, la custom sigue en la lista y done no (no está hecha)", () => {
+    const projects = [
+      project("Alpha", [
+        task({ title: "Custom", status: "custom-1" }),
+        task({ title: "Done", status: "done" }),
+      ]),
+    ];
+    const result = filterAndSortMyTasks(projects, q(), NOW);
+    expect(result.rows.map((r) => r.title)).toEqual(["Custom"]);
+    expect(result.openCount).toBe(1);
   });
 });
 

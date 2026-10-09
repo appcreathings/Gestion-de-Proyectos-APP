@@ -10,15 +10,15 @@ import {
   type ProgressStat,
 } from "@/domain/compute";
 import { effectiveHealth } from "@/domain/health";
+import { stageLabel } from "@/domain/kanbanStages";
 import {
   healthLabel,
   priorityLabel,
   projectStatusLabel,
-  taskStatusLabel,
 } from "@/domain/labels";
 import { computePortfolio } from "@/features/dashboard/portfolio";
 import { collectDatedEntities } from "@/lib/dates";
-import type { Person, Product, Project, Settings, TaskStatus } from "@/domain/schemas";
+import type { Person, Product, Project, Settings } from "@/domain/schemas";
 
 export interface StatusReportOptions {
   includePeople: boolean;
@@ -48,7 +48,10 @@ export interface ReportAreaRow {
 
 export interface ReportTaskRow {
   title: string;
-  status: TaskStatus;
+  /** Id de la etapa del proyecto (spec 073): puede ser un id custom. */
+  status: string;
+  /** Nombre visible resuelto contra `project.stages` al armar la fila. */
+  statusLabel: string;
   priorityLabel: string;
   dueDate: string | null;
   areaName: string | null;
@@ -240,7 +243,9 @@ export function buildProjectReport(
         (t.status === "todo" && t.dueDate != null),
     )
     .sort((a, b) => {
-      const order = { blocked: 0, doing: 1, todo: 2, done: 3 } as const;
+      // Los candidatos ya están filtrados a los tres id base; el map es
+      // Record<string, number> porque `Task.status` ahora es string (073 D4).
+      const order: Record<string, number> = { blocked: 0, doing: 1, todo: 2, done: 3 };
       const byStatus = order[a.status] - order[b.status];
       if (byStatus !== 0) return byStatus;
       if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
@@ -278,6 +283,7 @@ export function buildProjectReport(
     focusTasks: focusCapped.items.map((t) => ({
       title: t.title,
       status: t.status,
+      statusLabel: stageLabel(project, t.status),
       priorityLabel: priorityLabel[t.priority],
       dueDate: t.dueDate,
       areaName: t.areaId
@@ -380,6 +386,3 @@ export function buildPortfolioReport(
     openProjectsOmitted: openCapped.omitted,
   };
 }
-
-// re-export for callers that need task status labels in MD
-export { taskStatusLabel };

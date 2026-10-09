@@ -1,6 +1,7 @@
 import { daysUntil } from "@/domain/compute";
+import { isBuiltinStageId, type BuiltinStageId } from "@/domain/kanbanStages";
 import { WorkType } from "@/domain/schemas";
-import type { Priority, Project, Task, TaskStatus } from "@/domain/schemas";
+import type { Priority, Project, Task } from "@/domain/schemas";
 
 export const MY_TASKS_PRIORITY_ORDER: readonly Priority[] = [
   "critical",
@@ -12,9 +13,13 @@ export const MY_TASKS_PRIORITY_ORDER: readonly Priority[] = [
 export type MyTasksDateFilter = "overdue" | "due-soon" | "this-week";
 export type MyTasksView = "priority" | "project";
 
+/** Los cuatro id base o `otras`: tareas en una etapa custom del proyecto
+ * (spec 073 D13). Cualquier otro valor en la URL no filtra. */
+export type MyTasksStatusFilter = BuiltinStageId | "otras";
+
 export type MyTasksQuery = {
   personId: string | null;
-  status: TaskStatus | null;
+  status: MyTasksStatusFilter | null;
   priority: Priority | null;
   date: MyTasksDateFilter | null;
   projectId: string | null;
@@ -24,12 +29,13 @@ export type MyTasksQuery = {
   view: MyTasksView;
 };
 
-const TASK_STATUSES: readonly TaskStatus[] = ["todo", "doing", "blocked", "done"];
+const TASK_STATUSES: readonly BuiltinStageId[] = ["todo", "doing", "blocked", "done"];
+const STATUS_FILTERS: readonly MyTasksStatusFilter[] = [...TASK_STATUSES, "otras"];
 const DATE_FILTERS: readonly MyTasksDateFilter[] = ["overdue", "due-soon", "this-week"];
 const WORK_TYPES: readonly WorkType[] = WorkType.options;
 
-function isTaskStatus(v: string | null): v is TaskStatus {
-  return v !== null && (TASK_STATUSES as readonly string[]).includes(v);
+function isTaskStatus(v: string | null): v is MyTasksStatusFilter {
+  return v !== null && (STATUS_FILTERS as readonly string[]).includes(v);
 }
 function isPriority(v: string | null): v is Priority {
   return v !== null && (MY_TASKS_PRIORITY_ORDER as readonly string[]).includes(v);
@@ -243,7 +249,10 @@ export function filterAndSortMyTasks(
   const knownProjectIds = new Set(projects.map((p) => p.id));
 
   let filtered = afterHide;
-  if (query.status) {
+  if (query.status === "otras") {
+    // Etapas custom: cualquier id que no sea de las cuatro base (spec 073 D13).
+    filtered = filtered.filter((t) => !isBuiltinStageId(t.status));
+  } else if (query.status) {
     filtered = filtered.filter((t) => t.status === query.status);
   }
   if (query.priority) {

@@ -3,7 +3,8 @@
  */
 import type { DayRange } from "@/lib/dates";
 import { daysBetween, monthRangeContaining, rangesIntersect, shiftRange } from "@/lib/dates";
-import type { Priority, Project, Quarter, SprintStatus, TaskStatus } from "@/domain/schemas";
+import { stageLabel } from "@/domain/kanbanStages";
+import type { Priority, Project, Quarter, SprintStatus } from "@/domain/schemas";
 import type { SprintScope } from "../components/SprintSwitcher";
 
 export interface CalendarTaskItem {
@@ -11,7 +12,10 @@ export interface CalendarTaskItem {
   id: string;
   title: string;
   day: string;
-  status: TaskStatus;
+  /** Id de la etapa del proyecto (spec 073): puede ser un id custom. */
+  status: string;
+  /** Nombre visible resuelto contra `project.stages` al construir el ítem. */
+  statusLabel: string;
   priority: Priority;
   sprintId: string | null;
   areaId: string | null;
@@ -131,6 +135,7 @@ export function buildCalendarModel(input: BuildCalendarInput): CalendarModel {
       title: task.title,
       day: task.dueDate ?? "",
       status: task.status,
+      statusLabel: stageLabel(project, task.status),
       priority: task.priority,
       sprintId: task.sprintId,
       areaId: task.areaId,
