@@ -11,7 +11,8 @@ import { EntitySelect } from "@/components/forms/EntitySelect";
 import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { RichTextField } from "@/components/forms/RichTextField";
-import { priorityLabel, taskStatusLabel, TASK_COLUMNS, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { priorityLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { isBuiltinStageId, stageDotClass, type KanbanStage } from "@/domain/kanbanStages";
 import { daysUntil } from "@/domain/compute";
 import { krProgress } from "@/domain/krProgress";
 import { taskUrgency } from "@/domain/taskUrgency";
@@ -85,6 +86,8 @@ interface Props {
   areas: Area[];
   people: Person[];
   sprints: Sprint[];
+  /** Etapas del proyecto en orden (spec 073 §5.6). El value es el id. */
+  stages: KanbanStage[];
   onUpdate: (updated: Task) => void;
   onClose: () => void;
 }
@@ -95,13 +98,14 @@ export function TaskDetailDrawer({
   areas,
   people,
   sprints,
+  stages,
   onUpdate,
   onClose,
 }: Props) {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<TaskStatus>("todo");
+  const [status, setStatus] = useState<string>("todo");
   const [priority, setPriority] = useState<Priority>("medium");
   const [workType, setWorkType] = useState<WorkType>("task");
   // Métrica KR como strings — vacío → null; nunca se persiste NaN (spec 062 D8).
@@ -417,7 +421,7 @@ export function TaskDetailDrawer({
           if (value !== task.description) updates.description = value as string;
           break;
         case "status":
-          if (value !== task.status) updates.status = value as TaskStatus;
+          if (value !== null && value !== task.status) updates.status = value;
           break;
         case "priority":
           if (value !== task.priority) updates.priority = value as Priority;
@@ -561,10 +565,21 @@ export function TaskDetailDrawer({
     subtasks.length > 0 ? Math.round((doneSubtasks / subtasks.length) * 100) : 0;
   const krPercent = krProgress(task.krCurrent ?? null, task.krTarget ?? null);
 
-  function changeStatus(next: TaskStatus) {
+  function changeStatus(next: string) {
     setStatus(next);
     persist("status", next);
   }
+
+  /** Pill y punto de la cabecera (spec 064 D5 + 073 §5.6): los cuatro id base
+   * conservan su tono; una etapa custom usa pill neutra y el punto del color
+   * de su etapa. */
+  const statusIsBuiltin = isBuiltinStageId(status);
+  const statusPillClass = statusIsBuiltin
+    ? STATUS_PILL[status]
+    : "bg-muted text-muted-foreground";
+  const statusDotClass = statusIsBuiltin
+    ? STATUS_DOT[status]
+    : stageDotClass(stages.find((s) => s.id === status)?.color ?? "slate");
 
   /** Encabezado de sección: versalita fina, sin caja (spec 064 D6). */
   const SECTION = "text-[11px] font-semibold uppercase tracking-[0.07em] text-muted-foreground";
@@ -618,11 +633,11 @@ export function TaskDetailDrawer({
             <div
               className={cn(
                 "relative inline-flex items-center gap-1.5 rounded-full pl-2.5",
-                STATUS_PILL[status],
+                statusPillClass,
               )}
             >
               <span
-                className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[status])}
+                className={cn("size-1.5 shrink-0 rounded-full", statusDotClass)}
                 aria-hidden="true"
               />
               <Select
@@ -630,12 +645,12 @@ export function TaskDetailDrawer({
                 size="sm"
                 value={status}
                 aria-label="Estado de la tarea"
-                onChange={(e) => changeStatus(e.target.value as TaskStatus)}
+                onChange={(e) => changeStatus(e.target.value)}
                 className="h-6 w-auto rounded-full border-transparent bg-transparent pl-0 pr-6 font-medium [&>option]:bg-popover [&>option]:font-normal [&>option]:text-popover-foreground"
               >
-                {Object.entries(taskStatusLabel).map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
+                {stages.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
                   </option>
                 ))}
               </Select>
@@ -713,21 +728,27 @@ export function TaskDetailDrawer({
               )}
             </div>
 
-            {/* Spec 054: estado táctil en móvil, por encima del fold. */}
+            {/* Spec 054: estado táctil en móvil, por encima del fold.
+                Botones por etapa del proyecto (spec 073 §5.6). */}
             <div className="grid gap-1.5 px-5 pb-3 md:hidden">
               <span className={SECTION}>Cambiar estado</span>
-              <div className="grid grid-cols-4 gap-1">
-                {TASK_COLUMNS.map((col) => (
+              <div
+                className={cn(
+                  "grid gap-1",
+                  stages.length > 4 ? "grid-cols-3" : "grid-cols-4",
+                )}
+              >
+                {stages.map((s) => (
                   <Button
-                    key={col}
+                    key={s.id}
                     type="button"
                     size="sm"
-                    variant={status === col ? "default" : "outline"}
+                    variant={status === s.id ? "default" : "outline"}
                     className="min-h-11 px-1 text-[11px]"
-                    disabled={status === col}
-                    onClick={() => changeStatus(col)}
+                    disabled={status === s.id}
+                    onClick={() => changeStatus(s.id)}
                   >
-                    {taskStatusLabel[col]}
+                    {s.name}
                   </Button>
                 ))}
               </div>

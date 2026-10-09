@@ -1,18 +1,18 @@
-import type { TaskStatus } from "@/domain/schemas";
-import { TASK_COLUMNS } from "@/domain/labels";
-
-/** Elige la columna más visible según intersection ratios (spec 054). */
+/** Elige la columna más visible según intersection ratios (spec 054).
+ * El desempate usa el orden que le pasan — el del tablero del proyecto
+ * (etapas + ghosts), no un catálogo fijo (spec 073 §5.1). */
 export function pickActiveStatus(
-  entries: { status: TaskStatus; intersectionRatio: number }[],
-  fallback: TaskStatus,
-): TaskStatus {
+  entries: { status: string; intersectionRatio: number }[],
+  fallback: string,
+  order: readonly string[],
+): string {
   if (entries.length === 0) return fallback;
   let best = entries[0];
   for (const e of entries) {
     if (e.intersectionRatio > best.intersectionRatio) best = e;
     else if (
       e.intersectionRatio === best.intersectionRatio &&
-      TASK_COLUMNS.indexOf(e.status) < TASK_COLUMNS.indexOf(best.status)
+      order.indexOf(e.status) < order.indexOf(best.status)
     ) {
       best = e;
     }

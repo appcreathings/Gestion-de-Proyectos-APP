@@ -53,8 +53,10 @@ interface Props {
   onToggleSelect?: () => void;
   /** Selection mode toggle (spec 017 HU-13). */
   selectionMode?: boolean;
-  onMoveBack: () => void;
-  onMove: () => void;
+  /** Vecino según el orden del tablero (spec 073 §5.1). `undefined` en el
+   * extremo: el botón no se renderiza. */
+  onMoveBack?: () => void;
+  onMove?: () => void;
   onToggleBlock: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -284,26 +286,30 @@ export function TaskCard({
       {!isOverlay && !isPlaceholder && (
         <div className="mt-auto flex items-center justify-end gap-0.5 border-t border-border/50 pt-2">
           {/* Spec 054: targets ≥44px en móvil (max-sm:size-11). */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
-            title="Devolver al estado anterior"
-            aria-label="Mover al estado anterior"
-            onClick={(e) => { e.stopPropagation(); onMoveBack(); }}
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
-            title="Mover al siguiente estado"
-            aria-label="Mover al siguiente estado"
-            onClick={(e) => { e.stopPropagation(); onMove(); }}
-          >
-            <ArrowRight className="size-4" />
-          </Button>
+          {onMoveBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
+              title="Devolver al estado anterior"
+              aria-label="Mover al estado anterior"
+              onClick={(e) => { e.stopPropagation(); onMoveBack(); }}
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+          )}
+          {onMove && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-11 min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8"
+              title="Mover al siguiente estado"
+              aria-label="Mover al siguiente estado"
+              onClick={(e) => { e.stopPropagation(); onMove(); }}
+            >
+              <ArrowRight className="size-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

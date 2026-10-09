@@ -24,6 +24,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -33,9 +41,21 @@ import {
 import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import * as ops from "@/domain/projectOps";
-import { TASK_COLUMNS, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import {
+  STAGE_COLORS,
+  boardColumns,
+  isBuiltinStageId,
+  neighborStageId,
+  nextStageColor,
+  stageDotClass,
+  stageNameError,
+  type KanbanStage,
+  type StageColor,
+} from "@/domain/kanbanStages";
+import type { StageMenu } from "./kanban/KanbanColumn";
 import { WorkType } from "@/domain/schemas";
-import type { Person, Priority, Project, Sprint, Task, TaskStatus } from "@/domain/schemas";
+import type { Person, Priority, Project, Sprint, Task } from "@/domain/schemas";
 import { TaskFormDialog } from "./TaskFormDialog";
 import { SprintFormDialog } from "./SprintFormDialog";
 import { SprintSwitcher, type SprintScope } from "./SprintSwitcher";
@@ -47,6 +67,7 @@ import { KanbanListView } from "./kanban/KanbanListView";
 import { WipLimitConfig } from "./kanban/WipLimitConfig";
 import { KanbanColumnPager } from "./kanban/KanbanColumnPager";
 import { pickActiveStatus, scrollBoardToColumn } from "./kanban/columnScroll";
+import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 
@@ -58,24 +79,27 @@ interface Props {
   focusId?: string;
 }
 
-const NEXT: Record<TaskStatus, TaskStatus> = {
-  todo: "doing",
-  doing: "done",
-  blocked: "doing",
-  done: "todo",
-};
-
-const PREV: Record<TaskStatus, TaskStatus> = {
-  todo: "done",
-  doing: "todo",
-  blocked: "doing",
-  done: "doing",
-};
-
-const COLUMN_IDS = new Set<string>(TASK_COLUMNS);
+/** Texto del diálogo de borrado (spec 073 §5.4): N cuenta archivadas y no
+ * archivadas; el destino se calcula con la misma regla de `removeStage`. */
+function stageDeleteText(
+  name: string,
+  n: number,
+  destName: string | undefined,
+): { title: string; description: string } {
+  if (n === 0) {
+    return { title: `Eliminar "${name}"`, description: "No hay tareas en esta etapa." };
+  }
+  if (n === 1) {
+    return { title: `Eliminar "${name}"`, description: `1 tarea pasa a "${destName}".` };
+  }
+  return {
+    title: `Eliminar "${name}"`,
+    description: `${n} tareas pasan a "${destName}".`,
+  };
+}
 
 export function TasksTab({ project, people, mutate, focusId }: Props) {
-  const [dialog, setDialog] = useState<{ open: boolean; task?: Task; status?: TaskStatus }>(
+  const [dialog, setDialog] = useState<{ open: boolean; task?: Task; status?: string }>(
     { open: false },
   );
   const [sprintDialog, setSprintDialog] = useState<{ open: boolean; sprint?: Sprint }>({
@@ -86,17 +110,44 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   // Ephemeral drag preview: mirrors board-by-column while a drag is in progress so cards reflow
   // live (onDragOver) instead of "jumping" only on drop. Null when no drag is active — render then
   // falls back to `boardFromScope` derived straight from props.
-  const [dragBoard, setDragBoard] = useState<Record<TaskStatus, string[]> | null>(null);
+  const [dragBoard, setDragBoard] = useState<Record<string, string[]> | null>(null);
   // Touch drags are restricted to intra-column reorder (see spec 010) — cross-column moves on
   // touch happen via the existing move buttons instead, to avoid fighting the column snap-scroll.
   const isTouchDragRef = useRef(false);
   const focusRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
-  const [activeKanbanCol, setActiveKanbanCol] = useState<TaskStatus>("todo");
+  // Etapa activa del pager móvil (spec 054). El fallback es la primera etapa
+  // del proyecto, no "todo" fijo (spec 073 §5.1): el orden puede cambiar.
+  const [activeKanbanCol, setActiveKanbanCol] = useState<string>(
+    () => project.stages[0]?.id ?? "todo",
+  );
+  // Alta y edición de etapas (spec 073 §5.2/§5.3); archivar Hecha (§5.5).
+  const [newStageOpen, setNewStageOpen] = useState(false);
+  const [renameStageTarget, setRenameStageTarget] = useState<KanbanStage | null>(null);
+  const [renameName, setRenameName] = useState("");
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const [deleteStageTarget, setDeleteStageTarget] = useState<KanbanStage | null>(null);
+  const [archiveDone, setArchiveDone] = useState<{ ids: string[] } | null>(null);
   const isCarousel = !useBreakpoint("sm");
   const [searchParams, setSearchParams] = useSearchParams();
   const areaFilterId = searchParams.get("area");
   const areaFilter = areaFilterId ? project.areas.find((a) => a.id === areaFilterId) : undefined;
+
+  // Columnas del tablero desde Project.stages + ghosts (spec 073 §5.1).
+  const boardCols = useMemo(() => boardColumns(project), [project]);
+  const columnIds = useMemo(() => boardCols.map((c) => c.stage.id), [boardCols]);
+  const columnIdSet = useMemo(() => new Set(columnIds), [columnIds]);
+  const ghostIds = useMemo(
+    () => new Set(boardCols.filter((c) => c.ghost).map((c) => c.stage.id)),
+    [boardCols],
+  );
+
+  // Si el proyecto cambió o se borró la etapa activa, vuelve al frente del tablero.
+  useEffect(() => {
+    if (!columnIds.includes(activeKanbanCol)) {
+      setActiveKanbanCol(columnIds[0] ?? "todo");
+    }
+  }, [columnIds, activeKanbanCol]);
 
   // Search state (spec 017)
   const [searchQuery, setSearchQuery] = useState("");
@@ -158,18 +209,18 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     setSelectedTaskIds(new Set());
   }
 
-  function getColumnSelectionState(status: TaskStatus): "none" | "some" | "all" {
-    const columnTaskIds = board[status];
+  function getColumnSelectionState(status: string): "none" | "some" | "all" {
+    const columnTaskIds = board[status] ?? [];
     const selectedInColumn = columnTaskIds.filter((id) => selectedTaskIds.has(id));
     if (selectedInColumn.length === 0) return "none";
     if (selectedInColumn.length === columnTaskIds.length) return "all";
     return "some";
   }
 
-  function toggleColumnSelection(status: TaskStatus) {
-    const columnTaskIds = board[status];
+  function toggleColumnSelection(status: string) {
+    const columnTaskIds = board[status] ?? [];
     const allSelected = columnTaskIds.every((id) => selectedTaskIds.has(id));
-    
+
     setSelectedTaskIds((prev) => {
       const next = new Set(prev);
       if (allSelected) {
@@ -181,7 +232,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     });
   }
 
-  function handleBulkMove(status: TaskStatus) {
+  function handleBulkMove(status: string) {
     selectedTaskIds.forEach((taskId) => {
       const task = project.tasks.find((t) => t.id === taskId);
       if (task) {
@@ -376,25 +427,26 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
       (entries) => {
         const ratios = entries
           .map((e) => {
-            const status = (e.target as HTMLElement).dataset.kanbanStatus as TaskStatus | undefined;
+            const status = (e.target as HTMLElement).dataset.kanbanStatus;
             if (!status) return null;
             return { status, intersectionRatio: e.intersectionRatio };
           })
-          .filter((x): x is { status: TaskStatus; intersectionRatio: number } => x !== null);
+          .filter((x): x is { status: string; intersectionRatio: number } => x !== null);
         if (ratios.length === 0) return;
-        setActiveKanbanCol((prev) => pickActiveStatus(ratios, prev));
+        // El desempate usa el orden del tablero del proyecto (spec 073 §5.1).
+        setActiveKanbanCol((prev) => pickActiveStatus(ratios, prev, columnIds));
       },
       { root: board, threshold: [0.35, 0.55, 0.75] },
     );
 
-    for (const col of TASK_COLUMNS) {
+    for (const col of columnIds) {
       const el = document.getElementById(`kanban-col-${col}`);
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, [isCarousel, viewMode, showArchived, tasksInScope.length]);
+  }, [isCarousel, viewMode, showArchived, tasksInScope.length, columnIds]);
 
-  function scrollToKanbanColumn(status: TaskStatus) {
+  function scrollToKanbanColumn(status: string) {
     const board = boardRef.current;
     const col = document.getElementById(`kanban-col-${status}`);
     if (board && col) {
@@ -410,13 +462,14 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   }, [project.tasks, areaFilterId]);
 
   // Visible task ids per column, derived from props. The single source of truth outside a drag.
+  // Columnas desde Project.stages + ghosts (spec 073 §5.1).
   const boardFromScope = useMemo(() => {
-    const board = {} as Record<TaskStatus, string[]>;
-    for (const col of TASK_COLUMNS) {
-      board[col] = tasksInScope.filter((t) => t.status === col).map((t) => t.id);
+    const board: Record<string, string[]> = {};
+    for (const col of boardCols) {
+      board[col.stage.id] = tasksInScope.filter((t) => t.status === col.stage.id).map((t) => t.id);
     }
     return board;
-  }, [tasksInScope]);
+  }, [boardCols, tasksInScope]);
 
   // While dragging, render from the ephemeral preview; otherwise from the derived scope.
   const board = dragBoard ?? boardFromScope;
@@ -487,8 +540,8 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     setDeleteSprint(null);
   }
 
-  function columnOf(b: Record<TaskStatus, string[]>, taskId: string): TaskStatus | undefined {
-    return TASK_COLUMNS.find((col) => b[col].includes(taskId));
+  function columnOf(b: Record<string, string[]>, taskId: string): string | undefined {
+    return columnIds.find((col) => b[col]?.includes(taskId));
   }
 
   function onDragStart(event: DragStartEvent) {
@@ -527,22 +580,24 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     setDragBoard((prev) => {
       if (!prev) return prev;
       const fromCol = columnOf(prev, activeTaskId);
-      const toCol = COLUMN_IDS.has(overId) ? (overId as TaskStatus) : columnOf(prev, overId);
+      const toCol = columnIdSet.has(overId) ? overId : columnOf(prev, overId);
       if (!fromCol || !toCol) return prev;
       // Touch: ignore hovers that would move the card to a different column.
       if (isTouchDragRef.current && toCol !== fromCol) return prev;
+      // Ghost de un status desconocido (spec 073 §5.1): origen, no destino.
+      if (ghostIds.has(toCol) && toCol !== fromCol) return prev;
 
       if (toCol === fromCol) {
         const ids = prev[fromCol];
         const oldIndex = ids.indexOf(activeTaskId);
-        const newIndex = COLUMN_IDS.has(overId) ? ids.length - 1 : ids.indexOf(overId);
+        const newIndex = columnIdSet.has(overId) ? ids.length - 1 : ids.indexOf(overId);
         if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return prev;
         return { ...prev, [fromCol]: arrayMove(ids, oldIndex, newIndex) };
       }
 
       const fromIds = prev[fromCol].filter((id) => id !== activeTaskId);
       const toIds = prev[toCol].filter((id) => id !== activeTaskId);
-      const insertAt = COLUMN_IDS.has(overId) ? toIds.length : toIds.indexOf(overId);
+      const insertAt = columnIdSet.has(overId) ? toIds.length : toIds.indexOf(overId);
       const nextToIds = [...toIds];
       nextToIds.splice(insertAt === -1 ? nextToIds.length : insertAt, 0, activeTaskId);
       return { ...prev, [fromCol]: fromIds, [toCol]: nextToIds };
@@ -561,6 +616,9 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     if (!activeTask) return;
     const finalCol = columnOf(finalBoard, activeTaskId);
     if (!finalCol) return;
+    // Soltar en un ghost no escribe nada (spec 073 §5.1): el ghost es origen.
+    // Solo se permite si la tarea ya vivía ahí (reorden interno del ghost).
+    if (ghostIds.has(finalCol) && activeTask.status !== finalCol) return;
 
     // Multi-drag: move all selected tasks together (spec 017 HU-13)
     if (draggedSelectedIds.length > 1) {
@@ -604,10 +662,71 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     setDraggedSelectedIds([]);
   }
 
+  function stageMenuFor(stage: KanbanStage): StageMenu {
+    const stages = project.stages;
+    const index = stages.findIndex((s) => s.id === stage.id);
+    return {
+      // Hecha no muestra ninguno; la etapa pegada a Hecha no va a la derecha
+      // (spec 073 §5.2: se oculta el sentido que moveStage rechazaría).
+      // moveStage vuelve a validar: la op es la red de seguridad.
+      canMoveLeft: stage.id !== "done" && index > 0,
+      canMoveRight: stage.id !== "done" && index >= 0 && index < stages.length - 2,
+      canDelete: !isBuiltinStageId(stage.id),
+      onRename: () => openRenameStage(stage),
+      onRecolor: (color) => mutate((p) => ops.recolorStage(p, stage.id, color)),
+      onMove: (direction) => mutate((p) => ops.moveStage(p, stage.id, direction)),
+      onDelete: () => setDeleteStageTarget(stage),
+    };
+  }
+
+  function openRenameStage(stage: KanbanStage) {
+    setRenameStageTarget(stage);
+    setRenameName(stage.name);
+    setRenameError(null);
+  }
+
+  function saveRenameStage() {
+    if (!renameStageTarget) return;
+    const err = stageNameError(project.stages, renameName, renameStageTarget.id);
+    if (err === "empty") {
+      setRenameError("Escribí un nombre.");
+      return;
+    }
+    if (err === "duplicate") {
+      setRenameError("Ya hay una etapa con ese nombre.");
+      return;
+    }
+    mutate((p) => ops.renameStage(p, renameStageTarget.id, renameName));
+    setRenameStageTarget(null);
+  }
+
+  function confirmArchiveDone() {
+    if (!archiveDone) return;
+    const ids = archiveDone.ids;
+    // Un solo mutate: el store escribe una vez para todo el lote (spec 073 §5.5).
+    mutate((p) =>
+      ids.reduce((acc, id) => {
+        const task = acc.tasks.find((t) => t.id === id);
+        return task ? ops.updateTask(acc, { ...task, archived: true }) : acc;
+      }, p),
+    );
+    setArchiveDone(null);
+  }
+
   // Safe lookup for the DragOverlay — avoids a non-null assertion that could crash on a stray
   // re-render mid-drag if the active task were ever removed.
   const activeTask = activeId ? project.tasks.find((t) => t.id === activeId) : undefined;
-
+  const doneStage = project.stages.find((s) => s.id === "done");
+  const doneVisibleIds = doneStage ? board[doneStage.id] ?? [] : [];
+  const deleteStageInfo = (() => {
+    if (!deleteStageTarget) return null;
+    const stages = project.stages;
+    const index = stages.findIndex((s) => s.id === deleteStageTarget.id);
+    if (index === -1) return null;
+    const dest = index > 0 ? stages[index - 1] : stages[index + 1];
+    const n = project.tasks.filter((t) => t.status === deleteStageTarget.id).length;
+    return stageDeleteText(deleteStageTarget.name, n, dest?.name);
+  })();
   return (
     <div>
       <SprintSwitcher
@@ -863,17 +982,18 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             <Select
               onChange={(e) => {
                 if (e.target.value) {
-                  handleBulkMove(e.target.value as TaskStatus);
+                  handleBulkMove(e.target.value);
                 }
               }}
               value=""
               className="h-8 py-1 text-sm"
             >
               <option value="">Mover a...</option>
-              <option value="todo">Por hacer</option>
-              <option value="doing">En curso</option>
-              <option value="blocked">Bloqueada</option>
-              <option value="done">Hecha</option>
+              {project.stages.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
             </Select>
             <Button variant="outline" size="sm" onClick={handleBulkArchive}>
               <Archive className="size-3.5 mr-1.5" />
@@ -893,6 +1013,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
 
       {showArchived ? (
         <ArchivedTasksList
+          project={project}
           tasks={archivedTasks}
           areas={project.areas}
           people={people}
@@ -901,6 +1022,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         />
       ) : viewMode === "list" ? (
         <KanbanListView
+          project={project}
           tasks={tasksInScope}
           areas={project.areas}
           people={people}
@@ -927,12 +1049,15 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
           {isCarousel && (
             <div className="sticky top-0 z-10 -mx-1 mb-3 bg-background/95 px-1 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
               <KanbanColumnPager
-                columns={TASK_COLUMNS.map((status) => ({
-                  status,
-                  count: board[status].length,
+                columns={boardCols.map(({ stage }) => ({
+                  id: stage.id,
+                  name: stage.name,
+                  color: stage.color,
+                  count: board[stage.id]?.length ?? 0,
                 }))}
                 active={activeKanbanCol}
                 onSelect={scrollToKanbanColumn}
+                onAddStage={() => setNewStageOpen(true)}
               />
             </div>
           )}
@@ -940,66 +1065,108 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             ref={boardRef}
             className="flex snap-x snap-mandatory gap-3 overflow-x-auto sm:grid sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-3 sm:snap-none sm:overflow-visible"
           >
-            {TASK_COLUMNS.map((col) => {
-              const ids = board[col];
+            {boardCols.map(({ stage, ghost }) => {
+              const ids = board[stage.id] ?? [];
               const tasks = ids
                 .map((id) => project.tasks.find((t) => t.id === id))
                 .filter((t): t is Task => !!t);
+              const isDoneCol = !ghost && stage.id === "done";
               return (
                 <KanbanColumn
-                  key={col}
-                  status={col}
+                  key={stage.id}
+                  stage={stage}
+                  ghost={ghost}
                   count={tasks.length}
-                  wipLimit={project.wipLimits?.[col]}
+                  // WIP solo para las cuatro etapas base (spec 073 D10).
+                  wipLimit={
+                    !ghost && isBuiltinStageId(stage.id)
+                      ? project.wipLimits?.[stage.id] ?? null
+                      : null
+                  }
                   taskIds={ids}
-                  onAdd={() => setDialog({ open: true, status: col })}
+                  onAdd={() => setDialog({ open: true, status: stage.id })}
+                  archiveAction={
+                    isDoneCol && doneVisibleIds.length > 0
+                      ? {
+                          label: `Archivar ${doneVisibleIds.length}`,
+                          onOpen: () => setArchiveDone({ ids: [...doneVisibleIds] }),
+                        }
+                      : undefined
+                  }
+                  stageMenu={ghost ? undefined : stageMenuFor(stage)}
                   selectionMode={selectionMode}
-                  columnSelectionState={getColumnSelectionState(col)}
-                  onToggleColumnSelection={() => toggleColumnSelection(col)}
+                  columnSelectionState={getColumnSelectionState(stage.id)}
+                  onToggleColumnSelection={() => toggleColumnSelection(stage.id)}
                 >
-                  {tasks.map((t) => (
-                    <TaskCard
-                      key={t.id}
-                      task={t}
-                      area={project.areas.find((a) => a.id === t.areaId)}
-                      assignee={people.find((p) => p.id === t.assigneeId)}
-                      sprint={
-                        sprintScope === "all"
-                          ? project.sprints.find((s) => s.id === t.sprintId)
-                          : undefined
-                      }
-                      focused={t.id === focusId}
-                      focusRef={focusRef}
-                      disabled={!!detailTaskId}
-                      searchQuery={debouncedQuery}
-                      selected={selectedTaskIds.has(t.id)}
-                      onToggleSelect={() => toggleTaskSelection(t.id)}
-                      selectionMode={selectionMode}
-                      onMoveBack={() =>
-                        mutate((p) => ops.updateTask(p, { ...t, status: PREV[t.status] }))
-                      }
-                      onMove={() =>
-                        mutate((p) => ops.updateTask(p, { ...t, status: NEXT[t.status] }))
-                      }
-                      onToggleBlock={() =>
-                        mutate((p) =>
-                          ops.updateTask(p, {
-                            ...t,
-                            status: t.status === "blocked" ? "doing" : "blocked",
-                          })
-                        )
-                      }
-                      onEdit={() => openDetail(t.id)}
-                      onDelete={() => mutate((p) => ops.removeTask(p, t.id))}
-                      onOpenDetail={() => openDetail(t.id)}
-                      onArchive={() =>
-                        mutate((p) => ops.updateTask(p, { ...t, archived: !t.archived }))
-                      }
-                    />
-                  ))}
+                  {tasks.map((t) => {
+                    const prevStatus = neighborStageId(project.stages, t.status, -1);
+                    const nextStatus = neighborStageId(project.stages, t.status, 1);
+                    return (
+                      <TaskCard
+                        key={t.id}
+                        task={t}
+                        area={project.areas.find((a) => a.id === t.areaId)}
+                        assignee={people.find((p) => p.id === t.assigneeId)}
+                        sprint={
+                          sprintScope === "all"
+                            ? project.sprints.find((s) => s.id === t.sprintId)
+                            : undefined
+                        }
+                        focused={t.id === focusId}
+                        focusRef={focusRef}
+                        disabled={!!detailTaskId}
+                        searchQuery={debouncedQuery}
+                        selected={selectedTaskIds.has(t.id)}
+                        onToggleSelect={() => toggleTaskSelection(t.id)}
+                        selectionMode={selectionMode}
+                        // Flechas al vecino del tablero; en el extremo no se
+                        // muestran (spec 073 §5.1).
+                        onMoveBack={
+                          prevStatus
+                            ? () =>
+                                mutate((p) =>
+                                  ops.updateTask(p, { ...t, status: prevStatus }),
+                                )
+                            : undefined
+                        }
+                        onMove={
+                          nextStatus
+                            ? () =>
+                                mutate((p) =>
+                                  ops.updateTask(p, { ...t, status: nextStatus }),
+                                )
+                            : undefined
+                        }
+                        onToggleBlock={() =>
+                          mutate((p) =>
+                            ops.updateTask(p, {
+                              ...t,
+                              status: t.status === "blocked" ? "doing" : "blocked",
+                            })
+                          )
+                        }
+                        onEdit={() => openDetail(t.id)}
+                        onDelete={() => mutate((p) => ops.removeTask(p, t.id))}
+                        onOpenDetail={() => openDetail(t.id)}
+                        onArchive={() =>
+                          mutate((p) => ops.updateTask(p, { ...t, archived: !t.archived }))
+                        }
+                      />
+                    );
+                  })}
                 </KanbanColumn>
               );
             })}
+            {/* Alta de etapa: última celda del tablero, después de los ghosts
+                (spec 073 §5.3). */}
+            <button
+              type="button"
+              onClick={() => setNewStageOpen(true)}
+              className="flex min-h-[110px] min-w-[85vw] shrink-0 snap-start items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border/70 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:min-w-0 sm:shrink"
+            >
+              <Plus className="size-4" />
+              Nueva etapa
+            </button>
           </div>
           <DragOverlay
             dropAnimation={{
@@ -1046,6 +1213,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         areas={project.areas}
         people={people}
         sprints={project.sprints}
+        stages={project.stages}
         defaultStatus={dialog.status}
         defaultSprintId={sprintScope === "all" || sprintScope === "backlog" ? null : sprintScope}
         onSubmit={submitTask}
@@ -1072,6 +1240,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         areas={project.areas}
         people={people}
         sprints={project.sprints}
+        stages={project.stages}
         onUpdate={handleUpdateTask}
         onClose={closeDetail}
       />
@@ -1082,6 +1251,196 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
         onSave={handleSaveWipLimits}
         onClose={() => setWipConfigOpen(false)}
       />
+
+      {/* Alta de etapa (spec 073 §5.3): nombre + muestras de color. */}
+      <NewStageDialog
+        open={newStageOpen}
+        onOpenChange={setNewStageOpen}
+        stages={project.stages}
+        onCreate={(name, color) => mutate((p) => ops.addStage(p, { name, color }))}
+      />
+
+      {/* Renombrar etapa (spec 073 §5.2): valida contra project.stages. */}
+      <Dialog
+        open={!!renameStageTarget}
+        onOpenChange={(o) => {
+          if (!o) setRenameStageTarget(null);
+        }}
+      >
+        <DialogContent size="sm">
+          <DialogHeader>
+            <DialogTitle>Renombrar etapa</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <Input
+              value={renameName}
+              maxLength={40}
+              autoFocus
+              aria-label="Nombre de la etapa"
+              onChange={(e) => {
+                setRenameName(e.target.value);
+                if (renameError) setRenameError(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  saveRenameStage();
+                }
+              }}
+            />
+            {renameError && (
+              <p role="alert" className="mt-1.5 text-xs text-destructive">
+                {renameError}
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setRenameStageTarget(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={saveRenameStage}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Eliminar etapa nueva (spec 073 §5.4): avisa cuántas tareas se mueven
+          y a dónde. Cancelar no cambia nada. */}
+      <ConfirmDialog
+        open={!!deleteStageTarget && !!deleteStageInfo}
+        onOpenChange={(o) => {
+          if (!o) setDeleteStageTarget(null);
+        }}
+        title={deleteStageInfo?.title ?? ""}
+        description={deleteStageInfo?.description ?? ""}
+        confirmLabel="Eliminar"
+        onConfirm={() => {
+          if (!deleteStageTarget) return;
+          const id = deleteStageTarget.id;
+          mutate((p) => ops.removeStage(p, id));
+          setDeleteStageTarget(null);
+        }}
+      />
+
+      {/* Archivar lo visible en Hecha (spec 073 §5.5): un solo mutate. */}
+      <ConfirmDialog
+        open={!!archiveDone}
+        onOpenChange={(o) => {
+          if (!o) setArchiveDone(null);
+        }}
+        title={
+          archiveDone
+            ? archiveDone.ids.length === 1
+              ? `Archivar 1 tarea de ${doneStage?.name}? Sale del tablero y queda en Archivadas.`
+              : `Archivar ${archiveDone.ids.length} tareas de ${doneStage?.name}? Salen del tablero y quedan en Archivadas.`
+            : ""
+        }
+        confirmLabel="Archivar"
+        confirmVariant="default"
+        onConfirm={confirmArchiveDone}
+      />
     </div>
+  );
+}
+
+/** Alta de etapa (spec 073 §5.3). El color inicial es la primera clave libre
+ * de la paleta; el error se muestra debajo del input y no cierra. */
+function NewStageDialog({
+  open,
+  onOpenChange,
+  stages,
+  onCreate,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  stages: KanbanStage[];
+  onCreate: (name: string, color: StageColor) => void;
+}) {
+  const [name, setName] = useState("");
+  const [color, setColor] = useState<StageColor>("rose");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setName("");
+      setColor(nextStageColor(stages));
+      setError(null);
+    }
+    // `stages` solo alimenta el color inicial: recomputarlo en cada mutate
+    // del proyecto no cambia nada visible con el diálogo abierto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  function submit() {
+    const err = stageNameError(stages, name);
+    if (err === "empty") {
+      setError("Escribí un nombre.");
+      return;
+    }
+    if (err === "duplicate") {
+      setError("Ya hay una etapa con ese nombre.");
+      return;
+    }
+    onCreate(name.trim(), color);
+    onOpenChange(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent size="sm">
+        <DialogHeader>
+          <DialogTitle>Nueva etapa</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <Input
+            value={name}
+            maxLength={40}
+            autoFocus
+            aria-label="Nombre de la etapa"
+            placeholder="Ej: Revisión"
+            onChange={(e) => {
+              setName(e.target.value);
+              if (error) setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                submit();
+              }
+            }}
+          />
+          {error && (
+            <p role="alert" className="mt-1.5 text-xs text-destructive">
+              {error}
+            </p>
+          )}
+          <div
+            role="group"
+            aria-label="Color de la etapa"
+            className="mt-3 flex items-center gap-1.5"
+          >
+            {STAGE_COLORS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                aria-label={c}
+                aria-pressed={c === color}
+                className={cn(
+                  "size-5 rounded-full transition-transform hover:scale-110",
+                  stageDotClass(c),
+                  c === color && "ring-2 ring-foreground ring-offset-2",
+                )}
+                onClick={() => setColor(c)}
+              />
+            ))}
+          </div>
+        </DialogBody>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={submit}>Crear</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

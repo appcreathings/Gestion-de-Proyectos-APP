@@ -1,19 +1,21 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels";
+import { priorityLabel, priorityVariant } from "@/domain/labels";
+import { stageDotClass, stageLabel } from "@/domain/kanbanStages";
 import { taskUrgency } from "@/domain/taskUrgency";
 import { URGENCY_ARIA, URGENCY_RAIL } from "@/lib/urgencyStyles";
-import type { Area, Person, Task } from "@/domain/schemas";
+import type { Area, Person, Project, Task } from "@/domain/schemas";
 import { WorkTypeBadge } from "./WorkTypeBadge";
 
 interface Props {
+  project: Project;
   tasks: Task[];
   areas: Area[];
   people: Person[];
   onOpenDetail: (taskId: string) => void;
 }
 
-export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
+export function KanbanListView({ project, tasks, areas, people, onOpenDetail }: Props) {
   return (
     <div className="rounded-2xl border border-border/70 bg-background overflow-hidden">
       <div className="overflow-x-auto">
@@ -67,8 +69,17 @@ export function KanbanListView({ tasks, areas, people, onOpenDetail }: Props) {
                   )}
                 >
                   <td className="px-4 py-3">
-                    <Badge variant="outline" className="text-xs">
-                      {taskStatusLabel[task.status]}
+                    <Badge variant="outline" className="gap-1.5 text-xs">
+                      <span
+                        className={cn(
+                          "size-1.5 rounded-full",
+                          stageDotClass(
+                            project.stages.find((s) => s.id === task.status)?.color ?? "slate",
+                          ),
+                        )}
+                        aria-hidden="true"
+                      />
+                      {stageLabel(project, task.status)}
                     </Badge>
                   </td>
                   <td

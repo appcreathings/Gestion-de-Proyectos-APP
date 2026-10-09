@@ -2,10 +2,13 @@ import { Archive, Calendar, MessageCircle, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ClickableCard } from "@/components/ui/ClickableCard";
-import { priorityLabel, priorityVariant, taskStatusLabel } from "@/domain/labels";
-import type { Area, Person, Task } from "@/domain/schemas";
+import { cn } from "@/lib/utils";
+import { priorityLabel, priorityVariant } from "@/domain/labels";
+import { stageDotClass, stageLabel } from "@/domain/kanbanStages";
+import type { Area, Person, Project, Task } from "@/domain/schemas";
 
 interface Props {
+  project: Project;
   tasks: Task[];
   areas: Area[];
   people: Person[];
@@ -13,7 +16,7 @@ interface Props {
   onUnarchive: (taskId: string) => void;
 }
 
-export function ArchivedTasksList({ tasks, areas, people, onOpenDetail, onUnarchive }: Props) {
+export function ArchivedTasksList({ project, tasks, areas, people, onOpenDetail, onUnarchive }: Props) {
   const sortedTasks = [...tasks].sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
@@ -48,8 +51,17 @@ export function ArchivedTasksList({ tasks, areas, people, onOpenDetail, onUnarch
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                    {taskStatusLabel[task.status]}
+                  <Badge variant="outline" className="gap-1.5 text-[10px] px-1.5 py-0">
+                    <span
+                      className={cn(
+                        "size-1.5 rounded-full",
+                        stageDotClass(
+                          project.stages.find((s) => s.id === task.status)?.color ?? "slate",
+                        ),
+                      )}
+                      aria-hidden="true"
+                    />
+                    {stageLabel(project, task.status)}
                   </Badge>
                   <Badge variant={priorityVariant[task.priority]} className="text-[10px] px-1.5 py-0">
                     {priorityLabel[task.priority]}

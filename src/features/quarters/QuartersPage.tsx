@@ -217,6 +217,7 @@ function QuartersContent() {
           areas={(projects.find((p) => p.id === detail.project.id) ?? detail.project).areas}
           people={people}
           sprints={(projects.find((p) => p.id === detail.project.id) ?? detail.project).sprints}
+          stages={(projects.find((p) => p.id === detail.project.id) ?? detail.project).stages}
           onUpdate={(updated) => {
             void mutateProject(detail.project.id, (p) => ops.updateTask(p, updated));
             setDetail((prev) => (prev ? { ...prev, task: updated } : prev));

@@ -19,9 +19,10 @@ import { PersonSelect } from "@/components/forms/PersonSelect";
 import { DateFieldPreview } from "@/components/forms/DateFieldPreview";
 import { RichTextField } from "@/components/forms/RichTextField";
 import { fieldAria, useFieldErrors } from "@/lib/formErrors";
-import { priorityLabel, taskStatusLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import { priorityLabel, workTypeLabel, WORK_TYPE_OPTIONS } from "@/domain/labels";
+import type { KanbanStage } from "@/domain/kanbanStages";
 import { newTask } from "@/domain/factories";
-import type { Area, Person, Priority, Sprint, Task, TaskStatus, WorkType } from "@/domain/schemas";
+import type { Area, Person, Priority, Sprint, Task, WorkType } from "@/domain/schemas";
 
 interface Props {
   open: boolean;
@@ -30,7 +31,9 @@ interface Props {
   areas: Area[];
   people: Person[];
   sprints: Sprint[];
-  defaultStatus?: TaskStatus;
+  /** Etapas del proyecto en orden (spec 073 §5.6). El value es el id. */
+  stages: KanbanStage[];
+  defaultStatus?: string;
   /** Sprint pre-selected for a new task (e.g. created from within a sprint scope). */
   defaultSprintId?: string | null;
   onSubmit: (t: Task) => void | Promise<void>;
@@ -43,13 +46,14 @@ export function TaskFormDialog({
   areas,
   people,
   sprints,
+  stages,
   defaultStatus = "todo",
   defaultSprintId = null,
   onSubmit,
 }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<TaskStatus>(defaultStatus);
+  const [status, setStatus] = useState<string>(defaultStatus);
   const [priority, setPriority] = useState<Priority>("medium");
   const [workType, setWorkType] = useState<WorkType>("task");
   // Métrica KR como strings — se parsean al guardar (vacío → null, nunca NaN).
@@ -214,11 +218,11 @@ export function TaskFormDialog({
                   <Select
                     id="t-status"
                     value={status}
-                    onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                    onChange={(e) => setStatus(e.target.value)}
                   >
-                    {Object.entries(taskStatusLabel).map(([v, l]) => (
-                      <option key={v} value={v}>
-                        {l}
+                    {stages.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
                       </option>
                     ))}
                   </Select>
@@ -356,7 +360,7 @@ export function TaskFormDialog({
                   setDescription(value as string);
                   break;
                 case "status":
-                  setStatus(value as TaskStatus);
+                  setStatus(value as string);
                   break;
                 case "priority":
                   setPriority(value as Priority);
