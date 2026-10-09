@@ -4903,25 +4903,5 @@
     "mtime": 1791517883.708325,
     "ast_hash": "a55676470161ca2287187488d8ab95ae",
     "semantic_hash": ""
-  },
-  "specs/074-duplicar-tareas/PROMPT-EJECUCION.md": {
-    "mtime": 1791561660.5359344,
-    "ast_hash": "9bef96453e6ecd628cdc65995c11fa66",
-    "semantic_hash": ""
-  },
-  "specs/074-duplicar-tareas/design.md": {
-    "mtime": 1791561657.865194,
-    "ast_hash": "71eb7e37199905eec4ceb7c8a036bf97",
-    "semantic_hash": ""
-  },
-  "specs/074-duplicar-tareas/spec.md": {
-    "mtime": 1791561586.9052966,
-    "ast_hash": "a0b3b09d03fa9dd6e8fb024d37e2f611",
-    "semantic_hash": ""
-  },
-  "specs/074-duplicar-tareas/tasks.md": {
-    "mtime": 1791561659.2208917,
-    "ast_hash": "60dc2865dcfaf1abfcffc1096839cdd3",
-    "semantic_hash": ""
   }
 }
