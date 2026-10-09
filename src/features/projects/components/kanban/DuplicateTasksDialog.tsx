@@ -56,12 +56,17 @@ export function DuplicateTasksDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const title = count === 1 ? "Duplicar en otro proyecto" : `Duplicar ${count} tareas`;
+  // Desde una tarea el diálogo es «en otro proyecto»; desde el lote, cuenta.
+  const title = !includeCurrent
+    ? "Duplicar en otro proyecto"
+    : count === 1
+      ? "Duplicar 1 tarea"
+      : `Duplicar ${count} tareas`;
   const hasOptions = options.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm">
+      <DialogContent size="sm" description="Elige el proyecto donde se crea la copia.">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

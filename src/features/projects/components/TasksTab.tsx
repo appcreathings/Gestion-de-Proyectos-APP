@@ -260,7 +260,10 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   // edición del drawer que se guarda en el blur, justo antes del clic, ya
   // está ahí (withPersist aplica el estado de forma síncrona).
   const mutateProject = useDataStore((s) => s.mutateProject);
-  const [duplicateIds, setDuplicateIds] = useState<string[] | null>(null);
+  // `duplicateIds` queda puesto al cerrar: así el título no pasa a «0» durante
+  // la animación de salida. `duplicateOpen` es lo que abre y cierra.
+  const [duplicateIds, setDuplicateIds] = useState<string[]>([]);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [duplicateFromSelection, setDuplicateFromSelection] = useState(false);
 
   function latestTasks(): Task[] {
@@ -280,11 +283,11 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
     // Orden del array, no el del Set de selección (D10).
     setDuplicateIds(project.tasks.filter((t) => ids.includes(t.id)).map((t) => t.id));
     setDuplicateFromSelection(fromSelection);
+    setDuplicateOpen(true);
   }
 
   /** D15: una sola escritura sobre el destino. */
   function handleConfirmDuplicate(targetId: string) {
-    if (!duplicateIds) return;
     const sources = latestTasks().filter((t) => duplicateIds.includes(t.id));
     if (targetId === project.id) {
       const copies = sources.map((s) => ({
@@ -303,7 +306,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
       .toast.success(
         n === 1 ? `1 tarea duplicada en «${name}»` : `${n} tareas duplicadas en «${name}»`,
       );
-    setDuplicateIds(null);
+    setDuplicateOpen(false);
     if (duplicateFromSelection) clearSelection();
   }
 
@@ -564,7 +567,9 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
   // Escape key to exit selection mode (spec 017 HU-13)
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && selectionMode) {
+      // Escape consumido por un diálogo Radix (ej. duplicar, spec 074) no
+      // sale del modo selección.
+      if (e.key === "Escape" && selectionMode && !e.defaultPrevented) {
         setSelectionMode(false);
         clearSelection();
       }
@@ -1324,11 +1329,9 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
       />
 
       <DuplicateTasksDialog
-        open={duplicateIds !== null}
-        onOpenChange={(o) => {
-          if (!o) setDuplicateIds(null);
-        }}
-        count={duplicateIds?.length ?? 0}
+        open={duplicateOpen}
+        onOpenChange={setDuplicateOpen}
+        count={duplicateIds.length}
         currentProjectId={project.id}
         includeCurrent={duplicateFromSelection}
         onConfirm={handleConfirmDuplicate}

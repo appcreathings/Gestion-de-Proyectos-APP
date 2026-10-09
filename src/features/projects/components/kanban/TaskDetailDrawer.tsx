@@ -201,7 +201,9 @@ export function TaskDetailDrawer({
   useEffect(() => {
     if (!task) return;
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      // Un diálogo Radix abierto encima (ej. duplicar, spec 074) ya consumió
+      // el Escape y lo marca con preventDefault: cierra el diálogo, no el drawer.
+      if (e.key === "Escape" && !e.defaultPrevented) onClose();
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
