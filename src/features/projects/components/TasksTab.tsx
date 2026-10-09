@@ -1068,7 +1068,7 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
           )}
           <div
             ref={boardRef}
-            className="flex snap-x snap-mandatory gap-3 overflow-x-auto sm:grid sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-3 sm:snap-none sm:overflow-visible"
+            className="flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto pb-1 scrollbar-thin sm:snap-none sm:gap-4"
           >
             {boardCols.map(({ stage, ghost }) => {
               const ids = board[stage.id] ?? [];
@@ -1166,14 +1166,14 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                 </KanbanColumn>
               );
             })}
-            {/* Alta de etapa: última celda del tablero, después de los ghosts
-                (spec 073 §5.3). */}
+            {/* Alta de etapa al final de la fila (spec 073 §5.3). En el
+                carrusel el «+» del pager ya cumple ese papel. */}
             <button
               type="button"
               onClick={() => setNewStageOpen(true)}
-              className="flex min-h-[110px] min-w-[85vw] shrink-0 snap-start items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border/70 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:min-w-0 sm:shrink"
+              className="hidden w-16 shrink-0 flex-col items-center justify-center gap-1.5 self-start rounded-xl border-2 border-dashed border-border/70 px-1 py-4 text-center text-[11px] leading-tight text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:flex"
             >
-              <Plus className="size-4" />
+              <Plus className="size-4 shrink-0" />
               Nueva etapa
             </button>
           </div>

@@ -92,7 +92,10 @@ export function KanbanColumn({
       id={`kanban-col-${stage.id}`}
       data-kanban-status={stage.id}
       className={cn(
-        "flex min-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors sm:min-w-0 sm:shrink sm:border-border/70",
+        // < sm: diapositiva pareja del carrusel (spec 054). Desde sm crece
+        // hasta 22rem; 16rem es el piso para que las cuatro etapas quepan
+        // en la fila con la barra lateral abierta, y las demás se desplacen.
+        "flex w-[85vw] min-w-[85vw] max-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors sm:w-auto sm:min-w-[16rem] sm:max-w-[22rem] sm:flex-[1_0_16rem] sm:border-border/70",
         !ghost && isOver && "border-foreground/40 bg-foreground/[0.06]",
         // Lavado pastel de WIP excedido con token (spec 065 E5): es un aviso
         // de columna, no de tarjeta — el conteo grande lleva el peso.
