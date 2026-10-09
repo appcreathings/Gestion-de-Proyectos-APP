@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -54,11 +54,32 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
 
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
 
+  // Grupo que «Cerrar todos» deja de reabrir (spec 073 D15): guarda el id del
+  // grupo activo; el efecto no lo vuelve a abrir hasta cambiar de proyecto.
+  const skipGroup = useRef<string | null>(null);
+
   // Keep the group containing the active project expanded (persists as you navigate,
   // since this component stays mounted across route changes).
+  // Deps: solo `activeGroupId` (spec 073 D15). Si entrara `expanded` o
+  // `groups`, «Cerrar todos» se reabriría solo.
   useEffect(() => {
-    if (activeGroupId) setExpanded((s) => (s.has(activeGroupId) ? s : new Set(s).add(activeGroupId)));
+    if (!activeGroupId) return;
+    if (skipGroup.current === activeGroupId) return;
+    skipGroup.current = null;
+    setExpanded((s) => (s.has(activeGroupId) ? s : new Set(s).add(activeGroupId)));
   }, [activeGroupId]);
+
+  /** Abrir todos los productos; el proyecto activo vuelve a comportarse normal. */
+  function expandAll() {
+    skipGroup.current = null;
+    setExpanded(new Set(groups.map((g) => g.id)));
+  }
+
+  /** Cerrar todos, incluido el producto del proyecto activo (spec 073 D15). */
+  function collapseAll() {
+    skipGroup.current = activeGroupId ?? "";
+    setExpanded(new Set());
+  }
 
   function toggle(id: string) {
     setExpanded((s) => {
@@ -71,8 +92,21 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
 
   if (groups.length === 0) return null;
 
+  const allOpen = groups.every((g) => expanded.has(g.id));
+
   return (
     <div className={cn("space-y-0.5", className)}>
+      <div className="flex items-center justify-between px-2 py-1">
+        <span className="text-xs font-medium text-muted-foreground">Proyectos</span>
+        <button
+          type="button"
+          onClick={allOpen ? collapseAll : expandAll}
+          className="text-xs text-muted-foreground hover:text-foreground"
+          aria-label={allOpen ? "Cerrar todos" : "Abrir todos"}
+        >
+          {allOpen ? "Cerrar todos" : "Abrir todos"}
+        </button>
+      </div>
       {groups.map((g) => {
         const isOpen = expanded.has(g.id);
         return (
