@@ -105,7 +105,7 @@
     "semantic_hash": ""
   },
   "src/ai/rag/indexer.test.ts": {
-    "mtime": 1791511939.9749694,
+    "mtime": 1791517883.708325,
     "ast_hash": "bc9790cd6bb4ca590c200e9f59b775b0",
     "semantic_hash": ""
   },
@@ -315,8 +315,8 @@
     "semantic_hash": ""
   },
   "src/automations/activity.ts": {
-    "mtime": 1791512067.7082207,
-    "ast_hash": "9de047000055c61aa8ed5b58ae043d5e",
+    "mtime": 1791517883.7098286,
+    "ast_hash": "2f87f2380880f25008cbc5b69699af79",
     "semantic_hash": ""
   },
   "src/automations/engine.test.ts": {
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/ProjectTree.tsx": {
-    "mtime": 1791512200.1882193,
-    "ast_hash": "bea107df7f57d54fec6d4408dcd4de57",
+    "mtime": 1791517883.7098286,
+    "ast_hash": "8222627f4cbdf0d9439fba1d8c62a674",
     "semantic_hash": ""
   },
   "src/components/layout/WorkspaceStatus.tsx": {
@@ -610,7 +610,7 @@
     "semantic_hash": ""
   },
   "src/domain/factories.ts": {
-    "mtime": 1791511042.2432039,
+    "mtime": 1791517883.711351,
     "ast_hash": "30185543a4eb4119e8c7eccd710bfe57",
     "semantic_hash": ""
   },
@@ -635,12 +635,12 @@
     "semantic_hash": ""
   },
   "src/domain/migrations.test.ts": {
-    "mtime": 1791511874.9196591,
+    "mtime": 1791517883.7131677,
     "ast_hash": "136c66bc73930619b6c38c4fa1af5b95",
     "semantic_hash": ""
   },
   "src/domain/migrations.ts": {
-    "mtime": 1791511051.5578542,
+    "mtime": 1791517883.7131677,
     "ast_hash": "b1414b4d19c582b0da0df55d579179c1",
     "semantic_hash": ""
   },
@@ -650,8 +650,8 @@
     "semantic_hash": ""
   },
   "src/domain/projectOps.ts": {
-    "mtime": 1791511099.1526916,
-    "ast_hash": "d93ce4726fa6f50577534b0816ba5ec0",
+    "mtime": 1791517883.714172,
+    "ast_hash": "a589671580a82a07e6204db27a6f2c37",
     "semantic_hash": ""
   },
   "src/domain/schemas/activity.ts": {
@@ -670,7 +670,7 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/common.ts": {
-    "mtime": 1791511019.9755855,
+    "mtime": 1791517883.714172,
     "ast_hash": "d165779416ae632a61b783b7f702015f",
     "semantic_hash": ""
   },
@@ -700,7 +700,7 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/project.ts": {
-    "mtime": 1791511034.9159768,
+    "mtime": 1791517883.7156916,
     "ast_hash": "8a99121ed4b83421cd5a73c25c65cfda",
     "semantic_hash": ""
   },
@@ -1360,7 +1360,7 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/MyTasksPage.tsx": {
-    "mtime": 1791512056.9383042,
+    "mtime": 1791517883.7156916,
     "ast_hash": "f435694944efa89d27ffad6c041dd5f3",
     "semantic_hash": ""
   },
@@ -1480,37 +1480,37 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/TaskFormDialog.tsx": {
-    "mtime": 1791516981.343207,
+    "mtime": 1791517883.7483954,
     "ast_hash": "4aa30e2e5121deca165a4ca41875e32c",
     "semantic_hash": ""
   },
   "src/features/projects/components/TasksTab.tsx": {
-    "mtime": 1791516981.2936573,
-    "ast_hash": "fcc2540a79b988be847574ca2f9d3239",
+    "mtime": 1791520411.1269758,
+    "ast_hash": "3d82abd7c2813c2102990523fd3111fd",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/ArchivedTasksList.tsx": {
-    "mtime": 1791511786.2373147,
-    "ast_hash": "6ee6d96131ab2a342ae61e8cf00c4a55",
+    "mtime": 1791517883.7730222,
+    "ast_hash": "f1e65f4954e189ae6750ceeda7578b92",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanColumn.tsx": {
-    "mtime": 1791516981.3993838,
-    "ast_hash": "b434524f7ca4d29f4a11f82478dbbcb8",
+    "mtime": 1791520626.1298225,
+    "ast_hash": "f07957ff2349b0b264b4aa79cba3e710",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanListView.tsx": {
-    "mtime": 1791511774.2981582,
+    "mtime": 1791517883.7760217,
     "ast_hash": "501f77183c5c66cd69ddb957cab06dd2",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskCard.tsx": {
-    "mtime": 1791511667.9356265,
+    "mtime": 1791517883.7760217,
     "ast_hash": "2db0d460ff03f7d531930d440608e7d8",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1791516981.281692,
+    "mtime": 1791517883.791714,
     "ast_hash": "bdd2491559de504051fd467ed0da6e62",
     "semantic_hash": ""
   },
@@ -1525,8 +1525,8 @@
     "semantic_hash": ""
   },
   "src/features/quarters/QuartersPage.tsx": {
-    "mtime": 1791511801.381495,
-    "ast_hash": "1912cccc92387acda6fd8ab796498853",
+    "mtime": 1791517883.793722,
+    "ast_hash": "288d7149b56305b982c92526b7aa2040",
     "semantic_hash": ""
   },
   "src/features/seo/AlternativaNotionPage.tsx": {
@@ -1630,7 +1630,7 @@
     "semantic_hash": ""
   },
   "src/flows/event-record.test.ts": {
-    "mtime": 1791511919.8436632,
+    "mtime": 1791517883.7957213,
     "ast_hash": "d5bf42cda7fa4abe2bd379851bf7c1a9",
     "semantic_hash": ""
   },
@@ -1690,7 +1690,7 @@
     "semantic_hash": ""
   },
   "src/flows/synthetic-event.test.ts": {
-    "mtime": 1791511904.4096146,
+    "mtime": 1791517883.7972057,
     "ast_hash": "3fd877aa5ede0de4e65ffadc37d3a877",
     "semantic_hash": ""
   },
@@ -3305,7 +3305,7 @@
     "semantic_hash": ""
   },
   "src/ai/keys-never-exported.test.ts": {
-    "mtime": 1791511066.6532812,
+    "mtime": 1791517883.708325,
     "ast_hash": "4f0ecf2ef2bfe8b04bd2fc0216a2ca01",
     "semantic_hash": ""
   },
@@ -3740,7 +3740,7 @@
     "semantic_hash": ""
   },
   "src/features/projects/calendar/TaskCalendarView.tsx": {
-    "mtime": 1791512111.7191715,
+    "mtime": 1791517883.7187004,
     "ast_hash": "946cf2e043e9d89c2fb200948eb93681",
     "semantic_hash": ""
   },
@@ -3755,23 +3755,23 @@
     "semantic_hash": ""
   },
   "src/features/projects/calendar/buildCalendarItems.ts": {
-    "mtime": 1791512089.191262,
-    "ast_hash": "e862213d3fdca5c9ff619e4d0c4fb826",
+    "mtime": 1791517883.7187004,
+    "ast_hash": "e914e5bbe71b603b1763d58b0a8e81af",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanColumnPager.tsx": {
-    "mtime": 1791516981.1554105,
-    "ast_hash": "d6d64ee6297ee12d1fbe464211327dd0",
+    "mtime": 1791517883.7750225,
+    "ast_hash": "136e9eed25093969810fb8960ec0eed7",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/columnScroll.test.ts": {
-    "mtime": 1791511653.137076,
-    "ast_hash": "cc2cb2876eaedf7e156a9ccff10c8022",
+    "mtime": 1791517883.7927222,
+    "ast_hash": "e0065d71065535cb47002a67f458c8f8",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/columnScroll.ts": {
-    "mtime": 1791511642.2380767,
-    "ast_hash": "6e355791453fa14090c106993cdb18a5",
+    "mtime": 1791517883.793722,
+    "ast_hash": "a923e43345b1ca55c6e6fd385f67ae73",
     "semantic_hash": ""
   },
   "src/features/reports/ExportReportMenu.tsx": {
@@ -3785,7 +3785,7 @@
     "semantic_hash": ""
   },
   "src/features/reports/statusReport.ts": {
-    "mtime": 1791512165.7019362,
+    "mtime": 1791517883.7947197,
     "ast_hash": "92f7880b8eb23ceeec0e33489f3c9f58",
     "semantic_hash": ""
   },
@@ -3795,7 +3795,7 @@
     "semantic_hash": ""
   },
   "src/features/reports/statusReportMarkdown.ts": {
-    "mtime": 1791512175.0367172,
+    "mtime": 1791517883.7957213,
     "ast_hash": "1c88368252cf6071af8af70d1a01871e",
     "semantic_hash": ""
   },
@@ -3925,7 +3925,7 @@
     "semantic_hash": ""
   },
   "src/features/projects/calendar/PortfolioCalendarView.tsx": {
-    "mtime": 1791512129.6881466,
+    "mtime": 1791517883.7177024,
     "ast_hash": "43ba238247dbd20b8c2707ac1ce7c49f",
     "semantic_hash": ""
   },
@@ -4200,12 +4200,12 @@
     "semantic_hash": ""
   },
   "src/features/my-tasks/filterMyTasks.test.ts": {
-    "mtime": 1791511972.148814,
+    "mtime": 1791517883.7167008,
     "ast_hash": "f1afe3a9c600cadf3931cbd5a1943d28",
     "semantic_hash": ""
   },
   "src/features/my-tasks/filterMyTasks.ts": {
-    "mtime": 1791512006.644669,
+    "mtime": 1791517883.7167008,
     "ast_hash": "5ae2d24614553c24a8fdd119a74bec17",
     "semantic_hash": ""
   },
@@ -4875,33 +4875,33 @@
     "semantic_hash": ""
   },
   "src/domain/kanbanStages.test.ts": {
-    "mtime": 1791511013.5628622,
-    "ast_hash": "a16497c9d532ff1ef1f3d4af42b0bae9",
+    "mtime": 1791517883.711351,
+    "ast_hash": "72c1bf70b79442ba65389b28c9e35fe2",
     "semantic_hash": ""
   },
   "src/domain/kanbanStages.ts": {
-    "mtime": 1791512376.0878768,
-    "ast_hash": "005ebf56847590381e97002d4738a2a6",
+    "mtime": 1791517883.712872,
+    "ast_hash": "9bc153750d71fbf000d4feab2ddd1cc3",
     "semantic_hash": ""
   },
   "specs/073-etapas-kanban-y-arbol/PROMPT-EJECUCION.md": {
-    "mtime": 1791510075.6865394,
-    "ast_hash": "8798c44abcc76ed2dab330c9aaeb1292",
+    "mtime": 1791517883.706327,
+    "ast_hash": "cc8869f7a78e7eda064dc21ffa1ee6a2",
     "semantic_hash": ""
   },
   "specs/073-etapas-kanban-y-arbol/design.md": {
-    "mtime": 1791510053.031005,
-    "ast_hash": "2b7dba25af51cfdd81bbd4c41962a230",
+    "mtime": 1791517883.7073243,
+    "ast_hash": "f01c84845fb58134e4c5a77da9ef8336",
     "semantic_hash": ""
   },
   "specs/073-etapas-kanban-y-arbol/spec.md": {
-    "mtime": 1791513671.147406,
-    "ast_hash": "c40b0f32152044cabbc505b578a19c0f",
+    "mtime": 1791517883.7073243,
+    "ast_hash": "5cc315111a2d81262b487eee3aaf1df8",
     "semantic_hash": ""
   },
   "specs/073-etapas-kanban-y-arbol/tasks.md": {
-    "mtime": 1791513701.1299996,
-    "ast_hash": "bd6f1162c26082de2ce507330619bff5",
+    "mtime": 1791517883.708325,
+    "ast_hash": "a55676470161ca2287187488d8ab95ae",
     "semantic_hash": ""
   }
 }

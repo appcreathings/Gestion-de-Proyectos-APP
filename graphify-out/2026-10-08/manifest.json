@@ -1480,13 +1480,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/TaskFormDialog.tsx": {
-    "mtime": 1791511695.0843387,
-    "ast_hash": "211e1c57b6f654fc5e54a6ddd1ac02f3",
+    "mtime": 1791516981.343207,
+    "ast_hash": "4aa30e2e5121deca165a4ca41875e32c",
     "semantic_hash": ""
   },
   "src/features/projects/components/TasksTab.tsx": {
-    "mtime": 1791512693.0271747,
-    "ast_hash": "42e65e85a5964547944e4e9775de8a4b",
+    "mtime": 1791516981.2936573,
+    "ast_hash": "fcc2540a79b988be847574ca2f9d3239",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/ArchivedTasksList.tsx": {
@@ -1495,8 +1495,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanColumn.tsx": {
-    "mtime": 1791512247.2596667,
-    "ast_hash": "c37beaea568727a649fc2700489ba121",
+    "mtime": 1791516981.3993838,
+    "ast_hash": "b434524f7ca4d29f4a11f82478dbbcb8",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanListView.tsx": {
@@ -1510,8 +1510,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1791511891.3067782,
-    "ast_hash": "ac65fb190a3706cd92483f4747d49d6f",
+    "mtime": 1791516981.281692,
+    "ast_hash": "bdd2491559de504051fd467ed0da6e62",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -3760,8 +3760,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/KanbanColumnPager.tsx": {
-    "mtime": 1791511380.1147587,
-    "ast_hash": "e311568982d0b022589fbe51bfdb3db9",
+    "mtime": 1791516981.1554105,
+    "ast_hash": "d6d64ee6297ee12d1fbe464211327dd0",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/columnScroll.test.ts": {
@@ -4895,13 +4895,13 @@
     "semantic_hash": ""
   },
   "specs/073-etapas-kanban-y-arbol/spec.md": {
-    "mtime": 1791510027.859875,
-    "ast_hash": "52882cabb2b0f5ac131bb0479ccd5c39",
+    "mtime": 1791513671.147406,
+    "ast_hash": "c40b0f32152044cabbc505b578a19c0f",
     "semantic_hash": ""
   },
   "specs/073-etapas-kanban-y-arbol/tasks.md": {
-    "mtime": 1791512451.5903406,
-    "ast_hash": "b0b82c765f249c5f03fd20c53cdabaf2",
+    "mtime": 1791513701.1299996,
+    "ast_hash": "bd6f1162c26082de2ce507330619bff5",
     "semantic_hash": ""
   }
 }
