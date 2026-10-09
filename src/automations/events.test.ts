@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { newProject, newTask } from "@/domain/factories";
 import * as ops from "@/domain/projectOps";
+import { cloneTask, insertTaskCopies } from "@/domain/duplicateTask";
 import { diffProjectEvents } from "./events";
 
 describe("diffProjectEvents — task events", () => {
@@ -15,6 +16,24 @@ describe("diffProjectEvents — task events", () => {
       projectId: prev.id,
       taskId: task.id,
     });
+  });
+
+  it("cada copia duplicada emite task.added (spec 074 D11)", () => {
+    const a = newTask("a");
+    const b = newTask("b");
+    const prev = ops.addTask(ops.addTask(newProject("P"), a), b);
+    const a2 = cloneTask(a, { sameProject: true });
+    const b2 = cloneTask(b, { sameProject: true });
+    const next = insertTaskCopies(prev, [
+      { sourceId: a.id, task: a2 },
+      { sourceId: b.id, task: b2 },
+    ]);
+
+    const taskEvents = diffProjectEvents(prev, next).filter((e) => e.type.startsWith("task."));
+    expect(taskEvents).toEqual([
+      { type: "task.added", projectId: prev.id, taskId: a2.id },
+      { type: "task.added", projectId: prev.id, taskId: b2.id },
+    ]);
   });
 
   it("emite task.statusChanged al mover una tarea", () => {
