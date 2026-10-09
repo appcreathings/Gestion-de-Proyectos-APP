@@ -13,38 +13,36 @@ interface Props {
 /** Pager de columnas del carrusel móvil (spec 054). Solo se monta en &lt; sm. */
 export function KanbanColumnPager({ columns, active, onSelect, onAddStage }: Props) {
   return (
-    <div
-      className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin"
-      role="tablist"
-      aria-label="Columnas del tablero"
-    >
-      {columns.map(({ id, name, color, count }) => {
-        const isActive = id === active;
-        return (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onSelect(id)}
-            className={cn(
-              "min-h-11 shrink-0 rounded-full border px-3 py-2 text-xs font-medium transition-colors",
-              isActive
-                ? "border-foreground bg-foreground text-background"
-                : "border-border bg-background text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <span
-              className={cn("mr-1.5 inline-block size-1.5 shrink-0 rounded-full align-middle", stageDotClass(color))}
-              aria-hidden="true"
-            />
-            {name}{" "}
-            <span className={cn("tabular-nums", isActive ? "opacity-80" : "opacity-70")}>
-              {count}
-            </span>
-          </button>
-        );
-      })}
+    <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+      <div role="tablist" aria-label="Columnas del tablero" className="flex shrink-0 gap-1.5">
+        {columns.map(({ id, name, color, count }) => {
+          const isActive = id === active;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => onSelect(id)}
+              className={cn(
+                "min-h-11 shrink-0 rounded-full border px-3 py-2 text-xs font-medium transition-colors",
+                isActive
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-background text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <span
+                className={cn("mr-1.5 inline-block size-1.5 shrink-0 rounded-full align-middle", stageDotClass(color))}
+                aria-hidden="true"
+              />
+              {name}{" "}
+              <span className={cn("tabular-nums", isActive ? "opacity-80" : "opacity-70")}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
       {onAddStage && (
         <button
           type="button"

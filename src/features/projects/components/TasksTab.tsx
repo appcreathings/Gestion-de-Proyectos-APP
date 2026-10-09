@@ -958,7 +958,12 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
             onClick={() =>
               setDialog({
                 open: true,
-                status: isCarousel && viewMode === "kanban" ? activeKanbanCol : undefined,
+                // En el carrusel, la tarea nace en la columna visible. Un ghost
+                // no es destino: el alta cae en la etapa por defecto del formulario.
+                status:
+                  isCarousel && viewMode === "kanban" && !ghostIds.has(activeKanbanCol)
+                    ? activeKanbanCol
+                    : undefined,
               })
             }
             disabled={showArchived}
@@ -1084,7 +1089,11 @@ export function TasksTab({ project, people, mutate, focusId }: Props) {
                       : null
                   }
                   taskIds={ids}
-                  onAdd={() => setDialog({ open: true, status: stage.id })}
+                  onAdd={
+                    ghost
+                      ? undefined
+                      : () => setDialog({ open: true, status: stage.id })
+                  }
                   archiveAction={
                     isDoneCol && doneVisibleIds.length > 0
                       ? {

@@ -74,7 +74,11 @@ export function TaskFormDialog({
     if (open) {
       setTitle(task?.title ?? "");
       setDescription(task?.description ?? "");
-      setStatus(task?.status ?? defaultStatus);
+      const incoming = task?.status ?? defaultStatus;
+      const known = stages.some((s) => s.id === incoming);
+      // Editar conserva un status que ya no está en las etapas, para que el
+      // select muestre lo guardado. Crear siempre nace en una etapa real.
+      setStatus(task || known ? incoming : (stages[0]?.id ?? "todo"));
       setPriority(task?.priority ?? "medium");
       setWorkType(task?.workType ?? "task");
       setKrCurrent(task?.krCurrent !== null && task?.krCurrent !== undefined ? String(task.krCurrent) : "");
@@ -88,7 +92,7 @@ export function TaskFormDialog({
       setShowAdvanced(!!task);
       clear();
     }
-  }, [open, task, defaultStatus, defaultSprintId, clear]);
+  }, [open, task, defaultStatus, defaultSprintId, clear, stages]);
 
   async function submit() {
     const errs = validate(
@@ -225,6 +229,9 @@ export function TaskFormDialog({
                         {s.name}
                       </option>
                     ))}
+                    {status && !stages.some((s) => s.id === status) && (
+                      <option value={status}>{status}</option>
+                    )}
                   </Select>
                 </div>
                 <div className="grid gap-2">

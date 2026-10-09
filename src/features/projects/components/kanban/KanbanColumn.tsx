@@ -39,7 +39,8 @@ interface Props {
   wipLimit?: number | null;
   /** Ids of the visible tasks in this column, in display order (for intra-column sorting). */
   taskIds: string[];
-  onAdd: () => void;
+  /** Alta de tarea. Un ghost no lo recibe: no se crean tareas en un status que el proyecto ya no tiene. */
+  onAdd?: () => void;
   /** Botón «Archivar N» — solo la columna cuyo id es `done` (spec 073 §5.5). */
   archiveAction?: { label: string; onOpen: () => void };
   /** Menú de etapa — undefined en un ghost. */
@@ -70,6 +71,7 @@ export function KanbanColumn({
 }: Props) {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
+    disabled: ghost,
     data: { type: "column", status: stage.id },
   });
   // Controlado para poder cerrar el menú al elegir un color (spec 073 §5.2):
@@ -91,7 +93,7 @@ export function KanbanColumn({
       data-kanban-status={stage.id}
       className={cn(
         "flex min-w-[85vw] shrink-0 snap-start flex-col rounded-xl border-2 border-transparent bg-background p-3 transition-colors sm:min-w-0 sm:shrink sm:border-border/70",
-        isOver && "border-foreground/40 bg-foreground/[0.06]",
+        !ghost && isOver && "border-foreground/40 bg-foreground/[0.06]",
         // Lavado pastel de WIP excedido con token (spec 065 E5): es un aviso
         // de columna, no de tarjeta — el conteo grande lleva el peso.
         // Solo columnas base con límite: una etapa custom no lo muestra (073 §10).
@@ -213,23 +215,28 @@ export function KanbanColumn({
           <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
             <div className="space-y-2.5">{children}</div>
           </SortableContext>
-          <div
-            aria-hidden={!isEmpty}
-            className={cn(
-              "pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg border-2 border-dashed text-xs transition-colors",
-              isEmpty ? "opacity-100" : "opacity-0",
-              isOver ? "border-primary/50 bg-primary/5 text-primary" : "border-border/50 text-muted-foreground",
-            )}
-          >
-            Arrastra tareas aquí
-          </div>
+          {!ghost && (
+            <div
+              aria-hidden={!isEmpty}
+              className={cn(
+                "pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg border-2 border-dashed text-xs transition-colors",
+                isEmpty ? "opacity-100" : "opacity-0",
+                isOver ? "border-primary/50 bg-primary/5 text-primary" : "border-border/50 text-muted-foreground",
+              )}
+            >
+              Arrastra tareas aquí
+            </div>
+          )}
         </div>
-        <button
-          className="w-full rounded-lg border border-dashed border-border/70 py-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-          onClick={onAdd}
-        >
-          + Añadir
-        </button>
+        {onAdd && (
+          <button
+            type="button"
+            className="w-full rounded-lg border border-dashed border-border/70 py-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+            onClick={onAdd}
+          >
+            + Añadir
+          </button>
+        )}
       </div>
     </div>
   );

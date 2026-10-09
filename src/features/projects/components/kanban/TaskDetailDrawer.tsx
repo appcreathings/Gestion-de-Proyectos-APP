@@ -653,6 +653,9 @@ export function TaskDetailDrawer({
                     {s.name}
                   </option>
                 ))}
+                {status && !stages.some((s) => s.id === status) && (
+                  <option value={status}>{status}</option>
+                )}
               </Select>
             </div>
 
@@ -738,6 +741,17 @@ export function TaskDetailDrawer({
                   stages.length > 4 ? "grid-cols-3" : "grid-cols-4",
                 )}
               >
+                {status && !stages.some((s) => s.id === status) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="default"
+                    className="col-span-full min-h-11 px-1 text-[11px]"
+                    disabled
+                  >
+                    {status}
+                  </Button>
+                )}
                 {stages.map((s) => (
                   <Button
                     key={s.id}
