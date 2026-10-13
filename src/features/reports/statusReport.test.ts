@@ -10,6 +10,8 @@ const settings: Settings = {
   stalledAfterDays: 14,
   dueSoonDays: 7,
   deriveHealth: false,
+  sidebarOrder: {},
+  boardViews: [],
 };
 
 describe("status reports (spec 052)", () => {

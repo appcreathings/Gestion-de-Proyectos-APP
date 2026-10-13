@@ -6,6 +6,21 @@ export const SettingsSchema = z.object({
   stalledAfterDays: z.number().default(14),
   dueSoonDays: z.number().default(7),
   deriveHealth: z.boolean().default(false),
+  // Orden de proyectos dentro de cada producto en la barra (spec 075 D17).
+  // La clave es el id del producto o `__unassigned` cuando `productId` es null.
+  sidebarOrder: z.record(z.string(), z.array(z.string())).default({}),
+  // Vistas guardadas del tablero global (spec 075 D14): máximo 20, nombre ya
+  // recortado de 1–40, `query` canónico sin el param `view`.
+  boardViews: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1).max(40),
+        query: z.string(),
+      }),
+    )
+    .max(20)
+    .default([]),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 

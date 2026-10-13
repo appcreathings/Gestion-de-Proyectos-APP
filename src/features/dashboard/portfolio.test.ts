@@ -14,6 +14,8 @@ const settings: Settings = {
   stalledAfterDays: 14,
   dueSoonDays: 7,
   deriveHealth: false,
+  sidebarOrder: {},
+  boardViews: [],
 };
 const now = new Date(2026, 7, 24, 12, 0, 0);
 

@@ -180,6 +180,27 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
     { to: 17, up: (data) => data },
     { to: 18, up: (data) => data },
   ],
+  // v24 -> v25 (spec 075 D15): `settings.sidebarOrder` y `settings.boardViews`.
+  // Escribe las dos claves si faltan en el objeto migrado: `readWorkspace`
+  // persiste el JSON antes del parse de Zod, así que el default del schema
+  // no alcanza. No toca projects: un proyecto no gana campo nuevo.
+  workspace: [
+    {
+      to: 25,
+      up(data) {
+        const raw = data.settings;
+        const settings =
+          typeof raw === "object" && raw !== null
+            ? { ...(raw as Record<string, unknown>) }
+            : {};
+        if (typeof settings.sidebarOrder !== "object" || settings.sidebarOrder === null) {
+          settings.sidebarOrder = {};
+        }
+        if (!Array.isArray(settings.boardViews)) settings.boardViews = [];
+        return { ...data, settings };
+      },
+    },
+  ],
 };
 
 function migrateFlowsDocV7ToV8(doc: Record<string, unknown>): Record<string, unknown> {

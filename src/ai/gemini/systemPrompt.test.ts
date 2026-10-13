@@ -21,6 +21,8 @@ describe("buildSystemPrompt", () => {
         stalledAfterDays: 10,
         dueSoonDays: 3,
         deriveHealth: false,
+        sidebarOrder: {},
+        boardViews: [],
       },
       index: {
         ...emptyWorkspace().index,

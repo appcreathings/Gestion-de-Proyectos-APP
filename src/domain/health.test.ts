@@ -8,6 +8,8 @@ const SETTINGS: Settings = {
   stalledAfterDays: 14,
   dueSoonDays: 7,
   deriveHealth: true,
+  sidebarOrder: {},
+  boardViews: [],
 };
 
 const NOW = new Date();

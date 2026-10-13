@@ -26,6 +26,8 @@ const SETTINGS: Settings = {
   stalledAfterDays: 14,
   dueSoonDays: 7,
   deriveHealth: false,
+  sidebarOrder: {},
+  boardViews: [],
 };
 
 function project(name: string, over: Partial<Project> = {}): Project {

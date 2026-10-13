@@ -45,13 +45,54 @@ describe("migrateRecord", () => {
     expect(value).toMatchObject({ schemaVersion: 2, priority: "medium" });
   });
 
-  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v24)", () => {
+  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v25)", () => {
     const v1: Record<string, unknown> = { id: "p1", schemaVersion: 1, name: "Demo" };
     const { value, migrated } = migrateRecord("projects", v1);
     expect(migrated).toBe(true);
-    expect(value.schemaVersion).toBe(24);
+    expect(value.schemaVersion).toBe(25);
     const stages = (value as { stages: { id: string }[] }).stages;
     expect(stages.map((s) => s.id)).toEqual(["todo", "doing", "blocked", "done"]);
+  });
+});
+
+describe("workspace v24 -> v25 (spec 075: sidebarOrder + boardViews)", () => {
+  it("converges a v24 workspace to v25 writing both new settings keys", () => {
+    const doc: Record<string, unknown> = {
+      schemaVersion: 24,
+      org: { name: "Mi Empresa" },
+      settings: { theme: "dark", dueSoonDays: 7 },
+      index: {},
+    };
+    const { value, migrated } = migrateRecord("workspace", doc, 25, MIGRATIONS);
+    expect(migrated).toBe(true);
+    expect(value.schemaVersion).toBe(25);
+    // readWorkspace escribe el JSON migrado antes del parse: las claves tienen
+    // que quedar en el objeto, no confiar en el default de Zod (design §2).
+    const settings = value.settings as Record<string, unknown>;
+    expect(settings.sidebarOrder).toEqual({});
+    expect(settings.boardViews).toEqual([]);
+    expect(settings.theme).toBe("dark");
+  });
+
+  it("does not overwrite settings the workspace already brings", () => {
+    const view = { id: "v1", name: "Bloqueos", query: "priority=high" };
+    const doc: Record<string, unknown> = {
+      schemaVersion: 24,
+      settings: {
+        sidebarOrder: { "prod-1": ["p2", "p1"] },
+        boardViews: [view],
+      },
+    };
+    const { value } = migrateRecord("workspace", doc, 25, MIGRATIONS);
+    const settings = value.settings as Record<string, unknown>;
+    expect(settings.sidebarOrder).toEqual({ "prod-1": ["p2", "p1"] });
+    expect(settings.boardViews).toEqual([view]);
+  });
+
+  it("is idempotent: a v25 workspace is not touched", () => {
+    const doc = { schemaVersion: 25, settings: { sidebarOrder: {}, boardViews: [] } };
+    const { migrated } = migrateRecord("workspace", doc, 25, MIGRATIONS);
+    expect(migrated).toBe(false);
   });
 });
 

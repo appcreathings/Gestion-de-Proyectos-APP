@@ -99,6 +99,8 @@ export function buildSystemPrompt(
     stalledAfterDays: 14,
     dueSoonDays: 7,
     deriveHealth: false,
+    sidebarOrder: {},
+    boardViews: [],
   };
   const date = today.toISOString().slice(0, 10);
 
