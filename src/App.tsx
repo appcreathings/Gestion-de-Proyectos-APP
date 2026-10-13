@@ -71,6 +71,11 @@ const MyTasksPage = lazy(() =>
     default: m.MyTasksPage,
   })),
 );
+const BoardPage = lazy(() =>
+  import("@/features/board/BoardPage").then((m) => ({
+    default: m.BoardPage,
+  })),
+);
 const DailyStandupPage = lazy(() =>
   import("@/features/daily/DailyStandupPage").then((m) => ({
     default: m.DailyStandupPage,
@@ -109,6 +114,7 @@ const router = createBrowserRouter([
             ],
           },
           { path: "my-tasks", element: page(<MyTasksPage />) },
+          { path: "board", element: page(<BoardPage />) },
           { path: "daily", element: page(<DailyStandupPage />) },
           { path: "quarters", element: page(<QuartersPage />) },
           { path: "library", element: page(<LibraryPage />) },

@@ -19,6 +19,7 @@ import {
   Webhook,
   PanelLeftClose,
   PanelLeftOpen,
+  LayoutGrid,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDataStore } from "@/store/useDataStore";
@@ -59,6 +60,7 @@ const NAV = [
   { to: ROUTES.products, label: "Productos", icon: Package },
   { to: ROUTES.projects, label: "Proyectos", icon: FolderKanban },
   { to: ROUTES.myTasks, label: "Mis tareas", icon: UserCheck },
+  { to: ROUTES.board, label: "Tablero", icon: LayoutGrid },
   { to: ROUTES.daily, label: "Daily Standup", icon: Calendar },
   { to: ROUTES.library(), label: "Biblioteca", icon: Library },
   { to: ROUTES.quarters, label: "Trimestres", icon: CalendarRange },
