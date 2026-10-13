@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1786510797.672905,
-    "ast_hash": "ac47c19d67b3449808be95c004e6c8b3",
+    "mtime": 1791852114.0541196,
+    "ast_hash": "9db4314ba39a13cc5e7347545e25938a",
     "semantic_hash": ""
   },
   "src/ai/config.ts": {
@@ -60,13 +60,13 @@
     "semantic_hash": ""
   },
   "src/ai/gemini/systemPrompt.test.ts": {
-    "mtime": 1787282989.3423233,
-    "ast_hash": "4988527e0803303b3e6f6b2b7b5017be",
+    "mtime": 1791851582.8697798,
+    "ast_hash": "b142fb42982b5ce50ed31ab115fe2b73",
     "semantic_hash": ""
   },
   "src/ai/gemini/systemPrompt.ts": {
-    "mtime": 1787282989.3563614,
-    "ast_hash": "4867ed47bb3592d9e9c4ce0c5d4f82c1",
+    "mtime": 1791851588.707388,
+    "ast_hash": "7394e11cad826b9a6b25d266b9c2214a",
     "semantic_hash": ""
   },
   "src/ai/generate-transform.test.ts": {
@@ -220,8 +220,8 @@
     "semantic_hash": ""
   },
   "src/ai/tools/read/workspace.ts": {
-    "mtime": 1787635353.8323395,
-    "ast_hash": "36e9fc60492b25988ab1d0a244fb1562",
+    "mtime": 1791851594.4396691,
+    "ast_hash": "0c24f02c5a19c8d246d0dddfa2c29fe8",
     "semantic_hash": ""
   },
   "src/ai/tools/registry.ts": {
@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "src/automations/events.test.ts": {
-    "mtime": 1791561950.7291775,
-    "ast_hash": "4a23751e2ff146a9fa45405e34be5af0",
+    "mtime": 1791565702.098196,
+    "ast_hash": "7b0d8239c9dd1a8cc253b1f2be08b13b",
     "semantic_hash": ""
   },
   "src/automations/events.ts": {
@@ -340,8 +340,8 @@
     "semantic_hash": ""
   },
   "src/automations/temporal.test.ts": {
-    "mtime": 1782664159.3005333,
-    "ast_hash": "dc287b80ac6768c0e709623d14824352",
+    "mtime": 1791851566.907227,
+    "ast_hash": "b3b39e936134f39cea47d7f016ef13f6",
     "semantic_hash": ""
   },
   "src/automations/temporal.ts": {
@@ -480,8 +480,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/AppLayout.tsx": {
-    "mtime": 1786480891.6101072,
-    "ast_hash": "65221fb76a045c2f00752af69127dc34",
+    "mtime": 1791852120.4752102,
+    "ast_hash": "d239eb7d4a7b675693d8e569d05a373d",
     "semantic_hash": ""
   },
   "src/components/layout/ConnectFolderDialog.tsx": {
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/ProjectTree.tsx": {
-    "mtime": 1791517883.7098286,
-    "ast_hash": "8222627f4cbdf0d9439fba1d8c62a674",
+    "mtime": 1791851762.9023263,
+    "ast_hash": "e4ffa917d5eceb73b885eedf6dc68623",
     "semantic_hash": ""
   },
   "src/components/layout/WorkspaceStatus.tsx": {
@@ -615,8 +615,8 @@
     "semantic_hash": ""
   },
   "src/domain/health.test.ts": {
-    "mtime": 1782664567.5995736,
-    "ast_hash": "be2386d37c151659ce4a3301701c499b",
+    "mtime": 1791851566.8647392,
+    "ast_hash": "74ccac842f2812328b4467b871ac4b1f",
     "semantic_hash": ""
   },
   "src/domain/health.ts": {
@@ -635,13 +635,13 @@
     "semantic_hash": ""
   },
   "src/domain/migrations.test.ts": {
-    "mtime": 1791517883.7131677,
-    "ast_hash": "136c66bc73930619b6c38c4fa1af5b95",
+    "mtime": 1791851398.8008235,
+    "ast_hash": "4a8fd269c1d483ce247d1d99ae5b3be8",
     "semantic_hash": ""
   },
   "src/domain/migrations.ts": {
-    "mtime": 1791517883.7131677,
-    "ast_hash": "b1414b4d19c582b0da0df55d579179c1",
+    "mtime": 1791851433.0045757,
+    "ast_hash": "c20cb3dc93758a703941f62b32126d3e",
     "semantic_hash": ""
   },
   "src/domain/projectOps.test.ts": {
@@ -670,8 +670,8 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/common.ts": {
-    "mtime": 1791517883.714172,
-    "ast_hash": "d165779416ae632a61b783b7f702015f",
+    "mtime": 1791851426.3899553,
+    "ast_hash": "63a7d6394b28773ee4792ac3abb2976e",
     "semantic_hash": ""
   },
   "src/domain/schemas/flow.ts": {
@@ -715,8 +715,8 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/workspace.ts": {
-    "mtime": 1783244090.1339407,
-    "ast_hash": "f6327ce89c150be34e7f252b5e395279",
+    "mtime": 1791851426.4279964,
+    "ast_hash": "6d0f76769c13a50103371f91646a465e",
     "semantic_hash": ""
   },
   "src/features/assistant/AssistantEmptyState.tsx": {
@@ -1485,8 +1485,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/TasksTab.tsx": {
-    "mtime": 1791562459.3723052,
-    "ast_hash": "c8318621db0b005a51a76acfd50da3ea",
+    "mtime": 1791565702.100196,
+    "ast_hash": "662fbfb4006c937f2bc2e465de5d0390",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/ArchivedTasksList.tsx": {
@@ -1505,13 +1505,13 @@
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskCard.tsx": {
-    "mtime": 1791562005.6187515,
-    "ast_hash": "888a5f49b44337e890edf0b0d6040696",
+    "mtime": 1791565702.1021988,
+    "ast_hash": "0f14fd6741aa7831875ab5189d42babb",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/TaskDetailDrawer.tsx": {
-    "mtime": 1791562459.371305,
-    "ast_hash": "043ca4af5ed34bb3d05c977a96a2b470",
+    "mtime": 1791565702.103196,
+    "ast_hash": "3db11007d3b38ec1e49c579e49809712",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/WipLimitConfig.tsx": {
@@ -2035,8 +2035,8 @@
     "semantic_hash": ""
   },
   "src/routes/paths.ts": {
-    "mtime": 1786510797.672905,
-    "ast_hash": "825eca1cce77ebcea587597a11e475b2",
+    "mtime": 1791852110.9672287,
+    "ast_hash": "15ee44c66712595961734c085c9ab521",
     "semantic_hash": ""
   },
   "src/storage/DownloadAdapter.ts": {
@@ -3305,8 +3305,8 @@
     "semantic_hash": ""
   },
   "src/ai/keys-never-exported.test.ts": {
-    "mtime": 1791517883.708325,
-    "ast_hash": "4f0ecf2ef2bfe8b04bd2fc0216a2ca01",
+    "mtime": 1791851384.9489849,
+    "ast_hash": "63a126ba4a184b6d0d31671d3fa631e0",
     "semantic_hash": ""
   },
   "src/ai/models.qualified.test.ts": {
@@ -3535,8 +3535,8 @@
     "semantic_hash": ""
   },
   "src/ai/chat/uiContext.ts": {
-    "mtime": 1786484814.8438513,
-    "ast_hash": "5c28f18034840af5e91deb08825a0fae",
+    "mtime": 1791852127.318059,
+    "ast_hash": "51f5db14e2bebe510f8c5447caff4654",
     "semantic_hash": ""
   },
   "src/features/assistant/FollowUpChips.tsx": {
@@ -3780,8 +3780,8 @@
     "semantic_hash": ""
   },
   "src/features/reports/statusReport.test.ts": {
-    "mtime": 1787635353.8401067,
-    "ast_hash": "a68d1388a7d8ad4b50a2ead9a7b7a2e4",
+    "mtime": 1791851574.5105045,
+    "ast_hash": "b88e0a9d0680b4ec246439af0a09e970",
     "semantic_hash": ""
   },
   "src/features/reports/statusReport.ts": {
@@ -4270,8 +4270,8 @@
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.test.ts": {
-    "mtime": 1791350603.9842594,
-    "ast_hash": "8abaf2ef846fac62635f166b7b97809f",
+    "mtime": 1791851582.840527,
+    "ast_hash": "3b374cc51fdb1eae983a1beacc70bf27",
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.ts": {
@@ -4425,8 +4425,8 @@
     "semantic_hash": ""
   },
   "src/features/dashboard/portfolio.test.ts": {
-    "mtime": 1787635353.8386004,
-    "ast_hash": "2b17ec0f34e5cb1400608e1a80cd33cf",
+    "mtime": 1791851574.4410512,
+    "ast_hash": "b5787091b933502400175cd08cce9108",
     "semantic_hash": ""
   },
   "specs/066-dashboard-avance-legible/PROMPT-EJECUCION.md": {
@@ -4905,38 +4905,93 @@
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/PROMPT-EJECUCION.md": {
-    "mtime": 1791561660.5359344,
-    "ast_hash": "9bef96453e6ecd628cdc65995c11fa66",
+    "mtime": 1791565702.0961957,
+    "ast_hash": "17eb711f87cc417de3e36f8e78cb6b64",
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/design.md": {
-    "mtime": 1791561724.1059287,
-    "ast_hash": "5f6227fe2fd89f537f2bb768e2d702a4",
+    "mtime": 1791565702.0961957,
+    "ast_hash": "3afe70a10ca7dd00d531cfd16bd06f12",
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/spec.md": {
-    "mtime": 1791562560.2970085,
-    "ast_hash": "f92c45fb6f5eb9a031a392e61f542d07",
+    "mtime": 1791565702.0971956,
+    "ast_hash": "44b20b5d11055a77135daf21ddccd0ca",
     "semantic_hash": ""
   },
   "specs/074-duplicar-tareas/tasks.md": {
-    "mtime": 1791562560.2304838,
-    "ast_hash": "9513dc86e92f28d90ee95e6f001903c7",
+    "mtime": 1791565702.0971956,
+    "ast_hash": "72c8cc85e6f724874e9b97cfae6734a2",
     "semantic_hash": ""
   },
   "src/domain/duplicateTask.test.ts": {
-    "mtime": 1791561947.945632,
-    "ast_hash": "f8ed2dddcf3ea208f893c8a62e419fa7",
+    "mtime": 1791565702.0991957,
+    "ast_hash": "fee67d4349b5b61be7b0824325f5edc1",
     "semantic_hash": ""
   },
   "src/domain/duplicateTask.ts": {
-    "mtime": 1791561967.0317752,
-    "ast_hash": "7fb6e904e5414f37d8531adf87a6d142",
+    "mtime": 1791565702.0991957,
+    "ast_hash": "451c8c982c7879c71056bca883b58262",
     "semantic_hash": ""
   },
   "src/features/projects/components/kanban/DuplicateTasksDialog.tsx": {
-    "mtime": 1791562489.4191332,
-    "ast_hash": "a49fc9a21b97acaa2e8ae28f7e43cc94",
+    "mtime": 1791565702.1011963,
+    "ast_hash": "540e0e98bf20e5def3afecf4a3efc774",
+    "semantic_hash": ""
+  },
+  "src/domain/sidebarOrder.test.ts": {
+    "mtime": 1791851642.997027,
+    "ast_hash": "de3dc3e68099fb3c42294d67cd606ecb",
+    "semantic_hash": ""
+  },
+  "src/domain/sidebarOrder.ts": {
+    "mtime": 1791851656.8255384,
+    "ast_hash": "bb45fb375786ce4a4b09e32152f78ac9",
+    "semantic_hash": ""
+  },
+  "src/features/board/BoardPage.tsx": {
+    "mtime": 1791853061.772349,
+    "ast_hash": "847f4d7a10b56f0279ede9a3152d4c87",
+    "semantic_hash": ""
+  },
+  "src/features/board/GlobalTaskCard.tsx": {
+    "mtime": 1791852276.9580429,
+    "ast_hash": "1f338dc789109d738ff3f8a5946c940f",
+    "semantic_hash": ""
+  },
+  "src/features/board/boardQuery.test.ts": {
+    "mtime": 1791852087.6779513,
+    "ast_hash": "476345542fc66bd2b1f2b4bd5c444a0c",
+    "semantic_hash": ""
+  },
+  "src/features/board/boardQuery.ts": {
+    "mtime": 1791852087.6409664,
+    "ast_hash": "c34808ad72837f70c4547cbe7cbd23d2",
+    "semantic_hash": ""
+  },
+  "specs/075-tablero-global-y-orden/PROMPT-EJECUCION.md": {
+    "mtime": 1791851191.8670604,
+    "ast_hash": "be3a8db735c335c17e8fd36192153607",
+    "semantic_hash": ""
+  },
+  "specs/075-tablero-global-y-orden/design.md": {
+    "mtime": 1791851191.9445372,
+    "ast_hash": "592e49b63a62122433953e22de5370fb",
+    "semantic_hash": ""
+  },
+  "specs/075-tablero-global-y-orden/smoke.md": {
+    "mtime": 1791851191.8670604,
+    "ast_hash": "26c943a99bc0eeb9158f72d767d48006",
+    "semantic_hash": ""
+  },
+  "specs/075-tablero-global-y-orden/spec.md": {
+    "mtime": 1791851191.8161755,
+    "ast_hash": "a6c7ed3e160f9b1617c7d2875f2165ec",
+    "semantic_hash": ""
+  },
+  "specs/075-tablero-global-y-orden/tasks.md": {
+    "mtime": 1791853398.0095344,
+    "ast_hash": "fdf6f38e32e7aa21ed94119387fdb136",
     "semantic_hash": ""
   }
 }
