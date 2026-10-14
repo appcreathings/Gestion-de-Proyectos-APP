@@ -15,6 +15,7 @@ const settings: Settings = {
   dueSoonDays: 7,
   deriveHealth: false,
   sidebarOrder: {},
+  productOrder: [],
   boardViews: [],
 };
 const now = new Date(2026, 7, 24, 12, 0, 0);

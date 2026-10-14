@@ -268,6 +268,40 @@ describe("orden de tarjetas (spec 075 D7)", () => {
     ]);
   });
 
+  it("productOrder manda sobre el orden del array de productos (spec 076 D9)", () => {
+    const prodA = newProduct("Producto A");
+    const prodB = newProduct("Producto B");
+    const pA = project("A", { productId: prodA.id });
+    pA.tasks = [task("De A")];
+    const pB = project("B", { productId: prodB.id });
+    pB.tasks = [task("De B")];
+
+    // El array tiene B primero, pero la barra guardó A arriba.
+    const rank = boardProjectRank([prodB, prodA], [pA, pB], {}, [prodA.id, prodB.id]);
+    expect(rank.get(pA.id)!).toBeLessThan(rank.get(pB.id)!);
+  });
+
+  it("productOrder ordena productos y, adentro, sidebarOrder sigue mandando (spec 076 D9)", () => {
+    const prodA = newProduct("Producto A");
+    const prodB = newProduct("Producto B");
+    const pA1 = project("A1", { productId: prodA.id });
+    pA1.tasks = [task("A1 única")];
+    const pA2 = project("A2", { productId: prodA.id });
+    pA2.tasks = [task("A2 única")];
+    const pB = project("B", { productId: prodB.id });
+    pB.tasks = [task("B única")];
+
+    const rank = boardProjectRank(
+      [prodB, prodA],
+      [pA1, pA2, pB],
+      { [prodA.id]: [pA2.id, pA1.id] },
+      [prodA.id, prodB.id],
+    );
+    expect(rank.get(pA2.id)).toBe(0);
+    expect(rank.get(pA1.id)).toBe(1);
+    expect(rank.get(pB.id)).toBe(2);
+  });
+
   it("sortCards usa título con localeCompare es si empatan rango e índice", () => {
     const p1 = project("Demo 1");
     p1.tasks = [task("caramelo")];

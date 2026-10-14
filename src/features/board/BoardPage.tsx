@@ -85,6 +85,7 @@ export function BoardPage() {
   const mutateProject = useDataStore((s) => s.mutateProject);
   const workspaceReady = useAppStore((s) => s.workspace !== null);
   const sidebarOrder = useAppStore((s) => s.workspace?.settings.sidebarOrder);
+  const productOrder = useAppStore((s) => s.workspace?.settings.productOrder);
   const boardViews = useAppStore((s) => s.workspace?.settings.boardViews ?? []);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -134,8 +135,10 @@ export function BoardPage() {
     [projects],
   );
   const rank = useMemo(
-    () => boardProjectRank(products, projects, sidebarOrder ?? {}),
-    [products, projects, sidebarOrder],
+    // El orden de la barra manda como primera clave (spec 076 D9); la página no
+    // se apoya en el default de `boardProjectRank`.
+    () => boardProjectRank(products, projects, sidebarOrder ?? {}, productOrder ?? []),
+    [products, projects, sidebarOrder, productOrder],
   );
   const cards = useMemo(() => collectBoardCards(projects, query, new Date()), [projects, query]);
   const columns = useMemo(

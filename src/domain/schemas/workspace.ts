@@ -9,6 +9,9 @@ export const SettingsSchema = z.object({
   // Orden de proyectos dentro de cada producto en la barra (spec 075 D17).
   // La clave es el id del producto o `__unassigned` cuando `productId` es null.
   sidebarOrder: z.record(z.string(), z.array(z.string())).default({}),
+  // Orden de los productos en la barra (spec 076 D5). Ids de producto.
+  // `__unassigned` no va acá.
+  productOrder: z.array(z.string()).default([]),
   // Vistas guardadas del tablero global (spec 075 D14): máximo 20, nombre ya
   // recortado de 1–40, `query` canónico sin el param `view`.
   boardViews: z

@@ -22,6 +22,7 @@ describe("buildSystemPrompt", () => {
         dueSoonDays: 3,
         deriveHealth: false,
         sidebarOrder: {},
+        productOrder: [],
         boardViews: [],
       },
       index: {

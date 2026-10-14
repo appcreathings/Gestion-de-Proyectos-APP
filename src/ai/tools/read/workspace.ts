@@ -22,6 +22,7 @@ export function createWorkspaceReadTools(ctx: ToolContext): AiTool[] {
           dueSoonDays: 7,
           deriveHealth: false,
           sidebarOrder: {},
+          productOrder: [],
           boardViews: [],
         };
         const stats = computePortfolio(

@@ -200,6 +200,23 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
         return { ...data, settings };
       },
     },
+    // v25 -> v26 (spec 076 D6): `settings.productOrder` (orden de productos en
+    // la barra). Escribe la clave si falta en el objeto migrado: readWorkspace
+    // persiste el JSON antes del parse de Zod, así que el default del schema
+    // no alcanza. No toca `sidebarOrder` ni `boardViews` (el paso 25 ya las
+    // escribió) ni projects: un proyecto no gana campo nuevo.
+    {
+      to: 26,
+      up(data) {
+        const raw = data.settings;
+        const settings =
+          typeof raw === "object" && raw !== null
+            ? { ...(raw as Record<string, unknown>) }
+            : {};
+        if (!Array.isArray(settings.productOrder)) settings.productOrder = [];
+        return { ...data, settings };
+      },
+    },
   ],
 };
 

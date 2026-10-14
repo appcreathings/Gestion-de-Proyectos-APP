@@ -27,6 +27,7 @@ const SETTINGS: Settings = {
   dueSoonDays: 7,
   deriveHealth: false,
   sidebarOrder: {},
+  productOrder: [],
   boardViews: [],
 };
 

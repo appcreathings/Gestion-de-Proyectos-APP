@@ -176,22 +176,26 @@ export function collectBoardCards(
   return cards;
 }
 
-/** Puesto de cada proyecto en el tablero: primero el orden de productos del
- * array, después el orden interno del producto (barra, D7). `__unassigned` va
- * después de los productos; quien no entró queda con un rango alto. */
+/** Puesto de cada proyecto en el tablero: primero el orden de productos de la
+ * barra (`productOrder`, spec 076 D9), después el orden interno del producto
+ * (barra, D7). `__unassigned` va después de los productos; quien no entró
+ * queda con un rango alto. Sin lista guardada, manda el orden del array. */
 export function boardProjectRank(
   products: readonly Product[],
   projects: readonly Project[],
   sidebarOrder: Readonly<Record<string, string[]>>,
+  productOrder: readonly string[] = [],
 ): Map<string, number> {
   const rank = new Map<string, number>();
   const open = projects.filter((p) => p.status !== "done" && p.status !== "archived");
   let next = 0;
 
-  const groups: { id: string; projects: Project[] }[] = products.map((prod) => ({
-    id: prod.id,
-    projects: open.filter((p) => p.productId === prod.id),
-  }));
+  const groups: { id: string; projects: Project[] }[] = orderProjects(products, productOrder).map(
+    (prod) => ({
+      id: prod.id,
+      projects: open.filter((p) => p.productId === prod.id),
+    }),
+  );
   groups.push({ id: "__unassigned", projects: open.filter((p) => p.productId === null) });
 
   for (const group of groups) {

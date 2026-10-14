@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
 import { GripVertical, ChevronDown, ChevronRight } from "lucide-react";
-import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  pointerWithin,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
 import { useDataStore } from "@/store/useDataStore";
@@ -26,15 +34,17 @@ interface ProductGroup {
 /**
  * Collapsible Producto → Proyecto tree used in the global rail for quick
  * navigation between projects. El asa reordena proyectos dentro de su
- * producto (spec 075): el orden queda en `settings.sidebarOrder`.
+ * producto (spec 075: `settings.sidebarOrder`) y los productos entre sí
+ * (spec 076: `settings.productOrder`).
  */
 export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
   const products = useDataStore((s) => s.products);
   const projects = useDataStore((s) => s.projects);
   const sidebarOrder = useAppStore((s) => s.workspace?.settings.sidebarOrder);
+  const productOrder = useAppStore((s) => s.workspace?.settings.productOrder);
   const { id: activeProjectId } = useParams();
 
-  const groups = useMemo<ProductGroup[]>(() => {
+  const { named, unassigned, groups } = useMemo(() => {
     const byProduct = new Map<string, Project[]>();
     const orphans: Project[] = [];
     for (const p of projects) {
@@ -46,14 +56,21 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
       list.push(p);
       byProduct.set(p.productId, list);
     }
-    const named = products
-      .map((prod) => ({
-        id: prod.id,
-        name: prod.name,
-        // El orden guardado manda (spec 075 D17); sin lista, el del store.
-        projects: orderProjects(byProduct.get(prod.id) ?? [], sidebarOrder?.[groupKey(prod.id)]),
-      }))
-      .filter((g) => g.projects.length > 0);
+    const named = orderProjects(
+      products
+        .map((prod) => ({
+          id: prod.id,
+          name: prod.name,
+          // Dentro del producto manda el orden guardado (spec 075 D17); sin
+          // lista, el del store.
+          projects: orderProjects(byProduct.get(prod.id) ?? [], sidebarOrder?.[groupKey(prod.id)]),
+        }))
+        .filter((g) => g.projects.length > 0),
+      // Entre productos manda el orden guardado (spec 076 D5); sin lista, el
+      // del store. Un id desconocido se salta; un producto fuera de la lista
+      // queda al final.
+      productOrder,
+    );
     const unassigned =
       orphans.length > 0
         ? [
@@ -64,8 +81,8 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
             },
           ]
         : [];
-    return [...named, ...unassigned];
-  }, [products, projects, sidebarOrder]);
+    return { named, unassigned, groups: [...named, ...unassigned] };
+  }, [products, projects, sidebarOrder, productOrder]);
 
   const activeGroupId = useMemo(
     () => groups.find((g) => g.projects.some((p) => p.id === activeProjectId))?.id,
@@ -155,6 +172,52 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
     applyReorder(groupId, projectId, overId);
   }
 
+  // --- Productos entre sí (spec 076) ---
+
+  const namedIds = useMemo(() => named.map((g) => g.id), [named]);
+
+  const productSensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  );
+
+  /** Escribe solo `productOrder` (D5): el spread de `updateSettings` conserva
+   * `sidebarOrder` y `boardViews`. Sin workspace no escribe ni anuncia. */
+  function persistProductOrder(next: string[], movedId: string) {
+    const ws = useAppStore.getState().workspace;
+    if (!ws) return;
+    void useAppStore.getState().updateSettings({ productOrder: next });
+    const n = next.indexOf(movedId) + 1;
+    const productName = named.find((g) => g.id === movedId)?.name ?? "";
+    setAnnouncement(
+      n <= 1 ? `${productName} quedó primero` : `${productName} quedó en el puesto ${n}`,
+    );
+  }
+
+  /** Soltar el asa de producto o su flecha terminan acá (D5): `visible` son los
+   * grupos nombrados en el orden en que se están viendo, sin `__unassigned`. */
+  function applyProductReorder(activeId: string, overId: string) {
+    const next = reorderWithin(namedIds, activeId, overId);
+    if (next) persistProductOrder(next, activeId);
+  }
+
+  /** Flecha del asa de producto (D7): el vecino en la lista visible; en el
+   * extremo, no-op y sin anuncio. */
+  function moveProductByArrow(productId: string, direction: -1 | 1) {
+    const from = namedIds.indexOf(productId);
+    const to = from + direction;
+    if (from === -1 || to < 0 || to > namedIds.length - 1) return;
+    const overId = namedIds[to];
+    if (!overId) return;
+    applyProductReorder(productId, overId);
+  }
+
+  function handleProductDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    applyProductReorder(String(active.id), String(over.id));
+  }
+
   if (groups.length === 0) return null;
 
   const allOpen = groups.every((g) => expanded.has(g.id));
@@ -172,7 +235,74 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
           {allOpen ? "Cerrar todos" : "Abrir todos"}
         </button>
       </div>
-      {groups.map((g) => {
+      {/* Productos entre sí: un DndContext exterior hace imposible que el
+       * arrastre de un proyecto cruce de producto (spec 076 D8); los listeners
+       * van solo en el asa de cada nivel. pointerWithin: el nodo medido es el
+       * grupo abierto, y rectIntersection se queda en el mismo producto al
+       * arrastrarlo hacia arriba. */}
+      <DndContext
+        sensors={productSensors}
+        collisionDetection={pointerWithin}
+        onDragEnd={handleProductDragEnd}
+      >
+        <SortableContext items={namedIds} strategy={verticalListSortingStrategy}>
+          {named.map((g) => {
+            const isOpen = expanded.has(g.id);
+            return (
+              <SortableItem key={g.id} id={g.id}>
+                {({ setNodeRef, style, attributes, listeners, isDragging }) => (
+                  <div
+                    ref={setNodeRef}
+                    style={style}
+                    className={cn(isDragging && "opacity-40")}
+                  >
+                    <div className="flex items-center">
+                      <button
+                        type="button"
+                        aria-label={`Reordenar ${g.name}`}
+                        className="flex h-6 w-3 shrink-0 cursor-grab touch-none items-center justify-center rounded text-muted-foreground/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+                        onKeyDown={(e) => {
+                          if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                            e.preventDefault();
+                            moveProductByArrow(g.id, e.key === "ArrowUp" ? -1 : 1);
+                          }
+                        }}
+                        {...attributes}
+                        {...listeners}
+                      >
+                        <GripVertical className="size-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggle(g.id)}
+                        aria-expanded={isOpen}
+                        className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      >
+                        {isOpen ? (
+                          <ChevronDown className="size-3.5 shrink-0" />
+                        ) : (
+                          <ChevronRight className="size-3.5 shrink-0" />
+                        )}
+                        <span className="truncate">{g.name}</span>
+                      </button>
+                    </div>
+                    {isOpen && (
+                      <GroupProjects
+                        group={g}
+                        activeProjectId={activeProjectId}
+                        onNavigate={onNavigate}
+                        onReorder={applyReorder}
+                        onMoveByArrow={moveByArrow}
+                      />
+                    )}
+                  </div>
+                )}
+              </SortableItem>
+            );
+          })}
+        </SortableContext>
+      </DndContext>
+      {unassigned.map((g) => {
         const isOpen = expanded.has(g.id);
         return (
           <div key={g.id}>

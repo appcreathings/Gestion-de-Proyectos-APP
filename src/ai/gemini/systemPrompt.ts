@@ -100,6 +100,7 @@ export function buildSystemPrompt(
     dueSoonDays: 7,
     deriveHealth: false,
     sidebarOrder: {},
+    productOrder: [],
     boardViews: [],
   };
   const date = today.toISOString().slice(0, 10);
