@@ -129,6 +129,19 @@ El nodo sortable envuelve el grupo entero (encabezado + proyectos abiertos) para
 
 Clases del asa: las mismas que el asa de proyecto (`h-6 w-3`, `cursor-grab`, `touch-none`, ring de foco). El botón del nombre conserva el estilo actual del encabezado (`text-xs text-muted-foreground`, hover, `rounded-md`, `px-2 py-1.5`).
 
+**Ampliación post-implementación (pedido del usuario, «mejora la animación»):** el
+snippet de arriba no daba feedback visual (el bloque no seguía al puntero y el orden
+saltaba al soltar, con una vuelta atrás cuando aterrizaba la escritura asincrónica
+del store). Los dos niveles aplican ahora el `style` de `SortableItem` (transform +
+transition de dnd-kit) y reacomodan la lista **en vivo** durante el drag: un orden
+optimista local (`dragOrder` / `liveIds`) se actualiza en `onDragOver`, el drop
+escribe el store con esa lista final y el estado local se conserva hasta que el
+orden guardado lo alcanza (efecto sobre la lista del store), para que `updateSettings`
+no haga saltar la fila. El nodo activo lleva `relative z-10 opacity-40` mientras
+arrastra. El contrato de `onReorder` de `GroupProjects` pasa a recibir la lista
+final `(groupId, next, movedId)` y devuelve `boolean` (false = sin workspace).
+«Sin producto» sigue fuera del contexto.
+
 `SortableContext` `items` = ids de `named`. «Sin producto» se renderiza después del contexto, sin `SortableItem` y sin asa. Su botón de abrir/cerrar queda como el de hoy.
 
 Al soltar:

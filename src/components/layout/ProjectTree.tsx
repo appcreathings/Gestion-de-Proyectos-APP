@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
@@ -137,10 +138,11 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
   }
 
   /** Escribe el record completo con la clave del grupo reemplazada (D17 y
-   * trampa de design §10: `updateSettings` hace spread de primer nivel). */
-  function persistOrder(groupId: string, next: string[], movedId: string) {
+   * trampa de design §10: `updateSettings` hace spread de primer nivel).
+   * Devuelve false si no hay workspace: nada escrito ni anunciado. */
+  function persistOrder(groupId: string, next: string[], movedId: string): boolean {
     const ws = useAppStore.getState().workspace;
-    if (!ws) return;
+    if (!ws) return false;
     void useAppStore.getState().updateSettings({
       sidebarOrder: { ...ws.settings.sidebarOrder, [groupId]: next },
     });
@@ -149,14 +151,7 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
     setAnnouncement(
       n <= 1 ? `Quedó primero en ${productName}` : `Quedó en el puesto ${n} en ${productName}`,
     );
-  }
-
-  /** Soltar el asa o la flecha terminan acá: mueve dentro del grupo y persiste. */
-  function applyReorder(groupId: string, activeId: string, overId: string) {
-    const group = groups.find((g) => g.id === groupId);
-    if (!group) return;
-    const next = reorderWithin(visibleIds(group), activeId, overId);
-    if (next) persistOrder(groupId, next, activeId);
+    return true;
   }
 
   /** Flecha del asa (D18): el vecino en la lista visible; en el extremo, no-op. */
@@ -169,7 +164,8 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
     if (from === -1 || to < 0 || to > ids.length - 1) return;
     const overId = ids[to];
     if (!overId) return;
-    applyReorder(groupId, projectId, overId);
+    const next = reorderWithin(ids, projectId, overId);
+    if (next) persistOrder(groupId, next, projectId);
   }
 
   // --- Productos entre sí (spec 076) ---
@@ -181,41 +177,79 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
   );
 
+  // Orden optimista durante el arrastre: el bloque sigue al puntero y los
+  // vecinos se corren en vivo; el store se escribe recién al soltar (D5). El
+  // estado local se conserva hasta que el orden guardado lo alcanza, para que
+  // la escritura asincrónica de `updateSettings` no haga saltar la fila.
+  const [dragOrder, setDragOrder] = useState<string[] | null>(null);
+
+  const orderedNamed = useMemo(() => {
+    if (!dragOrder) return named;
+    const byId = new Map(named.map((g) => [g.id, g] as const));
+    const shown = dragOrder.map((id) => byId.get(id)).filter((g): g is ProductGroup => Boolean(g));
+    for (const g of named) if (!dragOrder.includes(g.id)) shown.push(g);
+    return shown;
+  }, [named, dragOrder]);
+
+  const productIds = useMemo(() => orderedNamed.map((g) => g.id), [orderedNamed]);
+
+  useEffect(() => {
+    if (!dragOrder) return;
+    if (dragOrder.length === namedIds.length && dragOrder.every((id, i) => id === namedIds[i])) {
+      setDragOrder(null);
+    }
+  }, [dragOrder, namedIds]);
+
   /** Escribe solo `productOrder` (D5): el spread de `updateSettings` conserva
    * `sidebarOrder` y `boardViews`. Sin workspace no escribe ni anuncia. */
-  function persistProductOrder(next: string[], movedId: string) {
+  function persistProductOrder(next: string[], movedId: string): boolean {
     const ws = useAppStore.getState().workspace;
-    if (!ws) return;
+    if (!ws) return false;
     void useAppStore.getState().updateSettings({ productOrder: next });
     const n = next.indexOf(movedId) + 1;
     const productName = named.find((g) => g.id === movedId)?.name ?? "";
     setAnnouncement(
       n <= 1 ? `${productName} quedó primero` : `${productName} quedó en el puesto ${n}`,
     );
-  }
-
-  /** Soltar el asa de producto o su flecha terminan acá (D5): `visible` son los
-   * grupos nombrados en el orden en que se están viendo, sin `__unassigned`. */
-  function applyProductReorder(activeId: string, overId: string) {
-    const next = reorderWithin(namedIds, activeId, overId);
-    if (next) persistProductOrder(next, activeId);
+    return true;
   }
 
   /** Flecha del asa de producto (D7): el vecino en la lista visible; en el
    * extremo, no-op y sin anuncio. */
   function moveProductByArrow(productId: string, direction: -1 | 1) {
-    const from = namedIds.indexOf(productId);
+    const from = productIds.indexOf(productId);
     const to = from + direction;
-    if (from === -1 || to < 0 || to > namedIds.length - 1) return;
-    const overId = namedIds[to];
+    if (from === -1 || to < 0 || to > productIds.length - 1) return;
+    const overId = productIds[to];
     if (!overId) return;
-    applyProductReorder(productId, overId);
+    const next = reorderWithin(productIds, productId, overId);
+    if (next) persistProductOrder(next, productId);
+  }
+
+  function handleProductDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const next = reorderWithin(productIds, String(active.id), String(over.id));
+    if (next) setDragOrder(next);
   }
 
   function handleProductDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    applyProductReorder(String(active.id), String(over.id));
+    if (!over) {
+      // Soltó fuera de la lista: vuelve al orden guardado.
+      setDragOrder(null);
+      return;
+    }
+    const final = dragOrder;
+    if (!final) return; // soltó en el mismo puesto
+    const unchanged =
+      final.length === namedIds.length && final.every((id, i) => id === namedIds[i]);
+    if (unchanged || !persistProductOrder(final, String(active.id))) setDragOrder(null);
+    // Si escribió, el efecto deja el orden local hasta que el store lo alcance.
+  }
+
+  function handleProductDragCancel() {
+    setDragOrder(null);
   }
 
   if (groups.length === 0) return null;
@@ -243,10 +277,12 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
       <DndContext
         sensors={productSensors}
         collisionDetection={pointerWithin}
+        onDragOver={handleProductDragOver}
         onDragEnd={handleProductDragEnd}
+        onDragCancel={handleProductDragCancel}
       >
-        <SortableContext items={namedIds} strategy={verticalListSortingStrategy}>
-          {named.map((g) => {
+        <SortableContext items={productIds} strategy={verticalListSortingStrategy}>
+          {orderedNamed.map((g) => {
             const isOpen = expanded.has(g.id);
             return (
               <SortableItem key={g.id} id={g.id}>
@@ -254,7 +290,7 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
                   <div
                     ref={setNodeRef}
                     style={style}
-                    className={cn(isDragging && "opacity-40")}
+                    className={cn("relative", isDragging && "z-10 opacity-40")}
                   >
                     <div className="flex items-center">
                       <button
@@ -291,7 +327,7 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
                         group={g}
                         activeProjectId={activeProjectId}
                         onNavigate={onNavigate}
-                        onReorder={applyReorder}
+                        onReorder={persistOrder}
                         onMoveByArrow={moveByArrow}
                       />
                     )}
@@ -324,7 +360,7 @@ export function ProjectTree({ onNavigate, className }: ProjectTreeProps) {
                 group={g}
                 activeProjectId={activeProjectId}
                 onNavigate={onNavigate}
-                onReorder={applyReorder}
+                onReorder={persistOrder}
                 onMoveByArrow={moveByArrow}
               />
             )}
@@ -351,7 +387,7 @@ function GroupProjects({
   group: ProductGroup;
   activeProjectId: string | undefined;
   onNavigate?: () => void;
-  onReorder: (groupId: string, activeId: string, overId: string) => void;
+  onReorder: (groupId: string, next: string[], movedId: string) => boolean;
   onMoveByArrow: (groupId: string, projectId: string, direction: -1 | 1) => void;
 }) {
   // Distancia corta para que el clic en el nombre siga ganando; en touch el
@@ -361,24 +397,67 @@ function GroupProjects({
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
   );
-  const ids = useMemo(() => group.projects.map((p) => p.id), [group.projects]);
+
+  // Orden optimista durante el arrastre, igual que los productos: las filas
+  // vecinas se corren en vivo y el store se escribe al soltar, sin salto.
+  const [liveIds, setLiveIds] = useState<string[] | null>(null);
+  const storedIds = useMemo(() => group.projects.map((p) => p.id), [group.projects]);
+  const shown = useMemo(() => {
+    if (!liveIds) return group.projects;
+    const byId = new Map(group.projects.map((p) => [p.id, p] as const));
+    const list = liveIds.map((id) => byId.get(id)).filter((p): p is Project => Boolean(p));
+    for (const p of group.projects) if (!liveIds.includes(p.id)) list.push(p);
+    return list;
+  }, [group.projects, liveIds]);
+  const ids = useMemo(() => shown.map((p) => p.id), [shown]);
+
+  useEffect(() => {
+    if (!liveIds) return;
+    if (liveIds.length === storedIds.length && liveIds.every((id, i) => id === storedIds[i])) {
+      setLiveIds(null);
+    }
+  }, [liveIds, storedIds]);
+
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const next = reorderWithin(ids, String(active.id), String(over.id));
+    if (next) setLiveIds(next);
+  }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    onReorder(group.id, String(active.id), String(over.id));
+    if (!over) {
+      setLiveIds(null);
+      return;
+    }
+    const final = liveIds;
+    if (!final) return; // soltó en el mismo puesto
+    const unchanged =
+      final.length === storedIds.length && final.every((id, i) => id === storedIds[i]);
+    if (unchanged || !onReorder(group.id, final, String(active.id))) setLiveIds(null);
+  }
+
+  function handleDragCancel() {
+    setLiveIds(null);
   }
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         <div className="ml-2.5 space-y-0.5 border-l border-border/60 pl-2.5">
-          {group.projects.map((p) => (
+          {shown.map((p) => (
             <SortableItem key={p.id} id={p.id}>
-              {({ setNodeRef, attributes, listeners, isDragging }) => (
+              {({ setNodeRef, style, attributes, listeners, isDragging }) => (
                 <div
                   ref={setNodeRef}
-                  className={cn("relative flex items-center", isDragging && "opacity-40")}
+                  style={style}
+                  className={cn("relative flex items-center", isDragging && "z-10 opacity-40")}
                 >
                   <button
                     type="button"
