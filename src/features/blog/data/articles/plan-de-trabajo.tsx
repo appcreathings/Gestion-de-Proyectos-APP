@@ -4,13 +4,13 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "plan-de-trabajo",
-  title: "Plan de trabajo: cómo hacer el operativo de la semana",
+  title: "Plan de trabajo: ejemplo, modelos y plan anual",
   excerpt:
-    "Plan de trabajo: el operativo de la semana en 6 bloques y 4 pasos. Qué incluye, en qué se diferencia del plan de proyecto y del backlog, y los errores que lo vuelven papel mojado.",
+    "Plan de trabajo: un ejemplo de la semana, tres modelos (semana, mes y año) y qué lleva un plan anual. En qué se diferencia del plan de proyecto y del backlog.",
   category: "gestion-proyectos",
   categoryLabel: "Gestión de proyectos",
   publishedAt: "2026-09-05",
-  readingTime: "9 min",
+  readingTime: "11 min",
   featured: false,
   author: DEFAULT_AUTHOR,
   pillar: "tablero-kanban",
@@ -20,10 +20,10 @@ export const article: BlogArticle = {
     "sprint-planning-como-hacerlo",
   ],
   seo: {
-    title: "Plan de trabajo: cómo hacer el operativo de la semana | Hito",
+    title: "Plan de trabajo: ejemplo, modelos y plan anual | Hito",
     description:
-      "Cómo hacer un plan de trabajo semanal: qué incluye, plantilla de 6 bloques y la diferencia con el plan de proyecto y el backlog. Para equipos pequeños.",
-    ogImageAlt: "Plan de trabajo semanal con objetivos, tareas y responsables.",
+      "Plan de trabajo: ejemplo de una semana, modelos de semana, mes y año, y qué lleva un plan anual. Diferencia con el plan de proyecto.",
+    ogImageAlt: "Ejemplo de plan de trabajo semanal y modelo de plan anual.",
   },
   content: {
     eyebrow: "Organización del trabajo",
@@ -105,7 +105,7 @@ export const article: BlogArticle = {
               </li>
             </ol>
             <p>
-              Así se ve completo, con el ejemplo de una agencia de cinco personas:
+              Así se ve un ejemplo de plan de trabajo, con una agencia de cinco personas:
             </p>
             <table className="w-full border-collapse text-sm">
               <thead>
@@ -159,6 +159,115 @@ export const article: BlogArticle = {
               asignación por horas exactas. El plan de trabajo se queda en el nivel de detalle
               que un equipo puede sostener cada semana; el detalle fino vive en cada tarea, no
               en el plan.
+            </p>
+          </>
+        ),
+      },
+      {
+        heading: "Modelos de plan de trabajo",
+        body: (
+          <>
+            <p>
+              No hay un solo modelo de plan de trabajo. Hay tres, y se eligen por el horizonte,
+              no por el formato. El error habitual es usar el modelo anual para decidir el
+              martes, o el semanal para prometer el año.
+            </p>
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border/60 text-left">
+                  <th className="py-2 pr-4 font-semibold">Modelo</th>
+                  <th className="py-2 pr-4 font-semibold">Horizonte</th>
+                  <th className="py-2 pr-4 font-semibold">Qué decide</th>
+                  <th className="py-2 font-semibold">Qué no mete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border/40">
+                  <td className="py-2 pr-4 text-muted-foreground">Semanal</td>
+                  <td className="py-2 pr-4 text-muted-foreground">7 días</td>
+                  <td className="py-2 pr-4 text-muted-foreground">
+                    Entregas, dueños y capacidad de esta semana.
+                  </td>
+                  <td className="py-2 text-muted-foreground">El año entero.</td>
+                </tr>
+                <tr className="border-b border-border/40">
+                  <td className="py-2 pr-4 text-muted-foreground">Mensual</td>
+                  <td className="py-2 pr-4 text-muted-foreground">4 semanas</td>
+                  <td className="py-2 pr-4 text-muted-foreground">
+                    El hito del mes y qué semana lo empuja.
+                  </td>
+                  <td className="py-2 text-muted-foreground">La tarea del martes.</td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4 text-muted-foreground">Anual</td>
+                  <td className="py-2 pr-4 text-muted-foreground">12 meses</td>
+                  <td className="py-2 pr-4 text-muted-foreground">
+                    Resultados del año e hitos por trimestre.
+                  </td>
+                  <td className="py-2 text-muted-foreground">La lista de tareas.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              El semanal es el que el equipo abre cada día. El mensual junta cuatro de esos
+              planes y dice qué hito sigue en pie. El anual no lista tareas: lista resultados.
+              Si un modelo mete el detalle del otro, deja de usarse.
+            </p>
+          </>
+        ),
+      },
+      {
+        heading: "Plan anual de trabajo",
+        body: (
+          <>
+            <p>
+              Un plan anual de trabajo —es el mismo documento que un plan de trabajo anual—
+              dice qué tiene que ser cierto en diciembre y qué se revisa cada trimestre. No es
+              la suma de 52 semanas. Escrito como lista de tareas, en marzo ya está viejo.
+            </p>
+            <p>Cinco bloques, y ninguno es una tarea:</p>
+            <ol className="list-decimal space-y-2 pl-6 text-muted-foreground">
+              <li>
+                <strong>Resultado del año.</strong> Una frase. Si hacen falta tres, todavía no
+                elegiste.
+              </li>
+              <li>
+                <strong>Cuatro a seis pruebas de ese resultado.</strong> Hechos que se pueden
+                mirar, no intenciones.
+              </li>
+              <li>
+                <strong>Hitos por trimestre.</strong> Fechas. Las actividades que los producen
+                viven en el{" "}
+                <Link
+                  to="/blogs/cronograma-de-actividades"
+                  className="underline underline-offset-2"
+                >
+                  cronograma de actividades
+                </Link>
+                , no aquí.
+              </li>
+              <li>
+                <strong>Capacidad.</strong> Cuántas personas hay, y cuántas no vas a contratar.
+                Un plan anual que supone un equipo que no existe no es un plan.
+              </li>
+              <li>
+                <strong>Revisión trimestral.</strong> Qué se recorta si el trimestre no dio. Sin
+                esa frase, el plan anual solo crece.
+              </li>
+            </ol>
+            <p>
+              Ejemplo, el mismo estudio de cinco personas: el resultado del año es cerrar los
+              proyectos de cliente sin pasar de cinco. Las pruebas son un kickoff de diez días,
+              ningún proyecto abierto más de ocho semanas sin un hito, y el margen visible al
+              cerrar. El primer trimestre deja la plantilla de kickoff en uso. El segundo, un
+              solo tablero. El tercero, el margen en cada cierre. El cuarto no agrega metas: mira
+              si las tres pruebas se sostuvieron.
+            </p>
+            <p>
+              Cada lunes, el plan semanal elige el pedazo de ese trimestre que cabe en la
+              capacidad de la semana. Si lo que entra el lunes no cabe en un resultado del año,
+              o el año está mal escrito o la semana se fue a apagar incendios. Las dos cosas se
+              anotan en la revisión del viernes, no se disimulan en el documento.
             </p>
           </>
         ),
@@ -351,6 +460,16 @@ export const article: BlogArticle = {
         question: "¿Cuánto dura un plan de trabajo?",
         answer:
           "La duración estándar es una semana, porque es el plazo donde las personas aún pueden sostener compromisos realistas. Hay equipos que lo estiran a dos semanas o lo acortan a un día en periodos de crisis; lo importante no es el largo sino el ritual completo: publicar al empezar y revisar al cerrar.",
+      },
+      {
+        question: "¿Qué modelos de plan de trabajo hay?",
+        answer:
+          "Tres: semanal, mensual y anual. El semanal compromete entregas y dueños de siete días. El mensual dice qué hito del mes sigue en pie. El anual fija resultados e hitos por trimestre, sin la lista de tareas. Usar el detalle de uno en el horizonte del otro es lo que vuelve el plan inútil.",
+      },
+      {
+        question: "¿Qué es un plan anual de trabajo?",
+        answer:
+          "Es el plan de trabajo del año: un resultado, cuatro a seis pruebas de ese resultado, hitos por trimestre, la capacidad real del equipo y una revisión cada tres meses. No es la suma de 52 planes semanales. El plan de trabajo anual es el mismo documento.",
       },
     ],
   },

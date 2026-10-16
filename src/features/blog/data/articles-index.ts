@@ -1872,21 +1872,21 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "plan-de-trabajo",
-    title: "Plan de trabajo: cómo hacer el operativo de la semana",
+    title: "Plan de trabajo: ejemplo, modelos y plan anual",
     excerpt:
-      "Plan de trabajo: el operativo de la semana en 6 bloques y 4 pasos. Qué incluye, en qué se diferencia del plan de proyecto y del backlog, y los errores que lo vuelven papel mojado.",
+      "Plan de trabajo: un ejemplo de la semana, tres modelos (semana, mes y año) y qué lleva un plan anual. En qué se diferencia del plan de proyecto y del backlog.",
     category: "gestion-proyectos",
     categoryLabel: "Gestión de proyectos",
     publishedAt: "2026-09-05",
-    readingTime: "9 min",
+    readingTime: "11 min",
     featured: false,
     pillar: "tablero-kanban",
     related: ["tablero-kanban", "plantilla-plan-de-proyecto", "sprint-planning-como-hacerlo"],
     seo: {
-      title: "Plan de trabajo: cómo hacer el operativo de la semana | Hito",
+      title: "Plan de trabajo: ejemplo, modelos y plan anual | Hito",
       description:
-        "Cómo hacer un plan de trabajo semanal: qué incluye, plantilla de 6 bloques y la diferencia con el plan de proyecto y el backlog. Para equipos pequeños.",
-      ogImageAlt: "Plan de trabajo semanal con objetivos, tareas y responsables.",
+        "Plan de trabajo: ejemplo de una semana, modelos de semana, mes y año, y qué lleva un plan anual. Diferencia con el plan de proyecto.",
+      ogImageAlt: "Ejemplo de plan de trabajo semanal y modelo de plan anual.",
     },
   },
   {
