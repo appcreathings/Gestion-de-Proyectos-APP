@@ -60,12 +60,12 @@
     "semantic_hash": ""
   },
   "src/ai/gemini/systemPrompt.test.ts": {
-    "mtime": 1791943556.6623433,
+    "mtime": 1791947223.2161262,
     "ast_hash": "16d7256a28d1aeeac1072c68b3def175",
     "semantic_hash": ""
   },
   "src/ai/gemini/systemPrompt.ts": {
-    "mtime": 1791943556.6301847,
+    "mtime": 1791947223.2161262,
     "ast_hash": "fa4457aacbc424f47ac7616ded805dd4",
     "semantic_hash": ""
   },
@@ -220,7 +220,7 @@
     "semantic_hash": ""
   },
   "src/ai/tools/read/workspace.ts": {
-    "mtime": 1791943556.704802,
+    "mtime": 1791947223.2181263,
     "ast_hash": "7f2ad9453a531f51913fb61e652204d6",
     "semantic_hash": ""
   },
@@ -340,7 +340,7 @@
     "semantic_hash": ""
   },
   "src/automations/temporal.test.ts": {
-    "mtime": 1791943566.5362458,
+    "mtime": 1791947223.2191253,
     "ast_hash": "833ca89b17b512f860b423928fcbda1e",
     "semantic_hash": ""
   },
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/ProjectTree.tsx": {
-    "mtime": 1791946627.1751156,
-    "ast_hash": "8cd85be815b2cdafd77e2e6e753e6e1c",
+    "mtime": 1791953663.790756,
+    "ast_hash": "d35fd15883395dd7cbf3a338f048014b",
     "semantic_hash": ""
   },
   "src/components/layout/WorkspaceStatus.tsx": {
@@ -615,7 +615,7 @@
     "semantic_hash": ""
   },
   "src/domain/health.test.ts": {
-    "mtime": 1791943566.412914,
+    "mtime": 1791947223.21963,
     "ast_hash": "7df5db521982ccd07b79d4344e1ed7d9",
     "semantic_hash": ""
   },
@@ -635,12 +635,12 @@
     "semantic_hash": ""
   },
   "src/domain/migrations.test.ts": {
-    "mtime": 1791943502.1784153,
+    "mtime": 1791947223.2206366,
     "ast_hash": "d9227752527b69f14f86dba374148be6",
     "semantic_hash": ""
   },
   "src/domain/migrations.ts": {
-    "mtime": 1791943538.769742,
+    "mtime": 1791947223.2206366,
     "ast_hash": "bba752a344bcd7017f68f018bda44fb5",
     "semantic_hash": ""
   },
@@ -670,7 +670,7 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/common.ts": {
-    "mtime": 1791943532.4030433,
+    "mtime": 1791947223.2216372,
     "ast_hash": "d6415c92d7df5336148267a03afbae16",
     "semantic_hash": ""
   },
@@ -715,7 +715,7 @@
     "semantic_hash": ""
   },
   "src/domain/schemas/workspace.ts": {
-    "mtime": 1791943532.4505048,
+    "mtime": 1791947223.2226377,
     "ast_hash": "a8ee75bd009bc7383633c33aa576f25f",
     "semantic_hash": ""
   },
@@ -785,8 +785,8 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles-index.ts": {
-    "mtime": 1789174672.6535494,
-    "ast_hash": "4f4dfd531a011c8b5081767bafdd8c7f",
+    "mtime": 1792116669.0913758,
+    "ast_hash": "4d2bf8096d444be7c878e5a53c0f16a9",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/alternativas-a-notion.tsx": {
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/index.ts": {
-    "mtime": 1789174683.291098,
-    "ast_hash": "f90b957dc1c5ea0511d46476e462b112",
+    "mtime": 1792116669.0913758,
+    "ast_hash": "6b6d9e24beabc332bc0c12b530883477",
     "semantic_hash": ""
   },
   "src/features/blog/data/articles/local-first-guia-definitiva-2026.tsx": {
@@ -3305,7 +3305,7 @@
     "semantic_hash": ""
   },
   "src/ai/keys-never-exported.test.ts": {
-    "mtime": 1791943488.2495365,
+    "mtime": 1791947223.2171254,
     "ast_hash": "525af35e943b84e374d95502d3dd7b92",
     "semantic_hash": ""
   },
@@ -3780,7 +3780,7 @@
     "semantic_hash": ""
   },
   "src/features/reports/statusReport.test.ts": {
-    "mtime": 1791943556.744655,
+    "mtime": 1791947223.226357,
     "ast_hash": "48c9c5962f84beee7b99fa023b540863",
     "semantic_hash": ""
   },
@@ -4270,7 +4270,7 @@
     "semantic_hash": ""
   },
   "src/features/projects/filterProjects.test.ts": {
-    "mtime": 1791943566.450885,
+    "mtime": 1791947223.2258265,
     "ast_hash": "41acfe27e033a9ed17544bda5de4861b",
     "semantic_hash": ""
   },
@@ -4425,7 +4425,7 @@
     "semantic_hash": ""
   },
   "src/features/dashboard/portfolio.test.ts": {
-    "mtime": 1791943566.4920852,
+    "mtime": 1791947223.2253225,
     "ast_hash": "2c063b4ca141f75b239f3b46154e0395",
     "semantic_hash": ""
   },
@@ -4950,7 +4950,7 @@
     "semantic_hash": ""
   },
   "src/features/board/BoardPage.tsx": {
-    "mtime": 1791943870.577413,
+    "mtime": 1791947223.2226377,
     "ast_hash": "b6f04acc0c28f67ed935386df815c225",
     "semantic_hash": ""
   },
@@ -4960,12 +4960,12 @@
     "semantic_hash": ""
   },
   "src/features/board/boardQuery.test.ts": {
-    "mtime": 1791943835.7220006,
+    "mtime": 1791947223.2237525,
     "ast_hash": "4df8711cb44261692ddf7a9d04c292ce",
     "semantic_hash": ""
   },
   "src/features/board/boardQuery.ts": {
-    "mtime": 1791943863.2415993,
+    "mtime": 1791947223.2237525,
     "ast_hash": "2e90bfbb0e64073ba40dbafe107b5048",
     "semantic_hash": ""
   },
@@ -4995,28 +4995,43 @@
     "semantic_hash": ""
   },
   "specs/076-orden-productos-barra/PROMPT-EJECUCION.md": {
-    "mtime": 1791943005.1178257,
-    "ast_hash": "212326017c178622f2e70e683c97c244",
+    "mtime": 1791947223.2131183,
+    "ast_hash": "7e29bdbab794358c1006b2429bf5c60d",
     "semantic_hash": ""
   },
   "specs/076-orden-productos-barra/design.md": {
-    "mtime": 1791946627.0572088,
-    "ast_hash": "bfd5ad8c309f209a21ab5701b32056d1",
+    "mtime": 1791954513.8638556,
+    "ast_hash": "3cc7da8e117852c6e18e8ba6b8fdd155",
     "semantic_hash": ""
   },
   "specs/076-orden-productos-barra/smoke.md": {
-    "mtime": 1791943037.6001878,
-    "ast_hash": "bdda2583825aa12dfa727f03e191808d",
+    "mtime": 1791947223.2141266,
+    "ast_hash": "4f946c23675ec9a69b0fb5faeb9ca651",
     "semantic_hash": ""
   },
   "specs/076-orden-productos-barra/spec.md": {
-    "mtime": 1791944906.3417366,
-    "ast_hash": "e3713ca3af2bd766b8596e7502d2892c",
+    "mtime": 1791947223.2141266,
+    "ast_hash": "6b1dcf88213f2a44d5e9a967874e2f57",
     "semantic_hash": ""
   },
   "specs/076-orden-productos-barra/tasks.md": {
-    "mtime": 1791944831.4362776,
-    "ast_hash": "e614cfc32fca0ec353db0601ecad3097",
+    "mtime": 1791947223.2151258,
+    "ast_hash": "f5c810bf92414113fb3be4ec16302cd3",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/cronograma-de-actividades.tsx": {
+    "mtime": 1792116719.2066853,
+    "ast_hash": "96f5eda7eaed417b2eeef37cbce25e2f",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/microsoft-project-para-que-sirve.tsx": {
+    "mtime": 1792116654.8057196,
+    "ast_hash": "401bc413bb76932da3618b533391c7f9",
+    "semantic_hash": ""
+  },
+  "src/features/blog/data/articles/openproject.tsx": {
+    "mtime": 1792116654.8067186,
+    "ast_hash": "df564c34e5668228a83872174abbfa0b",
     "semantic_hash": ""
   }
 }
