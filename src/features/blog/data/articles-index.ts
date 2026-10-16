@@ -2614,6 +2614,78 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       ogImageAlt: "Plantilla de acta de cierre de proyecto con sus siete secciones.",
     },
   },
+  {
+    slug: "cronograma-de-actividades",
+    title: "Cronograma de actividades: ejemplo y cómo hacerlo",
+    excerpt:
+      "Un cronograma de actividades es la tabla de qué se hace, en qué orden y con qué dueño. Incluye un ejemplo, los 6 pasos para armarlo y cuándo el Gantt sobra.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-15",
+    readingTime: "10 min",
+    featured: false,
+    pillar: "diagrama-de-gantt",
+    related: [
+      "diagrama-de-gantt",
+      "plantilla-cronograma-proyecto",
+      "cronograma-de-hitos",
+      "plan-de-trabajo",
+    ],
+    seo: {
+      title: "Cronograma de actividades: ejemplo y cómo hacerlo | Hito",
+      description:
+        "Cronograma de actividades: qué incluye, un ejemplo con fechas y dueños, y cómo hacerlo en 6 pasos. En qué se diferencia del diagrama de Gantt.",
+      ogImageAlt: "Tabla de cronograma de actividades con fechas, dueños y dependencias.",
+    },
+  },
+  {
+    slug: "microsoft-project-para-que-sirve",
+    title: "Microsoft Project para qué sirve (y cuándo no)",
+    excerpt:
+      "Microsoft Project sirve para un plan con dependencias, recursos y ruta crítica. No es una lista de tareas ni un tablero. Cuándo te hace falta y cuándo sobra.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-15",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "alternativa-a-ms-project",
+    related: [
+      "alternativa-a-ms-project",
+      "hito-en-ms-project",
+      "diagrama-de-gantt",
+      "cronograma-de-actividades",
+    ],
+    seo: {
+      title: "Microsoft Project para qué sirve | Hito",
+      description:
+        "Microsoft Project para qué sirve: dependencias, recursos y ruta crítica. Cuándo te alcanza, cuándo sobra y en qué no reemplaza a un tablero.",
+      ogImageAlt: "Plan de Microsoft Project con dependencias, recursos y ruta crítica.",
+    },
+  },
+  {
+    slug: "openproject",
+    title: "OpenProject: qué es y cuándo usarlo",
+    excerpt:
+      "OpenProject es un gestor de código abierto con Gantt, tableros y costos. Cuándo conviene la edición Community, qué exige el servidor y frente a qué no compite.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-15",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "alternativa-a-ms-project",
+    related: [
+      "alternativa-a-ms-project",
+      "microsoft-project-para-que-sirve",
+      "gestion-proyectos-sin-nube",
+      "software-gestion-proyectos",
+    ],
+    seo: {
+      title: "OpenProject: qué es y cuándo usarlo | Hito",
+      description:
+        "Qué es OpenProject, qué trae la edición Community y cuándo conviene frente a Microsoft Project o un gestor local. Sin servidor, no arranca.",
+      ogImageAlt: "OpenProject como gestor de proyectos de código abierto, con Gantt y tableros.",
+    },
+  },
 ];
 
 export const BLOG_ARTICLES_META: BlogArticleMeta[] = RAW_ARTICLES.map((a) => ({

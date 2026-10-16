@@ -130,6 +130,9 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "plan-de-contingencia": () => import("./plan-de-contingencia"),
   "gestion-de-la-calidad-proyecto": () => import("./gestion-de-la-calidad-proyecto"),
   "acta-de-cierre-proyecto": () => import("./acta-de-cierre-proyecto"),
+  "cronograma-de-actividades": () => import("./cronograma-de-actividades"),
+  "microsoft-project-para-que-sirve": () => import("./microsoft-project-para-que-sirve"),
+  openproject: () => import("./openproject"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {
