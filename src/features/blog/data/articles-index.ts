@@ -1714,13 +1714,13 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   // → calendario) entra con el segundo lote. Ver ROADMAP_BLOG.md.
   {
     slug: "tablero-kanban",
-    title: "Tablero kanban: qué es, columnas y cómo usarlo",
+    title: "Tablero kanban: qué es, ejemplo y cómo usarlo",
     excerpt:
-      "Qué es un tablero kanban, qué columnas tiene, qué lleva cada tarjeta y por qué sin límite de trabajo en curso es solo una lista tumbada. Cómo usarlo desde el lunes.",
+      "Qué es un tablero kanban, con un ejemplo de tarjetas en sus columnas, y por qué sin límite de trabajo en curso es solo una lista tumbada.",
     category: "gestion-proyectos",
     categoryLabel: "Gestión de proyectos",
     publishedAt: "2026-08-29",
-    readingTime: "10 min",
+    readingTime: "11 min",
     featured: true,
     related: [
       "como-hacer-tablero-kanban",
@@ -1730,9 +1730,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "dependencias-entre-tareas",
     ],
     seo: {
-      title: "Tablero kanban: qué es y cómo usarlo | Hito",
+      title: "Tablero kanban: qué es, ejemplo y cómo usarlo | Hito",
       description:
-        "Qué es un tablero kanban, qué columnas tiene, qué va en cada tarjeta y cómo usarlo día a día. La guía práctica, sin jerga, para equipos pequeños.",
+        "Qué es un tablero kanban, con un ejemplo de tarjetas en sus columnas, y cómo usarlo día a día. Para equipos pequeños.",
       ogImageAlt: "Tablero kanban con columnas Por hacer, En curso, Revisión y Hecho.",
     },
   },

@@ -4,13 +4,13 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "tablero-kanban",
-  title: "Tablero kanban: qué es, columnas y cómo usarlo",
+  title: "Tablero kanban: qué es, ejemplo y cómo usarlo",
   excerpt:
-    "Qué es un tablero kanban, qué columnas tiene, qué lleva cada tarjeta y por qué sin límite de trabajo en curso es solo una lista tumbada. Cómo usarlo desde el lunes.",
+    "Qué es un tablero kanban, con un ejemplo de tarjetas en sus columnas, y por qué sin límite de trabajo en curso es solo una lista tumbada.",
   category: "gestion-proyectos",
   categoryLabel: "Gestión de proyectos",
   publishedAt: "2026-08-29",
-  readingTime: "10 min",
+  readingTime: "11 min",
   featured: true,
   author: DEFAULT_AUTHOR,
   related: [
@@ -21,9 +21,9 @@ export const article: BlogArticle = {
     "dependencias-entre-tareas",
   ],
   seo: {
-    title: "Tablero kanban: qué es y cómo usarlo | Hito",
+    title: "Tablero kanban: qué es, ejemplo y cómo usarlo | Hito",
     description:
-      "Qué es un tablero kanban, qué columnas tiene, qué va en cada tarjeta y cómo usarlo día a día. La guía práctica, sin jerga, para equipos pequeños.",
+      "Qué es un tablero kanban, con un ejemplo de tarjetas en sus columnas, y cómo usarlo día a día. Para equipos pequeños.",
     ogImageAlt: "Tablero kanban con columnas Por hacer, En curso, Revisión y Hecho.",
   },
   content: {
@@ -185,6 +185,61 @@ export const article: BlogArticle = {
                 className="underline underline-offset-2"
               >
                 Dependencias entre tareas
+              </Link>
+              .
+            </p>
+          </>
+        ),
+      },
+      {
+        heading: "Ejemplo de tablero kanban",
+        body: (
+          <>
+            <p>
+              Un ejemplo de tablero kanban cabe en una foto de un martes. Estudio de tres
+              personas. El límite de «En curso» es 2.
+            </p>
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border/60 text-left">
+                  <th className="py-2 pr-4 font-semibold">Columna</th>
+                  <th className="py-2 font-semibold">Tarjetas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border/40">
+                  <td className="py-2 pr-4 font-medium">Por hacer</td>
+                  <td className="py-2 text-muted-foreground">
+                    Publicar la ficha del curso (Ana) · Responder el brief del cliente B (Luis).
+                  </td>
+                </tr>
+                <tr className="border-b border-border/40">
+                  <td className="py-2 pr-4 font-medium">En curso</td>
+                  <td className="py-2 text-muted-foreground">Maquetar la home (Sol).</td>
+                </tr>
+                <tr className="border-b border-border/40">
+                  <td className="py-2 pr-4 font-medium">Revisión</td>
+                  <td className="py-2 text-muted-foreground">
+                    Textos de la home, esperando al cliente (Ana).
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4 font-medium">Hecho</td>
+                  <td className="py-2 text-muted-foreground">Sitemap aprobado. Se archiva el viernes.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              Hay lugar en «En curso» para otra tarjeta. El movimiento útil no es tomarla. Ana
+              ya entregó los textos y el cliente no respondió: esa tarjeta de Revisión es el
+              cuello de botella. Empujar «Publicar la ficha» deja dos frentes abiertos y el
+              mismo texto trabado. Una pizarra kanban en la pared o un tablero kanban online
+              muestran esta misma foto. Cambia el soporte, no las columnas ni la regla.
+            </p>
+            <p>
+              Tres ejemplos más largos, por tipo de equipo, están en{" "}
+              <Link to="/blogs/como-hacer-tablero-kanban" className="underline underline-offset-2">
+                cómo hacer un tablero kanban
               </Link>
               .
             </p>
@@ -444,6 +499,11 @@ export const article: BlogArticle = {
         question: "¿Qué va en cada tarjeta de un tablero kanban?",
         answer:
           "Un verbo con resultado (“redactar propuesta para X”), un único responsable, fecha solo si existe de verdad y, cuando el trabajo no es obvio, el criterio de ‘hecho’. Lo que no pertenece a una tarjeta: ideas sin compromiso ni contexto de tres párrafos; eso vive en el backlog o en una historia de usuario bien cortada.",
+      },
+      {
+        question: "¿Cómo es un ejemplo de tablero kanban?",
+        answer:
+          "Cuatro columnas y pocas tarjetas. Por hacer: lo próximo, con un nombre. En curso: una o dos tarjetas por persona, con un tope. Revisión: lo que ya se entregó y espera a alguien más. Hecho: lo cerrado, que se archiva. Si En curso tiene lugar y Revisión está trabada, el movimiento útil es destrabar, no empezar otra tarjeta.",
       },
       {
         question: "¿Cuántas columnas debe tener un tablero kanban?",
