@@ -4,9 +4,9 @@ import { DEFAULT_AUTHOR } from "../articles-index";
 
 export const article: BlogArticle = {
   slug: "scrum-vs-kanban",
-  title: "Kanban vs Scrum: diferencias reales y cuál elegir",
+  title: "Scrum vs Kanban: diferencias reales y cuál elegir",
   excerpt:
-    "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para decidir cuál conviene a tu equipo.",
+    "Scrum vs Kanban: no es una pelea de sucesor. Comparativa de roles, ritmo y flujo para decidir cuál conviene a tu equipo.",
   category: "gestion-proyectos",
   categoryLabel: "Gestión de proyectos",
   publishedAt: "2026-11-09",
@@ -19,16 +19,16 @@ export const article: BlogArticle = {
   pillar: "gestion-de-proyectos-guia-completa",
   related: ["fases-de-un-proyecto", "matriz-raci", "kanban-limites-wip"],
   seo: {
-    title: "Kanban vs Scrum (y Scrum vs Kanban): cuál elegir | Hito",
+    title: "Scrum vs Kanban: diferencias reales y cuál elegir | Hito",
     description:
-      "Kanban vs Scrum y Scrum vs Kanban: diferencias de roles, ritmo y flujo. También Kanban y Scrum juntos, para decidir cuál le conviene a tu equipo.",
-    ogImageAlt: "Kanban vs Scrum: comparativa de roles, ritmo y flujo.",
+      "Scrum vs Kanban: diferencias de roles, ritmo y flujo. Cuál elegir si el trabajo llega en lotes o de forma impredecible, y cuándo usar los dos.",
+    ogImageAlt: "Scrum vs Kanban: comparativa de roles, ritmo y flujo.",
   },
   content: {
     eyebrow: "Gestión de proyectos",
     intro: (
       <>
-        <strong>En una línea:</strong> Kanban vs Scrum no es una pelea de sucesor. Scrum organiza
+        <strong>En una línea:</strong> Scrum vs Kanban no es una pelea de sucesor. Scrum organiza
         el trabajo en ciclos fijos (sprints) con roles y reuniones definidas, pensado para
         equipos que planifican qué van a entregar cada 2-4 semanas. Kanban organiza el trabajo
         como un flujo continuo con límites de tareas en curso, pensado para equipos que reciben
@@ -84,9 +84,13 @@ export const article: BlogArticle = {
         ),
       },
       {
-        heading: "Comparativa lado a lado",
+        heading: "Scrum vs Kanban, lado a lado",
         body: (
           <>
+            <p>
+              La misma tabla sirve si llegaste buscando Kanban vs Scrum. El orden de las
+              palabras no cambia la diferencia.
+            </p>
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border/60 text-left">
@@ -172,7 +176,7 @@ export const article: BlogArticle = {
     ],
     faq: [
       {
-        question: "¿Kanban vs Scrum: cuál elegir?",
+        question: "¿Scrum vs Kanban: cuál elegir?",
         answer:
           "Depende de cómo llega el trabajo. Elige Scrum si puedes planificar entregas en bloques de 2-4 semanas. Elige Kanban si el trabajo llega de forma impredecible (soporte, operaciones, pedidos de varias áreas). Si tu equipo quiere un poco de ambos, un híbrido suele funcionar mejor que forzar uno solo.",
       },
@@ -182,7 +186,7 @@ export const article: BlogArticle = {
           "Kanban y Scrum son dos formas de organizar el trabajo en equipo. Scrum usa sprints, roles y un compromiso cerrado por ciclo. Kanban usa un flujo continuo y un límite de trabajo en curso. No son enemigos: resuelven problemas distintos.",
       },
       {
-        question: "¿Kanban vs. Scrum, en qué se diferencian?",
+        question: "¿Scrum vs Kanban, en qué se diferencian?",
         answer:
           "La diferencia central es el ritmo: Scrum trabaja por sprints fijos y evita cambios a mitad de ciclo; Kanban acepta trabajo nuevo en cualquier momento, con un tope de tareas en curso. También cambian los roles (obligatorios en Scrum, opcionales en Kanban) y la métrica clave (velocidad vs tiempo de ciclo).",
       },

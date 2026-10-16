@@ -460,9 +460,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   {
   // Cuelga del pilar del cluster "Metodologías" (ver ROADMAP_BLOG.md)
   slug: "scrum-vs-kanban",
-  title: "Kanban vs Scrum: diferencias reales y cuál elegir",
+  title: "Scrum vs Kanban: diferencias reales y cuál elegir",
   excerpt:
-    "Scrum y Kanban resuelven problemas distintos. Comparativa honesta de roles, ritmo y control de flujo para decidir cuál conviene a tu equipo.",
+    "Scrum vs Kanban: no es una pelea de sucesor. Comparativa de roles, ritmo y flujo para decidir cuál conviene a tu equipo.",
   category: "gestion-proyectos",
   categoryLabel: "Gestión de proyectos",
   publishedAt: "2026-11-09",
@@ -471,10 +471,10 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   pillar: "metodologias-gestion-proyectos",
     related: ["scrumban", "kanban-limites-wip", "tablero-kanban"],
     seo: {
-      title: "Kanban vs Scrum (y Scrum vs Kanban): cuál elegir | Hito",
+      title: "Scrum vs Kanban: diferencias reales y cuál elegir | Hito",
       description:
-        "Kanban vs Scrum y Scrum vs Kanban: diferencias de roles, ritmo y flujo. También Kanban y Scrum juntos, para decidir cuál le conviene a tu equipo.",
-      ogImageAlt: "Kanban vs Scrum: comparativa de roles, ritmo y flujo.",
+        "Scrum vs Kanban: diferencias de roles, ritmo y flujo. Cuál elegir si el trabajo llega en lotes o de forma impredecible, y cuándo usar los dos.",
+      ogImageAlt: "Scrum vs Kanban: comparativa de roles, ritmo y flujo.",
     },
   },
   {
