@@ -2,27 +2,26 @@ import type { BlogArticle } from "../../types";
 
 export const article: BlogArticle = {
   slug: "que-es-un-hito-gestion-proyectos",
-  title: "Qué es un hito en gestión de proyectos: definición y ejemplos prácticos",
+  title: "Qué es un hito en un proyecto: definición y ejemplos",
   excerpt:
-    "Un hito marca un punto de control clave en cualquier proyecto. Aprendé a definirlos, diferenciarlos de las tareas y usarlos para avanzar con claridad.",
+    "Qué es un hito en un proyecto: un punto de control, no una tarea ni una fecha. Cómo definirlo y en qué se diferencia de un entregable.",
   category: "productividad",
   categoryLabel: "Productividad",
   publishedAt: "2026-08-08",
   readingTime: "6 min",
   featured: false,
   seo: {
-    title: "Qué es un hito en gestión de proyectos: guía práctica — Hito",
+    title: "Qué es un hito en un proyecto: ejemplos | Hito",
     description:
-      "Un hito en gestión de proyectos marca un punto de control clave. Aprendé a definirlos, diferenciarlos de las tareas y usarlos para avanzar con claridad.",
+      "Qué es un hito en un proyecto: un punto de control, no una tarea ni una fecha. Cómo definirlo y en qué se diferencia de un entregable.",
     ogImageAlt: "Definición de hito en gestión de proyectos.",
   },
   content: {
     eyebrow: "Productividad",
     intro: (
       <>
-        Si alguna vez planificaste un proyecto, seguro escuchaste la palabra{" "}
-        <strong>hito</strong>. Pero ¿qué es exactamente? No es una tarea, no es una fecha en el
-        calendario y no es un entregable cualquiera. Un hito es algo más específico: un{" "}
+        <strong>Qué es un hito en un proyecto:</strong> no es una tarea, no es una fecha en el
+        calendario y no es un entregable cualquiera. Es un{" "}
         <em>punto de control</em> que te dice si vas bien encaminado. La palabra viene del latín{" "}
         <em>hitus</em>, pero su origen más concreto está en los mojones de piedra que marcaban
         los caminos: señales que te decían dónde estabas y cuánto faltaba para llegar. En

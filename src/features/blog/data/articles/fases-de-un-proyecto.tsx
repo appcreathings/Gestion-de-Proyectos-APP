@@ -22,7 +22,7 @@ export const article: BlogArticle = {
   seo: {
     title: "Fases de un proyecto: las 5 etapas, con ejemplos | Hito",
     description:
-      "Las fases de un proyecto (y cada etapa de un proyecto): inicio, planificación, ejecución, seguimiento y cierre, con un ejemplo real.",
+      "Fases de un proyecto, sus etapas y el ciclo de vida: inicio, planificación, ejecución, seguimiento y cierre, con un ejemplo.",
     ogImageAlt: "Las 5 fases de un proyecto explicadas con ejemplos.",
   },
   content: {
@@ -31,7 +31,8 @@ export const article: BlogArticle = {
       <>
         <strong>En una línea:</strong> las fases de un proyecto son cinco — inicio, planificación,
         ejecución, seguimiento y cierre — en ese orden, sin importar si usas Scrum, cascada o una
-        hoja de cálculo. Fusionar dos fases sin querer (por ejemplo, empezar a ejecutar sin haber
+        hoja de cálculo. A esas cinco también se las llama etapas de un proyecto, o el ciclo de
+        vida de un proyecto. Fusionar dos fases sin querer (por ejemplo, empezar a ejecutar sin haber
         planificado) es la causa más común de atrasos. Acá van las cinco, con un ejemplo real de
         principio a fin: renovar el sitio web de una empresa pequeña.
       </>

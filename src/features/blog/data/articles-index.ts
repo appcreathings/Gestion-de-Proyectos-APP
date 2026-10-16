@@ -99,9 +99,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "que-es-un-hito-gestion-proyectos",
-    title: "Qué es un hito en gestión de proyectos: definición y ejemplos prácticos",
+    title: "Qué es un hito en un proyecto: definición y ejemplos",
     excerpt:
-      "Un hito marca un punto de control clave en cualquier proyecto. Aprendé a definirlos, diferenciarlos de las tareas y usarlos para avanzar con claridad.",
+      "Qué es un hito en un proyecto: un punto de control, no una tarea ni una fecha. Cómo definirlo y en qué se diferencia de un entregable.",
     category: "productividad",
     categoryLabel: "Productividad",
     publishedAt: "2026-08-08",
@@ -114,9 +114,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       "hito-project-gestion-por-hitos",
     ],
     seo: {
-      title: "Qué es un hito en gestión de proyectos: guía práctica — Hito",
+      title: "Qué es un hito en un proyecto: ejemplos | Hito",
       description:
-        "Un hito en gestión de proyectos marca un punto de control clave. Aprendé a definirlos, diferenciarlos de las tareas y usarlos para avanzar con claridad.",
+        "Qué es un hito en un proyecto: un punto de control, no una tarea ni una fecha. Cómo definirlo y en qué se diferencia de un entregable.",
       ogImageAlt: "Definición de hito en gestión de proyectos.",
     },
   },
@@ -411,7 +411,7 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     seo: {
       title: "Fases de un proyecto: las 5 etapas, con ejemplos | Hito",
       description:
-        "Las fases de un proyecto (y cada etapa de un proyecto): inicio, planificación, ejecución, seguimiento y cierre, con un ejemplo real.",
+        "Fases de un proyecto, sus etapas y el ciclo de vida: inicio, planificación, ejecución, seguimiento y cierre, con un ejemplo.",
       ogImageAlt: "Las 5 fases de un proyecto explicadas con ejemplos.",
     },
   },
@@ -479,9 +479,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
   },
   {
     slug: "alcance-de-proyecto-scope-creep",
-    title: "Scope creep: qué es (corrupción del alcance) y cómo evitarlo",
+    title: "Alcance de un proyecto: qué es y cómo evitar el scope creep",
     excerpt:
-      "Qué es el alcance de un proyecto, cómo documentarlo y las 4 señales de scope creep antes de que se coma tu cronograma.",
+      "Alcance de un proyecto: la línea entre lo que se entrega y lo que no. Qué es el scope creep y las 4 señales antes de que se coma el cronograma.",
     category: "gestion-proyectos",
     categoryLabel: "Gestión de proyectos",
     publishedAt: "2026-11-16",
@@ -490,9 +490,9 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     pillar: "gestion-de-proyectos-guia-completa",
     related: ["control-de-cambios-proyecto", "matriz-raci", "fases-de-un-proyecto"],
     seo: {
-      title: "Scope creep: qué es (corrupción del alcance) | Hito",
+      title: "Alcance de un proyecto: qué es el scope creep | Hito",
       description:
-        "Qué es el scope creep en español (corrupción del alcance), cómo documentarlo y las 4 señales antes de que se coma el cronograma de tu proyecto.",
+        "Alcance de un proyecto: la línea entre lo que se entrega y lo que no. Qué es el scope creep y las 4 señales antes de que se coma el cronograma.",
       ogImageAlt: "Alcance de proyecto y cómo evitar el scope creep.",
     },
   },
