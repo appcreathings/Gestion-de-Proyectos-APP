@@ -1,6 +1,6 @@
 # Spec 077 — Gantt de proyectos: lo hecho y lo que viene
 
-> Estado: **BORRADOR** (rama a crear: `feat/077-gantt-proyectos`)
+> Estado: **IMPLEMENTADO** (rama: `feat/077-gantt-proyectos`)
 > Feature dir: `specs/077-gantt-proyectos/` · Fecha: 2026-10-16
 > Baseline al empezar: `SCHEMA_VERSION` **26** → **27**
 > Depende de: 015 (archivo de tareas), 053 (calendario y helpers `buildCalendarItems`, `lib/dates`), 061 (URL como fuente de verdad + memoria del último query), 065 (`taskUrgency`), 073 (solo `status === "done"` cierra una tarea), 075 (chips de producto/proyecto, `boardProjectRank`, `canonicalBoardSearch`)
