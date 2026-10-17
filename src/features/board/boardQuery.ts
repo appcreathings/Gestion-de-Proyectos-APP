@@ -185,9 +185,13 @@ export function boardProjectRank(
   projects: readonly Project[],
   sidebarOrder: Readonly<Record<string, string[]>>,
   productOrder: readonly string[] = [],
+  options: { includeDone?: boolean } = {},
 ): Map<string, number> {
   const rank = new Map<string, number>();
-  const open = projects.filter((p) => p.status !== "done" && p.status !== "archived");
+  // `includeDone` lo usa el Gantt (077 D14): los cerrados conservan su puesto.
+  const open = projects.filter(
+    (p) => p.status !== "archived" && (options.includeDone || p.status !== "done"),
+  );
   let next = 0;
 
   const groups: { id: string; projects: Project[] }[] = orderProjects(products, productOrder).map(
