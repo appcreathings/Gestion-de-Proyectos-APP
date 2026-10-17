@@ -47,6 +47,71 @@ describe("stampTaskCompletions", () => {
     expect(out.tasks[0].completedAt).toBeNull();
   });
 
+  it("keeps the stored close date when a stale copy arrives", () => {
+    const t = task({ status: "done", completedAt: "2026-01-02T10:00:00.000Z" });
+    const stale = { ...t, completedAt: null, title: "X" };
+    const out = stampTaskCompletions(proj([t]), proj([stale]), NOW);
+    expect(out.tasks[0].completedAt).toBe("2026-01-02T10:00:00.000Z");
+    expect(out.tasks[0].completedAtEstimated).toBe(false);
+    expect(out.tasks[0].title).toBe("X");
+  });
+
+  it("keeps the stored estimated flag too", () => {
+    const t = task({
+      status: "done",
+      completedAt: "2026-01-02T10:00:00.000Z",
+      completedAtEstimated: true,
+    });
+    const stale = { ...t, completedAt: null, completedAtEstimated: false };
+    const out = stampTaskCompletions(proj([t]), proj([stale]), NOW);
+    expect(out.tasks[0].completedAt).toBe("2026-01-02T10:00:00.000Z");
+    expect(out.tasks[0].completedAtEstimated).toBe(true);
+  });
+
+  it("keeps a non-null incoming date on a done task as sent", () => {
+    const t = task({ status: "done", completedAt: "2026-01-02T10:00:00.000Z" });
+    const edited = { ...t, completedAt: "2026-03-04T10:00:00.000Z" };
+    const out = stampTaskCompletions(proj([t]), proj([edited]), NOW);
+    expect(out.tasks[0].completedAt).toBe("2026-03-04T10:00:00.000Z");
+  });
+
+  it("trustIncoming keeps the close date of a task entering done", () => {
+    const t = task({ status: "doing" });
+    const remote = {
+      ...t,
+      status: "done" as const,
+      completedAt: "2026-01-02T10:00:00.000Z",
+      completedAtEstimated: true,
+    };
+    const out = stampTaskCompletions(proj([t]), proj([remote]), NOW, {
+      trustIncoming: true,
+    });
+    expect(out.tasks[0].completedAt).toBe("2026-01-02T10:00:00.000Z");
+    expect(out.tasks[0].completedAtEstimated).toBe(true);
+  });
+
+  it("trustIncoming still stamps now when the incoming date is null", () => {
+    const t = task({ status: "doing" });
+    const remote = { ...t, status: "done" as const, completedAt: null };
+    const out = stampTaskCompletions(proj([t]), proj([remote]), NOW, {
+      trustIncoming: true,
+    });
+    expect(out.tasks[0].completedAt).toBe(NOW);
+  });
+
+  it("without trustIncoming a re-close gets now (HU-02)", () => {
+    const t = task({ status: "doing" });
+    const reclosed = {
+      ...t,
+      status: "done" as const,
+      completedAt: "2026-01-02T10:00:00.000Z",
+      completedAtEstimated: true,
+    };
+    const out = stampTaskCompletions(proj([t]), proj([reclosed]), NOW);
+    expect(out.tasks[0].completedAt).toBe(NOW);
+    expect(out.tasks[0].completedAtEstimated).toBe(false);
+  });
+
   it("clears the close date when a task leaves done", () => {
     const t = task({
       status: "done",
@@ -114,6 +179,20 @@ describe("completionDay", () => {
       updatedAt: new Date(2026, 4, 3, 10, 0).toISOString(),
     });
     expect(completionDay(t)).toEqual({ day: "2026-05-03", estimated: true });
+  });
+
+  it("falls back to updatedAt when completedAt is invalid", () => {
+    const t = task({
+      status: "done",
+      completedAt: "no-es-fecha",
+      updatedAt: new Date(2026, 4, 3, 10, 0).toISOString(),
+    });
+    expect(completionDay(t)).toEqual({ day: "2026-05-03", estimated: true });
+  });
+
+  it("returns null when both dates are invalid", () => {
+    const t = task({ status: "done", completedAt: "basura", updatedAt: "basura" });
+    expect(completionDay(t)).toBeNull();
   });
 
   it("returns null for a pending task", () => {

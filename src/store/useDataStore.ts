@@ -33,6 +33,12 @@ import {
   withAttachments,
 } from "@/domain/attachments/ops";
 
+/** Opciones de `saveProject` (spec 077). */
+export interface SaveProjectOptions {
+  /** Pull de GitHub: el cierre entrante viene de otro dispositivo y se respeta. */
+  trustIncomingCompletions?: boolean;
+}
+
 interface DataState {
   hydrated: boolean;
   products: Product[];
@@ -67,7 +73,9 @@ interface DataState {
   deleteProduct: (id: string) => Promise<void>;
 
   createProject: (p: Project) => Promise<void>;
-  saveProject: (p: Project) => Promise<void>;
+  /** `trustIncomingCompletions`: solo para pulls de GitHub (spec 077) — conserva
+   * el `completedAt` entrante de tareas que entran a done. */
+  saveProject: (p: Project, options?: SaveProjectOptions) => Promise<void>;
   mutateProject: (id: string, recipe: (p: Project) => Project) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   createProjectFromType: (
@@ -277,9 +285,11 @@ export const useDataStore = create<DataState>((set, get) => ({
     await logActivity(events, p);
     await runAutomations(events);
   },
-  async saveProject(p) {
+  async saveProject(p, options) {
     const prev = get().projects.find((x) => x.id === p.id);
-    await persistProject(p);
+    await persistProject(p, {
+      trustIncomingCompletions: options?.trustIncomingCompletions,
+    });
     if (prev) {
       // Cascada: áreas / procesos / tareas eliminadas pierden su árbol de blobs.
       const prefixes = removedSubtreePrefixes(prev, p);
@@ -732,11 +742,14 @@ async function applyAttachmentList(
 /** Low-level project write (no automations) used by saves and engine effects. */
 async function persistProject(
   p: Project,
-  options?: { alreadyTriggeredAutomations?: boolean },
+  options?: { alreadyTriggeredAutomations?: boolean; trustIncomingCompletions?: boolean },
 ) {
   const s = useDataStore.getState();
+  const { trustIncomingCompletions, ...persistOptions } = options ?? {};
   // Spec 077 D5: único punto de estampado de cierres (saves, flujos, automatizaciones).
-  p = stampTaskCompletions(s.projects.find((x) => x.id === p.id) ?? null, p, nowIso());
+  p = stampTaskCompletions(s.projects.find((x) => x.id === p.id) ?? null, p, nowIso(), {
+    trustIncoming: trustIncomingCompletions,
+  });
   const prev = s.projects;
   const next = prev.some((x) => x.id === p.id)
     ? prev.map((x) => (x.id === p.id ? p : x))
@@ -751,7 +764,7 @@ async function persistProject(
       await adapter().write("projects", p);
       await reindex();
     },
-    options,
+    persistOptions,
   );
 }
 

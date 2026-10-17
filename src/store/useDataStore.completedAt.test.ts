@@ -120,4 +120,44 @@ describe("persistProject stamps completions (spec 077 D5)", () => {
     expect(typeof stored().completedAt).toBe("string");
     expect(typeof lastWritten().completedAt).toBe("string");
   });
+  it("a stale pre-close copy does not erase the close date (F1)", async () => {
+    const p = projectWith("todo");
+    await useDataStore.getState().createProject(p);
+    const preClose = p.tasks[0];
+    await useDataStore.getState().mutateProject(p.id, (x) => ({
+      ...x,
+      tasks: x.tasks.map((t) => ({ ...t, status: "done" as const })),
+    }));
+    const firstStamp = stored().completedAt;
+    expect(typeof firstStamp).toBe("string");
+    // Copia vieja del cajón: anterior al cierre, pero ya con status done.
+    await useDataStore.getState().mutateProject(p.id, (x) => ({
+      ...x,
+      tasks: [{ ...preClose, status: "done" as const, actualHours: 3 }],
+    }));
+    expect(stored().actualHours).toBe(3);
+    expect(stored().completedAt).toBe(firstStamp);
+    expect(lastWritten().completedAt).toBe(firstStamp);
+  });
+
+  it("saveProject with trustIncomingCompletions keeps an incoming close date (F2)", async () => {
+    const p = projectWith("todo");
+    await useDataStore.getState().createProject(p);
+    const remoteClose = "2026-01-02T10:00:00.000Z";
+    const pulled = {
+      ...p,
+      tasks: p.tasks.map((t) => ({
+        ...t,
+        status: "done" as const,
+        completedAt: remoteClose,
+        completedAtEstimated: false,
+      })),
+    };
+    await useDataStore.getState().saveProject(pulled, { trustIncomingCompletions: true });
+    expect(stored().completedAt).toBe(remoteClose);
+    // Última escritura de ESTE proyecto (el mock de flujos del test anterior
+    // sigue activo y puede escribir otro proyecto después).
+    const own = write.mock.calls.filter((c) => c[1].id === p.id).at(-1)!;
+    expect(own[1].tasks[0].completedAt).toBe(remoteClose);
+  });
 });

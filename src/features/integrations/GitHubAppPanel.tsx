@@ -433,7 +433,8 @@ export function GitHubAppPanel() {
         setError(result.message);
         return;
       }
-      if (result.changed) await saveProject(result.project);
+      if (result.changed)
+        await saveProject(result.project, { trustIncomingCompletions: true });
       await refresh();
       const att = "attachments" in result ? result.attachments : undefined;
       toast.success(
