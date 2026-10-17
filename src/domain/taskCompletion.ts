@@ -4,7 +4,7 @@ import type { Project, Task } from "./schemas";
 /**
  * Estampa `completedAt` al pasar una tarea a «done» (spec 077 D4).
  * - Entra a done (o nace done): `completedAt = now`, `completedAtEstimated = false`.
- * - Sale de done: se limpia (`null` / `false`).
+ * - Cualquier tarea no done: se limpia (`null` / `false`), aunque no viniera de done (D4 c).
  * - Ya estaba done: no se toca (una tarea done sin fecha sigue sin fecha).
  * Solo copia el proyecto y las tareas que cambian; si nada cambia devuelve `next`.
  */
@@ -24,7 +24,7 @@ export function stampTaskCompletions(
       changed = true;
       return { ...t, completedAt: now, completedAtEstimated: false };
     }
-    if (!isDone && wasDone && (t.completedAt !== null || t.completedAtEstimated)) {
+    if (!isDone && (t.completedAt !== null || t.completedAtEstimated)) {
       changed = true;
       return { ...t, completedAt: null, completedAtEstimated: false };
     }

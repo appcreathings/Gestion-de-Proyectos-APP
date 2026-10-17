@@ -58,6 +58,30 @@ describe("stampTaskCompletions", () => {
     expect(out.tasks[0].completedAtEstimated).toBe(false);
   });
 
+  it("clears stale dates on a non-done task that was not done before", () => {
+    const stale = task({ status: "todo", completedAt: "2026-01-02T10:00:00.000Z" });
+    const est = task({ status: "doing", completedAt: null, completedAtEstimated: true });
+    const next = proj([stale, est]);
+    for (const prev of [null, proj([stale, est]), proj([])]) {
+      const out = stampTaskCompletions(prev, next, NOW);
+      for (const t of out.tasks) {
+        expect(t.completedAt).toBeNull();
+        expect(t.completedAtEstimated).toBe(false);
+      }
+    }
+  });
+
+  it("keeps the reference of unchanged tasks when another is stamped", () => {
+    const a = task({ status: "doing" });
+    const b = task({ status: "todo" });
+    const out = stampTaskCompletions(
+      proj([a, b]),
+      proj([{ ...a, status: "done" }, b]),
+      NOW,
+    );
+    expect(out.tasks[1]).toBe(b);
+  });
+
   it("returns the same object when nothing changes", () => {
     const t = task({ status: "doing" });
     const next = proj([t]);
