@@ -595,8 +595,8 @@
     "semantic_hash": ""
   },
   "src/domain/demo/seed.test.ts": {
-    "mtime": 1792214583.846351,
-    "ast_hash": "b30adc6c0aeb9fb56a3e2bb4cd2c9660",
+    "mtime": 1792216978.2406652,
+    "ast_hash": "edcdcf7a20b2e46ad8e9b848f937bb32",
     "semantic_hash": ""
   },
   "src/domain/demo/seed.ts": {
@@ -605,8 +605,8 @@
     "semantic_hash": ""
   },
   "src/domain/demo/seedData.ts": {
-    "mtime": 1792214592.2992363,
-    "ast_hash": "ca425278e5ea763cdc55e2701c4f8693",
+    "mtime": 1792216988.4880657,
+    "ast_hash": "4b3c857b367a6f9c416741918cf9b9af",
     "semantic_hash": ""
   },
   "src/domain/factories.ts": {
@@ -2125,8 +2125,8 @@
     "semantic_hash": ""
   },
   "src/store/useDataStore.ts": {
-    "mtime": 1792214592.2992363,
-    "ast_hash": "3710395b98081c63d817712c40509f90",
+    "mtime": 1792216818.5694916,
+    "ast_hash": "87f5a9e31a031218ca7f053df262c556",
     "semantic_hash": ""
   },
   "src/store/useFlowStore.ts": {
@@ -3730,8 +3730,8 @@
     "semantic_hash": ""
   },
   "src/features/integrations/GitHubAppPanel.tsx": {
-    "mtime": 1786546317.7556138,
-    "ast_hash": "e11a681c810c01969feb28b482abcab6",
+    "mtime": 1792216818.5907354,
+    "ast_hash": "d28b6318b10f0d669e92adf0207d77f7",
     "semantic_hash": ""
   },
   "src/features/integrations/GitHubConnectPage.tsx": {
@@ -3895,8 +3895,8 @@
     "semantic_hash": ""
   },
   "src/features/integrations/GitHubProjectSyncButton.tsx": {
-    "mtime": 1786546317.7526152,
-    "ast_hash": "11d7363a657881e2f9b59feb5b32a733",
+    "mtime": 1792216818.60527,
+    "ast_hash": "4087b5a46c9bb1149e95b4e9cfd8d0d2",
     "semantic_hash": ""
   },
   "src/integrations/github-project-sync.test.ts": {
@@ -5035,13 +5035,13 @@
     "semantic_hash": ""
   },
   "src/domain/taskCompletion.test.ts": {
-    "mtime": 1792215024.8406465,
-    "ast_hash": "55f83aa3e96fb36b9f43c142a69b9602",
+    "mtime": 1792216764.6947117,
+    "ast_hash": "61789968214e183580fa4465a057f554",
     "semantic_hash": ""
   },
   "src/domain/taskCompletion.ts": {
-    "mtime": 1792215026.5868034,
-    "ast_hash": "86d02e4ba18361d88584f2e706bb6a99",
+    "mtime": 1792216801.5703306,
+    "ast_hash": "b322bcdaa2570f424c4cc2bf304c6743",
     "semantic_hash": ""
   },
   "src/features/gantt/GanttFilters.tsx": {
@@ -5055,18 +5055,18 @@
     "semantic_hash": ""
   },
   "src/features/gantt/GanttPage.tsx": {
-    "mtime": 1792215852.5499759,
-    "ast_hash": "923a3a51d16f05b1145f40743198f80e",
+    "mtime": 1792216943.1507008,
+    "ast_hash": "edb048353df1656adadcd60f4c27aec6",
     "semantic_hash": ""
   },
   "src/features/gantt/ganttModel.test.ts": {
-    "mtime": 1792214967.6373205,
-    "ast_hash": "ef251313dffb0290ae99a4ff0fff5c49",
+    "mtime": 1792217042.553261,
+    "ast_hash": "27415cb4017e3352a3a1cb5959778258",
     "semantic_hash": ""
   },
   "src/features/gantt/ganttModel.ts": {
-    "mtime": 1792214943.4412699,
-    "ast_hash": "cf7ca9840d42384585a5de2acd7a2701",
+    "mtime": 1792217054.7721686,
+    "ast_hash": "c762c60255cfb7bb91f1026afc726a8c",
     "semantic_hash": ""
   },
   "src/features/gantt/ganttQuery.test.ts": {
@@ -5080,18 +5080,18 @@
     "semantic_hash": ""
   },
   "src/store/useDataStore.completedAt.test.ts": {
-    "mtime": 1792214583.7994595,
-    "ast_hash": "5f75daa56ed39992bfe085c5a3da8891",
+    "mtime": 1792216842.861393,
+    "ast_hash": "3e84bcfcaf4c24e309c67fa6ede8a9f2",
     "semantic_hash": ""
   },
   "specs/077-gantt-proyectos/smoke.md": {
-    "mtime": 1792216207.584592,
-    "ast_hash": "df1d614fa7bd2a9afbe22e40d143677c",
+    "mtime": 1792216341.388974,
+    "ast_hash": "49efd8396c2f113233122a04d7a129cc",
     "semantic_hash": ""
   },
   "specs/077-gantt-proyectos/spec.md": {
-    "mtime": 1792216201.102052,
-    "ast_hash": "32a7f0a70c918b724371ec0e6422ec5f",
+    "mtime": 1792216851.513681,
+    "ast_hash": "1d6df8101e59bee02a375894077c9dc2",
     "semantic_hash": ""
   },
   "specs/077-gantt-proyectos/tasks.md": {
