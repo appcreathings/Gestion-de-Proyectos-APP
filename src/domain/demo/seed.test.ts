@@ -190,9 +190,17 @@ describe("seedDemo (Nimbus)", () => {
     const a = makeRecordingAdapter();
     await seedDemo(a);
     const done = [...a.col("projects").values()]
-      .flatMap((p) => (p as { tasks: { status: string; completedAt: string | null }[] }).tasks)
+      .flatMap(
+        (p) =>
+          (p as { tasks: { status: string; completedAt: string | null; createdAt: string }[] })
+            .tasks,
+      )
       .filter((t) => t.status === "done");
     expect(done.length).toBeGreaterThan(0);
-    for (const t of done) expect(typeof t.completedAt).toBe("string");
+    for (const t of done) {
+      expect(typeof t.completedAt).toBe("string");
+      // Nunca se cierra antes de crearse (F3).
+      expect(Date.parse(t.completedAt!)).toBeGreaterThanOrEqual(Date.parse(t.createdAt));
+    }
   });
 });
