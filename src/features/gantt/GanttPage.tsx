@@ -167,7 +167,7 @@ export function GanttPage() {
       <PageHeader
         label="Gantt"
         title="Lo hecho y lo que viene"
-        description="Una fila por proyecto: lo que cerraste hacia atrás y lo que vence hacia adelante. Tocá un proyecto para ver sus tareas."
+        description="Una fila por proyecto: lo que cerraste hacia atrás y lo que vence hacia adelante. Toca un proyecto para ver sus tareas."
       />
 
       <GanttFilters
