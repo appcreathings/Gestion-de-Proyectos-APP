@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import * as ops from "@/domain/projectOps";
-import type { Project, Task } from "@/domain/schemas";
+import type { Task } from "@/domain/schemas";
 import { boardProjectRank } from "@/features/board/boardQuery";
 import { TaskDetailDrawer } from "@/features/projects/components/kanban/TaskDetailDrawer";
 import { parseDayKey, todayKey } from "@/lib/dates";
@@ -138,26 +138,30 @@ export function GanttPage() {
     });
   }
 
-  // Drawer (D2, D16): mismo cableado que el Tablero (075).
-  const [detailTask, setDetailTask] = useState<Task | null>(null);
-  const [detailProject, setDetailProject] = useState<Project | null>(null);
+  // Drawer (D2, D16): solo guardamos ids y leemos la tarea del store en cada
+  // render, como TasksTab — una copia propia quedaría vieja tras el estampado
+  // de `completedAt` y la siguiente edición la pisaría (spec 077 F1).
+  const [detail, setDetail] = useState<{ projectId: string; taskId: string } | null>(
+    null,
+  );
+  const detailProject = detail
+    ? projects.find((p) => p.id === detail.projectId) ?? null
+    : null;
+  const detailTask = detail
+    ? detailProject?.tasks.find((t) => t.id === detail.taskId) ?? null
+    : null;
 
   function openTask(projectId: string, taskId: string) {
-    const project = projects.find((p) => p.id === projectId) ?? null;
-    const task = project?.tasks.find((t) => t.id === taskId) ?? null;
-    setDetailProject(task ? project : null);
-    setDetailTask(task);
+    setDetail({ projectId, taskId });
   }
 
   function closeDetail() {
-    setDetailTask(null);
-    setDetailProject(null);
+    setDetail(null);
   }
 
   function handleUpdateTask(updated: Task) {
     if (!detailProject) return;
     void mutateProject(detailProject.id, (p) => ops.updateTask(p, updated));
-    setDetailTask(updated);
   }
 
   const rangeLabel = `${RANGE_FORMATTER.format(parseDayKey(win.start))} – ${RANGE_FORMATTER.format(parseDayKey(win.end))}`;
