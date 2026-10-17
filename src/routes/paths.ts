@@ -9,6 +9,7 @@ export const ROUTES = {
   project: (id: string) => `/app/projects/${id}`,
   myTasks: "/app/my-tasks",
   board: "/app/board",
+  gantt: "/app/gantt",
   daily: "/app/daily",
   quarters: "/app/quarters",
   library: (tab?: string) => (tab ? `/app/library?tab=${tab}` : "/app/library"),
