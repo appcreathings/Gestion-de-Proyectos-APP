@@ -61,7 +61,7 @@ function isPriority(v: string | null): v is Priority {
 }
 
 /** Parte `a,b`, recorta, tira vacíos y duplicados; valida contra `ids`. */
-function parseIdList(raw: string | null, ids: ReadonlySet<string> | undefined): string[] {
+export function parseIdList(raw: string | null, ids: ReadonlySet<string> | undefined): string[] {
   if (raw === null) return [];
   const out: string[] = [];
   for (const part of raw.split(",")) {
