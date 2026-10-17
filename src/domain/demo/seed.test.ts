@@ -185,4 +185,14 @@ describe("seedDemo (Nimbus)", () => {
     expect(d.automations[0].trigger.type).toBe("checklist.completed");
     expect(d.automations[0].actions.some((a) => a.type === "createTask")).toBe(true);
   });
+
+  it("demo done tasks carry completedAt (spec 077)", async () => {
+    const a = makeRecordingAdapter();
+    await seedDemo(a);
+    const done = [...a.col("projects").values()]
+      .flatMap((p) => (p as { tasks: { status: string; completedAt: string | null }[] }).tasks)
+      .filter((t) => t.status === "done");
+    expect(done.length).toBeGreaterThan(0);
+    for (const t of done) expect(typeof t.completedAt).toBe("string");
+  });
 });

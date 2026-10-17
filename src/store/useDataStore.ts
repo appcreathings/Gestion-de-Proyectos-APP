@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { stampTaskCompletions } from "@/domain/taskCompletion";
 import { nowIso, uuid } from "@/lib/utils";
 import type {
   ActivityDoc,
@@ -734,6 +735,8 @@ async function persistProject(
   options?: { alreadyTriggeredAutomations?: boolean },
 ) {
   const s = useDataStore.getState();
+  // Spec 077 D5: único punto de estampado de cierres (saves, flujos, automatizaciones).
+  p = stampTaskCompletions(s.projects.find((x) => x.id === p.id) ?? null, p, nowIso());
   const prev = s.projects;
   const next = prev.some((x) => x.id === p.id)
     ? prev.map((x) => (x.id === p.id ? p : x))

@@ -434,6 +434,12 @@ function task(
   t.priority = priority;
   t.sprintId = sprintId;
   t.summary = title.slice(0, 140);
+  if (status === "done") {
+    // Spec 077: la demo muestra historia; 1–20 días antes de createdAt (determinista por título).
+    const days = 1 + (title.length % 20);
+    t.completedAt = new Date(Date.parse(t.createdAt) - days * 86_400_000).toISOString();
+    t.completedAtEstimated = false;
+  }
   return t;
 }
 
