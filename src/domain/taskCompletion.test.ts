@@ -98,6 +98,15 @@ describe("completionDay", () => {
     expect(completionDay(t)).toEqual({ day: "2026-10-16", estimated: false });
   });
 
+  it("propagates completedAtEstimated when completedAt exists", () => {
+    const t = task({
+      status: "done",
+      completedAt: new Date(2026, 9, 16, 23, 30).toISOString(),
+      completedAtEstimated: true,
+    });
+    expect(completionDay(t)).toEqual({ day: "2026-10-16", estimated: true });
+  });
+
   it("falls back to updatedAt as estimated", () => {
     const t = task({
       status: "done",

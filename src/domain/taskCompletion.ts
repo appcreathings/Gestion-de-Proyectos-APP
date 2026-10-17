@@ -42,7 +42,7 @@ export function completionDay(
 ): { day: string; estimated: boolean } | null {
   if (task.status !== "done") return null;
   if (task.completedAt) {
-    return { day: todayKey(new Date(task.completedAt)), estimated: false };
+    return { day: todayKey(new Date(task.completedAt)), estimated: task.completedAtEstimated };
   }
   return { day: todayKey(new Date(task.updatedAt)), estimated: true };
 }
