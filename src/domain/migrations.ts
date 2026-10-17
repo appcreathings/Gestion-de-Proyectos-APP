@@ -94,6 +94,28 @@ export const MIGRATIONS: Partial<Record<MigrationKind, Migration[]>> = {
         return data;
       },
     },
+    // v26 -> v27 (spec 077 D6): `Task.completedAt` / `completedAtEstimated`.
+    // Una tarea hecha sin fecha de cierre la toma de `updatedAt` y queda
+    // marcada como estimada; el resto queda en null/false. Si ya traía
+    // `completedAt` (string) no se toca.
+    {
+      to: 27,
+      up(data) {
+        if (!Array.isArray(data.tasks)) return data;
+        const tasks = (data.tasks as Record<string, unknown>[]).map((t) => {
+          if (t.status !== "done") {
+            return { ...t, completedAt: null, completedAtEstimated: false };
+          }
+          if (typeof t.completedAt === "string") return t;
+          return {
+            ...t,
+            completedAt: typeof t.updatedAt === "string" ? t.updatedAt : null,
+            completedAtEstimated: true,
+          };
+        });
+        return { ...data, tasks };
+      },
+    },
   ],
   "checklist-templates": [
     // v1 -> v18: ChecklistTemplate.attachments.

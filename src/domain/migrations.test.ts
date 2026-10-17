@@ -45,11 +45,11 @@ describe("migrateRecord", () => {
     expect(value).toMatchObject({ schemaVersion: 2, priority: "medium" });
   });
 
-  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v26)", () => {
+  it("defaults the target to the current SCHEMA_VERSION (real registry: projects v1 -> v27)", () => {
     const v1: Record<string, unknown> = { id: "p1", schemaVersion: 1, name: "Demo" };
     const { value, migrated } = migrateRecord("projects", v1);
     expect(migrated).toBe(true);
-    expect(value.schemaVersion).toBe(26);
+    expect(value.schemaVersion).toBe(27);
     const stages = (value as { stages: { id: string }[] }).stages;
     expect(stages.map((s) => s.id)).toEqual(["todo", "doing", "blocked", "done"]);
   });
@@ -523,5 +523,56 @@ describe("flows v7 -> v8 (spec 020: connections instead of embedded credentials)
     const flow = (value as { flows: Record<string, unknown>[] }).flows[0];
     const trigger = flow.trigger as { config: Record<string, unknown> };
     expect(trigger.config.connectionId).toBe("real-connection-id");
+  });
+});
+
+describe("projects v26 -> v27 (spec 077: completedAt)", () => {
+  it("backfills done tasks from updatedAt as estimated", () => {
+    const doc = {
+      schemaVersion: 26,
+      id: "p",
+      name: "P",
+      tasks: [
+        { id: "a", title: "A", status: "done", updatedAt: "2026-03-04T15:00:00.000Z" },
+        { id: "b", title: "B", status: "doing", updatedAt: "2026-03-05T15:00:00.000Z" },
+      ],
+    };
+    const { value } = migrateRecord("projects", doc, 27, MIGRATIONS);
+    const tasks = value.tasks as Record<string, unknown>[];
+    expect(tasks[0]).toMatchObject({
+      completedAt: "2026-03-04T15:00:00.000Z",
+      completedAtEstimated: true,
+    });
+    expect(tasks[1]).toMatchObject({ completedAt: null, completedAtEstimated: false });
+  });
+
+  it("does not overwrite an existing completedAt", () => {
+    const doc = {
+      schemaVersion: 26,
+      id: "p",
+      name: "P",
+      tasks: [
+        {
+          id: "a",
+          title: "A",
+          status: "done",
+          updatedAt: "2026-03-04T15:00:00.000Z",
+          completedAt: "2026-01-01T00:00:00.000Z",
+          completedAtEstimated: false,
+        },
+      ],
+    };
+    const { value } = migrateRecord("projects", doc, 27, MIGRATIONS);
+    const tasks = value.tasks as Record<string, unknown>[];
+    expect(tasks[0]).toMatchObject({
+      completedAt: "2026-01-01T00:00:00.000Z",
+      completedAtEstimated: false,
+    });
+  });
+
+  it("tolerates a project without tasks", () => {
+    const doc = { schemaVersion: 26, id: "p", name: "P" };
+    const { value } = migrateRecord("projects", doc, 27, MIGRATIONS);
+    expect(value.schemaVersion).toBe(27);
   });
 });

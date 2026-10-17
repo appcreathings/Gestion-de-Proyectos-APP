@@ -114,6 +114,8 @@ describe("dryRunFlow (spec 025 §C)", () => {
           archived: false,
           estimate: null,
           actualHours: null,
+          completedAt: null,
+          completedAtEstimated: false,
           subtasks: [],
           attachments: [],
           links: [],
