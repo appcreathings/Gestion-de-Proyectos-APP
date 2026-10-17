@@ -139,12 +139,21 @@ export function placeRange(
   };
 }
 
-function isoDay(iso: string): string {
-  return dayKeyFromDate(new Date(iso));
+/** Día local de un ISO, o `null` si no se puede interpretar (F4). */
+function isoDay(iso: string): string | null {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : dayKeyFromDate(d);
+}
+
+/** Acepta solo claves `YYYY-MM-DD` reales; cualquier otra cosa → `null` (F4). */
+function validKey(key: string | null): string | null {
+  if (!key || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
+  return dayKeyFromDate(parseDayKey(key)) === key ? key : null;
 }
 
 /** Barra del proyecto (D9). Completa puntas faltantes con las tareas; no
- * asume `completedAt >= createdAt`: usa el menor y el mayor de lo que haya. */
+ * asume `completedAt >= createdAt`: usa el menor y el mayor de lo que haya.
+ * Fechas ilegibles se saltan: nunca «NaN» ni estiran la barra (F4). */
 export function projectBar(
   project: Project,
   tasks: readonly Task[],
@@ -153,21 +162,25 @@ export function projectBar(
   const ends: string[] = [];
   for (const t of tasks) {
     const c = completionDay(t)?.day;
-    starts.push(isoDay(t.createdAt));
+    const created = isoDay(t.createdAt);
+    if (created) starts.push(created);
     if (c) {
       starts.push(c);
       ends.push(c);
     }
-    if (t.dueDate) ends.push(t.dueDate);
+    const due = validKey(t.dueDate);
+    if (due) ends.push(due);
   }
   const min = (xs: string[]) => (xs.length ? xs.reduce((a, b) => (a < b ? a : b)) : null);
   const max = (xs: string[]) => (xs.length ? xs.reduce((a, b) => (a > b ? a : b)) : null);
 
-  const hasStart = project.startDate !== null;
-  const hasEnd = project.dueDate !== null;
+  const pStart = validKey(project.startDate);
+  const pDue = validKey(project.dueDate);
+  const hasStart = pStart !== null;
+  const hasEnd = pDue !== null;
   // Sin fechas propias ni de tareas: sin barra (D9).
-  let s = project.startDate ?? min(starts) ?? project.dueDate ?? max(ends);
-  let e = project.dueDate ?? max(ends) ?? s;
+  let s = pStart ?? min(starts) ?? pDue ?? max(ends);
+  let e = pDue ?? max(ends) ?? s;
   if (s === null || e === null) return null;
   if (s > e) [s, e] = [e, s];
   return { start: s, end: e, derived: !hasStart || !hasEnd };

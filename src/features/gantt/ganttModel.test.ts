@@ -109,6 +109,38 @@ describe("projectBar", () => {
   });
 });
 
+describe("projectBar with invalid dates (F4)", () => {
+  it("skips an unparseable createdAt", () => {
+    const p = proj("P", { startDate: null, dueDate: "2026-09-01" });
+    const t = task("a", { createdAt: "basura" });
+    expect(projectBar(p, [t])).toEqual({ start: "2026-09-01", end: "2026-09-01", derived: true });
+  });
+  it("skips an unparseable task dueDate", () => {
+    const p = proj("P", { startDate: "2026-08-01", dueDate: null });
+    const t = task("a", { createdAt: new Date(2026, 7, 2, 12).toISOString(), dueDate: "zzz" });
+    // Sin puntas finales válidas la barra cae a su inicio.
+    expect(projectBar(p, [t])).toEqual({ start: "2026-08-01", end: "2026-08-01", derived: true });
+  });
+  it("skips unparseable completedAt and updatedAt", () => {
+    const p = proj("P", { startDate: "2026-08-01", dueDate: null });
+    const t = doneTask("a", "basura", {
+      createdAt: new Date(2026, 7, 3, 12).toISOString(),
+      updatedAt: "basura",
+    });
+    expect(projectBar(p, [t])).toEqual({ start: "2026-08-01", end: "2026-08-01", derived: true });
+  });
+  it("skips unparseable project dates", () => {
+    const p = proj("P", { startDate: "nope", dueDate: "nope" });
+    const t = task("a", { createdAt: new Date(2026, 7, 3, 12).toISOString(), dueDate: "2026-08-10" });
+    expect(projectBar(p, [t])).toEqual({ start: "2026-08-03", end: "2026-08-10", derived: true });
+  });
+  it("never yields NaN when everything is invalid", () => {
+    const p = proj("P");
+    const t = task("a", { createdAt: "basura", dueDate: "basura" });
+    expect(projectBar(p, [t])).toBeNull();
+  });
+});
+
 describe("ganttTasks", () => {
   it("keeps archived done and drops archived pending", () => {
     const keep = task("k");
