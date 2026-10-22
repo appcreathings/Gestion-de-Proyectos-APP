@@ -2686,6 +2686,25 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       ogImageAlt: "OpenProject como gestor de proyectos de código abierto, con Gantt y tableros.",
     },
   },
+  {
+    slug: "alternativa-a-wrike",
+    title: "Alternativas a Wrike: cuándo el work management empresarial sobra",
+    excerpt:
+      "Wrike gana en recursos, proofing y reporting para equipos grandes. Alternativas reales cuando el motivo de salida es precio por asiento, curva de aprendizaje o un equipo que no llega a 20.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "alternativa-a-monday", "hito-vs-clickup"],
+    seo: {
+      title: "Alternativas a Wrike (2026) | Hito",
+      description:
+        "Alternativas a Wrike según el motivo de salida: precio por asiento, curva de aprendizaje, proofing que no se usa o datos que no pueden vivir en un SaaS empresarial.",
+      ogImageAlt: "Alternativas a Wrike por precio, simplicidad y control de datos.",
+    },
+  },
 ];
 
 export const BLOG_ARTICLES_META: BlogArticleMeta[] = RAW_ARTICLES.map((a) => ({
