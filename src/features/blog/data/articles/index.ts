@@ -134,6 +134,12 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "microsoft-project-para-que-sirve": () => import("./microsoft-project-para-que-sirve"),
   openproject: () => import("./openproject"),
   "alternativa-a-wrike": () => import("./alternativa-a-wrike"),
+  "alternativa-a-smartsheet": () => import("./alternativa-a-smartsheet"),
+  "alternativa-a-basecamp": () => import("./alternativa-a-basecamp"),
+  "alternativa-a-zoho-projects": () => import("./alternativa-a-zoho-projects"),
+  "alternativa-a-teamwork": () => import("./alternativa-a-teamwork"),
+  "alternativa-a-todoist": () => import("./alternativa-a-todoist"),
+  "alternativa-a-airtable": () => import("./alternativa-a-airtable"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

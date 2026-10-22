@@ -2705,6 +2705,133 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       ogImageAlt: "Alternativas a Wrike por precio, simplicidad y control de datos.",
     },
   },
+  {
+    slug: "alternativa-a-smartsheet",
+    title: "Alternativas a Smartsheet: cuándo la hoja de cálculo con esteroides sobra",
+    excerpt:
+      "Smartsheet gana si tu equipo piensa en filas y columnas y necesita reporting empresarial. Alternativas reales cuando el motivo de salida es precio, la curva de fórmulas o un equipo que no necesita ese músculo.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "alternativa-a-wrike", "gestion-proyectos-excel"],
+    seo: {
+      title: "Alternativas a Smartsheet (2026) | Hito",
+      description:
+        "Alternativas a Smartsheet según el motivo de salida: precio por colaborador, la lógica de hoja de cálculo que no todos dominan, o datos que no pueden vivir en un SaaS.",
+      ogImageAlt: "Alternativas a Smartsheet por precio, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-basecamp",
+    title: "Alternativas a Basecamp: cuándo lo simple ya no alcanza",
+    excerpt:
+      "Basecamp gana en simplicidad y precio plano para agencias chicas. Alternativas reales cuando el motivo de salida es la falta de kanban, de dependencias entre tareas o de automatizaciones.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "hito-vs-trello", "gestion-proyectos-agencias"],
+    seo: {
+      title: "Alternativas a Basecamp (2026) | Hito",
+      description:
+        "Alternativas a Basecamp según el motivo de salida: falta de kanban visual, sin dependencias entre tareas, sin automatizaciones, o datos que no pueden vivir en un SaaS.",
+      ogImageAlt: "Alternativas a Basecamp por funciones, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-zoho-projects",
+    title: "Alternativas a Zoho Projects: cuándo el precio bajo no compensa",
+    excerpt:
+      "Zoho Projects gana en precio si ya vives en el ecosistema Zoho. Alternativas reales cuando el motivo de salida es una interfaz que se siente vieja, o que no usas ningún otro producto Zoho.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos-pymes",
+      "alternativa-a-basecamp",
+      "como-elegir-software-gestion-proyectos",
+    ],
+    seo: {
+      title: "Alternativas a Zoho Projects (2026) | Hito",
+      description:
+        "Alternativas a Zoho Projects según el motivo de salida: interfaz que se siente vieja, dependencia del ecosistema Zoho, o un equipo que no necesita ese paquete.",
+      ogImageAlt: "Alternativas a Zoho Projects por interfaz, independencia y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-teamwork",
+    title: "Alternativas a Teamwork: cuándo la facturación por horas sobra",
+    excerpt:
+      "Teamwork gana en agencias que facturan horas a clientes. Alternativas reales cuando el motivo de salida es el precio por asiento, un cliente que no necesita acceso, o que no facturas por hora.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "gestion-proyectos-agencias",
+      "alternativa-a-basecamp",
+      "cuanto-cobrar-por-un-proyecto",
+    ],
+    seo: {
+      title: "Alternativas a Teamwork (2026) | Hito",
+      description:
+        "Alternativas a Teamwork según el motivo de salida: precio por asiento, acceso de clientes que no necesitas, o que no facturas horas a terceros.",
+      ogImageAlt: "Alternativas a Teamwork por precio, facturación y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-todoist",
+    title: "Alternativas a Todoist para cuando el equipo ya no es una sola persona",
+    excerpt:
+      "Todoist gana en productividad personal. Alternativas reales cuando el motivo de salida es que necesitas kanban de equipo, dependencias entre tareas, o colaborar con clientes.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "gestion-proyectos-freelancers",
+      "lista-tareas-vs-gestion-proyectos",
+      "app-gestion-tareas",
+    ],
+    seo: {
+      title: "Alternativas a Todoist (2026) | Hito",
+      description:
+        "Alternativas a Todoist cuando el equipo creció: kanban de equipo, dependencias entre tareas, colaboración con clientes externos. Sin perder la simplicidad que hizo bueno a Todoist.",
+      ogImageAlt: "Alternativas a Todoist por colaboración de equipo y estructura de proyecto.",
+    },
+  },
+  {
+    slug: "alternativa-a-airtable",
+    title:
+      "Alternativas a Airtable para gestionar proyectos: cuándo construir tu propia base sobra",
+    excerpt:
+      "Airtable gana cuando necesitas una base de datos flexible y nadie más te la va a dar hecha. Alternativas reales cuando el motivo de salida es que no quieres diseñar tu propio sistema de proyectos.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["gestion-proyectos-excel", "software-gestion-proyectos", "alternativa-a-wrike"],
+    seo: {
+      title: "Alternativas a Airtable para proyectos (2026) | Hito",
+      description:
+        "Alternativas a Airtable para gestión de proyectos: cuándo construir tu propia base de datos sobra y conviene una herramienta con opinión ya formada.",
+      ogImageAlt: "Alternativas a Airtable por estructura lista, precio y control de datos.",
+    },
+  },
 ];
 
 export const BLOG_ARTICLES_META: BlogArticleMeta[] = RAW_ARTICLES.map((a) => ({
