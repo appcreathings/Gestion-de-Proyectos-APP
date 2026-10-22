@@ -133,6 +133,7 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "cronograma-de-actividades": () => import("./cronograma-de-actividades"),
   "microsoft-project-para-que-sirve": () => import("./microsoft-project-para-que-sirve"),
   openproject: () => import("./openproject"),
+  "alternativa-a-wrike": () => import("./alternativa-a-wrike"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {
