@@ -2705,6 +2705,44 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       ogImageAlt: "Alternativas a Wrike por precio, simplicidad y control de datos.",
     },
   },
+  {
+    slug: "alternativa-a-smartsheet",
+    title: "Alternativas a Smartsheet: cuándo la hoja de cálculo con esteroides sobra",
+    excerpt:
+      "Smartsheet gana si tu equipo piensa en filas y columnas y necesita reporting empresarial. Alternativas reales cuando el motivo de salida es precio, la curva de fórmulas o un equipo que no necesita ese músculo.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "alternativa-a-wrike", "gestion-proyectos-excel"],
+    seo: {
+      title: "Alternativas a Smartsheet (2026) | Hito",
+      description:
+        "Alternativas a Smartsheet según el motivo de salida: precio por colaborador, la lógica de hoja de cálculo que no todos dominan, o datos que no pueden vivir en un SaaS.",
+      ogImageAlt: "Alternativas a Smartsheet por precio, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-basecamp",
+    title: "Alternativas a Basecamp: cuándo lo simple ya no alcanza",
+    excerpt:
+      "Basecamp gana en simplicidad y precio plano para agencias chicas. Alternativas reales cuando el motivo de salida es la falta de kanban, de dependencias entre tareas o de automatizaciones.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "hito-vs-trello", "gestion-proyectos-agencias"],
+    seo: {
+      title: "Alternativas a Basecamp (2026) | Hito",
+      description:
+        "Alternativas a Basecamp según el motivo de salida: falta de kanban visual, sin dependencias entre tareas, sin automatizaciones, o datos que no pueden vivir en un SaaS.",
+      ogImageAlt: "Alternativas a Basecamp por funciones, simplicidad y control de datos.",
+    },
+  },
 ];
 
 export const BLOG_ARTICLES_META: BlogArticleMeta[] = RAW_ARTICLES.map((a) => ({

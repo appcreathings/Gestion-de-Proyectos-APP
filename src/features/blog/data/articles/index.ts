@@ -134,6 +134,8 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "microsoft-project-para-que-sirve": () => import("./microsoft-project-para-que-sirve"),
   openproject: () => import("./openproject"),
   "alternativa-a-wrike": () => import("./alternativa-a-wrike"),
+  "alternativa-a-smartsheet": () => import("./alternativa-a-smartsheet"),
+  "alternativa-a-basecamp": () => import("./alternativa-a-basecamp"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {
