@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/routes/paths";
 import { BLOG_ARTICLES_META } from "../data/articles-index";
 import { BLOG_CATEGORIES } from "../data/categories";
-import { BlogCard } from "../components/BlogCard";
+import { BlogListing } from "../components/BlogListing";
 import type { BlogCategory } from "../types";
 
 /**
@@ -79,19 +79,10 @@ export function BlogCategoryPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        {articles.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground">
-            No hay artículos en esta categoría todavía.
-          </p>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.map((article) => (
-              <BlogCard key={article.slug} article={article} />
-            ))}
-          </div>
-        )}
-      </div>
+      <BlogListing
+        articles={articles}
+        emptyMessage="No hay artículos en esta categoría todavía."
+      />
     </SeoPage>
   );
 }
