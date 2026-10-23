@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterArticles, paginate } from "./listing";
+import { filterArticles, pageItems, paginate } from "./listing";
 import type { BlogArticleMeta } from "../types";
 
 const make = (title: string, excerpt = "", categoryLabel = "Procesos") =>
@@ -42,5 +42,24 @@ describe("paginate", () => {
 
   it("lista vacía tiene una página", () => {
     expect(paginate([], 1).totalPages).toBe(1);
+  });
+});
+
+describe("pageItems", () => {
+  it("muestra todas si son pocas", () => {
+    expect(pageItems(1, 5)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it("muestra primeras, últimas y vecinas de la actual", () => {
+    expect(pageItems(7, 13)).toEqual([1, 2, "…", 6, 7, 8, "…", 12, 13]);
+  });
+
+  it("junta con las primeras cuando la actual está al inicio", () => {
+    expect(pageItems(1, 13)).toEqual([1, 2, "…", 12, 13]);
+    expect(pageItems(3, 13)).toEqual([1, 2, 3, 4, "…", 12, 13]);
+  });
+
+  it("no usa '…' para un hueco de una sola página", () => {
+    expect(pageItems(5, 13)).toEqual([1, 2, 3, 4, 5, 6, "…", 12, 13]);
   });
 });

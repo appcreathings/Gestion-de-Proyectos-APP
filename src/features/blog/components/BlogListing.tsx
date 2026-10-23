@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { BlogCard } from "./BlogCard";
-import { filterArticles, paginate } from "../data/listing";
+import { filterArticles, pageItems, paginate } from "../data/listing";
 import type { BlogArticleMeta } from "../types";
 
 type BlogListingProps = {
@@ -84,7 +84,7 @@ export function BlogListing({
       {totalPages > 1 && (
         <nav
           aria-label="Paginación"
-          className="mt-12 flex items-center justify-center gap-4"
+          className="mt-12 flex flex-wrap items-center justify-center gap-1"
         >
           <button
             type="button"
@@ -95,9 +95,32 @@ export function BlogListing({
             <ChevronLeft className="size-4" />
             Anterior
           </button>
-          <span className="font-mono text-xs text-muted-foreground">
-            Página {page} de {totalPages}
-          </span>
+          {pageItems(page, totalPages).map((item, idx) =>
+            item === "…" ? (
+              <span
+                key={`gap-${idx}`}
+                aria-hidden
+                className="px-1 text-sm text-muted-foreground"
+              >
+                …
+              </span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                onClick={() => goTo(item)}
+                aria-label={`Página ${item}`}
+                aria-current={item === page ? "page" : undefined}
+                className={
+                  item === page
+                    ? "size-9 rounded-md bg-foreground text-sm font-medium text-background"
+                    : "size-9 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                }
+              >
+                {item}
+              </button>
+            ),
+          )}
           <button
             type="button"
             onClick={() => goTo(page + 1)}
