@@ -37,7 +37,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-02",
     readingTime: "7 min",
     featured: false,
-    related: ["organizar-proyectos-tareas-jerarquia", "cierre-de-proyecto-checklist"],
+    related: [
+      "organizar-proyectos-tareas-jerarquia",
+      "cierre-de-proyecto-checklist",
+      "manual-de-procesos-y-procedimientos",
+    ],
     seo: {
       title: "Cómo documentar un proceso: SOPs y checklists | Hito",
       description:
@@ -2830,6 +2834,151 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Alternativas a Airtable para gestión de proyectos: cuándo construir tu propia base de datos sobra y conviene una herramienta con opinión ya formada.",
       ogImageAlt: "Alternativas a Airtable por estructura lista, precio y control de datos.",
+    },
+  },
+  {
+    slug: "manual-de-procesos-y-procedimientos",
+    title: "Manual de procesos y procedimientos: qué es, ejemplo y cómo armarlo",
+    excerpt:
+      "El manual de procesos y procedimientos reúne cómo trabaja tu empresa en un solo lugar: qué contiene, diferencia entre proceso, procedimiento e instrucción, estructura, ejemplo y cómo mantenerlo vivo.",
+    category: "procesos",
+    categoryLabel: "Procesos",
+    publishedAt: "2026-10-23",
+    readingTime: "9 min",
+    featured: true,
+    related: [
+      "como-documentar-procesos-equipos",
+      "plantilla-para-documentar-procesos",
+      "procedimiento-operativo-estandarizado-sop",
+      "procedimiento-de-control-de-documentos",
+    ],
+    seo: {
+      title: "Manual de procesos y procedimientos: ejemplo y guía | Hito",
+      description:
+        "Manual de procesos y procedimientos: qué es, en qué se diferencia un proceso de un procedimiento, estructura recomendada, ejemplo de una empresa pequeña y cómo mantenerlo actualizado.",
+      ogImageAlt: "Estructura de un manual de procesos y procedimientos con ejemplo.",
+    },
+  },
+  {
+    slug: "plantilla-para-documentar-procesos",
+    title: "Plantilla para documentar procesos (Word y Excel): ficha lista para copiar",
+    excerpt:
+      "Una ficha de proceso de una página para copiar en Word o Excel: los 10 campos que importan, ejemplo completo, inventario de procesos en tabla y cuándo esa plantilla se te queda corta.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2026-10-23",
+    readingTime: "7 min",
+    featured: false,
+    pillar: "manual-de-procesos-y-procedimientos",
+    related: [
+      "manual-de-procesos-y-procedimientos",
+      "como-documentar-procesos-equipos",
+      "procedimiento-operativo-estandarizado-sop",
+      "plantillas-gestion-proyectos",
+    ],
+    seo: {
+      title: "Plantilla para documentar procesos en Word y Excel | Hito",
+      description:
+        "Plantilla para documentar procesos en Word y Excel: ficha de proceso de una página con 10 campos, ejemplo completo, inventario de procesos y cuándo cambiar de herramienta.",
+      ogImageAlt: "Ficha de proceso con diez campos para documentar procesos en Word o Excel.",
+    },
+  },
+  {
+    slug: "procedimiento-operativo-estandarizado-sop",
+    title: "Procedimiento operativo estandarizado (SOP): qué es, estructura y ejemplo",
+    excerpt:
+      "Un SOP documenta cómo se hace una tarea para que el resultado no dependa de quién la haga: qué es, diferencias con manual y checklist, estructura, ejemplo completo y cuándo no vale la pena escribir uno.",
+    category: "procesos",
+    categoryLabel: "Procesos",
+    publishedAt: "2026-10-23",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "manual-de-procesos-y-procedimientos",
+    related: [
+      "manual-de-procesos-y-procedimientos",
+      "como-documentar-procesos-equipos",
+      "plantilla-para-documentar-procesos",
+      "tareas-recurrentes",
+    ],
+    seo: {
+      title: "Procedimiento operativo estandarizado (SOP): ejemplo | Hito",
+      description:
+        "Procedimiento operativo estandarizado (SOP): qué es, diferencia con manual y checklist, estructura de 8 secciones, ejemplo completo y errores que lo vuelven inútil.",
+      ogImageAlt: "Estructura de un SOP con propósito, alcance, pasos y registros.",
+    },
+  },
+  {
+    slug: "procedimiento-de-control-de-documentos",
+    title: "Procedimiento de control de documentos: qué debe incluir y ejemplo",
+    excerpt:
+      "El control de documentos garantiza que todos usen la versión vigente: qué es, los 7 elementos del procedimiento, codificación, listado maestro con ejemplo y los errores que lo hacen fallar.",
+    category: "procesos",
+    categoryLabel: "Procesos",
+    publishedAt: "2026-10-23",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "manual-de-procesos-y-procedimientos",
+    related: [
+      "manual-de-procesos-y-procedimientos",
+      "gestion-de-la-calidad-proyecto",
+      "control-de-cambios-proyecto",
+      "versionar-proyectos-con-git",
+    ],
+    seo: {
+      title: "Procedimiento de control de documentos: ejemplo | Hito",
+      description:
+        "Procedimiento de control de documentos: qué es, los 7 elementos que debe incluir, cómo codificar y versionar, listado maestro de documentos con ejemplo y errores comunes.",
+      ogImageAlt: "Listado maestro de documentos con código, versión y fecha de revisión.",
+    },
+  },
+  {
+    slug: "pmbok-7-guia-en-espanol",
+    title: "PMBOK 7 explicado: principios, dominios y qué cambió respecto al PMBOK 6",
+    excerpt:
+      "El PMBOK 7 dejó de ser una lista de procesos y pasó a principios y dominios de desempeño: qué es el PMBOK, los 12 principios, los 8 dominios, diferencias con la 6.ª edición, qué pasó con la 8.ª y cómo usarlo en un equipo pequeño.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-23",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: [
+      "metodologias-gestion-proyectos",
+      "waterfall-vs-agile",
+      "fases-de-un-proyecto",
+      "triple-restriccion-proyecto",
+    ],
+    seo: {
+      title: "PMBOK 7 explicado: principios y dominios, en español | Hito",
+      description:
+        "PMBOK 7 explicado en español: qué es la guía del PMI, los 12 principios, los 8 dominios de desempeño, diferencias con el PMBOK 6, qué trae la 8.ª edición y cómo aplicarlo.",
+      ogImageAlt:
+        "Principios y dominios de desempeño del PMBOK 7 frente a los procesos del PMBOK 6.",
+    },
+  },
+  {
+    slug: "gestion-de-equipos-remotos",
+    title:
+      "Gestión de equipos remotos: cómo coordinar proyectos sin estar en la misma oficina",
+    excerpt:
+      "Un equipo remoto no necesita más reuniones sino más claridad: trabajo asíncrono, un tablero como fuente de verdad, acuerdos de equipo, ritmo de comunicación y métricas de resultados, no de presencia.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-23",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "seguimiento-de-tareas-equipo",
+    related: [
+      "seguimiento-de-tareas-equipo",
+      "reuniones-de-status-eliminar",
+      "daily-standup-util",
+      "plan-de-comunicacion-proyecto",
+    ],
+    seo: {
+      title: "Gestión de equipos remotos: guía práctica | Hito",
+      description:
+        "Gestión de equipos remotos: trabajo asíncrono, tablero como fuente de verdad, acuerdos de equipo, ritmo de reuniones y cómo medir resultados en lugar de presencia.",
+      ogImageAlt: "Equipo remoto coordinado con un tablero de tareas compartido.",
     },
   },
 ];

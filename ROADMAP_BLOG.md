@@ -332,7 +332,18 @@ vocabulario que la gente busca por separado y cierra el ciclo nace/muere del act
     `presupuesto-de-proyecto`, `kickoff-de-proyecto`, `gestionar-proyectos-con-clientes`,
     `gestion-de-riesgos-simple`, `cierre-de-proyecto-checklist`, `acta-constitucion-proyecto`,
     `hitos-de-un-proyecto-ejemplos`, `definition-of-done`).
-- **Siguiente:** medir GSC 4–6 semanas después del deploy (Clusters 9–15 + Track A de 058).
+- **Fase 12 (2026-10-23, Keyword Planner):** 6 artículos definidos por el export de Keyword
+  Stats (semillas `pmbok`, `documentar procesos`, `equipos remotos`):
+  - **Cluster 16 — Documentación de procesos (4):** pilar `manual-de-procesos-y-procedimientos`
+    (featured; keyword `manual de proceso`, ~5.000/mes) + `plantilla-para-documentar-procesos`,
+    `procedimiento-operativo-estandarizado-sop`, `procedimiento-de-control-de-documentos`.
+    `como-documentar-procesos-equipos` ya cubría «documentar procesos», así que la plantilla toma
+    el ángulo Word/Excel para no canibalizarlo.
+  - **Sueltos (2):** `pmbok-7-guia-en-espanol` (pilar `metodologias-gestion-proyectos`) y
+    `gestion-de-equipos-remotos` (pilar `seguimiento-de-tareas-equipo`).
+  - Nota: la sección sobre PMBOK 8 se apoya en fuentes secundarias; verificar con el texto oficial
+    del PMI.
+- **Siguiente:** medir GSC 4–6 semanas después del deploy (Clusters 9–16 + Track A de 058).
   El blog queda en **121 artículos publicados** (109 + 12 de esta fase). Reescribir solo si el
   próximo export muestra quick wins de snippet (pos 8–15 con CTR 0), no posts nuevos.
 
