@@ -133,6 +133,21 @@ const loaders: Record<string, () => Promise<{ article: BlogArticle }>> = {
   "cronograma-de-actividades": () => import("./cronograma-de-actividades"),
   "microsoft-project-para-que-sirve": () => import("./microsoft-project-para-que-sirve"),
   openproject: () => import("./openproject"),
+  "alternativa-a-wrike": () => import("./alternativa-a-wrike"),
+  "alternativa-a-smartsheet": () => import("./alternativa-a-smartsheet"),
+  "alternativa-a-basecamp": () => import("./alternativa-a-basecamp"),
+  "alternativa-a-zoho-projects": () => import("./alternativa-a-zoho-projects"),
+  "alternativa-a-teamwork": () => import("./alternativa-a-teamwork"),
+  "alternativa-a-todoist": () => import("./alternativa-a-todoist"),
+  "alternativa-a-airtable": () => import("./alternativa-a-airtable"),
+  "manual-de-procesos-y-procedimientos": () => import("./manual-de-procesos-y-procedimientos"),
+  "plantilla-para-documentar-procesos": () => import("./plantilla-para-documentar-procesos"),
+  "procedimiento-operativo-estandarizado-sop": () =>
+    import("./procedimiento-operativo-estandarizado-sop"),
+  "procedimiento-de-control-de-documentos": () =>
+    import("./procedimiento-de-control-de-documentos"),
+  "pmbok-7-guia-en-espanol": () => import("./pmbok-7-guia-en-espanol"),
+  "gestion-de-equipos-remotos": () => import("./gestion-de-equipos-remotos"),
 };
 
 export async function loadArticle(slug: string): Promise<BlogArticle | undefined> {

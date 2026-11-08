@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/routes/paths";
 import { BLOG_ARTICLES_META } from "../data/articles-index";
 import { BLOG_CATEGORIES } from "../data/categories";
-import { BlogCard } from "../components/BlogCard";
+import { BlogListing } from "../components/BlogListing";
 import { CategoryBadge } from "../components/CategoryBadge";
 import type { BlogCategory } from "../types";
 
@@ -122,13 +122,7 @@ export function BlogIndexPage() {
       </div>
 
       {/* Articles grid */}
-      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {BLOG_ARTICLES_META.map((article) => (
-            <BlogCard key={article.slug} article={article} />
-          ))}
-        </div>
-      </div>
+      <BlogListing articles={BLOG_ARTICLES_META} />
     </SeoPage>
   );
 }

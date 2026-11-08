@@ -37,7 +37,11 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
     publishedAt: "2026-08-02",
     readingTime: "7 min",
     featured: false,
-    related: ["organizar-proyectos-tareas-jerarquia", "cierre-de-proyecto-checklist"],
+    related: [
+      "organizar-proyectos-tareas-jerarquia",
+      "cierre-de-proyecto-checklist",
+      "manual-de-procesos-y-procedimientos",
+    ],
     seo: {
       title: "Cómo documentar un proceso: SOPs y checklists | Hito",
       description:
@@ -2684,6 +2688,297 @@ const RAW_ARTICLES: BlogArticleMeta[] = [
       description:
         "Qué es OpenProject, qué trae la edición Community y cuándo conviene frente a Microsoft Project o un gestor local. Sin servidor, no arranca.",
       ogImageAlt: "OpenProject como gestor de proyectos de código abierto, con Gantt y tableros.",
+    },
+  },
+  {
+    slug: "alternativa-a-wrike",
+    title: "Alternativas a Wrike: cuándo el work management empresarial sobra",
+    excerpt:
+      "Wrike gana en recursos, proofing y reporting para equipos grandes. Alternativas reales cuando el motivo de salida es precio por asiento, curva de aprendizaje o un equipo que no llega a 20.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "alternativa-a-monday", "hito-vs-clickup"],
+    seo: {
+      title: "Alternativas a Wrike (2026) | Hito",
+      description:
+        "Alternativas a Wrike según el motivo de salida: precio por asiento, curva de aprendizaje, proofing que no se usa o datos que no pueden vivir en un SaaS empresarial.",
+      ogImageAlt: "Alternativas a Wrike por precio, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-smartsheet",
+    title: "Alternativas a Smartsheet: cuándo la hoja de cálculo con esteroides sobra",
+    excerpt:
+      "Smartsheet gana si tu equipo piensa en filas y columnas y necesita reporting empresarial. Alternativas reales cuando el motivo de salida es precio, la curva de fórmulas o un equipo que no necesita ese músculo.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "alternativa-a-wrike", "gestion-proyectos-excel"],
+    seo: {
+      title: "Alternativas a Smartsheet (2026) | Hito",
+      description:
+        "Alternativas a Smartsheet según el motivo de salida: precio por colaborador, la lógica de hoja de cálculo que no todos dominan, o datos que no pueden vivir en un SaaS.",
+      ogImageAlt: "Alternativas a Smartsheet por precio, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-basecamp",
+    title: "Alternativas a Basecamp: cuándo lo simple ya no alcanza",
+    excerpt:
+      "Basecamp gana en simplicidad y precio plano para agencias chicas. Alternativas reales cuando el motivo de salida es la falta de kanban, de dependencias entre tareas o de automatizaciones.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["software-gestion-proyectos", "hito-vs-trello", "gestion-proyectos-agencias"],
+    seo: {
+      title: "Alternativas a Basecamp (2026) | Hito",
+      description:
+        "Alternativas a Basecamp según el motivo de salida: falta de kanban visual, sin dependencias entre tareas, sin automatizaciones, o datos que no pueden vivir en un SaaS.",
+      ogImageAlt: "Alternativas a Basecamp por funciones, simplicidad y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-zoho-projects",
+    title: "Alternativas a Zoho Projects: cuándo el precio bajo no compensa",
+    excerpt:
+      "Zoho Projects gana en precio si ya vives en el ecosistema Zoho. Alternativas reales cuando el motivo de salida es una interfaz que se siente vieja, o que no usas ningún otro producto Zoho.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "software-gestion-proyectos-pymes",
+      "alternativa-a-basecamp",
+      "como-elegir-software-gestion-proyectos",
+    ],
+    seo: {
+      title: "Alternativas a Zoho Projects (2026) | Hito",
+      description:
+        "Alternativas a Zoho Projects según el motivo de salida: interfaz que se siente vieja, dependencia del ecosistema Zoho, o un equipo que no necesita ese paquete.",
+      ogImageAlt: "Alternativas a Zoho Projects por interfaz, independencia y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-teamwork",
+    title: "Alternativas a Teamwork: cuándo la facturación por horas sobra",
+    excerpt:
+      "Teamwork gana en agencias que facturan horas a clientes. Alternativas reales cuando el motivo de salida es el precio por asiento, un cliente que no necesita acceso, o que no facturas por hora.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "gestion-proyectos-agencias",
+      "alternativa-a-basecamp",
+      "cuanto-cobrar-por-un-proyecto",
+    ],
+    seo: {
+      title: "Alternativas a Teamwork (2026) | Hito",
+      description:
+        "Alternativas a Teamwork según el motivo de salida: precio por asiento, acceso de clientes que no necesitas, o que no facturas horas a terceros.",
+      ogImageAlt: "Alternativas a Teamwork por precio, facturación y control de datos.",
+    },
+  },
+  {
+    slug: "alternativa-a-todoist",
+    title: "Alternativas a Todoist para cuando el equipo ya no es una sola persona",
+    excerpt:
+      "Todoist gana en productividad personal. Alternativas reales cuando el motivo de salida es que necesitas kanban de equipo, dependencias entre tareas, o colaborar con clientes.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: [
+      "gestion-proyectos-freelancers",
+      "lista-tareas-vs-gestion-proyectos",
+      "app-gestion-tareas",
+    ],
+    seo: {
+      title: "Alternativas a Todoist (2026) | Hito",
+      description:
+        "Alternativas a Todoist cuando el equipo creció: kanban de equipo, dependencias entre tareas, colaboración con clientes externos. Sin perder la simplicidad que hizo bueno a Todoist.",
+      ogImageAlt: "Alternativas a Todoist por colaboración de equipo y estructura de proyecto.",
+    },
+  },
+  {
+    slug: "alternativa-a-airtable",
+    title:
+      "Alternativas a Airtable para gestionar proyectos: cuándo construir tu propia base sobra",
+    excerpt:
+      "Airtable gana cuando necesitas una base de datos flexible y nadie más te la va a dar hecha. Alternativas reales cuando el motivo de salida es que no quieres diseñar tu propio sistema de proyectos.",
+    category: "comparativas",
+    categoryLabel: "Comparativas",
+    publishedAt: "2026-10-22",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "software-gestion-proyectos",
+    related: ["gestion-proyectos-excel", "software-gestion-proyectos", "alternativa-a-wrike"],
+    seo: {
+      title: "Alternativas a Airtable para proyectos (2026) | Hito",
+      description:
+        "Alternativas a Airtable para gestión de proyectos: cuándo construir tu propia base de datos sobra y conviene una herramienta con opinión ya formada.",
+      ogImageAlt: "Alternativas a Airtable por estructura lista, precio y control de datos.",
+    },
+  },
+  {
+    slug: "manual-de-procesos-y-procedimientos",
+    title: "Manual de procesos y procedimientos: qué es, ejemplo y cómo armarlo",
+    excerpt:
+      "El manual de procesos y procedimientos reúne cómo trabaja tu empresa en un solo lugar: qué contiene, diferencia entre proceso, procedimiento e instrucción, estructura, ejemplo y cómo mantenerlo vivo.",
+    category: "procesos",
+    categoryLabel: "Procesos",
+    publishedAt: "2026-10-23",
+    readingTime: "9 min",
+    featured: true,
+    related: [
+      "como-documentar-procesos-equipos",
+      "plantilla-para-documentar-procesos",
+      "procedimiento-operativo-estandarizado-sop",
+      "procedimiento-de-control-de-documentos",
+    ],
+    seo: {
+      title: "Manual de procesos y procedimientos: ejemplo y guía | Hito",
+      description:
+        "Manual de procesos y procedimientos: qué es, en qué se diferencia un proceso de un procedimiento, estructura recomendada, ejemplo de una empresa pequeña y cómo mantenerlo actualizado.",
+      ogImageAlt: "Estructura de un manual de procesos y procedimientos con ejemplo.",
+    },
+  },
+  {
+    slug: "plantilla-para-documentar-procesos",
+    title: "Plantilla para documentar procesos (Word y Excel): ficha lista para copiar",
+    excerpt:
+      "Una ficha de proceso de una página para copiar en Word o Excel: los 10 campos que importan, ejemplo completo, inventario de procesos en tabla y cuándo esa plantilla se te queda corta.",
+    category: "plantillas",
+    categoryLabel: "Plantillas",
+    publishedAt: "2026-10-23",
+    readingTime: "7 min",
+    featured: false,
+    pillar: "manual-de-procesos-y-procedimientos",
+    related: [
+      "manual-de-procesos-y-procedimientos",
+      "como-documentar-procesos-equipos",
+      "procedimiento-operativo-estandarizado-sop",
+      "plantillas-gestion-proyectos",
+    ],
+    seo: {
+      title: "Plantilla para documentar procesos en Word y Excel | Hito",
+      description:
+        "Plantilla para documentar procesos en Word y Excel: ficha de proceso de una página con 10 campos, ejemplo completo, inventario de procesos y cuándo cambiar de herramienta.",
+      ogImageAlt: "Ficha de proceso con diez campos para documentar procesos en Word o Excel.",
+    },
+  },
+  {
+    slug: "procedimiento-operativo-estandarizado-sop",
+    title: "Procedimiento operativo estandarizado (SOP): qué es, estructura y ejemplo",
+    excerpt:
+      "Un SOP documenta cómo se hace una tarea para que el resultado no dependa de quién la haga: qué es, diferencias con manual y checklist, estructura, ejemplo completo y cuándo no vale la pena escribir uno.",
+    category: "procesos",
+    categoryLabel: "Procesos",
+    publishedAt: "2026-10-23",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "manual-de-procesos-y-procedimientos",
+    related: [
+      "manual-de-procesos-y-procedimientos",
+      "como-documentar-procesos-equipos",
+      "plantilla-para-documentar-procesos",
+      "tareas-recurrentes",
+    ],
+    seo: {
+      title: "Procedimiento operativo estandarizado (SOP): ejemplo | Hito",
+      description:
+        "Procedimiento operativo estandarizado (SOP): qué es, diferencia con manual y checklist, estructura de 8 secciones, ejemplo completo y errores que lo vuelven inútil.",
+      ogImageAlt: "Estructura de un SOP con propósito, alcance, pasos y registros.",
+    },
+  },
+  {
+    slug: "procedimiento-de-control-de-documentos",
+    title: "Procedimiento de control de documentos: qué debe incluir y ejemplo",
+    excerpt:
+      "El control de documentos garantiza que todos usen la versión vigente: qué es, los 7 elementos del procedimiento, codificación, listado maestro con ejemplo y los errores que lo hacen fallar.",
+    category: "procesos",
+    categoryLabel: "Procesos",
+    publishedAt: "2026-10-23",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "manual-de-procesos-y-procedimientos",
+    related: [
+      "manual-de-procesos-y-procedimientos",
+      "gestion-de-la-calidad-proyecto",
+      "control-de-cambios-proyecto",
+      "versionar-proyectos-con-git",
+    ],
+    seo: {
+      title: "Procedimiento de control de documentos: ejemplo | Hito",
+      description:
+        "Procedimiento de control de documentos: qué es, los 7 elementos que debe incluir, cómo codificar y versionar, listado maestro de documentos con ejemplo y errores comunes.",
+      ogImageAlt: "Listado maestro de documentos con código, versión y fecha de revisión.",
+    },
+  },
+  {
+    slug: "pmbok-7-guia-en-espanol",
+    title: "PMBOK 7 explicado: principios, dominios y qué cambió respecto al PMBOK 6",
+    excerpt:
+      "El PMBOK 7 dejó de ser una lista de procesos y pasó a principios y dominios de desempeño: qué es el PMBOK, los 12 principios, los 8 dominios, diferencias con la 6.ª edición, qué pasó con la 8.ª y cómo usarlo en un equipo pequeño.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-23",
+    readingTime: "9 min",
+    featured: false,
+    pillar: "metodologias-gestion-proyectos",
+    related: [
+      "metodologias-gestion-proyectos",
+      "waterfall-vs-agile",
+      "fases-de-un-proyecto",
+      "triple-restriccion-proyecto",
+    ],
+    seo: {
+      title: "PMBOK 7 explicado: principios y dominios, en español | Hito",
+      description:
+        "PMBOK 7 explicado en español: qué es la guía del PMI, los 12 principios, los 8 dominios de desempeño, diferencias con el PMBOK 6, qué trae la 8.ª edición y cómo aplicarlo.",
+      ogImageAlt:
+        "Principios y dominios de desempeño del PMBOK 7 frente a los procesos del PMBOK 6.",
+    },
+  },
+  {
+    slug: "gestion-de-equipos-remotos",
+    title:
+      "Gestión de equipos remotos: cómo coordinar proyectos sin estar en la misma oficina",
+    excerpt:
+      "Un equipo remoto no necesita más reuniones sino más claridad: trabajo asíncrono, un tablero como fuente de verdad, acuerdos de equipo, ritmo de comunicación y métricas de resultados, no de presencia.",
+    category: "gestion-proyectos",
+    categoryLabel: "Gestión de proyectos",
+    publishedAt: "2026-10-23",
+    readingTime: "8 min",
+    featured: false,
+    pillar: "seguimiento-de-tareas-equipo",
+    related: [
+      "seguimiento-de-tareas-equipo",
+      "reuniones-de-status-eliminar",
+      "daily-standup-util",
+      "plan-de-comunicacion-proyecto",
+    ],
+    seo: {
+      title: "Gestión de equipos remotos: guía práctica | Hito",
+      description:
+        "Gestión de equipos remotos: trabajo asíncrono, tablero como fuente de verdad, acuerdos de equipo, ritmo de reuniones y cómo medir resultados en lugar de presencia.",
+      ogImageAlt: "Equipo remoto coordinado con un tablero de tareas compartido.",
     },
   },
 ];
