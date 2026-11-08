@@ -153,6 +153,8 @@ export function newTask(title: string, areaId: string | null = null): Task {
     archived: false,
     estimate: null,
     actualHours: null,
+    completedAt: null,
+    completedAtEstimated: false,
     subtasks: [],
     attachments: [],
     links: [],

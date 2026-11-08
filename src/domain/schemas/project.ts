@@ -133,6 +133,12 @@ export const TaskSchema = z.object({
    * `estimate`: esa es la promesa, esta el hecho. `null` mientras no se
    * registre — no se deriva ni se autocompleta desde `estimate`. */
   actualHours: z.number().nullable().default(null),
+  /** Cuándo se cerró la tarea (spec 077 D3). Solo `domain/taskCompletion.ts`
+   * lo escribe; `null` mientras la tarea no esté hecha. */
+  completedAt: IsoDate.nullable().default(null),
+  /** `true` si `completedAt` fue reconstruido (migración v27 desde `updatedAt`)
+   * y no registrado en el momento del cierre. */
+  completedAtEstimated: z.boolean().default(false),
   subtasks: z.array(SubtaskSchema).default([]),
   attachments: z.array(AttachmentSchema).default([]),
   /** Links externos (Figma, Notion, ticket…) mostrados como botones bajo la descripción (spec 043). */

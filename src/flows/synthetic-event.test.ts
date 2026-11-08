@@ -54,6 +54,8 @@ const task: Task = {
   archived: false,
   estimate: null,
   actualHours: null,
+  completedAt: null,
+  completedAtEstimated: false,
   subtasks: [],
   attachments: [],
   links: [],

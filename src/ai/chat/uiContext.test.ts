@@ -24,6 +24,12 @@ describe("resolveUiContext", () => {
     });
   });
 
+  it("resuelve /app/gantt como sección gantt con label «Gantt» (spec 077 D25)", () => {
+    const ctx = resolveUiContext(input({ pathname: "/app/gantt", search: "?scale=year" }));
+    expect(ctx).toEqual({ kind: "section", section: "gantt" });
+    expect(summarizeUiContext(ctx)).toEqual({ primary: "Gantt" });
+  });
+
   it("resuelve proyecto en /app/projects/:id (CA-01.1)", () => {
     const getProject = () => ({
       id: "p1",

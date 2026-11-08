@@ -320,7 +320,7 @@ function enrichRelease(p: Project): void {
     { id: uuid(), title: "Implementar manejo de webhooks de la pasarela", done: false, createdAt: nowIso(), updatedAt: nowIso() },
   ];
 
-  p.tasks = kanban;
+  p.tasks = backdateDone(kanban);
 
   // Milestone «Beta cerrada» referencing the done tasks.
   const doneIds = kanban.filter((t) => t.status === "done").map((t) => t.id);
@@ -351,7 +351,7 @@ function enrichGrowth(p: Project): void {
     newItem("Criterio de éxito/fallo definido"),
   ];
   adq.checklists = [expCl];
-  p.tasks = tasks;
+  p.tasks = backdateDone(tasks);
 }
 
 /* ===================== factory wrappers ===================== */
@@ -435,6 +435,27 @@ function task(
   t.sprintId = sprintId;
   t.summary = title.slice(0, 140);
   return t;
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * Spec 077: la demo muestra historia. Cada tarea hecha se cierra hace `offset`
+ * días (1–20, repartido por su posición en el proyecto) y se crea 10 días
+ * antes de cerrarse, así nunca cierra antes de existir (F3). Muta y devuelve.
+ */
+function backdateDone(tasks: Project["tasks"]): Project["tasks"] {
+  const now = Date.now();
+  tasks.forEach((t, i) => {
+    if (t.status !== "done") return;
+    const offset = 1 + ((i * 7) % 20);
+    const closed = new Date(now - offset * DAY_MS).toISOString();
+    t.createdAt = new Date(now - (offset + 10) * DAY_MS).toISOString();
+    t.updatedAt = closed;
+    t.completedAt = closed;
+    t.completedAtEstimated = false;
+  });
+  return tasks;
 }
 
 export const DEMO_SCHEMA_VERSION = SCHEMA_VERSION;

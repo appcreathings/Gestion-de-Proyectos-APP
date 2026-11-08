@@ -365,6 +365,20 @@ describe("vistas (spec 075 D14)", () => {
   });
 });
 
+describe("boardProjectRank includeDone", () => {
+  it("ranks done projects only with includeDone", () => {
+    const a = newProject("A");
+    const b = { ...newProject("B"), status: "done" as const };
+    const c = newProject("C");
+    const def = boardProjectRank([], [a, b, c], {});
+    expect(def.has(b.id)).toBe(false);
+    const inc = boardProjectRank([], [a, b, c], {}, [], { includeDone: true });
+    expect(inc.get(a.id)).toBe(0);
+    expect(inc.get(b.id)).toBe(1);
+    expect(inc.get(c.id)).toBe(2);
+  });
+});
+
 function emptyQuery() {
   return {
     productIds: [],

@@ -144,7 +144,8 @@ export function GitHubProjectSyncButton({ project }: Props) {
         toast.error("No se pudo recibir del repo.");
         return;
       }
-      if (result.changed) await saveProject(result.project);
+      if (result.changed)
+        await saveProject(result.project, { trustIncomingCompletions: true });
       setLink(result.link);
       const att = "attachments" in result ? result.attachments : undefined;
       toast.success(
