@@ -41,7 +41,7 @@ export function StickyCta() {
       className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4 pointer-events-none"
     >
       <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
-        <Link to={ROUTES.dashboard}>
+        <Link to={ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="sticky">
           <Button size="sm" className="h-8 gap-2 px-3 text-sm">
             Abrir Hito
             <ArrowRight className="size-3.5" />

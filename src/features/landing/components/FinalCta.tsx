@@ -57,7 +57,7 @@ export function FinalCta() {
         </dl>
 
         <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-          <Link to={ROUTES.dashboard}>
+          <Link to={ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="cta-final">
             <Button size="lg" className="h-11 gap-2 px-6">
               Empezar gratis — sin registro
               <ArrowRight className="size-4" />

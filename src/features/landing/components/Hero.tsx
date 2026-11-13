@@ -61,7 +61,7 @@ export function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link to={ROUTES.dashboard}>
+            <Link to={ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="hero">
               <Button size="lg" className="h-11 gap-2 px-6">
                 Empezar ahora
                 <ArrowRight className="size-4" />

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { HitoMark } from "@/components/brand/HitoMark";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/routes/paths";
 import {
@@ -40,6 +41,11 @@ export function GitHubConnectPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [state, setState] = useState<PageState>({ kind: "idle" });
+
+  // Solo el hecho de que falló; el mensaje puede traer datos de la cuenta.
+  useEffect(() => {
+    if (state.kind === "error") track("github-conexion-error");
+  }, [state.kind]);
   const [bffReady, setBffReady] = useState(true);
   const [existingCount, setExistingCount] = useState(0);
 
@@ -133,6 +139,7 @@ export function GitHubConnectPage() {
         });
         if (cancelled) return;
         setState({ kind: "saved", login: result.data.githubLogin });
+        track("github-conectado");
         window.setTimeout(() => {
           navigate(`${ROUTES.integrations}?tab=github`, { replace: true });
         }, 1200);
@@ -179,6 +186,7 @@ export function GitHubConnectPage() {
       }
       // Autorizar es el camino por defecto: GitHub siempre vuelve al callback.
       // La pantalla de instalación solo se abre si se pide explícitamente.
+      track("github-conexion-iniciada", { modo: mode });
       window.location.assign(getGitHubConnectUrl({ mode }));
     } catch {
       setBffReady(false);
