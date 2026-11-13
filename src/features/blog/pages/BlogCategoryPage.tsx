@@ -69,7 +69,7 @@ export function BlogCategoryPage() {
             {description}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link to={ROUTES.dashboard}>
+            <Link to={ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="blog-categoria">
               <Button size="lg" className="h-11 gap-2 px-6">
                 Probar Hito — sin registro
                 <ArrowRight className="size-4" />

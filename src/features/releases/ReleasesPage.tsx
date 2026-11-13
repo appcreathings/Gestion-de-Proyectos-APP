@@ -118,7 +118,7 @@ export function ReleasesPage() {
                 <ArrowRight className="size-4" />
               </Button>
             </a>
-            <Link to={ROUTES.dashboard} className="sm:ml-2">
+            <Link to={ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="releases" className="sm:ml-2">
               <Button size="lg" className="h-11 gap-2 px-6">
                 Probar Hito
                 <ArrowRight className="size-4" />

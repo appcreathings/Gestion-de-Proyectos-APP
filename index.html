@@ -12,6 +12,15 @@
     />
     <link rel="modulepreload" href="/src/main.tsx" />
     <title>Hito — Gestión de proyectos, procesos (SOPs) y checklists 100% local-first</title>
+    <!-- Umami (sin cookies). Solo cuenta en hito.autos (no en local ni previews) y
+         descarta query strings: el callback de GitHub trae connectionId en la URL. -->
+    <script
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="d7d9f4f7-4c08-45dd-b4bc-a02a54176b47"
+      data-domains="hito.autos"
+      data-exclude-search="true"
+    ></script>
   </head>
   <body class="h-full">
     <div id="root" class="h-full"></div>

@@ -55,7 +55,7 @@ export function LandingNav() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link to={ROUTES.dashboard}>
+          <Link to={ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="nav">
             <Button size="sm" variant="ghost" className="h-8 gap-2 px-3 text-sm">
               Abrir Hito
               <span aria-hidden>→</span>

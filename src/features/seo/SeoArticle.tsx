@@ -99,7 +99,7 @@ export function SeoArticle({
           ¿Listo para tener el control de tus datos y proyectos?
         </h3>
         <div className="mt-6">
-          <Link to={cta.href ?? ROUTES.dashboard}>
+          <Link to={cta.href ?? ROUTES.dashboard} data-umami-event="abrir-app" data-umami-event-ubicacion="pagina-seo">
             <Button size="lg" className="h-11 gap-2 px-6">
               {cta.label}
               <ArrowRight className="size-4" />
